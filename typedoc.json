@@ -1,0 +1,9 @@
+{
+  "out": "./docs/",
+  "entryPoints": ["src/index.ts"],
+  "readme": "./README.md",
+  "name": "boogcord",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "theme": "default"
+}
