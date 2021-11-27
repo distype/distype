@@ -91,8 +91,8 @@ export interface GatewayOptions {
     intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`
     /**
      * Gateway sharding.
-     * Unless you are using a custom scaling solution (for example, running your bot accross numerous servers or processes), it is recommended that you leave all of these options undefined.
-     * If you wish to manually specify the number of shards to spawn accross your bot, you only need to set `GatewayOptions#sharding#totalBotShards`.
+     * Unless you are using a custom scaling solution (for example, running your bot across numerous servers or processes), it is recommended that you leave all of these options undefined.
+     * If you wish to manually specify the number of shards to spawn across your bot, you only need to set `GatewayOptions#sharding#totalBotShards`.
      * 
      * When using a `Client`, specified options are passed directly to the gateway manager, without manipulation.
      * 
