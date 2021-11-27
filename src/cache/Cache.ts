@@ -2,7 +2,7 @@ import { CacheTypes } from './CacheTypes';
 import { completeCacheOptions } from './completeCacheOptions';
 
 import Collection from '@discordjs/collection';
-import { GatewayReceivePayload, Snowflake } from 'discord-api-types';
+import { GatewayDispatchPayload, Snowflake } from 'discord-api-types';
 
 /**
  * Cache options.
@@ -99,7 +99,8 @@ export class Cache {
  * The built in cache event handler function.
  * @param cache The cache to update.
  * @param data A dispatched payload to handle.
+ * @internal
  */
-export const cacheEventHandler = (cache: Cache, data: GatewayReceivePayload): void => {
+export const cacheEventHandler = (cache: Cache, data: GatewayDispatchPayload): void => {
 
 };

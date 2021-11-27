@@ -12,11 +12,9 @@ import { EventEmitter } from '@jpbberry/typed-emitter';
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export interface GatewayEvents {
-    HELLO: DiscordTypes.GatewayHello
+    '*': DiscordTypes.GatewayDispatchPayload // eslint-disable-line quotes
     READY: DiscordTypes.GatewayReadyDispatch
     RESUMED: DiscordTypes.GatewayResumedDispatch
-    RECONNECT: DiscordTypes.GatewayReconnect
-    INVALID_SESSION: DiscordTypes.GatewayInvalidSession
     CHANNEL_CREATE: DiscordTypes.GatewayChannelCreateDispatch
     CHANNEL_UPDATE: DiscordTypes.GatewayChannelUpdateDispatch
     CHANNEL_DELETE: DiscordTypes.GatewayChannelDeleteDispatch
