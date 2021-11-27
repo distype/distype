@@ -17,24 +17,9 @@ export interface CacheTypes {
     }
 
     /**
-     * A cached emoji.
-     */
-    emoji: Partial<DiscordTypes.APIEmoji> & {
-        /**
-         * The emoji's ID.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-        /**
-         * The id of the guild (may be missing for some emoji objects received over gateway dispatches)
-         */
-        guild_id?: Snowflake
-    }
-
-    /**
      * A cached guild.
      */
-    guild: Partial<Omit<DiscordTypes.APIGuild, `channels` | `emojis` | `members` | `presences` | `roles` | `stickers` | `threads` | `voice_states`>> & {
+    guild: Partial<Omit<DiscordTypes.APIGuild, `channels` | `members` | `presences` | `roles` | `threads` | `voice_states`>> & {
         /**
          * The guild's ID.
          * Always included, regardless of cache control.
@@ -46,10 +31,6 @@ export interface CacheTypes {
          */
         channels?: Snowflake[],
         /**
-         * The guild's emojis, represented by their IDs.
-         */
-        emojis?: Snowflake[],
-        /**
          * The guild's members, represented by their IDs.
          */
         members?: Snowflake[],
@@ -57,10 +38,6 @@ export interface CacheTypes {
          * The guild's roles, represented by their IDs.
          */
         roles?: Snowflake[],
-        /**
-         * The guild's stickers, represented by their IDs.
-         */
-        stickers?: Snowflake[]
     }
 
     /**
@@ -108,17 +85,6 @@ export interface CacheTypes {
          * The id of the guild (may be missing for some role objects received over gateway dispatches)
          */
         guild_id?: Snowflake
-    }
-
-    /**
-     * A cached sticker.
-     */
-    sticker: Partial<DiscordTypes.APISticker> & {
-        /**
-         * The sticker's ID.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
     }
 
     /**

@@ -11,19 +11,16 @@ import { Snowflake } from 'discord-api-types';
 export interface CacheOptions {
     /**
      * Cache control.
-     * By default, nothing is cached. Setting a cache to "true" will cache all data.
-     * Defining an array will only cache those keys of the raw data.
+     * By default, nothing is cached. Cache is enabled on a per-key basis, meaning you specify what keys of data you wish to keep cached.
      * @default {}
      */
     cacheControl?: {
-        channels?: boolean | Array<keyof Omit<CacheTypes[`channel`], `id`>>
-        emojis?: boolean | Array<keyof Omit<CacheTypes[`emoji`], `id`>>
-        guilds?: boolean | Array<keyof Omit<CacheTypes[`guild`], `id`>>
-        members?: boolean | Array<keyof Omit<CacheTypes[`member`], `id` | `guild_id`>>
-        presences?: boolean | Array<keyof Omit<CacheTypes[`presence`], `id` | `guild_id`>>
-        roles?: boolean | Array<keyof Omit<CacheTypes[`role`], `id`>>
-        stickers?: boolean | Array<keyof Omit<CacheTypes[`sticker`], `id`>>
-        voiceStates?: boolean | Array<keyof Omit<CacheTypes[`voiceState`], `user_id` | `guild_id`>>
+        channels?: Array<keyof Omit<CacheTypes[`channel`], `id`>>
+        guilds?: Array<keyof Omit<CacheTypes[`guild`], `id`>>
+        members?: Array<keyof Omit<CacheTypes[`member`], `id` | `guild_id`>>
+        presences?: Array<keyof Omit<CacheTypes[`presence`], `id` | `guild_id`>>
+        roles?: Array<keyof Omit<CacheTypes[`role`], `id`>>
+        voiceStates?: Array<keyof Omit<CacheTypes[`voiceState`], `user_id` | `guild_id`>>
     }
     /**
      * A custom handler to use for updating the cache with incoming gateway events.
@@ -42,11 +39,6 @@ export class Cache {
      * A channel's key in the collection is its ID.
      */
     public channels?: Collection<Snowflake, CacheTypes[`channel`]>;
-    /**
-     * Cached emojis.
-     * An emoji's key in the collection is its ID.
-     */
-    public emojis?: Collection<Snowflake, CacheTypes[`emoji`]>;
     /**
      * Cached guilds.
      * A guild's key in the collection is its ID.
@@ -69,11 +61,6 @@ export class Cache {
      * A role's key in the collection is its ID.
      */
     public roles?: Collection<Snowflake, CacheTypes[`role`]>;
-    /**
-     * Cached stickers.
-     * A sticker's key in the collection is its ID.
-     */
-    public stickers?: Collection<Snowflake, CacheTypes[`sticker`]>;
     /**
      * Cached voice states.
      * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
