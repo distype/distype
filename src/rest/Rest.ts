@@ -51,6 +51,7 @@ export class Rest extends RestRequests {
     /**
      * The bot's token.
      */
+    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
     public readonly token: string;
 
     /**

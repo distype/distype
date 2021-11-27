@@ -154,11 +154,12 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Gateway shards.
      */
-    public shards: Collection<number, GatewayShard>;
+    public shards: Collection<number, GatewayShard> = new Collection();
 
     /**
      * The bot's token.
      */
+    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
     public readonly token: string;
 
     /**
