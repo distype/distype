@@ -2,6 +2,7 @@ import { Cache } from '../cache/Cache';
 import { completeGatewayOptions } from './completeGatewayOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { GatewayShard } from './GatewayShard';
+import { Rest } from '../rest/Rest';
 
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types';
@@ -169,12 +170,18 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     };
 
     /**
+     * The rest manager to use for fetching gateway endpoints.
+     */
+    private _rest: Rest;
+
+    /**
      * Create a gateway manager.
      * @param token The bot's token.
+     * @param rest The rest manager to use for fetching gateway endpoints.
      * @param options Gateway options.
      * @param cache The cache to update from incoming events.
      */
-    constructor(token: string, options: GatewayOptions = {}) {
+    constructor(token: string, rest: Rest, options: GatewayOptions = {}) {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
@@ -184,6 +191,8 @@ export class Gateway extends EventEmitter<GatewayEvents> {
             value: token,
             writable: false
         });
+
+        this._rest = rest;
 
         this.options = completeGatewayOptions(options);
     }
