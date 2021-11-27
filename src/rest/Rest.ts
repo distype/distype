@@ -8,7 +8,7 @@ import FormData from 'form-data';
 
 /**
  * Data for a request.
- * Used by the Rest#request() method.
+ * Used by the `Rest#request()` method.
  */
 export interface RestData {
     /**
