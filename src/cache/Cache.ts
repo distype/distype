@@ -91,7 +91,6 @@ export class Cache {
      */
     constructor(options: CacheOptions = {}) {
         this.options = completeCacheOptions(options);
-
     }
 }
 
