@@ -41,11 +41,11 @@ export interface GatewayEvents {
     GUILD_ROLE_CREATE: DiscordTypes.GatewayGuildRoleCreateDispatch
     GUILD_ROLE_UPDATE: DiscordTypes.GatewayGuildRoleUpdateDispatch
     GUILD_ROLE_DELETE: DiscordTypes.GatewayGuildRoleDeleteDispatch
-    GUILD_SCHEDULED_EVENT_CREATE: any
-    GUILD_SCHEDULED_EVENT_UPDATE: any
-    GUILD_SCHEDULED_EVENT_DELETE: any
-    GUILD_SCHEDULED_EVENT_USER_ADD: any
-    GUILD_SCHEDULED_EVENT_USER_REMOVE: any
+    // GUILD_SCHEDULED_EVENT_CREATE: any
+    // GUILD_SCHEDULED_EVENT_UPDATE: any
+    // GUILD_SCHEDULED_EVENT_DELETE: any
+    // GUILD_SCHEDULED_EVENT_USER_ADD: any
+    // GUILD_SCHEDULED_EVENT_USER_REMOVE: any
     INTEGRATION_CREATE: DiscordTypes.GatewayIntegrationCreateDispatch
     INTEGRATION_UPDATE: DiscordTypes.GatewayIntegrationUpdateDispatch
     INTEGRATION_DELETE: DiscordTypes.GatewayIntegrationDeleteDispatch
