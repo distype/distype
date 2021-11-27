@@ -12,7 +12,7 @@ export const completeGatewayOptions = (options: GatewayOptions): Gateway[`option
     else if (typeof options.intents === `bigint`) intents = Number(options.intents);
     else if (options.intents instanceof Array) intents = options.intents.reduce((p, c) => p | DiscordConstants.INTENTS[c], 0);
     else if (options.intents === `all`) intents = Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0);
-    else intents = Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0);
+    else intents = Object.values(DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
 
     return {
         cache: options.cache,
