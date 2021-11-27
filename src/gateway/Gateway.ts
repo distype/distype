@@ -89,6 +89,56 @@ export interface GatewayOptions {
      * @default `nonPrivileged`
      */
     intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`
+    /**
+     * Gateway sharding.
+     * Unless you are using a custom scaling solution (for example, running your bot accross numerous servers or processes), it is recommended that you leave all of these options undefined.
+     * If you wish to manually specify the number of shards to spawn accross your bot, you only need to set `GatewayOptions#sharding#totalBotShards`.
+     * 
+     * When using a `Client`, specified options are passed directly to the gateway manager, without manipulation.
+     * 
+     * When using a `ClientMaster` and `ClientWorker`, specified options are adapted internally to evenly distribute shards across workers.
+     * Because these options are specified on `ClientMaster`, they act as if they're dictating 1 `Client` / `Gateway` instance.
+     * This means that the options parameter of a `Gateway` instance may not exactly reflect the options specified.
+     * - `GatewayOptions#sharding#totalBotShards` - Stays the same.
+     * - `GatewayOptions#sharding#shards` - The amount of shards that will be spawned across all `ClientWorker`s. An individual `ClientWorker` will have `numWorkers / totalBotShards` shards. This option does not have to be a multiple of the number of workers spawned; a non-multiple being specified will simply result in some workers having 1 less shard.
+     * - `GatewayOptions#sharding#offset` - The amount of shards to offset spawning by across all `ClientWorker`s. This option is adapted to have the "first" `ClientWorker` start at the specified offset, then following workers will be offset by the initial offset in addition to the number of shards spawned in previous workers. This option is useful if you are scaling your bot across numerous servers or processes.
+     * 
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
+    sharding?: {
+        /**
+         * The number of shards the bot will have in total.
+         * This value is used for the `num_shards` property sent in the identify payload.
+         * **This is NOT the amount of shards the process will spawn. For that option, specify `GatewayOptions#sharding#shards`.**
+         * `auto` will use the recommended number from Discord.
+         * @default `auto`
+         */
+        totalBotShards?: number | `auto`
+        /**
+         * The amount of shards to spawn.
+         * By default, `GatewayOptions#sharding#totalBotShards` is used.
+         * `auto` will use the recommended number from Discord.
+         * Manually specifying `auto` assumes that there are no other `Gateway` instances.
+         */
+        shards?: number | `auto`
+        /**
+         * The number of shards to offset spawning by.
+         * 
+         * For example, with the following configuration, the last 2 of the total 4 shards would be spawned.
+         * ```ts
+         * const gatewayOptions: GatewayOptions = {
+         *   sharding: {
+         *     totalBotShards: 4,
+         *     shards: 2,
+         *     offset: 2
+         *   }
+         * }
+         * ```
+         * This option should only be manually defined if you are using a custom scaling solution externally from the library, to prevent unexpected behavior.
+         * @default 0
+         */
+        offset?: number
+    }
 }
 
 /**
@@ -115,6 +165,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
      */
     public options: GatewayOptions & {
         intents: number
+        sharding: Required<NonNullable<GatewayOptions[`sharding`]>>
     };
 
     /**
