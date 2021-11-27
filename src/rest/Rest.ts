@@ -1,4 +1,5 @@
 import { BoogcordConstants } from '../utils/BoogcordConstants';
+import { completeRestOptions } from './completeRestOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { RestRequests } from './RestRequests';
 
@@ -55,10 +56,16 @@ export class Rest extends RestRequests {
     /**
      * Options for the rest manager.
      */
-    public readonly options: RestOptions;
+    public readonly options: RestOptions & { version: number };
 
+    /**
+     * Create a rest manager.
+     * @param token The bot's token.
+     * @param options Rest options.
+     */
     constructor(token: string, options: RestOptions = {}) {
         super();
+
         if (!token) throw new TypeError(`A bot token must be specified`);
         Object.defineProperty(this, `token`, {
             configurable: false,
@@ -66,7 +73,8 @@ export class Rest extends RestRequests {
             value: token,
             writable: false
         });
-        this.options = options;
+
+        this.options = completeRestOptions(options);
     }
 
     public async request(method: RestMethod, route: string, options?: RestOptions & RestData): Promise<any> {
@@ -90,7 +98,7 @@ export class Rest extends RestRequests {
             ...this.options,
             ...options,
             data: usingFormData ? options.data : options.data,
-            baseURL: `${DiscordConstants.BASE_URL}/v${(options.version ?? this.options?.version) ?? 9}`,
+            baseURL: `${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`,
             url: route,
             method,
             headers

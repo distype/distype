@@ -1,8 +1,6 @@
-import { CacheOptions } from '../cache/Cache';
-import { GatewayOptions } from '../gateway/Gateway';
-import { RestOptions } from '../rest/Rest';
-
-import { EventEmitter } from '@jpbberry/typed-emitter';
+import { Cache, CacheOptions } from '../cache/Cache';
+import { Gateway, GatewayOptions } from '../gateway/Gateway';
+import { Rest, RestOptions } from '../rest/Rest';
 
 /**
  * Options for the client.
@@ -14,15 +12,33 @@ export interface ClientOptions {
 }
 
 /**
- * The discord client.
+ * The Discord client.
  */
-export class Client extends EventEmitter<{
+export class Client {
+    /**
+     * The client's cache.
+     */
+    public cache: Cache;
+    /**
+     * The client's gateway manager.
+     */
+    public gateway: Gateway;
+    /**
+     * The client's rest manager.
+     */
+    public rest: Rest;
 
-}> {
-    public readonly options: ClientOptions;
+    /**
+     * The bot's token.
+     */
+    public readonly token: string;
 
+    /**
+     * Create a client.
+     * @param token The bot's token.
+     * @param options Client options.
+     */
     constructor(token: string, options: ClientOptions = {}) {
-        super();
         if (!token) throw new TypeError(`A bot token must be specified`);
         Object.defineProperty(this, `token`, {
             configurable: false,
@@ -31,6 +47,11 @@ export class Client extends EventEmitter<{
             writable: false
         });
 
-        this.options = options;
+        this.cache = new Cache(options.cache);
+        this.gateway = new Gateway(token, {
+            cache: this.cache,
+            ...options.gateway
+        });
+        this.rest = new Rest(token, options.rest);
     }
 }

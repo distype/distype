@@ -1,3 +1,5 @@
+import { Cache } from '../cache/Cache';
+import { completeGatewayOptions } from './completeGatewayOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { GatewayShard } from './GatewayShard';
 
@@ -74,14 +76,21 @@ export interface GatewayEvents {
  */
 export interface GatewayOptions {
     /**
+     * The cache to update from incoming events.
+     * Automatically set when creating the client.
+     * Setting this manually may cause unexpected behavior.
+     */
+    cache?: Cache
+    /**
      * Gateway intents.
-     * `true` enables all intents.
      * A numerical value is simply passed to the identify payload.
      * An array of intent names will only enable the specified intents.
+     * `all` enables all intents, including privileged intents.
+     * `nonPrivileged` enables all non-privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
-     * 
+     * @default `nonPrivileged`
      */
-    intents?: true | number | Array<keyof typeof DiscordConstants.INTENTS>
+    intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`
 }
 
 /**
@@ -93,6 +102,40 @@ export interface GatewayOptions {
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 export class Gateway extends EventEmitter<GatewayEvents> {
+    /**
+     * Gateway shards.
+     */
     public shards: Collection<number, GatewayShard>;
 
+    /**
+     * The bot's token.
+     */
+    public readonly token: string;
+
+    /**
+     * Options for the gateway manager.
+     */
+    public options: GatewayOptions & {
+        intents: number
+    };
+
+    /**
+     * Create a gateway manager.
+     * @param token The bot's token.
+     * @param options Gateway options.
+     * @param cache The cache to update from incoming events.
+     */
+    constructor(token: string, options: GatewayOptions = {}) {
+        super();
+
+        if (!token) throw new TypeError(`A bot token must be specified`);
+        Object.defineProperty(this, `token`, {
+            configurable: false,
+            enumerable: false,
+            value: token,
+            writable: false
+        });
+
+        this.options = completeGatewayOptions(options);
+    }
 }

@@ -1,7 +1,8 @@
 import { CacheTypes } from './CacheTypes';
+import { completeCacheOptions } from './completeCacheOptions';
 
 import Collection from '@discordjs/collection';
-import { GatewayDispatchPayload, Snowflake } from 'discord-api-types';
+import { GatewayReceivePayload, Snowflake } from 'discord-api-types';
 
 /**
  * Cache options.
@@ -27,7 +28,7 @@ export interface CacheOptions {
      * A custom handler to use for updating the cache with incoming gateway events.
      * It is recommended that you leave this undefined, so that the built-in handler is used.
      */
-    cacheEventHandler?: (cache: Cache, payload: GatewayDispatchPayload) => void
+    cacheEventHandler?: typeof cacheEventHandler
 }
 
 /**
@@ -80,7 +81,25 @@ export class Cache {
     public voiceStates?: Collection<Snowflake, Collection<Snowflake, CacheTypes[`voiceState`]>>;
 
     /**
-     * Options for the cache.
+     * Options for the cache manager.
      */
     public readonly options: Required<CacheOptions>;
+
+    /**
+     * Create a cache manager.
+     * @param options Cache options.
+     */
+    constructor(options: CacheOptions = {}) {
+        this.options = completeCacheOptions(options);
+
+    }
 }
+
+/**
+ * The built in cache event handler function.
+ * @param cache The cache to update.
+ * @param data A dispatched payload to handle.
+ */
+export const cacheEventHandler = (cache: Cache, data: GatewayReceivePayload): void => {
+
+};

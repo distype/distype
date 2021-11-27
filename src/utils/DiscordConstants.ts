@@ -14,6 +14,7 @@ export const DiscordConstants = {
     CDN_URL: `https://cdn.discordapp.com`,
     /**
      * Gateway intents.
+     * Includes privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
     INTENTS: {
@@ -33,5 +34,13 @@ export const DiscordConstants = {
         DIRECT_MESSAGE_REACTIONS: 1 << 13,
         DIRECT_MESSAGE_TYPING: 1 << 14,
         GUILD_SCHEDULED_EVENTS: 1 << 16
+    },
+    /**
+     * Privileged gateway intents.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
+     */
+    PRIVILEGED_INTENTS: {
+        GUILD_MEMBERS: 1 << 1,
+        GUILD_PRESENCES: 1 << 8
     }
 } as const;
