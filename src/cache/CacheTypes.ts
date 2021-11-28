@@ -88,6 +88,17 @@ export interface CacheTypes {
     }
 
     /**
+     * A cached user.
+     */
+    user: Partial<DiscordTypes.APIUser> & {
+        /**
+         * The user's ID.
+         * Always included, regardless of cache control.
+         */
+        id: Snowflake
+    }
+
+    /**
      * A cached voice state.
      */
     voiceState: Partial<DiscordTypes.GatewayVoiceState> & {

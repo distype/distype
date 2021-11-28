@@ -20,6 +20,7 @@ export interface CacheOptions {
         members?: Array<keyof Omit<CacheTypes[`member`], `id` | `guild_id`>>
         presences?: Array<keyof Omit<CacheTypes[`presence`], `id` | `guild_id`>>
         roles?: Array<keyof Omit<CacheTypes[`role`], `id`>>
+        users?: Array<keyof Omit<CacheTypes[`user`], `id`>>
         voiceStates?: Array<keyof Omit<CacheTypes[`voiceState`], `user_id` | `guild_id`>>
     }
     /**
@@ -61,6 +62,11 @@ export class Cache {
      * A role's key in the collection is its ID.
      */
     public roles?: Collection<Snowflake, CacheTypes[`role`]>;
+    /**
+     * Cached users.
+     * A user's key in the collection is its ID.
+     */
+    public users?: Collection<Snowflake, CacheTypes[`user`]>;
     /**
      * Cached voice states.
      * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
