@@ -10,6 +10,10 @@ export interface CachedChannel extends Partial<DiscordTypes.APIChannel> {
      * Always included, regardless of cache control.
      */
     id: Snowflake
+    /**
+     * The id of the guild (may be missing for some channel objects received over gateway dispatches)
+     */
+    guild_id?: Snowflake
 }
 
 /**
