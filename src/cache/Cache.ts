@@ -1,4 +1,4 @@
-import { CacheTypes } from './CacheTypes';
+import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheTypes';
 import { cacheEventHandler } from './CacheHandler';
 import { completeCacheOptions } from './completeCacheOptions';
 
@@ -15,13 +15,13 @@ export interface CacheOptions {
      * @default {}
      */
     cacheControl?: {
-        channels?: Array<keyof Omit<CacheTypes[`channel`], `id`>>
-        guilds?: Array<keyof Omit<CacheTypes[`guild`], `id`>>
-        members?: Array<keyof Omit<CacheTypes[`member`], `id` | `guild_id`>>
-        presences?: Array<keyof Omit<CacheTypes[`presence`], `id` | `guild_id`>>
-        roles?: Array<keyof Omit<CacheTypes[`role`], `id`>>
-        users?: Array<keyof Omit<CacheTypes[`user`], `id`>>
-        voiceStates?: Array<keyof Omit<CacheTypes[`voiceState`], `id` | `guild_id`>>
+        channels?: Array<keyof Omit<CachedChannel, `id`>>
+        guilds?: Array<keyof Omit<CachedGuild, `id`>>
+        members?: Array<keyof Omit<CachedMember, `id` | `guild_id`>>
+        presences?: Array<keyof Omit<CachedPresence, `id` | `guild_id`>>
+        roles?: Array<keyof Omit<CachedRole, `id`>>
+        users?: Array<keyof Omit<CachedUser, `id`>>
+        voiceStates?: Array<keyof Omit<CachedVoiceState, `id` | `guild_id`>>
     }
     /**
      * A custom handler to use for updating the cache with incoming gateway events.
@@ -39,40 +39,40 @@ export class Cache {
      * Cached channels.
      * A channel's key in the collection is its ID.
      */
-    public channels?: Collection<Snowflake, CacheTypes[`channel`]>;
+    public channels?: Collection<Snowflake, CachedChannel>;
     /**
      * Cached guilds.
      * A guild's key in the collection is its ID.
      */
-    public guilds?: Collection<Snowflake, CacheTypes[`guild`]>;
+    public guilds?: Collection<Snowflake, CachedGuild>;
     /**
      * Cached members.
      * Each key of the parent cache is a guild ID, with its children being a collection of members in that guild.
      * A member's key in its collection is its user ID.
      */
-    public members?: Collection<Snowflake, Collection<Snowflake, CacheTypes[`member`]>>;
+    public members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
     /**
      * Cached presences.
      * Each key of the parent cache is a guild ID, with its children being a collection of presences in that guild.
      * A presence's key in its collection is its user's ID.
      */
-    public presences?: Collection<Snowflake, Collection<Snowflake, CacheTypes[`presence`]>>;
+    public presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
     /**
      * Cached roles.
      * A role's key in the collection is its ID.
      */
-    public roles?: Collection<Snowflake, CacheTypes[`role`]>;
+    public roles?: Collection<Snowflake, CachedRole>;
     /**
      * Cached users.
      * A user's key in the collection is its ID.
      */
-    public users?: Collection<Snowflake, CacheTypes[`user`]>;
+    public users?: Collection<Snowflake, CachedUser>;
     /**
      * Cached voice states.
      * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
      * A voice state's key in its collection is its user's ID.
      */
-    public voiceStates?: Collection<Snowflake, Collection<Snowflake, CacheTypes[`voiceState`]>>;
+    public voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
 
     /**
      * Options for the cache manager.
@@ -86,7 +86,6 @@ export class Cache {
     constructor(options: CacheOptions = {}) {
         this.options = completeCacheOptions(options);
 
-        (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>)
-            .forEach((key) => this[key] = new Collection<any, any>());
+        (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => this[key] = new Collection<any, any>());
     }
 }

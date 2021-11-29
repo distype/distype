@@ -2,115 +2,110 @@ import * as DiscordTypes from 'discord-api-types';
 import { Snowflake } from 'discord-api-types';
 
 /**
- * Cache types.
+ * A cached channel.
  */
-export interface CacheTypes {
+export interface CachedChannel extends Partial<DiscordTypes.APIChannel> {
     /**
-     * A cached channel.
+     * The channel's ID.
+     * Always included, regardless of cache control.
      */
-    channel: Partial<DiscordTypes.APIChannel> & {
-        /**
-         * The channel's ID.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-    }
+    id: Snowflake
+}
 
+/**
+ * A cached guild.
+ */
+export interface CachedGuild extends Partial<Omit<DiscordTypes.APIGuild, `channels` | `members` | `presences` | `roles` | `threads` | `voice_states`>> {
     /**
-     * A cached guild.
+     * The guild's ID.
+     * Always included, regardless of cache control.
      */
-    guild: Partial<Omit<DiscordTypes.APIGuild, `channels` | `members` | `presences` | `roles` | `threads` | `voice_states`>> & {
-        /**
-         * The guild's ID.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-        /**
-         * The guild's channels, represented by their IDs.
-         * Note that threads are also included.
-         */
-        channels?: Snowflake[],
-        /**
-         * The guild's members, represented by their IDs.
-         */
-        members?: Snowflake[],
-        /**
-         * The guild's roles, represented by their IDs.
-         */
-        roles?: Snowflake[],
-    }
+    id: Snowflake
+    /**
+     * The guild's channels, represented by their IDs.
+     * Note that threads are also included.
+     */
+    channels?: Snowflake[]
+    /**
+     * The guild's members, represented by their IDs.
+     */
+    members?: Snowflake[]
+    /**
+     * The guild's roles, represented by their IDs.
+     */
+    roles?: Snowflake[]
+}
 
+/**
+ * A cached member.
+ */
+export interface CachedMember extends Partial<DiscordTypes.APIGuildMember> {
     /**
-     * A cached member.
+     * The ID of the user the member object originates from.
+     * Always included, regardless of cache control.
      */
-    member: Partial<DiscordTypes.APIGuildMember> & {
-        /**
-         * The ID of the user the member object originates from.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-        /**
-         * The ID of the guild the member object originates from.
-         * Always included, regardless of cache control.
-         */
-        guild_id: Snowflake
-    }
+    id: Snowflake
+    /**
+     * The ID of the guild the member object originates from.
+     * Always included, regardless of cache control.
+     */
+    guild_id: Snowflake
+}
 
+/**
+ * A cached presence.
+ */
+export interface CachedPresence extends Partial<DiscordTypes.GatewayPresenceUpdateDispatchData> {
     /**
-     * A cached presence.
+     * The ID of the user the presence originates from.
+     * Always included, regardless of cache control.
      */
-    presence: Partial<DiscordTypes.GatewayPresenceUpdateDispatchData> & {
-        /**
-         * The ID of the user the presence originates from.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-        /**
-         * The ID of the guild the presence originates from.
-         * Always included, regardless of cache control.
-         */
-        guild_id: Snowflake
-    }
+    id: Snowflake
+    /**
+     * The ID of the guild the presence originates from.
+     * Always included, regardless of cache control.
+     */
+    guild_id: Snowflake
+}
 
+/**
+ * A cached role.
+ */
+export interface CachedRole extends Partial<DiscordTypes.APIRole> {
     /**
-     * A cached role.
+     * The role's ID.
+     * Always included, regardless of cache control.
      */
-    role: Partial<DiscordTypes.APIRole> & {
-        /**
-         * The role's ID.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-        /**
-         * The id of the guild (may be missing for some role objects received over gateway dispatches)
-         */
-        guild_id?: Snowflake
-    }
+    id: Snowflake
+    /**
+     * The id of the guild (may be missing for some role objects received over gateway dispatches)
+     */
+    guild_id?: Snowflake
+}
 
+/**
+ * A cached user.
+ */
+export interface CachedUser extends Partial<DiscordTypes.APIUser> {
     /**
-     * A cached user.
+     * The user's ID.
+     * Always included, regardless of cache control.
      */
-    user: Partial<DiscordTypes.APIUser> & {
-        /**
-         * The user's ID.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-    }
+    id: Snowflake
+}
 
+/**
+ * A cached voice state.
+ */
+export interface CachedVoiceState extends Partial<DiscordTypes.GatewayVoiceState> {
     /**
-     * A cached voice state.
+     * The ID of the user the voice state originates from.
+     * Always included, regardless of cache control.
      */
-    voiceState: Partial<DiscordTypes.GatewayVoiceState> & {
-        /**
-         * The ID of the user the voice state originates from.
-         * Always included, regardless of cache control.
-         */
-        id: Snowflake
-        /**
-         * The ID of the guild the voice state originates from.
-         * Always included, regardless of cache control.
-         */
-        guild_id: Snowflake
-    }
+    id: Snowflake
+    /**
+     * The ID of the guild the voice state originates from.
+     * Always included, regardless of cache control.
+     */
+    guild_id: Snowflake
 }
