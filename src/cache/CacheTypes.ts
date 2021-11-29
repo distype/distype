@@ -106,7 +106,7 @@ export interface CacheTypes {
          * The ID of the user the voice state originates from.
          * Always included, regardless of cache control.
          */
-        user_id: Snowflake
+        id: Snowflake
         /**
          * The ID of the guild the voice state originates from.
          * Always included, regardless of cache control.

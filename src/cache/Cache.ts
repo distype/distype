@@ -21,7 +21,7 @@ export interface CacheOptions {
         presences?: Array<keyof Omit<CacheTypes[`presence`], `id` | `guild_id`>>
         roles?: Array<keyof Omit<CacheTypes[`role`], `id`>>
         users?: Array<keyof Omit<CacheTypes[`user`], `id`>>
-        voiceStates?: Array<keyof Omit<CacheTypes[`voiceState`], `user_id` | `guild_id`>>
+        voiceStates?: Array<keyof Omit<CacheTypes[`voiceState`], `id` | `guild_id`>>
     }
     /**
      * A custom handler to use for updating the cache with incoming gateway events.
@@ -85,5 +85,8 @@ export class Cache {
      */
     constructor(options: CacheOptions = {}) {
         this.options = completeCacheOptions(options);
+
+        (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>)
+            .forEach((key) => this[key] = new Collection<any, any>());
     }
 }
