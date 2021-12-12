@@ -17,11 +17,11 @@ export interface CacheOptions {
     cacheControl?: {
         channels?: Array<keyof Omit<CachedChannel, `id`>>
         guilds?: Array<keyof Omit<CachedGuild, `id`>>
-        members?: Array<keyof Omit<CachedMember, `id` | `guild_id`>>
-        presences?: Array<keyof Omit<CachedPresence, `id` | `guild_id`>>
+        members?: Array<keyof Omit<CachedMember, `user_id` | `guild_id`>>
+        presences?: Array<keyof Omit<CachedPresence, `user_id` | `guild_id`>>
         roles?: Array<keyof Omit<CachedRole, `id`>>
         users?: Array<keyof Omit<CachedUser, `id`>>
-        voiceStates?: Array<keyof Omit<CachedVoiceState, `id` | `guild_id`>>
+        voiceStates?: Array<keyof Omit<CachedVoiceState, `user_id` | `guild_id`>>
     }
     /**
      * A custom handler to use for updating the cache with incoming gateway events.

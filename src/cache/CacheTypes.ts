@@ -48,7 +48,7 @@ export interface CachedMember extends Partial<DiscordTypes.APIGuildMember> {
      * The ID of the user the member object originates from.
      * Always included, regardless of cache control.
      */
-    id: Snowflake
+    user_id: Snowflake
     /**
      * The ID of the guild the member object originates from.
      * Always included, regardless of cache control.
@@ -64,7 +64,7 @@ export interface CachedPresence extends Partial<DiscordTypes.GatewayPresenceUpda
      * The ID of the user the presence originates from.
      * Always included, regardless of cache control.
      */
-    id: Snowflake
+    user_id: Snowflake
     /**
      * The ID of the guild the presence originates from.
      * Always included, regardless of cache control.
@@ -106,7 +106,7 @@ export interface CachedVoiceState extends Partial<DiscordTypes.GatewayVoiceState
      * The ID of the user the voice state originates from.
      * Always included, regardless of cache control.
      */
-    id: Snowflake
+    user_id: Snowflake
     /**
      * The ID of the guild the voice state originates from.
      * Always included, regardless of cache control.
