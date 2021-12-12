@@ -86,6 +86,8 @@ export class Cache {
     constructor(options: CacheOptions = {}) {
         this.options = completeCacheOptions(options);
 
-        (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => this[key] = new Collection<any, any>());
+        (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => {
+            if (this.options.cacheControl[key] instanceof Array && this.options.cacheControl[key]!.length > 0) this[key] = new Collection<any, any>();
+        });
     }
 }
