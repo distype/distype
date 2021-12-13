@@ -2,7 +2,6 @@ import { Cache } from './Cache';
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheTypes';
 import { GatewayEvents } from '../gateway/Gateway';
 
-import { Snowflake } from 'discord-api-types';
 import Collection from '@discordjs/collection';
 
 /**
@@ -11,126 +10,204 @@ import Collection from '@discordjs/collection';
  * @param data A dispatched payload to handle.
  * @internal
  */
-export const cacheEventHandler = (cache: Cache, data: GatewayEvents[keyof GatewayEvents]): void => {
-    const enabled = (Object.keys(cache.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).filter((control) => cache.options.cacheControl[control] instanceof Array && control.length > 0 && cache[control]);
+export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void => {
+    const enabled = (Object.keys(cache.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).filter((control) => cache.options.cacheControl[control] instanceof Array && cache[control]);
     if (enabled.length === 0) return;
 
     switch (data.t) {
         case `READY`: {
+            if (enabled.includes(`guilds`)) data.d.guilds.forEach((guild) => updateGuild(cache, false, guild));
+            if (enabled.includes(`users`)) updateUser(cache, false, data.d.user);
             break;
         }
         case `RESUMED`: {
             break;
         }
         case `CHANNEL_CREATE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, false, data.d);
+            if (enabled.includes(`guilds`) && data.d.guild_id) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
+            });
             break;
         }
         case `CHANNEL_UPDATE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, false, data.d);
             break;
         }
         case `CHANNEL_DELETE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, true, data.d);
+            if (enabled.includes(`guilds`) && data.d.guild_id) cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
         case `CHANNEL_PINS_UPDATE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, false, {
+                ...data.d,
+                id: data.d.channel_id
+            });
             break;
         }
         case `THREAD_CREATE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, false, data.d);
+            if (enabled.includes(`guilds`) && data.d.guild_id) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
+            });
             break;
         }
         case `THREAD_UPDATE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, false, data.d);
             break;
         }
         case `THREAD_DELETE`: {
+            if (enabled.includes(`channels`)) updateChannel(cache, true, data.d);
+            if (enabled.includes(`guilds`) && data.d.guild_id) cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
-        case `THREAD_LIST_SYNC`: {
-            break;
-        }
-        case `THREAD_MEMBER_UPDATE`: {
-            break;
-        }
+        case `THREAD_LIST_SYNC`:
+        case `THREAD_MEMBER_UPDATE`:
         case `THREAD_MEMBERS_UPDATE`: {
             break;
         }
-        case `GUILD_CREATE`: {
-            break;
-        }
+        case `GUILD_CREATE`:
         case `GUILD_UPDATE`: {
+            if (enabled.includes(`channels`)) data.d.channels?.forEach((channel) => updateChannel(cache, false, channel));
+            if (enabled.includes(`guilds`)) updateGuild(cache, false, {
+                ...data.d,
+                channels: data.d.channels?.map((channel) => channel.id),
+                members: data.d.members?.filter((member) => member.user).map((member) => member.user!.id),
+                roles: data.d.roles.map((role) => role.id)
+            });
+            if (enabled.includes(`members`)) data.d.members?.filter((member) => member.user).map((member) => updateMember(cache, false, {
+                ...member,
+                user_id: member.user!.id,
+                guild_id: data.d.id
+            }));
+            if (enabled.includes(`presences`)) data.d.presences?.forEach((presence) => updatePresence(cache, false, {
+                ...presence,
+                user_id: presence.user.id
+            }));
+            if (enabled.includes(`roles`)) data.d.roles.forEach((role) => updateRole(cache, false, role));
+            if (enabled.includes(`voiceStates`)) data.d.voice_states?.forEach((voiceState) => updateVoiceState(cache, false, {
+                ...voiceState,
+                guild_id: data.d.id
+            }));
             break;
         }
         case `GUILD_DELETE`: {
+            if (data.d.unavailable) {
+                if (enabled.includes(`guilds`)) updateGuild(cache, false, data.d);
+            } else {
+                if (enabled.includes(`channels`)) cache.channels?.sweep((channel) => channel.guild_id === data.d.id);
+                if (enabled.includes(`guilds`)) updateGuild(cache, true, data.d);
+                if (enabled.includes(`members`)) cache.members?.delete(data.d.id);
+                if (enabled.includes(`presences`)) cache.presences?.delete(data.d.id);
+                if (enabled.includes(`roles`)) cache.roles?.sweep((role) => role.guild_id === data.d.id);
+                if (enabled.includes(`voiceStates`)) cache.voiceStates?.delete(data.d.id);
+            }
             break;
         }
-        case `GUILD_BAN_ADD`: {
-            break;
-        }
+        case `GUILD_BAN_ADD`:
         case `GUILD_BAN_REMOVE`: {
             break;
         }
         case `GUILD_EMOJIS_UPDATE`: {
+            if (enabled.includes(`guilds`)) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                emojis: data.d.emojis
+            });
             break;
         }
         case `GUILD_STICKERS_UPDATE`: {
+            if (enabled.includes(`guilds`)) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                stickers: data.d.stickers
+            });
             break;
         }
         case `GUILD_INTEGRATIONS_UPDATE`: {
             break;
         }
         case `GUILD_MEMBER_ADD`: {
+            if (enabled.includes(`members`) && data.d.user) updateMember(cache, false, {
+                ...data.d,
+                user_id: data.d.user.id
+            });
+            if (enabled.includes(`guilds`) && data.d.user) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                members: [data.d.user.id, ...(cache.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user!.id) ?? [])]
+            });
             break;
         }
         case `GUILD_MEMBER_REMOVE`: {
+            if (enabled.includes(`members`)) updateMember(cache, true, {
+                ...data.d,
+                user_id: data.d.user.id
+            });
+            if (enabled.includes(`guilds`)) cache.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id);
             break;
         }
         case `GUILD_MEMBER_UPDATE`: {
+            if (enabled.includes(`members`)) updateMember(cache, false, {
+                ...data.d,
+                user_id: data.d.user.id,
+                joined_at: data.d.joined_at ?? undefined
+            });
             break;
         }
         case `GUILD_MEMBERS_CHUNK`: {
             break;
         }
         case `GUILD_ROLE_CREATE`: {
+            if (enabled.includes(`roles`)) updateRole(cache, false, {
+                ...data.d.role,
+                guild_id: data.d.guild_id
+            });
+            if (enabled.includes(`guilds`)) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                roles: [data.d.role.id, ...(cache.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role.id) ?? [])]
+            });
             break;
         }
         case `GUILD_ROLE_UPDATE`: {
+            if (enabled.includes(`roles`)) updateRole(cache, false, {
+                ...data.d.role,
+                guild_id: data.d.guild_id
+            });
             break;
         }
         case `GUILD_ROLE_DELETE`: {
+            if (enabled.includes(`roles`)) updateRole(cache, true, {
+                id: data.d.role_id,
+                guild_id: data.d.guild_id
+            });
+            if (enabled.includes(`guilds`)) cache.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role_id);
             break;
         }
-        case `GUILD_SCHEDULED_EVENT_CREATE`: {
-            break;
-        }
+        case `GUILD_SCHEDULED_EVENT_CREATE`:
         case `GUILD_SCHEDULED_EVENT_UPDATE`: {
+            if (enabled.includes(`guilds`)) updateGuild(cache, false, {
+                id: data.d.guild_id,
+                guild_scheduled_events: [data.d, ...(cache.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id) ?? [])]
+            });
             break;
         }
         case `GUILD_SCHEDULED_EVENT_DELETE`: {
+            if (enabled.includes(`guilds`)) cache.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id);
             break;
         }
-        case `GUILD_SCHEDULED_EVENT_USER_ADD`: {
-            break;
-        }
-        case `GUILD_SCHEDULED_EVENT_USER_REMOVE`: {
-            break;
-        }
-        case `INTEGRATION_CREATE`: {
-            break;
-        }
-        case `INTEGRATION_UPDATE`: {
-            break;
-        }
-        case `INTEGRATION_DELETE`: {
-            break;
-        }
-        case `INTERACTION_CREATE`: {
-            break;
-        }
-        case `INVITE_CREATE`: {
-            break;
-        }
+        case `GUILD_SCHEDULED_EVENT_USER_ADD`:
+        case `GUILD_SCHEDULED_EVENT_USER_REMOVE`:
+        case `INTEGRATION_CREATE`:
+        case `INTEGRATION_UPDATE`:
+        case `INTEGRATION_DELETE`:
+        case `INTERACTION_CREATE`:
+        case `INVITE_CREATE`:
         case `INVITE_DELETE`: {
             break;
         }
         case `MESSAGE_CREATE`: {
+
             break;
         }
         case `MESSAGE_DELETE`: {
@@ -185,149 +262,131 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[keyof Gatewa
  * Update a channel.
  * @param cache The cache to update.
  * @param remove If the channel should be removed from the cache.
- * @param id The channel's ID.
  * @param data Data to update with.
  */
-const updateChannel = (cache: Cache, remove: boolean, id: Snowflake, data?: CachedChannel): void => {
-    if (remove) return void cache.channels!.delete(id);
+const updateChannel = (cache: Cache, remove: boolean, data: CachedChannel): void => {
+    if (remove) return void cache.channels!.delete(data.id);
 
-    if (!cache.channels!.has(id)) cache.channels!.set(id, { id });
+    if (!cache.channels!.has(data.id)) cache.channels!.set(data.id, { id: data.id });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedChannel>)
-        .filter((key) => data[key] !== undefined && cache.options.cacheControl.channels?.includes(key as any))
-        .forEach((key) => (cache.channels!.get(id)![key] as any) = data[key]);
+        .filter((key) => data[key] !== undefined && (key === `guild_id` || cache.options.cacheControl.channels?.includes(key as any)))
+        .forEach((key) => (cache.channels!.get(data.id)![key] as any) = data[key]);
 };
 
 /**
  * Update a guild.
  * @param cache The cache to update.
  * @param remove If the guild should be removed from the cache.
- * @param id The guild's ID.
  * @param data Data to update with.
  */
-const updateGuild = (cache: Cache, remove: boolean, id: Snowflake, data?: CachedGuild): void => {
-    if (remove) return void cache.guilds!.delete(id);
+const updateGuild = (cache: Cache, remove: boolean, data: CachedGuild): void => {
+    if (remove) return void cache.guilds!.delete(data.id);
 
-    if (!cache.guilds!.has(id)) cache.guilds!.set(id, { id });
+    if (!cache.guilds!.has(data.id)) cache.guilds!.set(data.id, { id: data.id });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedGuild>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.guilds?.includes(key as any))
-        .forEach((key) => (cache.guilds!.get(id)![key] as any) = data[key]);
+        .forEach((key) => (cache.guilds!.get(data.id)![key] as any) = data[key]);
 };
 
 /**
  * Update a member.
  * @param cache The cache to update.
  * @param remove If the member should be removed from the cache.
- * @param userId The user's ID.
- * @param guildId The guild ID.
  * @param data Data to update with.
  */
-const updateMember = (cache: Cache, remove: boolean, userId: Snowflake, guildId: Snowflake, data?: CachedMember): void => {
+const updateMember = (cache: Cache, remove: boolean, data: CachedMember): void => {
     if (remove) {
-        cache.members!.get(guildId)?.delete(userId);
-        if (cache.members!.get(guildId)?.size === 0) cache.members!.delete(guildId);
+        cache.members!.get(data.guild_id)?.delete(data.user_id);
+        if (cache.members!.get(data.guild_id)?.size === 0) cache.members!.delete(data.guild_id);
         return;
     }
 
-    if (!cache.members!.has(guildId)) cache.members!.set(guildId, new Collection());
-    if (!cache.members!.get(guildId)?.has(userId)) cache.members!.get(guildId)!.set(userId, {
-        user_id: userId, guild_id: guildId
+    if (!cache.members!.has(data.guild_id)) cache.members!.set(data.guild_id, new Collection());
+    if (!cache.members!.get(data.guild_id)?.has(data.user_id)) cache.members!.get(data.guild_id)!.set(data.user_id, {
+        user_id: data.user_id, guild_id: data.guild_id
     });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedMember>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.members?.includes(key as any))
-        .forEach((key) => (cache.members!.get(guildId)!.get(userId)![key] as any) = data[key]);
+        .forEach((key) => (cache.members!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key]);
 };
 
 /**
  * Update a presence.
  * @param cache The cache to update.
  * @param remove If the presence should be removed from the cache.
- * @param userId The user's ID.
- * @param guildId The guild ID.
  * @param data Data to update with.
  */
-const updatePresence = (cache: Cache, remove: boolean, userId: Snowflake, guildId: Snowflake, data?: CachedPresence): void => {
+const updatePresence = (cache: Cache, remove: boolean, data: CachedPresence): void => {
     if (remove) {
-        cache.presences!.get(guildId)?.delete(userId);
-        if (cache.presences!.get(guildId)?.size === 0) cache.presences!.delete(guildId);
+        cache.presences!.get(data.guild_id)?.delete(data.user_id);
+        if (cache.presences!.get(data.guild_id)?.size === 0) cache.presences!.delete(data.guild_id);
         return;
     }
 
-    if (!cache.presences!.has(guildId)) cache.presences!.set(guildId, new Collection());
-    if (!cache.presences!.get(guildId)?.has(userId)) cache.presences!.get(guildId)!.set(userId, {
-        user_id: userId, guild_id: guildId
+    if (!cache.presences!.has(data.guild_id)) cache.presences!.set(data.guild_id, new Collection());
+    if (!cache.presences!.get(data.guild_id)?.has(data.user_id)) cache.presences!.get(data.guild_id)!.set(data.user_id, {
+        user_id: data.user_id, guild_id: data.guild_id
     });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedPresence>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.presences?.includes(key as any))
-        .forEach((key) => (cache.presences!.get(guildId)!.get(userId)![key] as any) = data[key]);
+        .forEach((key) => (cache.presences!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key]);
 };
 
 /**
  * Update a role.
  * @param cache The cache to update.
  * @param remove If the role should be removed from the cache.
- * @param id The role's ID.
  * @param data Data to update with.
  */
-const updateRole = (cache: Cache, remove: boolean, id: Snowflake, data?: CachedRole): void => {
-    if (remove) return void cache.roles!.delete(id);
+const updateRole = (cache: Cache, remove: boolean, data: CachedRole): void => {
+    if (remove) return void cache.roles!.delete(data.id);
 
-    if (!cache.roles!.has(id)) cache.roles!.set(id, { id });
+    if (!cache.roles!.has(data.id)) cache.roles!.set(data.id, { id: data.id });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedRole>)
-        .filter((key) => data[key] !== undefined && cache.options.cacheControl.roles?.includes(key as any))
-        .forEach((key) => (cache.roles!.get(id)![key] as any) = data[key]);
+        .filter((key) => data[key] !== undefined && (key === `guild_id` || cache.options.cacheControl.roles?.includes(key as any)))
+        .forEach((key) => (cache.roles!.get(data.id)![key] as any) = data[key]);
 };
 
 /**
  * Update a user.
  * @param cache The cache to update.
  * @param remove If the user should be removed from the cache.
- * @param id The user's ID.
  * @param data Data to update with.
  */
-const updateUser = (cache: Cache, remove: boolean, id: Snowflake, data?: CachedUser): void => {
-    if (remove) return void cache.users!.delete(id);
+const updateUser = (cache: Cache, remove: boolean, data: CachedUser): void => {
+    if (remove) return void cache.users!.delete(data.id);
 
-    if (!cache.users!.has(id)) cache.users!.set(id, { id });
+    if (!cache.users!.has(data.id)) cache.users!.set(data.id, { id: data.id });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedUser>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.users?.includes(key as any))
-        .forEach((key) => (cache.users!.get(id)![key] as any) = data[key]);
+        .forEach((key) => (cache.users!.get(data.id)![key] as any) = data[key]);
 };
 
 /**
  * Update a voice state.
  * @param cache The cache to update.
  * @param remove If the voice state should be removed from the cache.
- * @param userId The user's ID.
- * @param guildId The guild's ID.
  * @param data Data to update with.
  */
-const updateVoiceState = (cache: Cache, remove: boolean, userId: Snowflake, guildId: Snowflake, data?: CachedVoiceState): void => {
+const updateVoiceState = (cache: Cache, remove: boolean, data: CachedVoiceState): void => {
     if (remove) {
-        cache.voiceStates!.get(guildId)?.delete(userId);
-        if (cache.voiceStates!.get(guildId)?.size === 0) cache.voiceStates!.delete(guildId);
+        cache.voiceStates!.get(data.guild_id)?.delete(data.user_id);
+        if (cache.voiceStates!.get(data.guild_id)?.size === 0) cache.voiceStates!.delete(data.guild_id);
         return;
     }
 
-    if (!cache.voiceStates!.has(guildId)) cache.voiceStates!.set(guildId, new Collection());
-    if (!cache.voiceStates!.get(guildId)?.has(userId)) cache.voiceStates!.get(guildId)!.set(userId
-        , {
-            user_id: userId, guild_id: guildId
-        });
+    if (!cache.voiceStates!.has(data.guild_id)) cache.voiceStates!.set(data.guild_id, new Collection());
+    if (!cache.voiceStates!.get(data.guild_id)?.has(data.user_id)) cache.voiceStates!.get(data.guild_id)!.set(data.user_id, {
+        user_id: data.user_id, guild_id: data.guild_id
+    });
 
-    if (!data) return;
     (Object.keys(data) as Array<keyof CachedVoiceState>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.voiceStates?.includes(key as any))
-        .forEach((key) => (cache.voiceStates!.get(guildId)!.get(userId)![key] as any) = data[key]);
+        .forEach((key) => (cache.voiceStates!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key]);
 };
