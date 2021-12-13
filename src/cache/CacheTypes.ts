@@ -39,6 +39,7 @@ export interface CachedGuild extends Partial<Omit<DiscordTypes.APIGuild, `channe
     channels?: Snowflake[]
     /**
      * The guild's members, represented by their IDs.
+     * Note that this field will not update if you do not have the GUILD_MEMBERS intent enabled.
      */
     members?: Snowflake[]
     /**
