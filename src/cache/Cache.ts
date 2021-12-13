@@ -12,14 +12,16 @@ export interface CacheOptions {
     /**
      * Cache control.
      * By default, nothing is cached. Cache is enabled on a per-key basis, meaning you specify what keys of data you wish to keep cached.
+     * Keep in mind that even if you select to cache data, that data may not be available until specific gateway dispatches are received.
+     * Defining an empty array (`[]`) will only cache the required data.
      * @default {}
      */
     cacheControl?: {
-        channels?: Array<keyof Omit<CachedChannel, `id`>>
+        channels?: Array<keyof Omit<CachedChannel, `id` | `guild_id`>>
         guilds?: Array<keyof Omit<CachedGuild, `id`>>
         members?: Array<keyof Omit<CachedMember, `user_id` | `guild_id`>>
         presences?: Array<keyof Omit<CachedPresence, `user_id` | `guild_id`>>
-        roles?: Array<keyof Omit<CachedRole, `id`>>
+        roles?: Array<keyof Omit<CachedRole, `id` | `guild_id`>>
         users?: Array<keyof Omit<CachedUser, `id`>>
         voiceStates?: Array<keyof Omit<CachedVoiceState, `user_id` | `guild_id`>>
     }
@@ -33,6 +35,9 @@ export interface CacheOptions {
 /**
  * The cache manager.
  * Contains cached data, and handles dispatched gateway events to keep the cache up to date.
+ * Keep in mind that there are many caveats to the gateway, and that real-world cache data may not directly reflect your cache control options.
+ * It is recommended that you research intents and the caveats to the gateway, to make sure your bot receives sufficient data for your use case.
+ * [Discord API Reference](https://discord.com/developers/docs/topics/gateway)
  */
 export class Cache {
     /**
@@ -87,7 +92,7 @@ export class Cache {
         this.options = completeCacheOptions(options);
 
         (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => {
-            if (this.options.cacheControl[key] instanceof Array && this.options.cacheControl[key]!.length > 0) this[key] = new Collection<any, any>();
+            if (this.options.cacheControl[key] instanceof Array) this[key] = new Collection<any, any>();
         });
     }
 }
