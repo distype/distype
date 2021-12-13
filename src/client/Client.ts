@@ -18,15 +18,15 @@ export class Client {
     /**
      * The client's cache.
      */
-    public cache: Cache;
+    public readonly cache: Cache;
     /**
      * The client's gateway manager.
      */
-    public gateway: Gateway;
+    public readonly gateway: Gateway;
     /**
      * The client's rest manager.
      */
-    public rest: Rest;
+    public readonly rest: Rest;
 
     /**
      * The bot's token.

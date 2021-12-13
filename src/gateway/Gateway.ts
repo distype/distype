@@ -154,7 +154,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Gateway shards.
      */
-    public shards: Collection<number, GatewayShard> = new Collection();
+    public readonly shards: Collection<number, GatewayShard> = new Collection();
 
     /**
      * The bot's token.
@@ -165,7 +165,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Options for the gateway manager.
      */
-    public options: GatewayOptions & {
+    public readonly options: GatewayOptions & {
         intents: number
         sharding: Required<NonNullable<GatewayOptions[`sharding`]>>
     };
@@ -173,7 +173,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * The rest manager to use for fetching gateway endpoints.
      */
-    private _rest: Rest;
+    private readonly _rest: Rest;
 
     /**
      * Create a gateway manager.

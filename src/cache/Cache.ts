@@ -44,40 +44,40 @@ export class Cache {
      * Cached channels.
      * A channel's key in the collection is its ID.
      */
-    public channels?: Collection<Snowflake, CachedChannel>;
+    public readonly channels?: Collection<Snowflake, CachedChannel>;
     /**
      * Cached guilds.
      * A guild's key in the collection is its ID.
      */
-    public guilds?: Collection<Snowflake, CachedGuild>;
+    public readonly guilds?: Collection<Snowflake, CachedGuild>;
     /**
      * Cached members.
      * Each key of the parent cache is a guild ID, with its children being a collection of members in that guild.
      * A member's key in its collection is its user ID.
      */
-    public members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
+    public readonly members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
     /**
      * Cached presences.
      * Each key of the parent cache is a guild ID, with its children being a collection of presences in that guild.
      * A presence's key in its collection is its user's ID.
      */
-    public presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
+    public readonly presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
     /**
      * Cached roles.
      * A role's key in the collection is its ID.
      */
-    public roles?: Collection<Snowflake, CachedRole>;
+    public readonly roles?: Collection<Snowflake, CachedRole>;
     /**
      * Cached users.
      * A user's key in the collection is its ID.
      */
-    public users?: Collection<Snowflake, CachedUser>;
+    public readonly users?: Collection<Snowflake, CachedUser>;
     /**
      * Cached voice states.
      * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
      * A voice state's key in its collection is its user's ID.
      */
-    public voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
+    public readonly voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
 
     /**
      * Options for the cache manager.
@@ -92,6 +92,7 @@ export class Cache {
         this.options = completeCacheOptions(options);
 
         (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => {
+            // @ts-expect-error ts(2540)
             if (this.options.cacheControl[key] instanceof Array) this[key] = new Collection<any, any>();
         });
     }
