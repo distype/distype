@@ -78,7 +78,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
                 members: data.d.members?.filter((member) => member.user).map((member) => member.user!.id),
                 roles: data.d.roles.map((role) => role.id)
             });
-            if (enabled.includes(`members`)) data.d.members?.filter((member) => member.user).map((member) => updateMember(cache, false, {
+            if (enabled.includes(`members`)) data.d.members?.filter((member) => member.user).forEach((member) => updateMember(cache, false, {
                 ...member,
                 user_id: member.user!.id,
                 guild_id: data.d.id
@@ -88,6 +88,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
                 user_id: presence.user.id
             }));
             if (enabled.includes(`roles`)) data.d.roles.forEach((role) => updateRole(cache, false, role));
+            if (enabled.includes(`users`)) data.d.members?.filter((member) => member.user).forEach((member) => updateUser(cache, false, member.user!));
             if (enabled.includes(`voiceStates`)) data.d.voice_states?.forEach((voiceState) => updateVoiceState(cache, false, {
                 ...voiceState,
                 guild_id: data.d.id
@@ -129,22 +130,23 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
             break;
         }
         case `GUILD_MEMBER_ADD`: {
-            if (enabled.includes(`members`) && data.d.user) updateMember(cache, false, {
-                ...data.d,
-                user_id: data.d.user.id
-            });
             if (enabled.includes(`guilds`) && data.d.user) updateGuild(cache, false, {
                 id: data.d.guild_id,
                 members: [data.d.user.id, ...(cache.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user!.id) ?? [])]
             });
+            if (enabled.includes(`members`) && data.d.user) updateMember(cache, false, {
+                ...data.d,
+                user_id: data.d.user.id
+            });
+            if (enabled.includes(`users`) && data.d.user) updateUser(cache, false, data.d.user);
             break;
         }
         case `GUILD_MEMBER_REMOVE`: {
+            if (enabled.includes(`guilds`)) cache.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id);
             if (enabled.includes(`members`)) updateMember(cache, true, {
                 ...data.d,
                 user_id: data.d.user.id
             });
-            if (enabled.includes(`guilds`)) cache.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id);
             break;
         }
         case `GUILD_MEMBER_UPDATE`: {
@@ -153,9 +155,20 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
                 user_id: data.d.user.id,
                 joined_at: data.d.joined_at ?? undefined
             });
+            if (enabled.includes(`users`) && data.d.user) updateUser(cache, false, data.d.user);
             break;
         }
         case `GUILD_MEMBERS_CHUNK`: {
+            if (enabled.includes(`members`)) data.d.members.filter((member) => member.user).forEach((member) => updateMember(cache, false, {
+                ...member,
+                guild_id: data.d.guild_id,
+                user_id: member.user!.id
+            }));
+            if (enabled.includes(`presences`)) data.d.presences?.forEach((presence) => updatePresence(cache, false, {
+                ...presence,
+                user_id: presence.user.id
+            }));
+            if (enabled.includes(`users`)) data.d.members.filter((member) => member.user).forEach((member) => updateUser(cache, false, member.user!));
             break;
         }
         case `GUILD_ROLE_CREATE`: {
@@ -207,51 +220,48 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
             break;
         }
         case `MESSAGE_CREATE`: {
-
+            if (enabled.includes(`channels`)) updateChannel(cache, false, {
+                id: data.d.channel_id,
+                last_message_id: data.d.id,
+            });
             break;
         }
-        case `MESSAGE_DELETE`: {
-            break;
-        }
-        case `MESSAGE_DELETE_BULK`: {
-            break;
-        }
-        case `MESSAGE_REACTION_ADD`: {
-            break;
-        }
-        case `MESSAGE_REACTION_REMOVE`: {
-            break;
-        }
-        case `MESSAGE_REACTION_REMOVE_ALL`: {
-            break;
-        }
+        case `MESSAGE_DELETE`:
+        case `MESSAGE_DELETE_BULK`:
+        case `MESSAGE_REACTION_ADD`:
+        case `MESSAGE_REACTION_REMOVE`:
+        case `MESSAGE_REACTION_REMOVE_ALL`:
         case `MESSAGE_REACTION_REMOVE_EMOJI`: {
             break;
         }
         case `PRESENCE_UPDATE`: {
+            if (enabled.includes(`presences`)) updatePresence(cache, false, {
+                ...data.d,
+                user_id: data.d.user.id
+            });
             break;
         }
-        case `STAGE_INSTANCE_CREATE`: {
-            break;
-        }
-        case `STAGE_INSTANCE_DELETE`: {
-            break;
-        }
-        case `STAGE_INSTANCE_UPDATE`: {
-            break;
-        }
+        // case `STAGE_INSTANCE_CREATE`: {
+        //     break;
+        // }
+        // case `STAGE_INSTANCE_DELETE`: {
+        //     break;
+        // }
+        // case `STAGE_INSTANCE_UPDATE`: {
+        //     break;
+        // }
         case `TYPING_START`: {
             break;
         }
         case `USER_UPDATE`: {
+            if (enabled.includes(`users`)) updateUser(cache, false, data.d);
             break;
         }
         case `VOICE_STATE_UPDATE`: {
+            if (enabled.includes(`voiceStates`) && data.d.guild_id) updateVoiceState(cache, data.d.channel_id === null, data.d as any);
             break;
         }
-        case `VOICE_SERVER_UPDATE`: {
-            break;
-        }
+        case `VOICE_SERVER_UPDATE`:
         case `WEBHOOKS_UPDATE`: {
             break;
         }
