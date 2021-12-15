@@ -1,0 +1,55 @@
+{
+  "name": "boogcord",
+  "version": "0.0.1",
+  "description": "A Discord library written in TypeScript for Node.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "npm i && rm -rf ./dist && tsc",
+    "docs": "rm -rf ./docs && typedoc",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "api",
+    "boogcord",
+    "bot",
+    "client",
+    "discord",
+    "discordapp"
+  ],
+  "homepage": "https://github.com/boogcord/boogcord#readme",
+  "bugs": {
+    "url": "https://github.com/boogcord/boogcord/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "BR88C",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boogcord/boogcord.git"
+  },
+  "dependencies": {
+    "@discordjs/collection": "^0.3.2",
+    "@jpbberry/typed-emitter": "^1.2.1",
+    "axios": "^0.24.0",
+    "discord-api-types": "^0.25.2",
+    "form-data": "^4.0.0",
+    "ws": "^8.3.0"
+  },
+  "devDependencies": {
+    "@br88c/eslint-config": "^1.2.0",
+    "@types/node": "^16.11.13",
+    "@types/ws": "^8.2.2",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
+    "eslint": "^8.4.1",
+    "typedoc": "^0.22.10",
+    "typescript": "^4.5.4"
+  },
+  "engines": {
+    "node": ">=16.13.0",
+    "npm": ">=8.1.0"
+  },
+  "private": false
+}
