@@ -50,9 +50,6 @@ export class Client {
 
         this.cache = new Cache(options.cache);
         this.rest = new Rest(token, options.rest);
-        this.gateway = new Gateway(token, this.rest, {
-            cache: this.cache,
-            ...options.gateway
-        });
+        this.gateway = new Gateway(token, this.cache, this.rest, options.gateway);
     }
 }
