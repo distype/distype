@@ -38,7 +38,7 @@ const client = new Client(YOUR_BOT_TOKEN);
 
 client.gateway.on('READY', () => console.log('boogcord is ready!'));
 
-client.start();
+client.gateway.connect();
 ```
 
 ## Installation
