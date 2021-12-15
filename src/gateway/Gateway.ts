@@ -1,7 +1,7 @@
 import { Cache } from '../cache/Cache';
 import { completeGatewayOptions } from './completeGatewayOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
-import { GatewayShard } from './GatewayShard';
+import { GatewayShard, GatewayShardOptions } from './GatewayShard';
 import { Rest } from '../rest/Rest';
 
 import Collection from '@discordjs/collection';
@@ -75,12 +75,6 @@ export interface GatewayEvents {
  */
 export interface GatewayOptions {
     /**
-     * The cache to update from incoming events.
-     * Automatically set when creating the client.
-     * Setting this manually may cause unexpected behavior.
-     */
-    cache?: Cache
-    /**
      * Gateway intents.
      * A numerical value is simply passed to the identify payload.
      * An array of intent names will only enable the specified intents.
@@ -140,6 +134,10 @@ export interface GatewayOptions {
          */
         offset?: number
     }
+    /**
+     * Options for the low-level `GatewayShard`s spawned by the `Gateway`.
+     */
+    shardOptions?: GatewayShardOptions
 }
 
 /**
@@ -161,15 +159,15 @@ export class Gateway extends EventEmitter<GatewayEvents> {
      */
     // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
     public readonly token: string;
-
     /**
      * Options for the gateway manager.
      */
-    public readonly options: GatewayOptions & {
-        intents: number
-        sharding: Required<NonNullable<GatewayOptions[`sharding`]>>
-    };
+    public readonly options: Required<GatewayOptions>;
 
+    /**
+     * The cache manager to update from incoming events.
+     */
+    private readonly _cache: Cache;
     /**
      * The rest manager to use for fetching gateway endpoints.
      */
@@ -178,11 +176,11 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
+     * @param cache The cache manager to update from incoming events.
      * @param rest The rest manager to use for fetching gateway endpoints.
      * @param options Gateway options.
-     * @param cache The cache to update from incoming events.
      */
-    constructor(token: string, rest: Rest, options: GatewayOptions = {}) {
+    constructor(token: string, cache: Cache, rest: Rest, options: GatewayOptions = {}) {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
@@ -193,8 +191,18 @@ export class Gateway extends EventEmitter<GatewayEvents> {
             writable: false
         });
 
+        this._cache = cache;
         this._rest = rest;
 
         this.options = completeGatewayOptions(options);
+
+        this.on(`*`, (data) => this._cache.options.cacheEventHandler(this._cache, data));
+    }
+
+    /**
+     * Connect to the gateway.
+     */
+    public async connect(): Promise<void> {
+        this._rest.getGateway();
     }
 }

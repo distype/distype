@@ -15,12 +15,12 @@ export const completeGatewayOptions = (options: GatewayOptions): Gateway[`option
     else intents = Object.values(DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
 
     return {
-        cache: options.cache,
         intents,
         sharding: {
             totalBotShards: options.sharding?.totalBotShards ?? `auto`,
             shards: (options.sharding?.shards ?? options.sharding?.totalBotShards) ?? `auto`,
             offset: options.sharding?.offset ?? 0
-        }
+        },
+        shardOptions: options.shardOptions ?? {}
     };
 };
