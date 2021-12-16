@@ -52,6 +52,12 @@ export interface GatewayShardOptions {
      */
     intents: number;
     /**
+     * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
+     * Must be between 50 and 250.
+     * @default 50
+     */
+    largeThreshold?: number;
+    /**
      * The maximum number of spawn attempts before rejecting.
      * @default 10
      */
@@ -60,6 +66,10 @@ export interface GatewayShardOptions {
      * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
      */
     numShards: number;
+    /**
+     * The initial presence for the bot to use.
+     */
+    presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`];
     /**
      * Socket timeouts.
      */
@@ -153,7 +163,7 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
     /**
      * A timeout used when connecting or resuming the shard.
      */
-    private _timeout;
+    private _connectionTimeout;
     /**
      * The websocket used by the shard.
      */
@@ -186,6 +196,15 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * @param data The data to send.
      */
     send(data: DiscordTypes.GatewaySendPayload): Promise<void>;
+    /**
+     * Clears timers on the shard.
+     */
+    private _clearTimers;
+    /**
+     * Set the shard's state.
+     * @param state The state to set the shard to.
+     */
+    private _enterState;
     /**
      * Initiates the socket connection.
      * Creates `GatewayManager#_ws`, waits for open, binds events, then returns.

@@ -48,38 +48,53 @@ class Gateway extends typed_emitter_1.EventEmitter {
      * @returns The results from shard spawns.
      */
     async connect() {
+        this.emit(`DEBUG`, `Starting connection process`);
         const gatewayBot = await this._rest.getGatewayBot();
+        this.emit(`DEBUG`, `Got bot gateway information`);
         this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? gatewayBot.shards : (this.options.sharding.totalBotShards ?? gatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
         this.options.sharding.offset = this.options.sharding.offset ?? 0;
-        if (this.options.sharding.shards > gatewayBot.session_start_limit.remaining)
-            throw new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`);
+        if (this.options.sharding.shards > gatewayBot.session_start_limit.remaining) {
+            const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`);
+            this.emit(`DEBUG`, `Unable to connect shards: ${error.name} | ${error.message}`);
+            throw error;
+        }
         const buckets = new collection_1.default();
         for (let i = 0; i < this.options.sharding.shards; i++) {
+            this.emit(`DEBUG`, `Creating shard ${i}`);
             const shard = new GatewayShard_1.GatewayShard(this._token, i, {
                 attemptDelay: this.options.attemptDelay,
                 intents: this.options.intents,
+                largeThreshold: this.options.largeThreshold,
                 maxSpawnAttempts: this.options.maxSpawnAttempts,
                 numShards: this.options.sharding.totalBotShards,
+                presence: this.options.presence,
                 timeouts: this.options.timeouts,
                 url: gatewayBot.url,
                 wsOptions: this.options.wsOptions
             });
             this.shards.set(i, shard);
+            this.emit(`DEBUG`, `Shard ${shard.id} created and pushed to Gateway#shards`);
             shard.on(`*`, (data) => this.emit(`*`, data));
-            shard.on(`DEBUG`, (msg) => this.emit(`DEBUG`, msg));
+            shard.on(`DEBUG`, (msg) => this.emit(`DEBUG`, `GatewayShard ${shard.id} | ${msg}`));
+            this.emit(`DEBUG`, `Bound shard ${shard.id} events`);
             const bucketId = shard.id % gatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId))
                 buckets.get(bucketId)?.set(shard.id, shard);
             else
                 buckets.set(bucketId, new collection_1.default()).get(bucketId).set(shard.id, shard);
+            this.emit(`DEBUG`, `Pushed shard ${shard.id} to bucket ${bucketId}`);
         }
         const results = [];
         for (let i = 0; i < buckets.size; i++) {
+            this.emit(`DEBUG`, `Starting spawn process for bucket ${i}`);
             const bucketResult = await Promise.allSettled(buckets.get(i).map((shard) => shard.spawn()));
             results.push(...bucketResult);
-            await new Promise((resolve) => setTimeout(() => resolve(void 0), 5000));
+            this.emit(`DEBUG`, `Finished spawn process for bucket ${i}`);
+            if (i !== buckets.size - 1)
+                await new Promise((resolve) => setTimeout(() => resolve(void 0), 5000));
         }
+        this.emit(`DEBUG`, `Finished connection process`);
         return results;
     }
 }

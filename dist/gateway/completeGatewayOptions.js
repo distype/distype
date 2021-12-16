@@ -22,7 +22,14 @@ const completeGatewayOptions = (options) => {
     return {
         attemptDelay: options.attemptDelay ?? 2500,
         intents,
+        largeThreshold: options.largeThreshold ?? 50,
         maxSpawnAttempts: options.maxSpawnAttempts ?? 10,
+        presence: options.presence ?? {
+            activities: [],
+            afk: false,
+            since: null,
+            status: "online" /* Online */
+        },
         sharding: options.sharding ?? {},
         timeouts: options.timeouts ?? {},
         wsOptions: options.wsOptions ?? {}
