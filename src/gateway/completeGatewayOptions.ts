@@ -1,5 +1,6 @@
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { Gateway, GatewayOptions } from './Gateway';
+import { PresenceUpdateStatus } from 'discord-api-types';
 
 /**
  * Completes specified options for the gateway manager.
@@ -17,7 +18,14 @@ export const completeGatewayOptions = (options: GatewayOptions): Gateway[`option
     return {
         attemptDelay: options.attemptDelay ?? 2500,
         intents,
+        largeThreshold: options.largeThreshold ?? 50,
         maxSpawnAttempts: options.maxSpawnAttempts ?? 10,
+        presence: options.presence ?? {
+            activities: [],
+            afk: false,
+            since: null,
+            status: PresenceUpdateStatus.Online
+        },
         sharding: options.sharding ?? {},
         timeouts: options.timeouts ?? {},
         wsOptions: options.wsOptions ?? {}

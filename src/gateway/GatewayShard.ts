@@ -54,6 +54,12 @@ export interface GatewayShardOptions {
      */
     intents: number
     /**
+     * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
+     * Must be between 50 and 250.
+     * @default 50
+     */
+    largeThreshold?: number
+    /**
      * The maximum number of spawn attempts before rejecting.
      * @default 10
      */
@@ -62,6 +68,10 @@ export interface GatewayShardOptions {
      * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
      */
     numShards: number
+    /**
+     * The initial presence for the bot to use.
+     */
+    presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`]
     /**
      * Socket timeouts.
      */
@@ -183,7 +193,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     /**
      * A timeout used when connecting or resuming the shard.
      */
-    private _timeout: NodeJS.Timeout | null = null;
+    private _connectionTimeout: NodeJS.Timeout | null = null;
     /**
      * The websocket used by the shard.
      */
@@ -208,8 +218,6 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
 
         this.id = id;
         this.options = options;
-
-        this.emit(`DEBUG`, `Created GatewayShard with id ${this.id}`);
     }
 
     /**
@@ -218,6 +226,12 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * @returns The ready payload.
      */
     public async spawn(): Promise<DiscordTypes.GatewayReadyDispatch> {
+        if (this.state !== GatewayShardState.DISCONNECTED) {
+            const stateError = new Error(`Cannot spawn when the shard isn't in a disconnected state`);
+            this.emit(`DEBUG`, `Failed to spawn shard: ${stateError.name} | ${stateError.message}`);
+            throw stateError;
+        }
+
         const spawn: Promise<DiscordTypes.GatewayReadyDispatch> = new Promise((resolve, reject) => {
             if (this._pendingStartReject) {
                 this._pendingStartReject(new Error(`Shard initiated spawn attempt before connection was initiated`));
@@ -226,30 +240,8 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             this._pendingStartReject = reject;
 
             this.emit(`DEBUG`, `Starting shard spawn attempt`);
-
-            if (this.state !== GatewayShardState.DISCONNECTED) {
-                const error = new Error(`Cannot spawn when the shard isn't in a disconnected state`);
-                this.emit(`DEBUG`, `Failed to spawn shard: ${error.name} | ${error.message}`);
-                reject(error);
-            }
-
-            this.state = GatewayShardState.CONNECTING;
-            this.emit(`STATE_CONNECTING`, null);
-            this.emit(`DEBUG`, `Entered "CONNECTING" state`);
-
-            if (this.options.timeouts?.connect) this._timeout = setTimeout(() => {
-                const error = new Error(`Timed out while spawning shard`);
-
-                this._ws?.removeAllListeners();
-                this._ws = null;
-                this.emit(`DEBUG`, `Failed to spawn shard: ${error.name} | ${error.message}`);
-
-                this.state = GatewayShardState.DISCONNECTED;
-                this.emit(`STATE_DISCONNECTED`, null);
-                this.emit(`DEBUG`, `Entered "DISCONNECTED" state`);
-
-                reject(error);
-            }, this.options.timeouts.connect);
+            this._clearTimers();
+            this._enterState(GatewayShardState.CONNECTING);
 
             this._initConnection().then(() => {
                 this.once(`READY`, (ready) => {
@@ -267,7 +259,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             if (!(attempt instanceof Error)) {
                 this.emit(`DEBUG`, `Spawning attempts resolved with success; shard is ready`);
                 return attempt;
-            } else if (this.options.maxSpawnAttempts - 1 === i) await new Promise((resolve) => setTimeout(resolve, this.options.attemptDelay));
+            } else if (i !== this.options.maxSpawnAttempts - 1) await new Promise((resolve) => setTimeout(resolve, this.options.attemptDelay));
         }
         this.emit(`DEBUG`, `Unable to spawn shard after ${this.options.maxSpawnAttempts} attempts`);
         throw new Error(`Unable to spawn shard after ${this.options.maxSpawnAttempts} attempts`);
@@ -277,6 +269,15 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Resume / restart the shard.
      */
     public async resume(): Promise<DiscordTypes.GatewayResumedDispatch> {
+        let stateError: Error | null = null;
+        if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) stateError = new Error(`Cannot resume when the shard isn't in a disconnected or connected state`);
+        if (!this.sessionId) stateError = new Error(`Cannot resume without a session ID`);
+        if (typeof this._heartbeat.lastSequence !== `number`) stateError = new Error(`Cannot resume without a last sequence number`);
+        if (stateError) {
+            this.emit(`DEBUG`, `Failed to resume shard: ${stateError.name} | ${stateError.message}`);
+            throw stateError;
+        }
+
         const resume: Promise<DiscordTypes.GatewayResumedDispatch> = new Promise((resolve, reject) => {
             if (this._pendingStartReject) {
                 this._pendingStartReject(new Error(`Shard initiated resume attempt before connection was initiated`));
@@ -285,32 +286,9 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             this._pendingStartReject = reject;
 
             this.emit(`DEBUG`, `Starting shard resume attempt`);
-
-            if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) {
-                const error = new Error(`Cannot resume when the shard isn't in a disconnected or connected state`);
-                this.emit(`DEBUG`, `Failed to resume shard: ${error.name} | ${error.message}`);
-                reject(error);
-            }
-
             if (this._ws) this.kill(1012, `Restarting shard`);
-
-            this.state = GatewayShardState.RESUMING;
-            this.emit(`STATE_RESUMING`, null);
-            this.emit(`DEBUG`, `Entered "RESUMING" state`);
-
-            if (this.options.timeouts?.resume) this._timeout = setTimeout(() => {
-                const error = new Error(`Timed out while resuming shard`);
-
-                this._ws?.removeAllListeners();
-                this._ws = null;
-                this.emit(`DEBUG`, `Failed to resume shard: ${error.name} | ${error.message}`);
-
-                this.state = GatewayShardState.DISCONNECTED;
-                this.emit(`STATE_DISCONNECTED`, null);
-                this.emit(`DEBUG`, `Entered "DISCONNECTED" state`);
-
-                reject(error);
-            }, this.options.timeouts.resume);
+            else this._clearTimers();
+            this._enterState(GatewayShardState.RESUMING);
 
             this._initConnection().then(() => {
                 this.once(`RESUMED`, (resumed) => {
@@ -347,14 +325,13 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             this.emit(`DEBUG`, `Stopped connection attempt`);
         }
 
+        this._clearTimers();
         this._ws?.removeAllListeners();
-        this._ws?.close(code);
+        if (this._ws?.readyState === WebSocket.OPEN) this._ws?.close(code);
         this._ws = null;
         this.emit(`DEBUG`, `Killed shard with code ${code} for reason ${reason}`);
 
-        this.state = GatewayShardState.DISCONNECTED;
-        this.emit(`STATE_DISCONNECTED`, null);
-        this.emit(`DEBUG`, `Entered "DISCONNECTED" state`);
+        this._enterState(GatewayShardState.DISCONNECTED);
     }
 
     /**
@@ -365,12 +342,22 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
         return await new Promise((resolve, reject) => {
             const payload = JSON.stringify(data);
             this.emit(`DEBUG`, `Sending payload "${payload}"`);
-            if (!this._ws) {
-                const error = new Error(`The shard's socket must be defined to send a payload`);
+
+            if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
+                const error = new Error(`The shard's socket must be defined and open to send a payload`);
                 this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
                 return reject(error);
             }
+
+            let timeout: NodeJS.Timeout | null = null;
+            if (this.options.timeouts.send) timeout = setTimeout(() => {
+                const error = new Error(`Timed out on sending payload "${payload}"`);
+                this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
+                reject(error);
+            }, this.options.timeouts.send);
+
             this._ws.send(payload, (error) => {
+                if (timeout) clearTimeout(timeout);
                 if (error) {
                     this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
                     reject(error);
@@ -380,6 +367,57 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                 }
             });
         });
+    }
+
+    /**
+     * Clears timers on the shard.
+     */
+    private _clearTimers(): void {
+        if (this._connectionTimeout) {
+            clearTimeout(this._connectionTimeout);
+            this._connectionTimeout = null;
+        }
+        if (this._heartbeat.interval) {
+            clearInterval(this._heartbeat.interval);
+            this._heartbeat.interval = null;
+        }
+        this.emit(`DEBUG`, `Cleared timers`);
+    }
+
+    /**
+     * Set the shard's state.
+     * @param state The state to set the shard to.
+     */
+    private _enterState(state: GatewayShardState): void {
+        switch (state) {
+            case (GatewayShardState.DISCONNECTED): {
+                this.state = GatewayShardState.DISCONNECTED;
+                this.emit(`STATE_DISCONNECTED`, null);
+                this.emit(`DEBUG`, `Entered "DISCONNECTED" state`);
+                break;
+            }
+
+            case (GatewayShardState.CONNECTING): {
+                this.state = GatewayShardState.CONNECTING;
+                this.emit(`STATE_CONNECTING`, null);
+                this.emit(`DEBUG`, `Entered "CONNECTING" state`);
+                break;
+            }
+
+            case (GatewayShardState.RESUMING): {
+                this.state = GatewayShardState.RESUMING;
+                this.emit(`STATE_RESUMING`, null);
+                this.emit(`DEBUG`, `Entered "RESUMING" state`);
+                break;
+            }
+
+            case (GatewayShardState.CONNECTED): {
+                this.state = GatewayShardState.CONNECTED;
+                this.emit(`STATE_CONNECTED`, null);
+                this.emit(`DEBUG`, `Entered "CONNECTED" state`);
+                break;
+            }
+        }
     }
 
     /**
@@ -398,28 +436,35 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
         }
 
         return await new Promise((resolve, reject) => {
+            if (this.options.timeouts[this.state === GatewayShardState.CONNECTING ? `connect` : `resume`]) this._connectionTimeout = setTimeout(() => {
+                const error = new Error(`Timed out while connecting shard`);
+                this.emit(`DEBUG`, `Failed to connect shard: ${error.name} | ${error.message}`);
+
+                this._ws?.removeAllListeners();
+                this._ws = null;
+                this._clearTimers();
+                this._enterState(GatewayShardState.DISCONNECTED);
+                reject(error);
+            }, this.options.timeouts[this.state === GatewayShardState.CONNECTING ? `connect` : `resume`]);
+
             this._ws = new WebSocket(this.options.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
 
             this._ws.once(`error`, (error) => {
-                if (this._timeout) clearTimeout(this._timeout);
+                this.emit(`DEBUG`, `Failed to connect shard: ${error.name} | ${error.message}`);
 
                 this._ws?.removeAllListeners();
                 this._ws = null;
-                this.emit(`DEBUG`, `Failed to connect shard: ${error.name} | ${error.message}`);
-
-                this.state = GatewayShardState.DISCONNECTED;
-                this.emit(`STATE_DISCONNECTED`, null);
-                this.emit(`DEBUG`, `Entered "DISCONNECTED" state`);
-
+                this._clearTimers();
+                this._enterState(GatewayShardState.DISCONNECTED);
                 reject(error);
             });
 
             this._ws.once(`open`, () => {
-                this._ws!.removeAllListeners();
-                if (this._timeout) clearTimeout(this._timeout);
                 this.emit(`DEBUG`, `WebSocket open`);
+                this._clearTimers();
 
+                this._ws!.removeAllListeners();
                 this._ws!.on(`close`, this._onClose.bind(this));
                 this._ws!.on(`error`, this._onError.bind(this));
                 this._ws!.on(`message`, this._onMessage.bind(this));
@@ -435,28 +480,17 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Listener used for `GatewayShard#_ws#on('close')`
      */
     private _onClose(code: number, reason: Buffer): void {
-        try {
-            this.emit(`DEBUG`, `WebSocket close: ${code} | ${reason.toString(`utf-8`)}`);
-
-            this.state = GatewayShardState.DISCONNECTED;
-            this.emit(`STATE_DISCONNECTED`, null);
-            this.emit(`DEBUG`, `Entered "DISCONNECTED" state`);
-
-            void this.resume();
-        } catch (error) {
-            this.emit(`DEBUG`, `Error in GatewayShard._onClose(): ${(error as Error).name} | ${(error as Error).message}`);
-        }
+        this.emit(`DEBUG`, `WebSocket close: ${code} | ${reason.toString(`utf-8`)}`);
+        this._clearTimers();
+        this._enterState(GatewayShardState.DISCONNECTED);
+        void this.resume();
     }
 
     /**
      * Listener used for `GatewayShard#_ws#on('error')`
      */
     private _onError(error: Error) {
-        try {
-            this.emit(`DEBUG`, `WebSocket error: ${error.name} | ${error.message}`);
-        } catch (error) {
-            this.emit(`DEBUG`, `Error in GatewayShard._onError(): ${(error as Error).name} | ${(error as Error).message}`);
-        }
+        this.emit(`DEBUG`, `WebSocket error: ${error.name} | ${error.message}`);
     }
 
     /**
@@ -464,27 +498,30 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _onMessage(data: RawData) {
         try {
-            this.emit(`DEBUG`, `WebSocket message`);
-
+            this.emit(`DEBUG`, `WebSocket got message`);
             if (Array.isArray(data)) data = Buffer.concat(data);
             else if (data instanceof ArrayBuffer) data = Buffer.from(data);
             const payload: DiscordTypes.GatewayReceivePayload = JSON.parse(data.toString());
+            this.emit(`DEBUG`, `WebSocket parsed message`);
 
             switch (payload.op) {
-                case (DiscordTypes.GatewayOpcodes.Hello): {
-                    this.emit(`DEBUG`, `Got hello`);
+                case (DiscordTypes.GatewayOpcodes.Dispatch): {
+                    this.emit(`DEBUG`, `Got dispatch "${payload.t}"`);
 
-                    this._heartbeat.waiting = false;
-                    this._heartbeat.send();
-                    if (this._heartbeat.interval) clearInterval(this._heartbeat.interval);
-                    this._heartbeat.interval = setInterval(() => this._heartbeat.send(), payload.d.heartbeat_interval);
+                    if (payload.t === `READY`) {
+                        this._enterState(GatewayShardState.CONNECTED);
+                        this.sessionId = payload.d.session_id;
+                        this.emit(`READY`, payload);
+                        this.emit(`DEBUG`, `READY`);
+                    }
 
+                    if (payload.t === `RESUMED`) {
+                        this._enterState(GatewayShardState.CONNECTED);
+                        this.emit(`RESUMED`, payload);
+                        this.emit(`DEBUG`, `RESUMED`);
+                    }
 
-                    break;
-                }
-
-                case (DiscordTypes.GatewayOpcodes.Reconnect): {
-                    this.emit(`DEBUG`, `Got reconnect request`);
+                    this.emit(`*`, payload as any);
                     break;
                 }
 
@@ -494,36 +531,67 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                     break;
                 }
 
+                case (DiscordTypes.GatewayOpcodes.Reconnect): {
+                    this.emit(`DEBUG`, `Got reconnect request`);
+                    void this.resume();
+                    break;
+                }
+
+                case (DiscordTypes.GatewayOpcodes.InvalidSession): {
+                    this.emit(`DEBUG`, `Got invalid session`);
+
+                    if (payload.d) void this.resume();
+                    else {
+                        this.kill(1000, `Received invalid session`);
+                        void this.spawn();
+                    }
+
+                    break;
+                }
+
+                case (DiscordTypes.GatewayOpcodes.Hello): {
+                    this.emit(`DEBUG`, `Got hello`);
+
+                    this._heartbeat.waiting = false;
+                    this._heartbeat.send();
+                    this._clearTimers();
+                    this._heartbeat.interval = setInterval(() => this._heartbeat.send(), payload.d.heartbeat_interval);
+
+                    if (this.state === GatewayShardState.CONNECTING) {
+                        this.send({
+                            op: 2,
+                            d: {
+                                compress: false,
+                                intents: this.options.intents,
+                                large_threshold: this.options.largeThreshold,
+                                presence: this.options.presence,
+                                properties: {
+                                    $browser: `boogcord`,
+                                    $device: `boogcord`,
+                                    $os: process.platform
+                                },
+                                shard: [this.id, this.options.numShards],
+                                token: this.token,
+                            }
+                        }).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`));
+                    } else if (this.state === GatewayShardState.RESUMING && this.sessionId && this._heartbeat.lastSequence) {
+                        this.send({
+                            op: 6,
+                            d: {
+                                token: this.token,
+                                session_id: this.sessionId,
+                                seq: this._heartbeat.lastSequence
+                            }
+                        }).catch((error) => this.emit(`DEBUG`, `Failed to send resume: ${(error as Error).name} | ${(error as Error).message}`));
+                    }
+
+                    break;
+                }
+
                 case (DiscordTypes.GatewayOpcodes.HeartbeatAck): {
                     this.emit(`DEBUG`, `Got heartbeat ACK`);
                     this._heartbeat.waiting = false;
                     break;
-                }
-
-                case (DiscordTypes.GatewayOpcodes.Dispatch): {
-                    this.emit(`DEBUG`, `Got dispatch "${payload.t}"`);
-
-                    if (payload.t === `READY`) {
-                        this.state = GatewayShardState.CONNECTED;
-                        this.emit(`STATE_CONNECTED`, null);
-                        this.emit(`DEBUG`, `Entered "CONNECTED" state`);
-
-                        this.sessionId = payload.d.session_id;
-
-                        this.emit(`READY`, payload);
-                        this.emit(`DEBUG`, `READY`);
-                    }
-
-                    if (payload.t === `RESUMED`) {
-                        this.state = GatewayShardState.CONNECTED;
-                        this.emit(`STATE_CONNECTED`, null);
-                        this.emit(`DEBUG`, `Entered "CONNECTED" state`);
-
-                        this.emit(`RESUMED`, payload);
-                        this.emit(`DEBUG`, `RESUMED`);
-                    }
-
-                    this.emit(`*`, payload as any);
                 }
             }
         } catch (error) {
