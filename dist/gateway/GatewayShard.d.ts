@@ -48,10 +48,18 @@ export interface GatewayShardOptions {
      */
     attemptDelay?: number;
     /**
+     * Gateway intents.
+     */
+    intents: number;
+    /**
      * The maximum number of spawn attempts before rejecting.
      * @default 10
      */
     maxSpawnAttempts?: number;
+    /**
+     * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
+     */
+    numShards: number;
     /**
      * Socket timeouts.
      */
@@ -69,6 +77,10 @@ export interface GatewayShardOptions {
          */
         send?: number;
     };
+    /**
+     * The URL for the socket to connect to.
+     */
+    url: string;
     /**
      * Advanced [ws](https://github.com/websockets/ws) options.
      * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
@@ -123,10 +135,6 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     readonly id: number;
     /**
-     * The shard's intents.
-     */
-    readonly intents: number;
-    /**
      * Options for the gateway shard.
      */
     readonly options: Required<GatewayShardOptions>;
@@ -134,10 +142,6 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * The bot's token.
      */
     readonly token: string;
-    /**
-     * The URL to connect to the gateway with.
-     */
-    readonly url: string;
     /**
      * Heartbeat properties.
      */
@@ -158,10 +162,9 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
-     * @param url The URL to connect to the gateway with.
      * @param options Gateway shard options.
      */
-    constructor(token: string, id: number, intents: number, url: string, options: Required<GatewayShardOptions>);
+    constructor(token: string, id: number, options: Required<GatewayShardOptions>);
     /**
      * Connect to the gateway.
      * The shard must be in a `DISCONNECTED` state.

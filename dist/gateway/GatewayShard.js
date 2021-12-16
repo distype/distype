@@ -43,10 +43,9 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
-     * @param url The URL to connect to the gateway with.
      * @param options Gateway shard options.
      */
-    constructor(token, id, intents, url, options) {
+    constructor(token, id, options) {
         super();
         /**
          * The shard's session ID.
@@ -100,8 +99,6 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
             writable: false
         });
         this.id = id;
-        this.intents = intents;
-        this.url = url;
         this.options = options;
         this.emit(`DEBUG`, `Created GatewayShard with id ${this.id}`);
     }
@@ -270,7 +267,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
             throw error;
         }
         return await new Promise((resolve, reject) => {
-            this._ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
+            this._ws = new ws_1.WebSocket(this.options.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
             this._ws.once(`error`, (error) => {
                 if (this._timeout)

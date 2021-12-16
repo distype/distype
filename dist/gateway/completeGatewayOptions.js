@@ -20,18 +20,12 @@ const completeGatewayOptions = (options) => {
     else
         intents = Object.values(DiscordConstants_1.DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants_1.DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
     return {
+        attemptDelay: options.attemptDelay ?? 2500,
         intents,
-        sharding: {
-            totalBotShards: options.sharding?.totalBotShards ?? `auto`,
-            shards: (options.sharding?.shards ?? options.sharding?.totalBotShards) ?? `auto`,
-            offset: options.sharding?.offset ?? 0
-        },
-        shardOptions: {
-            attemptDelay: options.shardOptions?.attemptDelay ?? 2500,
-            maxSpawnAttempts: options.shardOptions?.maxSpawnAttempts ?? 10,
-            timeouts: options.shardOptions?.timeouts ?? {},
-            wsOptions: options.shardOptions?.wsOptions ?? {},
-        }
+        maxSpawnAttempts: options.maxSpawnAttempts ?? 10,
+        sharding: options.sharding ?? {},
+        timeouts: options.timeouts ?? {},
+        wsOptions: options.wsOptions ?? {}
     };
 };
 exports.completeGatewayOptions = completeGatewayOptions;

@@ -11,6 +11,7 @@ import { EventEmitter } from '@jpbberry/typed-emitter';
  */
 export interface GatewayEvents {
     '*': DiscordTypes.GatewayDispatchPayload;
+    DEBUG: string;
     READY: DiscordTypes.GatewayReadyDispatch;
     RESUMED: DiscordTypes.GatewayResumedDispatch;
     CHANNEL_CREATE: DiscordTypes.GatewayChannelCreateDispatch;
@@ -69,7 +70,7 @@ export interface GatewayEvents {
 /**
  * Gateway options.
  */
-export interface GatewayOptions {
+export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `numShards` | `url`> {
     /**
      * Gateway intents.
      * A numerical value is simply passed to the identify payload.
@@ -108,10 +109,8 @@ export interface GatewayOptions {
         /**
          * The amount of shards to spawn.
          * By default, `GatewayOptions#sharding#totalBotShards` is used.
-         * `auto` will use the recommended number from Discord.
-         * Manually specifying `auto` assumes that there are no other `Gateway` instances.
          */
-        shards?: number | `auto`;
+        shards?: number;
         /**
          * The number of shards to offset spawning by.
          *
@@ -130,10 +129,6 @@ export interface GatewayOptions {
          */
         offset?: number;
     };
-    /**
-     * Options for the low-level `GatewayShard`s spawned by the `Gateway`.
-     */
-    shardOptions?: GatewayShardOptions;
 }
 /**
  * The gateway manager.
@@ -149,15 +144,11 @@ export declare class Gateway extends EventEmitter<GatewayEvents> {
      */
     readonly shards: Collection<number, GatewayShard>;
     /**
-     * The bot's token.
-     */
-    readonly token: string;
-    /**
      * Options for the gateway manager.
      */
-    readonly options: Required<GatewayOptions & {
-        shardOptions: GatewayShard[`options`];
-    }>;
+    readonly options: Omit<Required<GatewayOptions>, `intents`> & {
+        intents: number;
+    };
     /**
      * The cache manager to update from incoming events.
      */
@@ -166,6 +157,10 @@ export declare class Gateway extends EventEmitter<GatewayEvents> {
      * The rest manager to use for fetching gateway endpoints.
      */
     private readonly _rest;
+    /**
+     * The bot's token.
+     */
+    private readonly _token;
     /**
      * Create a gateway manager.
      * @param token The bot's token.
@@ -176,6 +171,7 @@ export declare class Gateway extends EventEmitter<GatewayEvents> {
     constructor(token: string, cache: Cache, rest: Rest, options?: GatewayOptions);
     /**
      * Connect to the gateway.
+     * @returns The results from shard spawns.
      */
-    connect(): Promise<void>;
+    connect(): Promise<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>[]>;
 }
