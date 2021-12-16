@@ -162,7 +162,9 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Options for the gateway manager.
      */
-    public readonly options: Required<GatewayOptions>;
+    public readonly options: Required<GatewayOptions & {
+        shardOptions: GatewayShard[`options`]
+    }>;
 
     /**
      * The cache manager to update from incoming events.
