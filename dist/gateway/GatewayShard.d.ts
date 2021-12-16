@@ -1,6 +1,6 @@
 import { ClientOptions } from 'ws';
 import { EventEmitter } from '@jpbberry/typed-emitter';
-import { GatewayDispatchPayload, GatewayReadyDispatch, GatewayResumedDispatch, GatewaySendPayload } from 'discord-api-types';
+import * as DiscordTypes from 'discord-api-types';
 /**
  * Gateway shard events.
  */
@@ -8,7 +8,7 @@ export interface GatewayShardEvents {
     /**
      * When the shard receives a payload.
      */
-    '*': GatewayDispatchPayload;
+    '*': DiscordTypes.GatewayDispatchPayload;
     /**
      * Debugging event.
      */
@@ -16,11 +16,11 @@ export interface GatewayShardEvents {
     /**
      * When the shard gets a ready dispatch.
      */
-    READY: GatewayReadyDispatch;
+    READY: DiscordTypes.GatewayReadyDispatch;
     /**
      * When the shard gets a resumed dispatch.
      */
-    RESUMED: GatewayResumedDispatch;
+    RESUMED: DiscordTypes.GatewayResumedDispatch;
     /**
      * When the shard enters a disconnected state.
      */
@@ -42,6 +42,16 @@ export interface GatewayShardEvents {
  * Gateway shard options.
  */
 export interface GatewayShardOptions {
+    /**
+     * The number of milliseconds to wait between spawn and resume attempts.
+     * @default 2500
+     */
+    attemptDelay?: number;
+    /**
+     * The maximum number of spawn attempts before rejecting.
+     * @default 10
+     */
+    maxSpawnAttempts?: number;
     /**
      * Socket timeouts.
      */
@@ -119,7 +129,7 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
     /**
      * Options for the gateway shard.
      */
-    readonly options: GatewayShardOptions;
+    readonly options: Required<GatewayShardOptions>;
     /**
      * The bot's token.
      */
@@ -132,6 +142,10 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Heartbeat properties.
      */
     private _heartbeat;
+    /**
+     * The pending reject callback for the promise starting the shard.
+     */
+    private _pendingStartReject;
     /**
      * A timeout used when connecting or resuming the shard.
      */
@@ -147,17 +161,17 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * @param url The URL to connect to the gateway with.
      * @param options Gateway shard options.
      */
-    constructor(token: string, id: number, intents: number, url: string, options?: GatewayShardOptions);
+    constructor(token: string, id: number, intents: number, url: string, options: Required<GatewayShardOptions>);
     /**
      * Connect to the gateway.
      * The shard must be in a `DISCONNECTED` state.
      * @returns The ready payload.
      */
-    spawn(): Promise<GatewayReadyDispatch>;
+    spawn(): Promise<DiscordTypes.GatewayReadyDispatch>;
     /**
-     * Resume the shard.
+     * Resume / restart the shard.
      */
-    resume(): Promise<GatewayResumedDispatch>;
+    resume(): Promise<DiscordTypes.GatewayResumedDispatch>;
     /**
      * Kill the shard.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code).
@@ -168,7 +182,7 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Send a payload.
      * @param data The data to send.
      */
-    send(data: GatewaySendPayload): Promise<void>;
+    send(data: DiscordTypes.GatewaySendPayload): Promise<void>;
     /**
      * Initiates the socket connection.
      * Creates `GatewayManager#_ws`, waits for open, binds events, then returns.

@@ -26,7 +26,12 @@ const completeGatewayOptions = (options) => {
             shards: (options.sharding?.shards ?? options.sharding?.totalBotShards) ?? `auto`,
             offset: options.sharding?.offset ?? 0
         },
-        shardOptions: options.shardOptions ?? {}
+        shardOptions: {
+            attemptDelay: options.shardOptions?.attemptDelay ?? 2500,
+            maxSpawnAttempts: options.shardOptions?.maxSpawnAttempts ?? 10,
+            timeouts: options.shardOptions?.timeouts ?? {},
+            wsOptions: options.shardOptions?.wsOptions ?? {},
+        }
     };
 };
 exports.completeGatewayOptions = completeGatewayOptions;
