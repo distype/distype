@@ -50,10 +50,18 @@ export interface GatewayShardOptions {
      */
     attemptDelay?: number
     /**
+     * Gateway intents.
+     */
+    intents: number
+    /**
      * The maximum number of spawn attempts before rejecting.
      * @default 10
      */
     maxSpawnAttempts?: number
+    /**
+     * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
+     */
+    numShards: number
     /**
      * Socket timeouts.
      */
@@ -71,6 +79,10 @@ export interface GatewayShardOptions {
          */
         send?: number
     }
+    /**
+     * The URL for the socket to connect to.
+     */
+    url: string
     /**
      * Advanced [ws](https://github.com/websockets/ws) options.
      * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
@@ -128,10 +140,6 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     public readonly id: number;
     /**
-     * The shard's intents.
-     */
-    public readonly intents: number;
-    /**
      * Options for the gateway shard.
      */
     public readonly options: Required<GatewayShardOptions>;
@@ -140,10 +148,6 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
     public readonly token: string;
-    /**
-     * The URL to connect to the gateway with.
-     */
-    public readonly url: string;
 
     /**
      * Heartbeat properties.
@@ -189,10 +193,9 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
-     * @param url The URL to connect to the gateway with.
      * @param options Gateway shard options.
      */
-    constructor(token: string, id: number, intents: number, url: string, options: Required<GatewayShardOptions>) {
+    constructor(token: string, id: number, options: Required<GatewayShardOptions>) {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
@@ -204,8 +207,6 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
         });
 
         this.id = id;
-        this.intents = intents;
-        this.url = url;
         this.options = options;
 
         this.emit(`DEBUG`, `Created GatewayShard with id ${this.id}`);
@@ -397,7 +398,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
         }
 
         return await new Promise((resolve, reject) => {
-            this._ws = new WebSocket(this.url, this.options.wsOptions);
+            this._ws = new WebSocket(this.options.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
 
             this._ws.once(`error`, (error) => {
@@ -472,11 +473,13 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             switch (payload.op) {
                 case (DiscordTypes.GatewayOpcodes.Hello): {
                     this.emit(`DEBUG`, `Got hello`);
+
                     this._heartbeat.waiting = false;
                     this._heartbeat.send();
-
                     if (this._heartbeat.interval) clearInterval(this._heartbeat.interval);
                     this._heartbeat.interval = setInterval(() => this._heartbeat.send(), payload.d.heartbeat_interval);
+
+
                     break;
                 }
 

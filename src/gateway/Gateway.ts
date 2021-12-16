@@ -14,6 +14,7 @@ import { EventEmitter } from '@jpbberry/typed-emitter';
  */
 export interface GatewayEvents {
     '*': DiscordTypes.GatewayDispatchPayload // eslint-disable-line quotes
+    DEBUG: string
     READY: DiscordTypes.GatewayReadyDispatch
     RESUMED: DiscordTypes.GatewayResumedDispatch
     CHANNEL_CREATE: DiscordTypes.GatewayChannelCreateDispatch
@@ -73,7 +74,7 @@ export interface GatewayEvents {
 /**
  * Gateway options.
  */
-export interface GatewayOptions {
+export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `numShards` | `url`> {
     /**
      * Gateway intents.
      * A numerical value is simply passed to the identify payload.
@@ -112,10 +113,8 @@ export interface GatewayOptions {
         /**
          * The amount of shards to spawn.
          * By default, `GatewayOptions#sharding#totalBotShards` is used.
-         * `auto` will use the recommended number from Discord.
-         * Manually specifying `auto` assumes that there are no other `Gateway` instances.
          */
-        shards?: number | `auto`
+        shards?: number
         /**
          * The number of shards to offset spawning by.
          * 
@@ -134,10 +133,6 @@ export interface GatewayOptions {
          */
         offset?: number
     }
-    /**
-     * Options for the low-level `GatewayShard`s spawned by the `Gateway`.
-     */
-    shardOptions?: GatewayShardOptions
 }
 
 /**
@@ -155,16 +150,11 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     public readonly shards: Collection<number, GatewayShard> = new Collection();
 
     /**
-     * The bot's token.
-     */
-    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
-    public readonly token: string;
-    /**
      * Options for the gateway manager.
      */
-    public readonly options: Required<GatewayOptions & {
-        shardOptions: GatewayShard[`options`]
-    }>;
+    public readonly options: Omit<Required<GatewayOptions>, `intents`> & {
+        intents: number
+    };
 
     /**
      * The cache manager to update from incoming events.
@@ -174,6 +164,11 @@ export class Gateway extends EventEmitter<GatewayEvents> {
      * The rest manager to use for fetching gateway endpoints.
      */
     private readonly _rest: Rest;
+    /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
+    private readonly _token: string;
 
     /**
      * Create a gateway manager.
@@ -186,7 +181,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
-        Object.defineProperty(this, `token`, {
+        Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
@@ -203,8 +198,45 @@ export class Gateway extends EventEmitter<GatewayEvents> {
 
     /**
      * Connect to the gateway.
+     * @returns The results from shard spawns.
      */
-    public async connect(): Promise<void> {
-        this._rest.getGateway();
+    public async connect(): Promise<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>[]> {
+        const gatewayBot = await this._rest.getGatewayBot();
+
+        this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? gatewayBot.shards : (this.options.sharding.totalBotShards ?? gatewayBot.shards);
+        this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
+        this.options.sharding.offset = this.options.sharding.offset ?? 0;
+
+        if (this.options.sharding.shards > gatewayBot.session_start_limit.remaining) throw new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`);
+
+        const buckets: Collection<number, Collection<number, GatewayShard>> = new Collection();
+        for (let i = 0; i < this.options.sharding.shards; i++) {
+            const shard = new GatewayShard(this._token, i, {
+                attemptDelay: this.options.attemptDelay,
+                intents: this.options.intents,
+                maxSpawnAttempts: this.options.maxSpawnAttempts,
+                numShards: this.options.sharding.totalBotShards,
+                timeouts: this.options.timeouts,
+                url: gatewayBot.url,
+                wsOptions: this.options.wsOptions
+            });
+            this.shards.set(i, shard);
+
+            shard.on(`*`, (data) => this.emit(`*`, data as any));
+            shard.on(`DEBUG`, (msg) => this.emit(`DEBUG`, msg));
+
+            const bucketId = shard.id % gatewayBot.session_start_limit.max_concurrency;
+            if (buckets.has(bucketId)) buckets.get(bucketId)?.set(shard.id, shard);
+            else buckets.set(bucketId, new Collection()).get(bucketId)!.set(shard.id, shard);
+        }
+
+        const results: PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>[] = [];
+        for (let i = 0; i < buckets.size; i++) {
+            const bucketResult = await Promise.allSettled(buckets.get(i)!.map((shard) => shard.spawn()));
+            results.push(...bucketResult);
+            await new Promise((resolve) => setTimeout(() => resolve(void 0), 5000));
+        }
+
+        return results;
     }
 }
