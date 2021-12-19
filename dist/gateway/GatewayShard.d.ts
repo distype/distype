@@ -48,6 +48,11 @@ export interface GatewayShardOptions {
      */
     attemptDelay?: number;
     /**
+     * The time in milliseconds to wait until considering a connection attempt timed out.
+     * @default 30000
+     */
+    connectionTimeout?: number;
+    /**
      * Gateway intents.
      */
     intents: number;
@@ -70,23 +75,6 @@ export interface GatewayShardOptions {
      * The initial presence for the bot to use.
      */
     presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`];
-    /**
-     * Socket timeouts.
-     */
-    timeouts?: {
-        /**
-         * The amonut of milliseconds to wait before deeming a connect attempt as timed out.
-         */
-        connect?: number;
-        /**
-         * The amonut of milliseconds to wait before deeming a resume attempt as timed out.
-         */
-        resume?: number;
-        /**
-         * The amonut of milliseconds to wait before deeming a send attempt as timed out.
-         */
-        send?: number;
-    };
     /**
      * The URL for the socket to connect to.
      */
@@ -132,6 +120,10 @@ export declare enum GatewayShardState {
  * Handles the low level ws communication with Discord.
  */
 export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
+    /**
+     * The last sequence number received.
+     */
+    lastSequence: number | null;
     /**
      * The shard's session ID.
      */
@@ -182,9 +174,9 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     spawn(): Promise<DiscordTypes.GatewayReadyDispatch>;
     /**
-     * Resume / restart the shard.
+     * Restart / resume the shard.
      */
-    resume(): Promise<DiscordTypes.GatewayResumedDispatch>;
+    restart(): Promise<DiscordTypes.GatewayResumedDispatch>;
     /**
      * Kill the shard.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code).
@@ -210,6 +202,7 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Creates `GatewayManager#_ws`, waits for open, binds events, then returns.
      * This method does not wait for a ready or resumed event.
      * Expects the shard to be in a "CONNECTING" or "RESUMING" state.
+     * @param resume If the shard is being resumed.
      */
     private _initConnection;
     /**

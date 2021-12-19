@@ -64,12 +64,12 @@ class Gateway extends typed_emitter_1.EventEmitter {
             this.emit(`DEBUG`, `Creating shard ${i}`);
             const shard = new GatewayShard_1.GatewayShard(this._token, i, {
                 attemptDelay: this.options.attemptDelay,
+                connectionTimeout: this.options.connectionTimeout,
                 intents: this.options.intents,
                 largeThreshold: this.options.largeThreshold,
                 maxSpawnAttempts: this.options.maxSpawnAttempts,
                 numShards: this.options.sharding.totalBotShards,
                 presence: this.options.presence,
-                timeouts: this.options.timeouts,
                 url: gatewayBot.url,
                 wsOptions: this.options.wsOptions
             });
