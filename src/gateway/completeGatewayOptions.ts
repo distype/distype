@@ -17,6 +17,7 @@ export const completeGatewayOptions = (options: GatewayOptions): Gateway[`option
 
     return {
         attemptDelay: options.attemptDelay ?? 2500,
+        connectionTimeout: options.connectionTimeout ?? 30000,
         intents,
         largeThreshold: options.largeThreshold ?? 50,
         maxSpawnAttempts: options.maxSpawnAttempts ?? 10,
@@ -27,7 +28,6 @@ export const completeGatewayOptions = (options: GatewayOptions): Gateway[`option
             status: PresenceUpdateStatus.Online
         },
         sharding: options.sharding ?? {},
-        timeouts: options.timeouts ?? {},
         wsOptions: options.wsOptions ?? {}
     };
 };
