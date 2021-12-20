@@ -5,11 +5,16 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "npm i && rm -rf ./dist && tsc",
+    "build": "rm -rf ./dist && tsc",
+    "build:install": "npm i --also=dev && npm run build",
     "docs": "rm -rf ./docs && typedoc",
+    "docs:install": "npm i --also=dev && npm run docs",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build:install",
+    "test:build": "npm run build",
+    "test:docs": "npm run docs",
+    "test:lint": "npm run lint"
   },
   "keywords": [
     "api",
