@@ -22,6 +22,8 @@
     "bot",
     "client",
     "discord",
+    "discord-api",
+    "discord-bot",
     "discordapp"
   ],
   "homepage": "https://github.com/boogcord/boogcord#readme",
