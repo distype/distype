@@ -1,0 +1,67 @@
+<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>boogcord - v0.0.1</title><meta name="description" content="Documentation for boogcord - v0.0.1"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">boogcord - v0.0.1</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>boogcord - v0.0.1</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography"><div align="center">
+    <br>
+    <a href="https://github.com/boogcord/boogcord"><img src="https://raw.githubusercontent.com/boogcord/assets/master/banner.png" width="600"></a>
+    <br><br>
+    <p>
+        <a href="https://www.npmjs.com/package/boogcord"><img src="https://img.shields.io/npm/v/boogcord.svg?color=5162F&style=for-the-badge&logo=npm"></a>
+        <a href="https://github.com/boogcord/boogcord/actions/workflows/build.yml"><img src="https://img.shields.io/github/workflow/status/boogcord/boogcord/Build?style=for-the-badge&logo=github"><a>
+        <a href="https://github.com/boogcord/boogcord/actions/workflows/lint.yml"><img src="https://img.shields.io/github/workflow/status/boogcord/boogcord/Lint?label=lint&style=for-the-badge&logo=github"><a>
+        <a href="https://discord.gg/hRXKcUKGHB"><img src="https://img.shields.io/discord/564877383308541964?color=5162F1&style=for-the-badge&logo=discord&logoColor=white"></a>
+    </p>
+</div>
+
+
+<a href="#about" id="about" style="color: inherit; text-decoration: none;">
+  <h2>About</h2>
+</a>
+<p><em><strong>DISCLAIMER: BOOGCORD IS STILL A WORK IN PROGRESS.</strong></em>
+Not all features mentioned below are complete and implemented. This disclaimer will be removed when this statement is no longer true.</p>
+<p>A light yet robust Discord library written in TypeScript, catered towards developers looking for a final, no compromises solution for creating Discord bots. boogcord aims to pass data straight from the <a href="https://discord.com/developers/docs/intro">Discord API</a> to you; no bloated middleware, abstractions, etc.</p>
+
+<a href="#pros" id="pros" style="color: inherit; text-decoration: none;">
+  <h3>Pros</h3>
+</a>
+<ul>
+<li><strong>Scalable:</strong> With a built-in sharding manager, and even support for using Node.js worker threads, boogcord makes it easy to scale your bot, from 10 servers to 10 thousand.</li>
+<li><strong>Predictable:</strong> boogcord is as close as you can get to the Discord API, meaning that typically, what you see in Discord&#39;s documentation is also here.</li>
+<li><strong>Lightweight:</strong> boogcord does minimal manipulation of incoming gateway events, responses to REST requests, etc. Additionally, boogcord only has 6 direct dependencies, which resolve out to 12 in total.</li>
+<li><strong>Fully Featured:</strong> boogcord covers 100% of the Discord API, meaning that you&#39;ll never be missing out on any features.</li>
+<li><strong>Plugins:</strong> boogcord has several pre-built plugins that can be optionally installed, including a robust and easy to use command handler, a lavalink client for music bots, and a UI for monitoring your deployments along with manipulating multiple instances of your bot to cater zero downtime via rolling restarts.</li>
+</ul>
+
+<a href="#cons" id="cons" style="color: inherit; text-decoration: none;">
+  <h3>Cons</h3>
+</a>
+<ul>
+<li><strong>Not beginner friendly:</strong> boogcord doesn&#39;t aim to be easily understood by new developers; it looks to serve as the final destination for advanced Discord bot developers.</li>
+</ul>
+
+<a href="#example-bot" id="example-bot" style="color: inherit; text-decoration: none;">
+  <h2>Example Bot</h2>
+</a>
+<pre><code class="language-ts"><span class="hl-0">import</span><span class="hl-1"> { </span><span class="hl-2">Client</span><span class="hl-1"> } </span><span class="hl-0">from</span><span class="hl-1"> </span><span class="hl-3">&#39;boogcord&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-4">const</span><span class="hl-1"> </span><span class="hl-5">client</span><span class="hl-1"> = </span><span class="hl-4">new</span><span class="hl-1"> </span><span class="hl-6">Client</span><span class="hl-1">(</span><span class="hl-5">YOUR_BOT_TOKEN</span><span class="hl-1">);</span><br/><br/><span class="hl-2">client</span><span class="hl-1">.</span><span class="hl-2">gateway</span><span class="hl-1">.</span><span class="hl-6">on</span><span class="hl-1">(</span><span class="hl-3">&#39;READY&#39;</span><span class="hl-1">, () </span><span class="hl-4">=&gt;</span><span class="hl-1"> </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-6">log</span><span class="hl-1">(</span><span class="hl-3">&#39;boogcord is ready!&#39;</span><span class="hl-1">));</span><br/><br/><span class="hl-2">client</span><span class="hl-1">.</span><span class="hl-2">gateway</span><span class="hl-1">.</span><span class="hl-6">connect</span><span class="hl-1">();</span>
+</code></pre>
+
+<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+  <h2>Installation</h2>
+</a>
+<p>boogcord can be installed via npm.</p>
+<pre><code class="language-sh"><span class="hl-1">npm install boogcord</span>
+</code></pre>
+
+<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
+  <h3>Prerequisites</h3>
+</a>
+<ul>
+<li><strong><a href="https://nodejs.org/">Node.js &gt;=16.13.0</a></strong></li>
+<li><strong><a href="https://www.npmjs.com/">NPM &gt;=8.1.0</a></strong></li>
+</ul>
+
+<a href="#optional-packages" id="optional-packages" style="color: inherit; text-decoration: none;">
+  <h3>Optional packages</h3>
+</a>
+<ul>
+<li><strong><a href="https://www.npmjs.com/package/bufferutil/">bufferutil</a>:</strong> Improves ws performance</li>
+<li><strong><a href="https://www.npmjs.com/package/utf-8-validate/">utf-8-validate</a>:</strong> Improves ws performance</li>
+</ul>
+</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-enum"><a href="enums/GatewayShardState.html" class="tsd-kind-icon">Gateway<wbr/>Shard<wbr/>State</a></li><li class="tsd-kind-class"><a href="classes/Cache.html" class="tsd-kind-icon">Cache</a></li><li class="tsd-kind-class"><a href="classes/Client.html" class="tsd-kind-icon">Client</a></li><li class="tsd-kind-class"><a href="classes/ClientMaster.html" class="tsd-kind-icon">Client<wbr/>Master</a></li><li class="tsd-kind-class"><a href="classes/ClientWorker.html" class="tsd-kind-icon">Client<wbr/>Worker</a></li><li class="tsd-kind-class"><a href="classes/Gateway.html" class="tsd-kind-icon">Gateway</a></li><li class="tsd-kind-class"><a href="classes/GatewayShard.html" class="tsd-kind-icon">Gateway<wbr/>Shard</a></li><li class="tsd-kind-class"><a href="classes/Rest.html" class="tsd-kind-icon">Rest</a></li><li class="tsd-kind-interface"><a href="interfaces/CacheOptions.html" class="tsd-kind-icon">Cache<wbr/>Options</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedChannel.html" class="tsd-kind-icon">Cached<wbr/>Channel</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedGuild.html" class="tsd-kind-icon">Cached<wbr/>Guild</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedMember.html" class="tsd-kind-icon">Cached<wbr/>Member</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedPresence.html" class="tsd-kind-icon">Cached<wbr/>Presence</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedRole.html" class="tsd-kind-icon">Cached<wbr/>Role</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedUser.html" class="tsd-kind-icon">Cached<wbr/>User</a></li><li class="tsd-kind-interface"><a href="interfaces/CachedVoiceState.html" class="tsd-kind-icon">Cached<wbr/>Voice<wbr/>State</a></li><li class="tsd-kind-interface"><a href="interfaces/ClientOptions.html" class="tsd-kind-icon">Client<wbr/>Options</a></li><li class="tsd-kind-interface"><a href="interfaces/GatewayEvents.html" class="tsd-kind-icon">Gateway<wbr/>Events</a></li><li class="tsd-kind-interface"><a href="interfaces/GatewayOptions.html" class="tsd-kind-icon">Gateway<wbr/>Options</a></li><li class="tsd-kind-interface"><a href="interfaces/GatewayShardEvents.html" class="tsd-kind-icon">Gateway<wbr/>Shard<wbr/>Events</a></li><li class="tsd-kind-interface"><a href="interfaces/GatewayShardOptions.html" class="tsd-kind-icon">Gateway<wbr/>Shard<wbr/>Options</a></li><li class="tsd-kind-interface"><a href="interfaces/RestData.html" class="tsd-kind-icon">Rest<wbr/>Data</a></li><li class="tsd-kind-interface"><a href="interfaces/RestOptions.html" class="tsd-kind-icon">Rest<wbr/>Options</a></li><li class="tsd-kind-type-alias"><a href="modules.html#RestMethod" class="tsd-kind-icon">Rest<wbr/>Method</a></li><li class="tsd-kind-type-alias tsd-is-external"><a href="modules.html#Snowflake" class="tsd-kind-icon">Snowflake</a></li><li class="tsd-kind-variable"><a href="modules.html#BoogcordConstants" class="tsd-kind-icon">Boogcord<wbr/>Constants</a></li><li class="tsd-kind-variable"><a href="modules.html#DiscordConstants" class="tsd-kind-icon">Discord<wbr/>Constants</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li><li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li><li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
