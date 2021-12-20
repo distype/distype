@@ -1,0 +1,11 @@
+.github/
+docs/
+node_modules/
+src/
+test/
+
+.eslintrc.json
+.gitignore
+package-lock.json
+tsconfig.json
+typedoc.json
