@@ -1,4 +1,4 @@
-name: Build
+name: Docs
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
       - 'master'
 
 jobs:
-  push-build:
-    name: Push Build
+  push-docs:
+    name: Push Docs
     runs-on: ubuntu-latest
-    needs: build-test
+    needs: docs-test
 
     strategy:
       matrix:
@@ -40,24 +40,23 @@ jobs:
       - name: Install packages
         run: npm i --also=dev
 
-      - name: Run build
-        run: npm run build
+      - name: Run docs
+        run: npm run docs
 
-      - name: Push build
+      - name: Push docs
         run: |
           REPO="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          TARGET_BRANCH="build"
+          TARGET_BRANCH="docs"
           git clone $REPO out -b $TARGET_BRANCH
-          rm -rfv out/dist/*
+          rm -rfv out/docs/*
           rsync -vaI LICENSE out/
-          rsync -vaI package.json out/
           rsync -vaI README.md out/
-          rsync -vaI dist/ out/dist
+          rsync -vaI docs/ out/docs
           cd out
           git add --all .
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_EMAIL}"
-          git commit -m "build: TSC build for ${GITHUB_SHA}" || true
+          git commit -m "docs: TypeDoc build for ${GITHUB_SHA}" || true
           git push origin $TARGET_BRANCH
         env:
           GITHUB_TOKEN: ${{ secrets.BUILD_TOKEN }}

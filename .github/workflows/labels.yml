@@ -1,4 +1,4 @@
-name: Label Sync
+name: Labels
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  labelsync:
+  label-sync:
     name: Label Sync
     runs-on: ubuntu-latest
 
