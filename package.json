@@ -1,7 +1,7 @@
 {
   "name": "boogcord",
   "version": "0.0.1",
-  "description": "A Discord library written in TypeScript for Node.js",
+  "description": "A light yet robust Discord library written in TypeScript, catered towards developers looking for a final, no compromises solution for creating Discord bots.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
