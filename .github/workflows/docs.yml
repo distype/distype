@@ -9,7 +9,6 @@ jobs:
   push-docs:
     name: Push Docs
     runs-on: ubuntu-latest
-    needs: docs-test
 
     strategy:
       matrix:

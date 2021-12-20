@@ -9,7 +9,6 @@ jobs:
   push-build:
     name: Push Build
     runs-on: ubuntu-latest
-    needs: build-test
 
     strategy:
       matrix:
