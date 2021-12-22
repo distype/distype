@@ -152,6 +152,10 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     public readonly token: string;
 
     /**
+     * A timeout used when connecting or resuming the shard.
+     */
+    private _connectionTimeout: NodeJS.Timeout | null = null;
+    /**
      * Heartbeat properties.
      */
     private _heartbeat: {
@@ -168,7 +172,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                     this.send({
                         op: DiscordTypes.GatewayOpcodes.Heartbeat,
                         d: this.lastSequence
-                    }).then(() => {
+                    }, true).then(() => {
                         this._heartbeat.waiting = true;
                         this.emit(`DEBUG`, `Sent heartbeat`);
                     }).catch((error) => this.emit(`DEBUG`, `Failed to send heartbeat: ${(error as Error).name} | ${(error as Error).message}`));
@@ -181,9 +185,13 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _pendingStartReject: ((reason?: any) => void) | null = null;
     /**
-     * A timeout used when connecting or resuming the shard.
+     * A queue of payloads to be sent. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
      */
-    private _connectionTimeout: NodeJS.Timeout | null = null;
+    private _sendQueue: Array<{
+        payload: string
+        reject: () => void
+        resolve: () => void
+    }> = [];
     /**
      * The websocket used by the shard.
      */
@@ -294,27 +302,18 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     /**
      * Send a payload.
      * @param data The data to send.
+     * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a `CONNECTED` state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the `READY` event. This option is primarily used internally, for dispatches such as a heartbeat or identify.
      */
-    public async send(data: DiscordTypes.GatewaySendPayload): Promise<void> {
+    public async send(data: DiscordTypes.GatewaySendPayload, force = false): Promise<void> {
         return await new Promise((resolve, reject) => {
             const payload = JSON.stringify(data);
-            this.emit(`DEBUG`, `Sending payload "${payload}"`);
 
-            if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
-                const error = new Error(`The shard's socket must be defined and open to send a payload`);
-                this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
-                return reject(error);
-            }
-
-            this._ws.send(payload, (error) => {
-                if (error) {
-                    this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
-                    reject(error);
-                } else {
-                    this.emit(`DEBUG`, `Successfully sent payload "${payload}"`);
-                    resolve();
-                }
-            });
+            if (!force && this.state !== GatewayShardState.CONNECTED) {
+                this._sendQueue.push({
+                    payload, reject, resolve 
+                });
+                this.emit(`DEBUG`, `Pushed payload "${payload}" to the send queue`);
+            } else this._send(payload).then(resolve).catch(reject);
         });
     }
 
@@ -367,6 +366,17 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                 break;
             }
         }
+    }
+
+    /**
+     * Flushes the send queue.
+     */
+    private async _flushQueue(): Promise<void> {
+        this.emit(`DEBUG`, `Flushing queue`);
+        for (const send of this._sendQueue) {
+            await this._send(send.payload).then(send.resolve).catch(send.reject);
+        }
+        this.emit(`DEBUG`, `Flushed queue`);
     }
 
     /**
@@ -447,7 +457,34 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     }
 
     /**
+     * Sends a payload to the gateway. Used internally for `GatewayShard#send` and when flushing the queue in `GatewayShard#_flushQueue()`.
+     * @param payload The payload to send.
+     * @internal
+     */
+    private async _send(payload: string): Promise<void> {
+        return await new Promise((resolve, reject) => {
+            if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
+                const error = new Error(`The shard's socket must be defined and open to send a payload`);
+                this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
+                return reject(error);
+            }
+
+            this.emit(`DEBUG`, `Sending payload "${payload}"`);
+            this._ws.send(payload, (error) => {
+                if (error) {
+                    this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
+                    reject(error);
+                } else {
+                    this.emit(`DEBUG`, `Successfully sent payload "${payload}"`);
+                    resolve();
+                }
+            });
+        });
+    }
+
+    /**
      * Listener used for `GatewayShard#_ws#on('close')`
+     * @internal
      */
     private _onClose(code: number, reason: Buffer): void {
         this.emit(`DEBUG`, `WebSocket close: ${code} | ${reason.toString(`utf-8`)}`);
@@ -458,6 +495,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
 
     /**
      * Listener used for `GatewayShard#_ws#on('error')`
+     * @internal
      */
     private _onError(error: Error) {
         this.emit(`DEBUG`, `WebSocket error: ${error.name} | ${error.message}`);
@@ -465,6 +503,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
 
     /**
      * Listener used for `GatewayShard#_ws#on('message')`
+     * @internal
      */
     private _onMessage(data: RawData) {
         try {
@@ -488,12 +527,14 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                         this.sessionId = payload.d.session_id;
                         this.emit(`READY`, payload);
                         this.emit(`DEBUG`, `READY`);
+                        void this._flushQueue();
                     }
 
                     if (payload.t === `RESUMED`) {
                         this._enterState(GatewayShardState.CONNECTED);
                         this.emit(`RESUMED`, payload);
                         this.emit(`DEBUG`, `RESUMED`);
+                        void this._flushQueue();
                     }
 
                     this.emit(`*`, payload as any);
@@ -548,7 +589,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                                 shard: [this.id, this.options.numShards],
                                 token: this.token,
                             }
-                        }).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`));
+                        }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`));
                     } else if (this.state === GatewayShardState.RESUMING) {
                         if (this.sessionId && typeof this.lastSequence === `number`) {
                             this.send({
@@ -558,7 +599,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                                     session_id: this.sessionId,
                                     seq: this.lastSequence
                                 }
-                            }).catch((error) => this.emit(`DEBUG`, `Failed to send resume: ${(error as Error).name} | ${(error as Error).message}`));
+                            }, true).catch((error) => this.emit(`DEBUG`, `Failed to send resume: ${(error as Error).name} | ${(error as Error).message}`));
                         } else {
                             void this.kill(1012, `Respawning shard - no session ID or last sequence`);
                             void this.spawn();
