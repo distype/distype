@@ -185,9 +185,13 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _pendingStartReject: ((reason?: any) => void) | null = null;
     /**
-     * A queue of payloads to be sent. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
+     * An array of the time of dispatch for the last `GATEWAY_RATELIMIT.LIMIT` payloads.
      */
-    private _sendQueue: Array<{
+    private _sendTimes: number[] = [];
+    /**
+     * A queue of payloads to be sent after the shard has spawned. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
+     */
+    private _spawnSendQueue: Array<{
         payload: string
         reject: () => void
         resolve: () => void
@@ -309,8 +313,8 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             const payload = JSON.stringify(data);
 
             if (!force && this.state !== GatewayShardState.CONNECTED) {
-                this._sendQueue.push({
-                    payload, reject, resolve 
+                this._spawnSendQueue.push({
+                    payload, reject, resolve
                 });
                 this.emit(`DEBUG`, `Pushed payload "${payload}" to the send queue`);
             } else this._send(payload).then(resolve).catch(reject);
@@ -373,7 +377,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private async _flushQueue(): Promise<void> {
         this.emit(`DEBUG`, `Flushing queue`);
-        for (const send of this._sendQueue) {
+        for (const send of this._spawnSendQueue) {
             await this._send(send.payload).then(send.resolve).catch(send.reject);
         }
         this.emit(`DEBUG`, `Flushed queue`);
