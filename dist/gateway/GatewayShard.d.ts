@@ -145,6 +145,10 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     readonly token: string;
     /**
+     * A timeout used when connecting or resuming the shard.
+     */
+    private _connectionTimeout;
+    /**
      * Heartbeat properties.
      */
     private _heartbeat;
@@ -153,9 +157,9 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _pendingStartReject;
     /**
-     * A timeout used when connecting or resuming the shard.
+     * A queue of payloads to be sent. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
      */
-    private _connectionTimeout;
+    private _sendQueue;
     /**
      * The websocket used by the shard.
      */
@@ -186,8 +190,9 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
     /**
      * Send a payload.
      * @param data The data to send.
+     * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a `CONNECTED` state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the `READY` event. This option is primarily used internally, for dispatches such as a heartbeat or identify.
      */
-    send(data: DiscordTypes.GatewaySendPayload): Promise<void>;
+    send(data: DiscordTypes.GatewaySendPayload, force?: boolean): Promise<void>;
     /**
      * Clears timers on the shard.
      */
@@ -198,6 +203,10 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _enterState;
     /**
+     * Flushes the send queue.
+     */
+    private _flushQueue;
+    /**
      * Initiates the socket connection.
      * Creates `GatewayManager#_ws`, waits for open, binds events, then returns.
      * This method does not wait for a ready or resumed event.
@@ -206,15 +215,24 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _initConnection;
     /**
+     * Sends a payload to the gateway. Used internally for `GatewayShard#send` and when flushing the queue in `GatewayShard#_flushQueue()`.
+     * @param payload The payload to send.
+     * @internal
+     */
+    private _send;
+    /**
      * Listener used for `GatewayShard#_ws#on('close')`
+     * @internal
      */
     private _onClose;
     /**
      * Listener used for `GatewayShard#_ws#on('error')`
+     * @internal
      */
     private _onError;
     /**
      * Listener used for `GatewayShard#_ws#on('message')`
+     * @internal
      */
     private _onMessage;
 }
