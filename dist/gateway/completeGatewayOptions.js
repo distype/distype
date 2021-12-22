@@ -20,11 +20,8 @@ const completeGatewayOptions = (options) => {
     else
         intents = Object.values(DiscordConstants_1.DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants_1.DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
     return {
-        attemptDelay: options.attemptDelay ?? 2500,
-        connectionTimeout: options.connectionTimeout ?? 30000,
         intents,
-        largeThreshold: options.largeThreshold ?? 50,
-        maxSpawnAttempts: options.maxSpawnAttempts ?? 10,
+        largeGuildThreshold: options.largeGuildThreshold ?? 50,
         presence: options.presence ?? {
             activities: [],
             afk: false,
@@ -32,6 +29,9 @@ const completeGatewayOptions = (options) => {
             status: "online" /* Online */
         },
         sharding: options.sharding ?? {},
+        spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
+        spawnMaxAttempts: options.spawnMaxAttempts ?? 10,
+        spawnTimeout: options.spawnTimeout ?? 30000,
         wsOptions: options.wsOptions ?? {}
     };
 };

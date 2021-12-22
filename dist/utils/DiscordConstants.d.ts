@@ -13,6 +13,20 @@ export declare const DiscordConstants: {
      */
     readonly CDN_URL: "https://cdn.discordapp.com";
     /**
+     * Gateway ratelimits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
+     */
+    readonly GATEWAY_RATELIMIT: {
+        /**
+         * The number of commands allowed to be sent every `RESET_AFTER` milliseconds.
+         */
+        readonly LIMIT: 120;
+        /**
+         * The amount of time that `LIMIT` is specified for.
+         */
+        readonly RESET_AFTER: 60000;
+    };
+    /**
      * Gateway intents.
      * Includes privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)

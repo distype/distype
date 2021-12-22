@@ -90,9 +90,9 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
          */
         this._pendingStartReject = null;
         /**
-         * A queue of payloads to be sent. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
+         * A queue of payloads to be sent after the shard has spawned. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
          */
-        this._sendQueue = [];
+        this._spawnSendQueue = [];
         /**
          * The websocket used by the shard.
          */
@@ -120,7 +120,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
             throw error;
         }
         this.emit(`DEBUG`, `Starting spawning attempts`);
-        for (let i = 0; i < this.options.maxSpawnAttempts; i++) {
+        for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
             this.emit(`DEBUG`, `Starting shard spawn attempt`);
             this._clearTimers();
             this._enterState(GatewayShardState.CONNECTING);
@@ -130,11 +130,11 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                 this.emit(`DEBUG`, `Spawning attempts resolved with success; shard is ready`);
                 return attempt;
             }
-            else if (i !== this.options.maxSpawnAttempts - 1)
-                await new Promise((resolve) => setTimeout(resolve, this.options.attemptDelay));
+            else if (i !== this.options.spawnMaxAttempts - 1)
+                await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
         }
-        this.emit(`DEBUG`, `Unable to spawn shard after ${this.options.maxSpawnAttempts} attempts`);
-        throw new Error(`Unable to spawn shard after ${this.options.maxSpawnAttempts} attempts`);
+        this.emit(`DEBUG`, `Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
+        throw new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
     }
     /**
      * Restart / resume the shard.
@@ -160,7 +160,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                 return attempt;
             }
             else
-                await new Promise((resolve) => setTimeout(resolve, this.options.attemptDelay));
+                await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
         }
     }
     /**
@@ -192,7 +192,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
         return await new Promise((resolve, reject) => {
             const payload = JSON.stringify(data);
             if (!force && this.state !== GatewayShardState.CONNECTED) {
-                this._sendQueue.push({
+                this._spawnSendQueue.push({
                     payload, reject, resolve
                 });
                 this.emit(`DEBUG`, `Pushed payload "${payload}" to the send queue`);
@@ -252,7 +252,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
      */
     async _flushQueue() {
         this.emit(`DEBUG`, `Flushing queue`);
-        for (const send of this._sendQueue) {
+        for (const send of this._spawnSendQueue) {
             await this._send(send.payload).then(send.resolve).catch(send.reject);
         }
         this.emit(`DEBUG`, `Flushed queue`);
@@ -285,7 +285,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                 this._clearTimers();
                 this._enterState(GatewayShardState.DISCONNECTED);
                 reject(error);
-            }, this.options.connectionTimeout);
+            }, this.options.spawnTimeout);
             this._ws = new ws_1.WebSocket(this.options.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
             this._ws.once(`error`, (error) => {
@@ -341,6 +341,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                     reject(error);
                 }
                 else {
+                    this.emit(`SENT`, payload);
                     this.emit(`DEBUG`, `Successfully sent payload "${payload}"`);
                     resolve();
                 }
@@ -432,7 +433,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                             d: {
                                 compress: false,
                                 intents: this.options.intents,
-                                large_threshold: this.options.largeThreshold,
+                                large_threshold: this.options.largeGuildThreshold,
                                 presence: this.options.presence,
                                 properties: {
                                     $browser: `boogcord`,

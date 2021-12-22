@@ -6,21 +6,25 @@ import * as DiscordTypes from 'discord-api-types';
  */
 export interface GatewayShardEvents {
     /**
-     * When the shard receives a payload.
+     * When the shard receives a payload. Data is the parsed payload.
      */
     '*': DiscordTypes.GatewayDispatchPayload;
     /**
-     * Debugging event.
+     * Debugging event. Data is the message.
      */
     DEBUG: string;
     /**
-     * When the shard gets a ready dispatch.
+     * When the shard gets a ready dispatch. Data is the `READY` payload.
      */
     READY: DiscordTypes.GatewayReadyDispatch;
     /**
-     * When the shard gets a resumed dispatch.
+     * When the shard gets a resumed dispatch. Data is the `RESUMED` payload.
      */
     RESUMED: DiscordTypes.GatewayResumedDispatch;
+    /**
+     * When a payload is sent. Data is the sent payload.
+     */
+    SENT: string;
     /**
      * When the shard enters a disconnected state.
      */
@@ -43,16 +47,6 @@ export interface GatewayShardEvents {
  */
 export interface GatewayShardOptions {
     /**
-     * The number of milliseconds to wait between spawn and resume attempts.
-     * @default 2500
-     */
-    attemptDelay?: number;
-    /**
-     * The time in milliseconds to wait until considering a connection attempt timed out.
-     * @default 30000
-     */
-    connectionTimeout?: number;
-    /**
      * Gateway intents.
      */
     intents: number;
@@ -61,12 +55,7 @@ export interface GatewayShardOptions {
      * Must be between 50 and 250.
      * @default 50
      */
-    largeThreshold?: number;
-    /**
-     * The maximum number of spawn attempts before rejecting.
-     * @default 10
-     */
-    maxSpawnAttempts?: number;
+    largeGuildThreshold?: number;
     /**
      * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
      */
@@ -75,6 +64,21 @@ export interface GatewayShardOptions {
      * The initial presence for the bot to use.
      */
     presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`];
+    /**
+     * The number of milliseconds to wait between spawn and resume attempts.
+     * @default 2500
+     */
+    spawnAttemptDelay?: number;
+    /**
+     * The maximum number of spawn attempts before rejecting.
+     * @default 10
+     */
+    spawnMaxAttempts?: number;
+    /**
+     * The time in milliseconds to wait until considering a spawn or resume attempt timed out.
+     * @default 30000
+     */
+    spawnTimeout?: number;
     /**
      * The URL for the socket to connect to.
      */
@@ -157,9 +161,9 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     private _pendingStartReject;
     /**
-     * A queue of payloads to be sent. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
+     * A queue of payloads to be sent after the shard has spawned. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
      */
-    private _sendQueue;
+    private _spawnSendQueue;
     /**
      * The websocket used by the shard.
      */
