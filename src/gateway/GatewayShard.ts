@@ -7,21 +7,25 @@ import * as DiscordTypes from 'discord-api-types';
  */
 export interface GatewayShardEvents {
     /**
-     * When the shard receives a payload.
+     * When the shard receives a payload. Data is the parsed payload.
      */
     '*': DiscordTypes.GatewayDispatchPayload // eslint-disable-line quotes
     /**
-     * Debugging event.
+     * Debugging event. Data is the message.
      */
     DEBUG: string
     /**
-     * When the shard gets a ready dispatch.
+     * When the shard gets a ready dispatch. Data is the `READY` payload.
      */
     READY: DiscordTypes.GatewayReadyDispatch
     /**
-     * When the shard gets a resumed dispatch.
+     * When the shard gets a resumed dispatch. Data is the `RESUMED` payload.
      */
     RESUMED: DiscordTypes.GatewayResumedDispatch
+    /**
+     * When a payload is sent. Data is the sent payload.
+     */
+    SENT: string
     /**
      * When the shard enters a disconnected state.
      */
@@ -184,10 +188,6 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * The pending reject callback for the promise starting the shard.
      */
     private _pendingStartReject: ((reason?: any) => void) | null = null;
-    /**
-     * An array of the time of dispatch for the last `GATEWAY_RATELIMIT.LIMIT` payloads.
-     */
-    private _sendTimes: number[] = [];
     /**
      * A queue of payloads to be sent after the shard has spawned. Pushed to when the shard has not spawned, and flushed after the READY event is dispatched.
      */
@@ -479,6 +479,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                     this.emit(`DEBUG`, `Failed to send payload "${payload}": ${error.name} | ${error.message}`);
                     reject(error);
                 } else {
+                    this.emit(`SENT`, payload);
                     this.emit(`DEBUG`, `Successfully sent payload "${payload}"`);
                     resolve();
                 }
