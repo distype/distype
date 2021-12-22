@@ -220,13 +220,13 @@ export class Gateway extends EventEmitter<GatewayEvents> {
         for (let i = 0; i < this.options.sharding.shards; i++) {
             this.emit(`DEBUG`, `Creating shard ${i}`);
             const shard = new GatewayShard(this._token, i, {
-                attemptDelay: this.options.attemptDelay,
-                connectionTimeout: this.options.connectionTimeout,
                 intents: this.options.intents,
-                largeThreshold: this.options.largeThreshold,
-                maxSpawnAttempts: this.options.maxSpawnAttempts,
+                largeGuildThreshold: this.options.largeGuildThreshold,
                 numShards: this.options.sharding.totalBotShards,
                 presence: this.options.presence,
+                spawnAttemptDelay: this.options.spawnAttemptDelay,
+                spawnMaxAttempts: this.options.spawnMaxAttempts,
+                spawnTimeout: this.options.spawnTimeout,
                 url: gatewayBot.url,
                 wsOptions: this.options.wsOptions
             });
