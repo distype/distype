@@ -45,16 +45,6 @@ export interface GatewayShardEvents {
  */
 export interface GatewayShardOptions {
     /**
-     * The number of milliseconds to wait between spawn and resume attempts.
-     * @default 2500
-     */
-    attemptDelay?: number
-    /**
-     * The time in milliseconds to wait until considering a connection attempt timed out.
-     * @default 30000
-     */
-    connectionTimeout?: number
-    /**
      * Gateway intents.
      */
     intents: number
@@ -63,12 +53,7 @@ export interface GatewayShardOptions {
      * Must be between 50 and 250.
      * @default 50
      */
-    largeThreshold?: number
-    /**
-     * The maximum number of spawn attempts before rejecting.
-     * @default 10
-     */
-    maxSpawnAttempts?: number
+    largeGuildThreshold?: number
     /**
      * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
      */
@@ -77,6 +62,21 @@ export interface GatewayShardOptions {
      * The initial presence for the bot to use.
      */
     presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`]
+    /**
+     * The number of milliseconds to wait between spawn and resume attempts.
+     * @default 2500
+     */
+    spawnAttemptDelay?: number
+    /**
+     * The maximum number of spawn attempts before rejecting.
+     * @default 10
+     */
+    spawnMaxAttempts?: number
+    /**
+     * The time in milliseconds to wait until considering a spawn or resume attempt timed out.
+     * @default 30000
+     */
+    spawnTimeout?: number
     /**
      * The URL for the socket to connect to.
      */
@@ -231,7 +231,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
         }
 
         this.emit(`DEBUG`, `Starting spawning attempts`);
-        for (let i = 0; i < this.options.maxSpawnAttempts; i++) {
+        for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
             this.emit(`DEBUG`, `Starting shard spawn attempt`);
             this._clearTimers();
             this._enterState(GatewayShardState.CONNECTING);
@@ -242,10 +242,10 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             if (!(attempt instanceof Error)) {
                 this.emit(`DEBUG`, `Spawning attempts resolved with success; shard is ready`);
                 return attempt;
-            } else if (i !== this.options.maxSpawnAttempts - 1) await new Promise((resolve) => setTimeout(resolve, this.options.attemptDelay));
+            } else if (i !== this.options.spawnMaxAttempts - 1) await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
         }
-        this.emit(`DEBUG`, `Unable to spawn shard after ${this.options.maxSpawnAttempts} attempts`);
-        throw new Error(`Unable to spawn shard after ${this.options.maxSpawnAttempts} attempts`);
+        this.emit(`DEBUG`, `Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
+        throw new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
     }
 
     /**
@@ -271,7 +271,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             if (!(attempt instanceof Error)) {
                 this.emit(`DEBUG`, `Resume attempts resolved with success; shard is ready`);
                 return attempt;
-            } else await new Promise((resolve) => setTimeout(resolve, this.options.attemptDelay));
+            } else await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
         }
 
     }
@@ -411,7 +411,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                 this._clearTimers();
                 this._enterState(GatewayShardState.DISCONNECTED);
                 reject(error);
-            }, this.options.connectionTimeout);
+            }, this.options.spawnTimeout);
 
             this._ws = new WebSocket(this.options.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
@@ -579,7 +579,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                             d: {
                                 compress: false,
                                 intents: this.options.intents,
-                                large_threshold: this.options.largeThreshold,
+                                large_threshold: this.options.largeGuildThreshold,
                                 presence: this.options.presence,
                                 properties: {
                                     $browser: `boogcord`,
