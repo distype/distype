@@ -211,9 +211,9 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     constructor(token: string, cache: Cache, rest: Rest, options: GatewayOptions = {}) {
         super();
 
-        if (!token) throw new TypeError(`A bot token must be specified`);
-        if (!cache) throw new TypeError(`A cache manager must be specified`);
-        if (!rest) throw new TypeError(`A rest manager must be specified`);
+        if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
+        if (!(cache instanceof Cache)) throw new TypeError(`A cache manager must be specified`);
+        if (!(rest instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,

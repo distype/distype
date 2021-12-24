@@ -213,8 +213,8 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     constructor(token: string, id: number, options: Required<GatewayShardOptions>) {
         super();
 
-        if (!token) throw new TypeError(`A bot token must be specified`);
-        if (!id) throw new TypeError(`A shard ID must be specified`);
+        if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
+        if (typeof id !== `number`) throw new TypeError(`A shard ID must be specified`);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,

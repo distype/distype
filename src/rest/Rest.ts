@@ -68,7 +68,7 @@ export class Rest extends RestRequests {
     constructor(token: string, options: RestOptions = {}) {
         super();
 
-        if (!token) throw new TypeError(`A bot token must be specified`);
+        if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
