@@ -275,6 +275,7 @@ const cacheEventHandler = (cache, data) => {
                 });
             break;
         }
+        case `MESSAGE_UPDATE`:
         case `MESSAGE_DELETE`:
         case `MESSAGE_DELETE_BULK`:
         case `MESSAGE_REACTION_ADD`:
