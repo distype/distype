@@ -41,6 +41,8 @@ client.gateway.on('SHARDS_READY', () => console.log('boogcord is ready!'));
 client.gateway.connect();
 ```
 
+> Note that Discord API typings are for API version `9`, and are from [discord-api-types](https://www.npmjs.com/package/discord-api-types).
+
 ## Installation
 
 boogcord can be installed via npm.
