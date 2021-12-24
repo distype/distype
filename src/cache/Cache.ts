@@ -3,7 +3,7 @@ import { cacheEventHandler } from './CacheHandler';
 import { completeCacheOptions } from './completeCacheOptions';
 
 import Collection from '@discordjs/collection';
-import { Snowflake } from 'discord-api-types';
+import { Snowflake } from 'discord-api-types/v9';
 
 /**
  * Cache options.

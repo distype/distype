@@ -1,6 +1,6 @@
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { Gateway, GatewayOptions } from './Gateway';
-import { PresenceUpdateStatus } from 'discord-api-types';
+import { PresenceUpdateStatus } from 'discord-api-types/v9';
 
 /**
  * Completes specified options for the gateway manager.

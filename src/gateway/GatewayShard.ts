@@ -1,6 +1,6 @@
 import { ClientOptions, RawData, WebSocket } from 'ws';
 import { EventEmitter } from '@jpbberry/typed-emitter';
-import * as DiscordTypes from 'discord-api-types';
+import * as DiscordTypes from 'discord-api-types/v9';
 
 /**
  * Gateway shard events.

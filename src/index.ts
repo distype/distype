@@ -13,4 +13,4 @@ export * from './rest/Rest';
 export * from './utils/BoogcordConstants';
 export * from './utils/DiscordConstants';
 
-export { Snowflake } from 'discord-api-types';
+export { Snowflake } from 'discord-api-types/v9';

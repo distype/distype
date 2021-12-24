@@ -1,5 +1,5 @@
-import * as DiscordTypes from 'discord-api-types';
-import { Snowflake } from 'discord-api-types';
+import * as DiscordTypes from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v9';
 
 /**
  * A cached channel.

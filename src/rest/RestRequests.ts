@@ -1,8 +1,8 @@
 import { RestData, RestMethod, RestOptions } from './Rest';
 
-import * as DiscordTypes from 'discord-api-types';
+import * as DiscordTypes from 'discord-api-types/v9';
 import FormData from 'form-data';
-import { Snowflake } from 'discord-api-types';
+import { Snowflake } from 'discord-api-types/v9';
 
 /**
  * A class containing methods for all routes for the Discord API.
