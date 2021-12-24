@@ -155,6 +155,12 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
          */
         offset?: number;
     };
+    /**
+     * The Gateway version to use.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
+     * @default 9
+     */
+    version?: number;
 }
 /**
  * The gateway manager.

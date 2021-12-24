@@ -31,6 +31,7 @@ export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 export interface RestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL` | `data` | `method` | `params` | `responseType` | `signal` | `transitional` | `url`> {
     /**
      * The API version to use.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
      * @default 9
      */
     version?: number;

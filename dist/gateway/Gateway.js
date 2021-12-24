@@ -10,6 +10,7 @@ const GatewayShard_1 = require("./GatewayShard");
 const Rest_1 = require("../rest/Rest");
 const collection_1 = __importDefault(require("@discordjs/collection"));
 const typed_emitter_1 = require("@jpbberry/typed-emitter");
+const url_1 = require("url");
 /**
  * The gateway manager.
  * Manages shards, handles incoming payloads, and sends commands to the Discord gateway.
@@ -85,7 +86,9 @@ class Gateway extends typed_emitter_1.EventEmitter {
                 spawnAttemptDelay: this.options.spawnAttemptDelay,
                 spawnMaxAttempts: this.options.spawnMaxAttempts,
                 spawnTimeout: this.options.spawnTimeout,
-                url: gatewayBot.url,
+                url: new url_1.URL(`?${new url_1.URLSearchParams({
+                    v: `${this.options.version}`, encoding: `json`
+                }).toString()}`, gatewayBot.url).toString(),
                 wsOptions: this.options.wsOptions
             });
             this.shards.set(i, shard);
