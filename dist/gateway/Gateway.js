@@ -4,8 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = void 0;
+const Cache_1 = require("../cache/Cache");
 const completeGatewayOptions_1 = require("./completeGatewayOptions");
 const GatewayShard_1 = require("./GatewayShard");
+const Rest_1 = require("../rest/Rest");
 const collection_1 = __importDefault(require("@discordjs/collection"));
 const typed_emitter_1 = require("@jpbberry/typed-emitter");
 /**
@@ -31,11 +33,11 @@ class Gateway extends typed_emitter_1.EventEmitter {
          * Modifying this collection externally may result in unexpected behavior.
          */
         this.shards = new collection_1.default();
-        if (!token)
+        if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
-        if (!cache)
+        if (!(cache instanceof Cache_1.Cache))
             throw new TypeError(`A cache manager must be specified`);
-        if (!rest)
+        if (!(rest instanceof Rest_1.Rest))
             throw new TypeError(`A rest manager must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,

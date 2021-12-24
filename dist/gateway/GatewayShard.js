@@ -97,9 +97,9 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
          * The websocket used by the shard.
          */
         this._ws = null;
-        if (!token)
+        if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
-        if (!id)
+        if (typeof id !== `number`)
             throw new TypeError(`A shard ID must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,

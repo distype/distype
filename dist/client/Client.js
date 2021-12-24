@@ -14,7 +14,7 @@ class Client {
      * @param options Client options.
      */
     constructor(token, options = {}) {
-        if (!token)
+        if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,

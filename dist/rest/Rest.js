@@ -22,7 +22,7 @@ class Rest extends RestRequests_1.RestRequests {
      */
     constructor(token, options = {}) {
         super();
-        if (!token)
+        if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,
