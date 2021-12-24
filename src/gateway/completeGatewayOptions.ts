@@ -28,6 +28,7 @@ export const completeGatewayOptions = (options: GatewayOptions): Gateway[`option
         spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
         spawnMaxAttempts: options.spawnMaxAttempts ?? 10,
         spawnTimeout: options.spawnTimeout ?? 30000,
+        version: options.version ?? 9,
         wsOptions: options.wsOptions ?? {}
     };
 };

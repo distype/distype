@@ -7,6 +7,7 @@ import { Rest } from '../rest/Rest';
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types';
 import { EventEmitter } from '@jpbberry/typed-emitter';
+import { URL, URLSearchParams } from 'url';
 
 /**
  * Gateway events.
@@ -161,6 +162,12 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
          */
         offset?: number
     }
+    /**
+     * The Gateway version to use.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
+     * @default 9
+     */
+    version?: number
 }
 
 /**
@@ -268,7 +275,9 @@ export class Gateway extends EventEmitter<GatewayEvents> {
                 spawnAttemptDelay: this.options.spawnAttemptDelay,
                 spawnMaxAttempts: this.options.spawnMaxAttempts,
                 spawnTimeout: this.options.spawnTimeout,
-                url: gatewayBot.url,
+                url: new URL(`?${new URLSearchParams({
+                    v: `${this.options.version}`, encoding: `json`
+                } as DiscordTypes.GatewayURLQuery as any).toString()}`, gatewayBot.url).toString(),
                 wsOptions: this.options.wsOptions
             });
             this.shards.set(i, shard);
