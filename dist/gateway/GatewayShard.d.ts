@@ -145,10 +145,6 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     readonly options: Required<GatewayShardOptions>;
     /**
-     * The bot's token.
-     */
-    readonly token: string;
-    /**
      * A timeout used when connecting or resuming the shard.
      */
     private _connectionTimeout;
@@ -168,6 +164,10 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * The websocket used by the shard.
      */
     private _ws;
+    /**
+     * The bot's token.
+     */
+    private readonly _token;
     /**
      * Create a gateway shard.
      * @param token The bot's token.

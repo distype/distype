@@ -41,15 +41,15 @@ export interface RestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL`
  */
 export declare class Rest extends RestRequests {
     /**
-     * The bot's token.
-     */
-    readonly token: string;
-    /**
      * Options for the rest manager.
      */
     readonly options: RestOptions & {
         version: number;
     };
+    /**
+     * The bot's token.
+     */
+    private readonly _token;
     /**
      * Create a rest manager.
      * @param token The bot's token.

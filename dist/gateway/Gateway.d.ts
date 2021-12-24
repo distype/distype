@@ -7,9 +7,34 @@ import * as DiscordTypes from 'discord-api-types';
 import { EventEmitter } from '@jpbberry/typed-emitter';
 /**
  * Gateway events.
+ * Note that with the exception of `SHARDS_READY`, all events are a relay of a `GatewayShard` event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export interface GatewayEvents {
+    /**
+     * When all shards are spawned and ready.
+     */
+    SHARDS_READY: null;
+    /**
+     * When a payload is sent. Data is the sent payload.
+     */
+    SENT: string;
+    /**
+     * When a shard enters a disconnected state.
+     */
+    SHARD_STATE_DISCONNECTED: GatewayShard;
+    /**
+     * When a shard enters a connecting state.
+     */
+    SHARD_STATE_CONNECTING: GatewayShard;
+    /**
+     * When a shard enters a resuming state.
+     */
+    SHARD_STATE_RESUMING: GatewayShard;
+    /**
+     * When a shard enters a connected state.
+     */
+    SHARD_STATE_CONNECTED: GatewayShard;
     '*': DiscordTypes.GatewayDispatchPayload;
     DEBUG: string;
     READY: DiscordTypes.GatewayReadyDispatch;
@@ -51,6 +76,7 @@ export interface GatewayEvents {
     INVITE_CREATE: DiscordTypes.GatewayInviteCreateDispatch;
     INVITE_DELETE: DiscordTypes.GatewayInviteDeleteDispatch;
     MESSAGE_CREATE: DiscordTypes.GatewayMessageCreateDispatch;
+    MESSAGE_UPDATE: DiscordTypes.GatewayMessageUpdateDispatch;
     MESSAGE_DELETE: DiscordTypes.GatewayMessageDeleteDispatch;
     MESSAGE_DELETE_BULK: DiscordTypes.GatewayMessageDeleteBulkDispatch;
     MESSAGE_REACTION_ADD: DiscordTypes.GatewayMessageReactionAddDispatch;
@@ -141,8 +167,9 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
 export declare class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Gateway shards.
+     * Modifying this collection externally may result in unexpected behavior.
      */
-    readonly shards: Collection<number, GatewayShard>;
+    shards: Collection<number, GatewayShard>;
     /**
      * Options for the gateway manager.
      */
@@ -152,11 +179,11 @@ export declare class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * The cache manager to update from incoming events.
      */
-    private readonly _cache;
+    private _cache;
     /**
      * The rest manager to use for fetching gateway endpoints.
      */
-    private readonly _rest;
+    private _rest;
     /**
      * The bot's token.
      */

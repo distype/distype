@@ -28,20 +28,33 @@ class Gateway extends typed_emitter_1.EventEmitter {
         super();
         /**
          * Gateway shards.
+         * Modifying this collection externally may result in unexpected behavior.
          */
         this.shards = new collection_1.default();
         if (!token)
             throw new TypeError(`A bot token must be specified`);
+        if (!cache)
+            throw new TypeError(`A cache manager must be specified`);
+        if (!rest)
+            throw new TypeError(`A rest manager must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze((0, completeGatewayOptions_1.completeGatewayOptions)(options)),
+            writable: false
+        });
         this._cache = cache;
         this._rest = rest;
-        this.options = (0, completeGatewayOptions_1.completeGatewayOptions)(options);
-        this.on(`*`, (data) => this._cache.options.cacheEventHandler(this._cache, data));
+        this.on(`*`, (data) => {
+            this._cache.options.cacheEventHandler(this._cache, data);
+            this.emit(data.t, data);
+        });
     }
     /**
      * Connect to the gateway.
@@ -77,6 +90,11 @@ class Gateway extends typed_emitter_1.EventEmitter {
             this.emit(`DEBUG`, `Shard ${shard.id} created and pushed to Gateway#shards`);
             shard.on(`*`, (data) => this.emit(`*`, data));
             shard.on(`DEBUG`, (msg) => this.emit(`DEBUG`, `GatewayShard ${shard.id} | ${msg}`));
+            shard.on(`SENT`, (payload) => this.emit(`SENT`, payload));
+            shard.on(`STATE_DISCONNECTED`, () => this.emit(`SHARD_STATE_DISCONNECTED`, shard));
+            shard.on(`STATE_CONNECTING`, () => this.emit(`SHARD_STATE_CONNECTING`, shard));
+            shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard));
+            shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard));
             this.emit(`DEBUG`, `Bound shard ${shard.id} events`);
             const bucketId = shard.id % gatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId))
@@ -94,6 +112,7 @@ class Gateway extends typed_emitter_1.EventEmitter {
             if (i !== buckets.size - 1)
                 await new Promise((resolve) => setTimeout(() => resolve(void 0), 5000));
         }
+        this.emit(`SHARDS_READY`, null);
         this.emit(`DEBUG`, `Finished connection process`);
         return results;
     }

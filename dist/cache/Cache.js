@@ -19,9 +19,14 @@ class Cache {
      * @param options Cache options.
      */
     constructor(options = {}) {
-        this.options = (0, completeCacheOptions_1.completeCacheOptions)(options);
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze((0, completeCacheOptions_1.completeCacheOptions)(options)),
+            writable: false
+        });
+        // @ts-expect-error Property 'options' is used before being assigned.
         Object.keys(this.options.cacheControl).forEach((key) => {
-            // @ts-expect-error ts(2540)
             if (this.options.cacheControl[key] instanceof Array)
                 this[key] = new collection_1.default();
         });

@@ -16,7 +16,7 @@ class Client {
     constructor(token, options = {}) {
         if (!token)
             throw new TypeError(`A bot token must be specified`);
-        Object.defineProperty(this, `token`, {
+        Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
@@ -25,6 +25,16 @@ class Client {
         this.cache = new Cache_1.Cache(options.cache);
         this.rest = new Rest_1.Rest(token, options.rest);
         this.gateway = new Gateway_1.Gateway(token, this.cache, this.rest, options.gateway);
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze({
+                cache: this.cache.options,
+                gateway: this.gateway.options,
+                rest: this.rest.options
+            }),
+            writable: false
+        });
     }
 }
 exports.Client = Client;

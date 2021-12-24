@@ -24,13 +24,18 @@ class Rest extends RestRequests_1.RestRequests {
         super();
         if (!token)
             throw new TypeError(`A bot token must be specified`);
-        Object.defineProperty(this, `token`, {
+        Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        this.options = (0, completeRestOptions_1.completeRestOptions)(options);
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze((0, completeRestOptions_1.completeRestOptions)(options)),
+            writable: false
+        });
     }
     async request(method, route, options) {
         return (await this._make(method, route, options)).data;
@@ -40,7 +45,7 @@ class Rest extends RestRequests_1.RestRequests {
         const headers = {
             ...options.headers,
             ...(usingFormData ? options.data?.getHeaders() : undefined),
-            'Authorization': `Bot ${this.token}`,
+            'Authorization': `Bot ${this._token}`,
             'User-Agent': `DiscordBot (${BoogcordConstants_1.BoogcordConstants.URL}, v${BoogcordConstants_1.BoogcordConstants.VERSION})`
         };
         if (!usingFormData && options.data)

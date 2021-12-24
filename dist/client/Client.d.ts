@@ -16,19 +16,27 @@ export declare class Client {
     /**
      * The client's cache.
      */
-    readonly cache: Cache;
+    cache: Cache;
     /**
      * The client's gateway manager.
      */
-    readonly gateway: Gateway;
+    gateway: Gateway;
     /**
      * The client's rest manager.
      */
-    readonly rest: Rest;
+    rest: Rest;
+    /**
+     * Options for the client.
+     */
+    readonly options: {
+        cache: Cache[`options`];
+        gateway: Gateway[`options`];
+        rest: Rest[`options`];
+    };
     /**
      * The bot's token.
      */
-    readonly token: string;
+    private readonly _token;
     /**
      * Create a client.
      * @param token The bot's token.

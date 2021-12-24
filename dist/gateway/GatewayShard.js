@@ -99,14 +99,26 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
         this._ws = null;
         if (!token)
             throw new TypeError(`A bot token must be specified`);
-        Object.defineProperty(this, `token`, {
+        if (!id)
+            throw new TypeError(`A shard ID must be specified`);
+        Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        this.id = id;
-        this.options = options;
+        Object.defineProperty(this, `id`, {
+            configurable: false,
+            enumerable: true,
+            value: id,
+            writable: false
+        });
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze(options),
+            writable: false
+        });
     }
     /**
      * Connect to the gateway.
@@ -441,7 +453,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                                     $os: process.platform
                                 },
                                 shard: [this.id, this.options.numShards],
-                                token: this.token,
+                                token: this._token,
                             }
                         }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${error.name} | ${error.message}`));
                     }
@@ -450,7 +462,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                             this.send({
                                 op: 6,
                                 d: {
-                                    token: this.token,
+                                    token: this._token,
                                     session_id: this.sessionId,
                                     seq: this.lastSequence
                                 }

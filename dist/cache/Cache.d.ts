@@ -40,40 +40,40 @@ export declare class Cache {
      * Cached channels.
      * A channel's key in the collection is its ID.
      */
-    readonly channels?: Collection<Snowflake, CachedChannel>;
+    channels?: Collection<Snowflake, CachedChannel>;
     /**
      * Cached guilds.
      * A guild's key in the collection is its ID.
      */
-    readonly guilds?: Collection<Snowflake, CachedGuild>;
+    guilds?: Collection<Snowflake, CachedGuild>;
     /**
      * Cached members.
      * Each key of the parent cache is a guild ID, with its children being a collection of members in that guild.
      * A member's key in its collection is its user ID.
      */
-    readonly members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
+    members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
     /**
      * Cached presences.
      * Each key of the parent cache is a guild ID, with its children being a collection of presences in that guild.
      * A presence's key in its collection is its user's ID.
      */
-    readonly presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
+    presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
     /**
      * Cached roles.
      * A role's key in the collection is its ID.
      */
-    readonly roles?: Collection<Snowflake, CachedRole>;
+    roles?: Collection<Snowflake, CachedRole>;
     /**
      * Cached users.
      * A user's key in the collection is its ID.
      */
-    readonly users?: Collection<Snowflake, CachedUser>;
+    users?: Collection<Snowflake, CachedUser>;
     /**
      * Cached voice states.
      * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
      * A voice state's key in its collection is its user's ID.
      */
-    readonly voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
+    voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
     /**
      * Options for the cache manager.
      */
