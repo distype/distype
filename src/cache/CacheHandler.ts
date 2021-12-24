@@ -226,6 +226,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
             });
             break;
         }
+        case `MESSAGE_UPDATE`:
         case `MESSAGE_DELETE`:
         case `MESSAGE_DELETE_BULK`:
         case `MESSAGE_REACTION_ADD`:
