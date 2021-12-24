@@ -49,14 +49,16 @@ export interface RestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL`
  */
 export class Rest extends RestRequests {
     /**
-     * The bot's token.
-     */
-    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
-    public readonly token: string;
-    /**
      * Options for the rest manager.
      */
+    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: RestOptions & { version: number };
+
+    /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
+    private readonly _token: string;
 
     /**
      * Create a rest manager.
@@ -67,14 +69,19 @@ export class Rest extends RestRequests {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
-        Object.defineProperty(this, `token`, {
+
+        Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
-            value: token,
+            value: token as Rest[`_token`],
             writable: false
         });
-
-        this.options = completeRestOptions(options);
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze(completeRestOptions(options)) as Rest[`options`],
+            writable: false
+        });
     }
 
     public async request(method: RestMethod, route: string, options?: RestOptions & RestData): Promise<any> {
@@ -87,7 +94,7 @@ export class Rest extends RestRequests {
         const headers: Record<string, string> = {
             ...options.headers,
             ...(usingFormData ? options.data?.getHeaders() : undefined),
-            'Authorization': `Bot ${this.token}`,
+            'Authorization': `Bot ${this._token}`,
             'User-Agent': `DiscordBot (${BoogcordConstants.URL}, v${BoogcordConstants.VERSION})`
         };
 

@@ -144,16 +144,13 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     /**
      * The shard's ID.
      */
+    // @ts-expect-error Property 'id' has no initializer and is not definitely assigned in the constructor.
     public readonly id: number;
     /**
      * Options for the gateway shard.
      */
+    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: Required<GatewayShardOptions>;
-    /**
-     * The bot's token.
-     */
-    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
-    public readonly token: string;
 
     /**
      * A timeout used when connecting or resuming the shard.
@@ -202,6 +199,12 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     private _ws: WebSocket | null = null;
 
     /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
+    private readonly _token: string;
+
+    /**
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
@@ -211,15 +214,26 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
-        Object.defineProperty(this, `token`, {
+        if (!id) throw new TypeError(`A shard ID must be specified`);
+
+        Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
-            value: token,
+            value: token as GatewayShard[`_token`],
             writable: false
         });
-
-        this.id = id;
-        this.options = options;
+        Object.defineProperty(this, `id`, {
+            configurable: false,
+            enumerable: true,
+            value: id as GatewayShard[`id`],
+            writable: false
+        });
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze(options) as GatewayShard[`options`],
+            writable: false
+        });
     }
 
     /**
@@ -592,7 +606,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                                     $os: process.platform
                                 },
                                 shard: [this.id, this.options.numShards],
-                                token: this.token,
+                                token: this._token,
                             }
                         }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`));
                     } else if (this.state === GatewayShardState.RESUMING) {
@@ -600,7 +614,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                             this.send({
                                 op: 6,
                                 d: {
-                                    token: this.token,
+                                    token: this._token,
                                     session_id: this.sessionId,
                                     seq: this.lastSequence
                                 }

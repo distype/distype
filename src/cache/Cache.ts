@@ -44,44 +44,45 @@ export class Cache {
      * Cached channels.
      * A channel's key in the collection is its ID.
      */
-    public readonly channels?: Collection<Snowflake, CachedChannel>;
+    public channels?: Collection<Snowflake, CachedChannel>;
     /**
      * Cached guilds.
      * A guild's key in the collection is its ID.
      */
-    public readonly guilds?: Collection<Snowflake, CachedGuild>;
+    public guilds?: Collection<Snowflake, CachedGuild>;
     /**
      * Cached members.
      * Each key of the parent cache is a guild ID, with its children being a collection of members in that guild.
      * A member's key in its collection is its user ID.
      */
-    public readonly members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
+    public members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
     /**
      * Cached presences.
      * Each key of the parent cache is a guild ID, with its children being a collection of presences in that guild.
      * A presence's key in its collection is its user's ID.
      */
-    public readonly presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
+    public presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
     /**
      * Cached roles.
      * A role's key in the collection is its ID.
      */
-    public readonly roles?: Collection<Snowflake, CachedRole>;
+    public roles?: Collection<Snowflake, CachedRole>;
     /**
      * Cached users.
      * A user's key in the collection is its ID.
      */
-    public readonly users?: Collection<Snowflake, CachedUser>;
+    public users?: Collection<Snowflake, CachedUser>;
     /**
      * Cached voice states.
      * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
      * A voice state's key in its collection is its user's ID.
      */
-    public readonly voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
+    public voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
 
     /**
      * Options for the cache manager.
      */
+    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: Required<CacheOptions>;
 
     /**
@@ -89,10 +90,15 @@ export class Cache {
      * @param options Cache options.
      */
     constructor(options: CacheOptions = {}) {
-        this.options = completeCacheOptions(options);
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze(completeCacheOptions(options)) as Cache[`options`],
+            writable: false
+        });
 
+        // @ts-expect-error Property 'options' is used before being assigned.
         (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => {
-            // @ts-expect-error ts(2540)
             if (this.options.cacheControl[key] instanceof Array) this[key] = new Collection<any, any>();
         });
     }

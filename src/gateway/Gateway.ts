@@ -10,9 +10,36 @@ import { EventEmitter } from '@jpbberry/typed-emitter';
 
 /**
  * Gateway events.
+ * Note that with the exception of `SHARDS_READY`, all events are a relay of a `GatewayShard` event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export interface GatewayEvents {
+    /**
+     * When all shards are spawned and ready.
+     */
+    SHARDS_READY: null
+
+    /**
+     * When a payload is sent. Data is the sent payload.
+     */
+    SENT: string
+    /**
+     * When a shard enters a disconnected state.
+     */
+    SHARD_STATE_DISCONNECTED: GatewayShard
+    /**
+     * When a shard enters a connecting state.
+     */
+    SHARD_STATE_CONNECTING: GatewayShard
+    /**
+     * When a shard enters a resuming state.
+     */
+    SHARD_STATE_RESUMING: GatewayShard
+    /**
+     * When a shard enters a connected state.
+     */
+    SHARD_STATE_CONNECTED: GatewayShard
+
     '*': DiscordTypes.GatewayDispatchPayload // eslint-disable-line quotes
     DEBUG: string
     READY: DiscordTypes.GatewayReadyDispatch
@@ -54,6 +81,7 @@ export interface GatewayEvents {
     INVITE_CREATE: DiscordTypes.GatewayInviteCreateDispatch
     INVITE_DELETE: DiscordTypes.GatewayInviteDeleteDispatch
     MESSAGE_CREATE: DiscordTypes.GatewayMessageCreateDispatch
+    MESSAGE_UPDATE: DiscordTypes.GatewayMessageUpdateDispatch
     MESSAGE_DELETE: DiscordTypes.GatewayMessageDeleteDispatch
     MESSAGE_DELETE_BULK: DiscordTypes.GatewayMessageDeleteBulkDispatch
     MESSAGE_REACTION_ADD: DiscordTypes.GatewayMessageReactionAddDispatch
@@ -146,12 +174,14 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
 export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Gateway shards.
+     * Modifying this collection externally may result in unexpected behavior.
      */
-    public readonly shards: Collection<number, GatewayShard> = new Collection();
+    public shards: Collection<number, GatewayShard> = new Collection();
 
     /**
      * Options for the gateway manager.
      */
+    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: Omit<Required<GatewayOptions>, `intents`> & {
         intents: number
     };
@@ -159,15 +189,16 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * The cache manager to update from incoming events.
      */
-    private readonly _cache: Cache;
+    private _cache: Cache;
     /**
      * The rest manager to use for fetching gateway endpoints.
      */
-    private readonly _rest: Rest;
+    private _rest: Rest;
+
     /**
      * The bot's token.
      */
-    // @ts-expect-error Property 'token' has no initializer and is not definitely assigned in the constructor.
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
     private readonly _token: string;
 
     /**
@@ -181,19 +212,29 @@ export class Gateway extends EventEmitter<GatewayEvents> {
         super();
 
         if (!token) throw new TypeError(`A bot token must be specified`);
+        if (!cache) throw new TypeError(`A cache manager must be specified`);
+        if (!rest) throw new TypeError(`A rest manager must be specified`);
+
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
-            value: token,
+            value: token as Gateway[`_token`],
+            writable: false
+        });
+        Object.defineProperty(this, `options`, {
+            configurable: false,
+            enumerable: true,
+            value: Object.freeze(completeGatewayOptions(options)) as Gateway[`options`],
             writable: false
         });
 
         this._cache = cache;
         this._rest = rest;
 
-        this.options = completeGatewayOptions(options);
-
-        this.on(`*`, (data) => this._cache.options.cacheEventHandler(this._cache, data));
+        this.on(`*`, (data) => {
+            this._cache.options.cacheEventHandler(this._cache, data);
+            this.emit(data.t, data as any);
+        });
     }
 
     /**
