@@ -3,7 +3,7 @@ import { DiscordConstants } from '../utils/DiscordConstants';
 import { GatewayShard, GatewayShardOptions } from './GatewayShard';
 import { Rest } from '../rest/Rest';
 import Collection from '@discordjs/collection';
-import * as DiscordTypes from 'discord-api-types';
+import * as DiscordTypes from 'discord-api-types/v9';
 import { EventEmitter } from '@jpbberry/typed-emitter';
 /**
  * Gateway events.

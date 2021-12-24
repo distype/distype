@@ -1,7 +1,7 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheTypes';
 import { cacheEventHandler } from './CacheHandler';
 import Collection from '@discordjs/collection';
-import { Snowflake } from 'discord-api-types';
+import { Snowflake } from 'discord-api-types/v9';
 /**
  * Cache options.
  */
