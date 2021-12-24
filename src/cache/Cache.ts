@@ -1,5 +1,5 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheTypes';
-import { cacheEventHandler } from './CacheHandler';
+import { cacheEventHandler } from './cacheEventHandler';
 import { completeCacheOptions } from './completeCacheOptions';
 
 import Collection from '@discordjs/collection';

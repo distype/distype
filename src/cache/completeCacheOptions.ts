@@ -1,5 +1,5 @@
 import { Cache, CacheOptions } from './Cache';
-import { cacheEventHandler } from './CacheHandler';
+import { cacheEventHandler } from './cacheEventHandler';
 
 /**
  * Completes specified options for the cache manager.
