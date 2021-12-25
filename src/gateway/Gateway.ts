@@ -118,16 +118,16 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
      * Gateway sharding.
      * Unless you are using a custom scaling solution (for example, running your bot across numerous servers or processes), it is recommended that you leave all of these options undefined.
      * If you wish to manually specify the number of shards to spawn across your bot, you only need to set `GatewayOptions#sharding#totalBotShards`.
-     * 
+     *
      * When using a `Client`, specified options are passed directly to the gateway manager, without manipulation.
-     * 
+     *
      * When using a `ClientMaster` and `ClientWorker`, specified options are adapted internally to evenly distribute shards across workers.
      * Because these options are specified on `ClientMaster`, they act as if they're dictating 1 `Client` / `Gateway` instance.
      * This means that the options parameter of a `Gateway` instance may not exactly reflect the options specified.
      * - `GatewayOptions#sharding#totalBotShards` - Stays the same.
      * - `GatewayOptions#sharding#shards` - The amount of shards that will be spawned across all `ClientWorker`s. An individual `ClientWorker` will have `numWorkers / (totalBotShards - offset)` shards. This option does not have to be a multiple of the number of workers spawned; a non-multiple being specified will simply result in some workers having less shards. This is useful if you only wish to spawn a fraction of your bot's total shards on once instance.
      * - `GatewayOptions#sharding#offset` - The amount of shards to offset spawning by across all `ClientWorker`s. This option is adapted to have the "first" `ClientWorker` start at the specified offset, then following workers will be offset by the initial offset in addition to the number of shards spawned in previous workers. This option is useful if you are scaling your bot across numerous servers or processes.
-     * 
+     *
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
      */
     sharding?: {
@@ -146,7 +146,7 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
         shards?: number
         /**
          * The number of shards to offset spawning by.
-         * 
+         *
          * For example, with the following configuration, the last 2 of the total 4 shards would be spawned.
          * ```ts
          * const gatewayOptions: GatewayOptions = {
@@ -173,7 +173,7 @@ export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `n
 /**
  * The gateway manager.
  * Manages shards, handles incoming payloads, and sends commands to the Discord gateway.
- * 
+ *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
  * Dispatched events are emitted under the `*` event prior to being passed through the cache manager.
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
@@ -248,7 +248,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
      * Connect to the gateway.
      * @returns The results from shard spawns.
      */
-    public async connect(): Promise<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>[]> {
+    public async connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
         this.emit(`DEBUG`, `Starting connection process`);
 
         const gatewayBot = await this._rest.getGatewayBot();
@@ -298,7 +298,7 @@ export class Gateway extends EventEmitter<GatewayEvents> {
             this.emit(`DEBUG`, `Pushed shard ${shard.id} to bucket ${bucketId}`);
         }
 
-        const results: PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>[] = [];
+        const results: Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>> = [];
         for (let i = 0; i < buckets.size; i++) {
             this.emit(`DEBUG`, `Starting spawn process for bucket ${i}`);
             const bucketResult = await Promise.allSettled(buckets.get(i)!.map((shard) => shard.spawn()));

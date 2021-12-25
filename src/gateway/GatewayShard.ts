@@ -516,7 +516,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Listener used for `GatewayShard#_ws#on('error')`
      * @internal
      */
-    private _onError(error: Error) {
+    private _onError(error: Error): void {
         this.emit(`DEBUG`, `WebSocket error: ${error.name} | ${error.message}`);
     }
 
@@ -524,7 +524,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Listener used for `GatewayShard#_ws#on('message')`
      * @internal
      */
-    private _onMessage(data: RawData) {
+    private _onMessage(data: RawData): void {
         try {
             this.emit(`DEBUG`, `WebSocket got message`);
             if (Array.isArray(data)) data = Buffer.concat(data);
@@ -606,7 +606,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                                     $os: process.platform
                                 },
                                 shard: [this.id, this.options.numShards],
-                                token: this._token,
+                                token: this._token
                             }
                         }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`));
                     } else if (this.state === GatewayShardState.RESUMING) {

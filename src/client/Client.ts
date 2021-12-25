@@ -51,7 +51,7 @@ export class Client {
      */
     constructor(token: string, options: ClientOptions = {}) {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
-        
+
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,

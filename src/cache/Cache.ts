@@ -6,6 +6,11 @@ import Collection from '@discordjs/collection';
 import { Snowflake } from 'discord-api-types/v9';
 
 /**
+ * A function that handles gateway events to update the cache.
+ */
+export type CacheEventHandler = typeof cacheEventHandler;
+
+/**
  * Cache options.
  */
 export interface CacheOptions {
@@ -29,7 +34,7 @@ export interface CacheOptions {
      * A custom handler to use for updating the cache with incoming gateway events.
      * It is recommended that you leave this undefined, so that the built-in handler is used.
      */
-    cacheEventHandler?: typeof cacheEventHandler
+    cacheEventHandler?: CacheEventHandler
 }
 
 /**
