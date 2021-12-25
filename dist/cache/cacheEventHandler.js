@@ -292,15 +292,30 @@ const cacheEventHandler = (cache, data) => {
                 });
             break;
         }
-        // case `STAGE_INSTANCE_CREATE`: {
-        //     break;
-        // }
-        // case `STAGE_INSTANCE_DELETE`: {
-        //     break;
-        // }
-        // case `STAGE_INSTANCE_UPDATE`: {
-        //     break;
-        // }
+        case `STAGE_INSTANCE_CREATE`: {
+            if (enabled.includes(`guilds`))
+                updateGuild(cache, false, {
+                    id: data.d.guild_id,
+                    stage_instances: [data.d, ...(cache.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
+                });
+            break;
+        }
+        case `STAGE_INSTANCE_DELETE`: {
+            if (enabled.includes(`guilds`))
+                updateGuild(cache, false, {
+                    id: data.d.guild_id,
+                    stage_instances: cache.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []
+                });
+            break;
+        }
+        case `STAGE_INSTANCE_UPDATE`: {
+            if (enabled.includes(`guilds`))
+                updateGuild(cache, false, {
+                    id: data.d.guild_id,
+                    stage_instances: [data.d, ...(cache.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
+                });
+            break;
+        }
         case `TYPING_START`: {
             break;
         }
