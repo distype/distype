@@ -206,5 +206,5 @@ export declare class Gateway extends EventEmitter<GatewayEvents> {
      * Connect to the gateway.
      * @returns The results from shard spawns.
      */
-    connect(): Promise<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>[]>;
+    connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>>;
 }

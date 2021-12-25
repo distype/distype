@@ -453,7 +453,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                                     $os: process.platform
                                 },
                                 shard: [this.id, this.options.numShards],
-                                token: this._token,
+                                token: this._token
                             }
                         }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${error.name} | ${error.message}`));
                     }

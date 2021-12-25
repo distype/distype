@@ -271,7 +271,7 @@ const cacheEventHandler = (cache, data) => {
             if (enabled.includes(`channels`))
                 updateChannel(cache, false, {
                     id: data.d.channel_id,
-                    last_message_id: data.d.id,
+                    last_message_id: data.d.id
                 });
             break;
         }
