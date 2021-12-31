@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = void 0;
 const Cache_1 = require("../cache/Cache");
 const completeGatewayOptions_1 = require("./completeGatewayOptions");
+const DiscordConstants_1 = require("../utils/DiscordConstants");
 const GatewayShard_1 = require("./GatewayShard");
 const Rest_1 = require("../rest/Rest");
 const collection_1 = __importDefault(require("@discordjs/collection"));
@@ -111,11 +112,11 @@ class Gateway extends typed_emitter_1.EventEmitter {
         const results = [];
         for (let i = 0; i < buckets.size; i++) {
             this.emit(`DEBUG`, `Starting spawn process for bucket ${i}`);
-            const bucketResult = await Promise.allSettled(buckets.get(i).map((shard) => shard.spawn()));
+            const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
             this.emit(`DEBUG`, `Finished spawn process for bucket ${i}`);
             if (i !== buckets.size - 1)
-                await new Promise((resolve) => setTimeout(() => resolve(void 0), 5000));
+                await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
         this.emit(`SHARDS_READY`, null);
         this.emit(`DEBUG`, `Finished connection process`);
