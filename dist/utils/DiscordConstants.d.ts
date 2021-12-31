@@ -57,4 +57,9 @@ export declare const DiscordConstants: {
         readonly GUILD_MEMBERS: number;
         readonly GUILD_PRESENCES: number;
     };
+    /**
+     * The cooldown between spawning shards from the same bucket.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
+    readonly SHARD_SPAWN_COOLDOWN: 5000;
 };

@@ -59,5 +59,10 @@ exports.DiscordConstants = {
     PRIVILEGED_INTENTS: {
         GUILD_MEMBERS: 1 << 1,
         GUILD_PRESENCES: 1 << 8
-    }
+    },
+    /**
+     * The cooldown between spawning shards from the same bucket.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
+    SHARD_SPAWN_COOLDOWN: 5000
 };
