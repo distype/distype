@@ -3,10 +3,10 @@ import { DiscordConstants } from '../utils/DiscordConstants';
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
 import { Rest } from '../rest/Rest';
+import { TypedEmitter } from '../utils/TypedEmitter';
 
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types/v9';
-import { EventEmitter } from '@jpbberry/typed-emitter';
 import { URL, URLSearchParams } from 'url';
 
 /**
@@ -108,7 +108,7 @@ export interface GatewayEvents {
  * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
-export class Gateway extends EventEmitter<GatewayEvents> {
+export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Gateway shards.
      * Modifying this collection externally may result in unexpected behavior.

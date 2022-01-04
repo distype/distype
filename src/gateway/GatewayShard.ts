@@ -1,7 +1,7 @@
 import { GatewayShardOptions } from './GatewayOptions';
+import { TypedEmitter } from '../utils/TypedEmitter';
 
 import { RawData, WebSocket } from 'ws';
-import { EventEmitter } from '@jpbberry/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v9';
 
 /**
@@ -81,7 +81,7 @@ export enum GatewayShardState {
  * A single gateway shard.
  * Handles the low level ws communication with Discord.
  */
-export class GatewayShard extends EventEmitter<GatewayShardEvents> {
+export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * The last sequence number received.
      */
