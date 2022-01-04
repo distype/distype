@@ -154,7 +154,7 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
     else if (typeof options.gateway?.intents === `bigint`) intents = Number(options.gateway?.intents);
     else if (options.gateway?.intents instanceof Array) intents = options.gateway?.intents.reduce((p, c) => p | DiscordConstants.INTENTS[c], 0);
     else if (options.gateway?.intents === `all`) intents = Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0);
-    else intents = Object.values(DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
+    else intents = Object.values(DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0 as number));
 
     return {
         cache: {
