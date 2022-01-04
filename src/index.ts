@@ -4,15 +4,18 @@ export * from './cache/CacheObjects';
 export * from './cache/CacheOptions';
 
 export * from './client/Client';
+export * from './client/ClientOptions';
 export * from './client/scaling/ClientMaster';
 export * from './client/scaling/ClientWorker';
 
 export * from './gateway/Gateway';
+export * from './gateway/GatewayOptions';
 export * from './gateway/GatewayShard';
 
 export * from './rest/Rest';
+export * from './rest/RestOptions';
 
-export * from './utils/BoogcordConstants';
 export * from './utils/DiscordConstants';
+export * from './utils/DistypeConstants';
 
 export { Snowflake } from 'discord-api-types/v9';

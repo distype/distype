@@ -2,7 +2,7 @@
   "out": "./docs/",
   "entryPoints": ["src/index.ts"],
   "readme": "./README.md",
-  "name": "boogcord",
+  "name": "distype",
   "includeVersion": true,
   "excludePrivate": true,
   "theme": "default"

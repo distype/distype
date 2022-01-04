@@ -582,8 +582,8 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                                 large_threshold: this.options.largeGuildThreshold,
                                 presence: this.options.presence,
                                 properties: {
-                                    $browser: `boogcord`,
-                                    $device: `boogcord`,
+                                    $browser: `distype`,
+                                    $device: `distype`,
                                     $os: process.platform
                                 },
                                 shard: [this.id, this.numShards],

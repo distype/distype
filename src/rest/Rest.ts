@@ -1,5 +1,5 @@
-import { BoogcordConstants } from '../utils/BoogcordConstants';
 import { DiscordConstants } from '../utils/DiscordConstants';
+import { DistypeConstants } from '../utils/DistypeConstants';
 import { RestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 
@@ -82,7 +82,7 @@ export class Rest extends RestRequests {
             ...options.headers,
             ...(usingFormData ? options.data?.getHeaders() : undefined),
             'Authorization': `Bot ${this._token}`,
-            'User-Agent': `DiscordBot (${BoogcordConstants.URL}, v${BoogcordConstants.VERSION})`
+            'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`
         };
 
         if (!usingFormData && options.data) headers[`Content-Type`] = `application/json`;
