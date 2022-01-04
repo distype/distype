@@ -1,8 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.optionsFactory = void 0;
-const CacheEventHandler_1 = require("../cache/CacheEventHandler");
+const DefaultOptions_1 = require("../utils/DefaultOptions");
 const DiscordConstants_1 = require("../utils/DiscordConstants");
+/**
+ * Converts specified client options into complete client options.
+ * @param options Provided options.
+ * @returns Complete options.
+ * @internal
+ */
 const optionsFactory = (options) => {
     let intents;
     if (typeof options.gateway?.intents === `number`)
@@ -17,21 +23,21 @@ const optionsFactory = (options) => {
         intents = Object.values(DiscordConstants_1.DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants_1.DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
     return {
         cache: {
-            cacheControl: options.cache?.cacheControl ?? {},
-            cacheEventHandler: options.cache?.cacheEventHandler ?? CacheEventHandler_1.cacheEventHandler
+            cacheControl: options.cache?.cacheControl ?? DefaultOptions_1.DefaultOptions.CACHE.cacheControl,
+            cacheEventHandler: options.cache?.cacheEventHandler ?? DefaultOptions_1.DefaultOptions.CACHE.cacheEventHandler
         },
         gateway: {
             intents,
-            largeGuildThreshold: options.gateway?.largeGuildThreshold ?? undefined,
-            presence: options.gateway?.presence ?? undefined,
-            sharding: options.gateway?.sharding ?? {},
-            spawnAttemptDelay: options.gateway?.spawnAttemptDelay ?? 2500,
-            spawnMaxAttempts: options.gateway?.spawnMaxAttempts ?? 10,
-            spawnTimeout: options.gateway?.spawnTimeout ?? 30000,
-            version: options.gateway?.version ?? 9,
-            wsOptions: options.gateway?.wsOptions ?? undefined
+            largeGuildThreshold: options.gateway?.largeGuildThreshold ?? DefaultOptions_1.DefaultOptions.GATEWAY.largeGuildThreshold,
+            presence: options.gateway?.presence ?? DefaultOptions_1.DefaultOptions.GATEWAY.presence,
+            sharding: options.gateway?.sharding ?? DefaultOptions_1.DefaultOptions.GATEWAY.sharding,
+            spawnAttemptDelay: options.gateway?.spawnAttemptDelay ?? DefaultOptions_1.DefaultOptions.GATEWAY.spawnAttemptDelay,
+            spawnMaxAttempts: options.gateway?.spawnMaxAttempts ?? DefaultOptions_1.DefaultOptions.GATEWAY.spawnMaxAttempts,
+            spawnTimeout: options.gateway?.spawnTimeout ?? DefaultOptions_1.DefaultOptions.GATEWAY.spawnTimeout,
+            version: options.gateway?.version ?? DefaultOptions_1.DefaultOptions.GATEWAY.version,
+            wsOptions: options.gateway?.wsOptions ?? DefaultOptions_1.DefaultOptions.GATEWAY.wsOptions
         },
-        rest: options.rest ?? {}
+        rest: { version: options.rest?.version ?? DefaultOptions_1.DefaultOptions.REST.version }
     };
 };
 exports.optionsFactory = optionsFactory;

@@ -45,12 +45,14 @@ export interface ClientOptions {
         intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`;
         /**
          * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
-         * Must be between 50 and 250.
-         * @default 50
+         * Must be between `50` and `250`.
+         * Note that if undefined, Discord automatically uses their default of `50`.
+         * @default undefined
          */
         largeGuildThreshold?: number;
         /**
          * The initial presence for the bot to use.
+         * @default undefined
          */
         presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`];
         /**
@@ -75,7 +77,6 @@ export interface ClientOptions {
              * This value is used for the `num_shards` property sent in the identify payload.
              * **This is NOT the amount of shards the process will spawn. For that option, specify `GatewayOptions#sharding#shards`.**
              * `auto` will use the recommended number from Discord.
-             * @default `auto`
              */
             totalBotShards?: number | `auto`;
             /**
@@ -97,7 +98,6 @@ export interface ClientOptions {
              * }
              * ```
              * This option should only be manually defined if you are using a custom scaling solution externally from the library and hosting multiple instances of your bot, to prevent unexpected behavior.
-             * @default 0
              */
             offset?: number;
         };
@@ -119,7 +119,7 @@ export interface ClientOptions {
         /**
          * Advanced [ws](https://github.com/websockets/ws) options.
          * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
-         * @default {}
+         * @default undefined
          */
         wsOptions?: WsClientOptions;
         /**
@@ -138,4 +138,10 @@ export interface ClientOptions {
         version?: number;
     };
 }
+/**
+ * Converts specified client options into complete client options.
+ * @param options Provided options.
+ * @returns Complete options.
+ * @internal
+ */
 export declare const optionsFactory: (options: ClientOptions) => Client[`options`];

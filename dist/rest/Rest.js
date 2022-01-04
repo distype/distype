@@ -55,7 +55,7 @@ class Rest extends RestRequests_1.RestRequests {
             ...this.options,
             ...options,
             data: usingFormData ? options.data : options.data,
-            baseURL: `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${(options.version ?? this.options.version) ?? DiscordConstants_1.DiscordConstants.DEFAULT_REST_VERSION}`,
+            baseURL: `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`,
             url: route,
             method,
             headers

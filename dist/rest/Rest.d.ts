@@ -1,5 +1,5 @@
 import { RestOptions } from './RestOptions';
-import { RestRequests } from './RestRequests';
+import { RestRequestOptions, RestRequests } from './RestRequests';
 import FormData from 'form-data';
 /**
  * Data for a request.
@@ -42,6 +42,6 @@ export declare class Rest extends RestRequests {
      * @param options Rest options.
      */
     constructor(token: string, options: RestOptions);
-    request(method: RestMethod, route: string, options?: RestOptions & RestData): Promise<any>;
+    request(method: RestMethod, route: string, options?: RestRequestOptions & RestData): Promise<any>;
     private _make;
 }
