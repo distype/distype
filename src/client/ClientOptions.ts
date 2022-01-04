@@ -172,6 +172,15 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
             version: options.gateway?.version ?? DefaultOptions.GATEWAY.version,
             wsOptions: options.gateway?.wsOptions ?? DefaultOptions.GATEWAY.wsOptions
         },
-        rest: { version: options.rest?.version ?? DefaultOptions.REST.version }
+        rest: {
+            code500retries: 2,
+            ratelimits: {
+                globalPerSecond: 50,
+                offset: 20,
+                reject: false
+            },
+            timeout: 15000,
+            version: options.rest?.version ?? DefaultOptions.REST.version
+        }
     };
 };

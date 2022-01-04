@@ -1,24 +1,9 @@
 import { RestData, RestMethod } from './Rest';
+import { RestRequestOptions } from './RestOptions';
 
-import { AxiosRequestConfig } from 'axios';
 import * as DiscordTypes from 'discord-api-types/v9';
 import FormData from 'form-data';
 import { Snowflake } from 'discord-api-types/v9';
-
-
-/**
- * Options for rest requests.
- * Extends axios request configuration.
- * @see [Axios Documentation](https://axios-http.com/docs/req_config)
- */
-export interface RestRequestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL` | `data` | `method` | `params` | `responseType` | `signal` | `transitional` | `url`> {
-    /**
-     * The API version to use.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
-     * @default 9
-     */
-    version?: number
-}
 
 /**
  * A class containing methods for all routes for the Discord API.
