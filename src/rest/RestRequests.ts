@@ -1,23 +1,38 @@
 import { RestData, RestMethod } from './Rest';
-import { RestOptions } from './RestOptions';
 
+import { AxiosRequestConfig } from 'axios';
 import * as DiscordTypes from 'discord-api-types/v9';
 import FormData from 'form-data';
 import { Snowflake } from 'discord-api-types/v9';
+
+
+/**
+ * Options for rest requests.
+ * Extends axios request configuration.
+ * @see [Axios Documentation](https://axios-http.com/docs/req_config)
+ */
+export interface RestRequestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL` | `data` | `method` | `params` | `responseType` | `signal` | `transitional` | `url`> {
+    /**
+     * The API version to use.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
+     * @default 9
+     */
+    version?: number
+}
 
 /**
  * A class containing methods for all routes for the Discord API.
  * @internal
  */
 export abstract class RestRequests {
-    abstract request(method: RestMethod, route: string, options?: RestOptions & RestData): Promise<any>;
+    abstract request(method: RestMethod, route: string, options?: RestRequestOptions & RestData): Promise<any>;
 
     /**
      * @param applicationId The application ID.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-global-application-commands)
      */
-    public async getGlobalApplicationCommands(applicationId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandsResult> {
+    public async getGlobalApplicationCommands(applicationId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandsResult> {
         return await this.request(`GET`, `/applications/${applicationId}/commands`, options);
     }
 
@@ -27,7 +42,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#create-global-application-command)
      */
-    public async createGlobalApplicationCommand(applicationId: Snowflake, data: DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPostAPIApplicationCommandsResult> {
+    public async createGlobalApplicationCommand(applicationId: Snowflake, data: DiscordTypes.RESTPostAPIApplicationCommandsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIApplicationCommandsResult> {
         return await this.request(`POST`, `/applications/${applicationId}/commands`, {
             data, ...options
         });
@@ -39,7 +54,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-global-application-command)
      */
-    public async getGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandResult> {
+    public async getGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandResult> {
         return await this.request(`GET`, `/applications/${applicationId}/commands/${commandId}`, options);
     }
 
@@ -50,7 +65,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#edit-global-application-command)
      */
-    public async editGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, data: DiscordTypes.RESTPatchAPIApplicationCommandJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPatchAPIApplicationCommandResult> {
+    public async editGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, data: DiscordTypes.RESTPatchAPIApplicationCommandJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIApplicationCommandResult> {
         return await this.request(`PATCH`, `/applications/${applicationId}/commands/${commandId}`, {
             data, ...options
         });
@@ -62,7 +77,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-global-application-command)
      */
-    public async deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestOptions): Promise<void> {
+    public async deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<void> {
         return await this.request(`DELETE`, `/applications/${applicationId}/commands/${commandId}`, options);
     }
 
@@ -72,7 +87,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands)
      */
-    public async bulkOverwriteGlobalApplicationCommands(applicationId: Snowflake, data: DiscordTypes.RESTPutAPIApplicationCommandsJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPutAPIApplicationCommandsResult> {
+    public async bulkOverwriteGlobalApplicationCommands(applicationId: Snowflake, data: DiscordTypes.RESTPutAPIApplicationCommandsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIApplicationCommandsResult> {
         return await this.request(`PUT`, `/applications/${applicationId}/commands`, {
             data, ...options
         });
@@ -84,7 +99,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-guild-application-commands)
      */
-    public async getGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIApplicationGuildCommandsResult> {
+    public async getGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationGuildCommandsResult> {
         return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands`, options);
     }
 
@@ -95,7 +110,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#create-guild-application-command)
      */
-    public async createGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, data: DiscordTypes.RESTPostAPIApplicationGuildCommandsJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPostAPIApplicationGuildCommandsResult> {
+    public async createGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, data: DiscordTypes.RESTPostAPIApplicationGuildCommandsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIApplicationGuildCommandsResult> {
         return await this.request(`POST`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
             data, ...options
         });
@@ -108,7 +123,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-guild-application-command)
      */
-    public async getGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIApplicationGuildCommandResult> {
+    public async getGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationGuildCommandResult> {
         return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, options);
     }
 
@@ -120,7 +135,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#edit-guild-application-command)
      */
-    public async editGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, data: DiscordTypes.RESTPatchAPIApplicationGuildCommandJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPatchAPIApplicationGuildCommandResult> {
+    public async editGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, data: DiscordTypes.RESTPatchAPIApplicationGuildCommandJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIApplicationGuildCommandResult> {
         return await this.request(`POST`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, {
             data, ...options
         });
@@ -133,7 +148,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-guild-application-command)
      */
-    public async deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestOptions): Promise<void> {
+    public async deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<void> {
         return await this.request(`DELETE`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, options);
     }
 
@@ -144,7 +159,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-guild-application-commands)
      */
-    public async bulkOverwriteGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, data: DiscordTypes.RESTPutAPIApplicationGuildCommandsJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPutAPIApplicationGuildCommandsResult> {
+    public async bulkOverwriteGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, data: DiscordTypes.RESTPutAPIApplicationGuildCommandsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIApplicationGuildCommandsResult> {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
             data, ...options
         });
@@ -156,7 +171,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-guild-application-command-permissions)
      */
-    public async getGuildApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIGuildApplicationCommandsPermissionsResult> {
+    public async getGuildApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildApplicationCommandsPermissionsResult> {
         return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands/permissions`, options);
     }
 
@@ -167,7 +182,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-application-command-permissions)
      */
-    public async getApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandPermissionsResult> {
+    public async getApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandPermissionsResult> {
         return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`, options);
     }
 
@@ -179,7 +194,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#edit-application-command-permissions)
      */
-    public async editApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, data: DiscordTypes.RESTPutAPIApplicationCommandPermissionsJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPutAPIApplicationCommandPermissionsResult> {
+    public async editApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, data: DiscordTypes.RESTPutAPIApplicationCommandPermissionsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIApplicationCommandPermissionsResult> {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`, {
             data, ...options
         });
@@ -192,7 +207,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#batch-edit-application-command-permissions)
      */
-    public async batchEditApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, data: DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsJSONBody, options?: RestOptions): Promise<DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsResult> {
+    public async batchEditApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, data: DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsResult> {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/permissions`, {
             data, ...options
         });
@@ -205,7 +220,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
-    public async createInteractionResponse(interactionId: Snowflake, interactionToken: string, data: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestOptions): Promise<void> {
+    public async createInteractionResponse(interactionId: Snowflake, interactionToken: string, data: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<void> {
         return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}/callback`, {
             data, ...options
         });
@@ -217,7 +232,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response)
      */
-    public async getOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIInteractionOriginalResponseResult> {
+    public async getOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionOriginalResponseResult> {
         return await this.request(`GET`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options);
     }
 
@@ -228,7 +243,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
-    public async editOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, data: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | FormData, options?: RestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
+    public async editOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, data: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
         return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, {
             data, ...options
         });
@@ -240,7 +255,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
-    public async deleteOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, options?: RestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
+    public async deleteOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
         return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options) as Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult>;
     }
 
@@ -251,7 +266,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
-    public async createFollowupMessage(interactionId: Snowflake, interactionToken: string, data: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | FormData, options?: RestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
+    public async createFollowupMessage(interactionId: Snowflake, interactionToken: string, data: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
         return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}`, {
             data, ...options
         });
@@ -264,7 +279,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message)
      */
-    public async getFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIInteractionFollowupResult> {
+    public async getFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionFollowupResult> {
         return await this.request(`GET`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options);
     }
 
@@ -276,7 +291,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
-    public async editFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, data: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | FormData, options?: RestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
+    public async editFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, data: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
         return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, {
             data, ...options
         });
@@ -289,7 +304,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
-    public async deleteFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
+    public async deleteFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
         return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options) as Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult>;
     }
 
@@ -299,7 +314,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log)
      */
-    public async getGuildAuditLog(guildId: Snowflake, params: DiscordTypes.RESTGetAPIAuditLogQuery = {}, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult> {
+    public async getGuildAuditLog(guildId: Snowflake, params: DiscordTypes.RESTGetAPIAuditLogQuery = {}, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult> {
         return await this.request(`GET`, `/guilds/${guildId}/audit-logs`, {
             params, ...options
         });
@@ -310,7 +325,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel)
      */
-    public async getChannel(channelId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIChannelResult> {
+    public async getChannel(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelResult> {
         return await this.request(`GET`, `/channels/${channelId}`, options);
     }
 
@@ -321,7 +336,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#modify-channel)
      */
-    public async modifyChannel(channelId: Snowflake, data: DiscordTypes.RESTPatchAPIChannelJSONBody, reason?: string, options?: RestOptions): Promise<DiscordTypes.RESTPatchAPIChannelResult> {
+    public async modifyChannel(channelId: Snowflake, data: DiscordTypes.RESTPatchAPIChannelJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelResult> {
         return await this.request(`PATCH`, `/channels/${channelId}`, {
             data, reason, ...options
         });
@@ -333,7 +348,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#deleteclose-channel)
      */
-    public async deleteChannel(channelId: Snowflake, reason?: string, options?: RestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelResult> {
+    public async deleteChannel(channelId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelResult> {
         return await this.request(`DELETE`, `/channels/${channelId}`, {
             reason, ...options
         });
@@ -345,7 +360,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-messages)
      */
-    public async getChannelMessages(channelId: Snowflake, params: DiscordTypes.RESTGetAPIChannelMessagesQuery = {}, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessagesResult> {
+    public async getChannelMessages(channelId: Snowflake, params: DiscordTypes.RESTGetAPIChannelMessagesQuery = {}, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessagesResult> {
         return await this.request(`GET`, `/channels/${channelId}/messages`, {
             params, ...options
         });
@@ -357,7 +372,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-message)
      */
-    public async getChannelMessage(channelId: Snowflake, messageId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessageResult> {
+    public async getChannelMessage(channelId: Snowflake, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessageResult> {
         return await this.request(`GET`, `/channels/${channelId}/messages/${messageId}`, options);
     }
 
@@ -367,7 +382,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
      */
-    public async createMessage(channelId: Snowflake, data: DiscordTypes.RESTPostAPIChannelMessageJSONBody | FormData, options?: RestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageResult> {
+    public async createMessage(channelId: Snowflake, data: DiscordTypes.RESTPostAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageResult> {
         return await this.request(`POST`, `/channels/${channelId}/messages`, {
             data, ...options
         });
@@ -379,7 +394,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#crosspost-message)
      */
-    public async crosspostMessage(channelId: Snowflake, messageId: Snowflake, options?: RestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageCrosspostResult> {
+    public async crosspostMessage(channelId: Snowflake, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageCrosspostResult> {
         return await this.request(`POST`, `/channels/${channelId}/messages/${messageId}/crosspost`, options);
     }
 
@@ -390,7 +405,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-reaction)
      */
-    public async createReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestOptions): Promise<DiscordTypes.RESTPutAPIChannelMessageReactionResult> {
+    public async createReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelMessageReactionResult> {
         return await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as Promise<DiscordTypes.RESTPutAPIChannelMessageReactionResult>;
     }
 
@@ -401,7 +416,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-own-reaction)
      */
-    public async deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction> {
+    public async deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction> {
         return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction>;
     }
 
@@ -411,7 +426,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway)
      */
-    public async getGateway(options?: RestOptions): Promise<DiscordTypes.RESTGetAPIGatewayResult> {
+    public async getGateway(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGatewayResult> {
         return await this.request(`GET`, `/gateway`, options);
     }
 
@@ -419,7 +434,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway-bot)
      */
-    public async getGatewayBot(options?: RestOptions): Promise<DiscordTypes.RESTGetAPIGatewayBotResult> {
+    public async getGatewayBot(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGatewayBotResult> {
         return await this.request(`GET`, `/gateway/bot`, options);
     }
 }

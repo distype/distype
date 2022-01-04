@@ -1,6 +1,7 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
-import { CacheEventHandler, cacheEventHandler } from '../cache/CacheEventHandler';
+import { CacheEventHandler } from '../cache/CacheEventHandler';
 import { Client } from './Client';
+import { DefaultOptions } from '../utils/DefaultOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
 
 import { AxiosRequestConfig } from 'axios';
@@ -47,12 +48,14 @@ export interface ClientOptions {
         intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`
         /**
          * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
-         * Must be between 50 and 250.
-         * @default 50
+         * Must be between `50` and `250`.
+         * Note that if undefined, Discord automatically uses their default of `50`.
+         * @default undefined
          */
         largeGuildThreshold?: number
         /**
          * The initial presence for the bot to use.
+         * @default undefined
          */
         presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`]
         /**
@@ -77,7 +80,6 @@ export interface ClientOptions {
              * This value is used for the `num_shards` property sent in the identify payload.
              * **This is NOT the amount of shards the process will spawn. For that option, specify `GatewayOptions#sharding#shards`.**
              * `auto` will use the recommended number from Discord.
-             * @default `auto`
              */
             totalBotShards?: number | `auto`
             /**
@@ -99,7 +101,6 @@ export interface ClientOptions {
              * }
              * ```
              * This option should only be manually defined if you are using a custom scaling solution externally from the library and hosting multiple instances of your bot, to prevent unexpected behavior.
-             * @default 0
              */
             offset?: number
         }
@@ -121,7 +122,7 @@ export interface ClientOptions {
         /**
          * Advanced [ws](https://github.com/websockets/ws) options.
          * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
-         * @default {}
+         * @default undefined
          */
         wsOptions?: WsClientOptions
         /**
@@ -141,6 +142,12 @@ export interface ClientOptions {
     }
 }
 
+/**
+ * Converts specified client options into complete client options.
+ * @param options Provided options.
+ * @returns Complete options.
+ * @internal
+ */
 export const optionsFactory = (options: ClientOptions): Client[`options`] => {
     let intents: number;
     if (typeof options.gateway?.intents === `number`) intents = options.gateway?.intents;
@@ -151,20 +158,20 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
 
     return {
         cache: {
-            cacheControl: options.cache?.cacheControl ?? {},
-            cacheEventHandler: options.cache?.cacheEventHandler ?? cacheEventHandler
+            cacheControl: options.cache?.cacheControl ?? DefaultOptions.CACHE.cacheControl,
+            cacheEventHandler: options.cache?.cacheEventHandler ?? DefaultOptions.CACHE.cacheEventHandler
         },
         gateway: {
             intents,
-            largeGuildThreshold: options.gateway?.largeGuildThreshold ?? undefined,
-            presence: options.gateway?.presence ?? undefined,
-            sharding: options.gateway?.sharding ?? {},
-            spawnAttemptDelay: options.gateway?.spawnAttemptDelay ?? 2500,
-            spawnMaxAttempts: options.gateway?.spawnMaxAttempts ?? 10,
-            spawnTimeout: options.gateway?.spawnTimeout ?? 30000,
-            version: options.gateway?.version ?? 9,
-            wsOptions: options.gateway?.wsOptions ?? undefined
+            largeGuildThreshold: options.gateway?.largeGuildThreshold ?? DefaultOptions.GATEWAY.largeGuildThreshold,
+            presence: options.gateway?.presence ?? DefaultOptions.GATEWAY.presence,
+            sharding: options.gateway?.sharding ?? DefaultOptions.GATEWAY.sharding,
+            spawnAttemptDelay: options.gateway?.spawnAttemptDelay ?? DefaultOptions.GATEWAY.spawnAttemptDelay,
+            spawnMaxAttempts: options.gateway?.spawnMaxAttempts ?? DefaultOptions.GATEWAY.spawnMaxAttempts,
+            spawnTimeout: options.gateway?.spawnTimeout ?? DefaultOptions.GATEWAY.spawnTimeout,
+            version: options.gateway?.version ?? DefaultOptions.GATEWAY.version,
+            wsOptions: options.gateway?.wsOptions ?? DefaultOptions.GATEWAY.wsOptions
         },
-        rest: options.rest ?? {}
+        rest: { version: options.rest?.version ?? DefaultOptions.REST.version }
     };
 };

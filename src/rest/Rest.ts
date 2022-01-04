@@ -1,7 +1,7 @@
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { DistypeConstants } from '../utils/DistypeConstants';
 import { RestOptions } from './RestOptions';
-import { RestRequests } from './RestRequests';
+import { RestRequestOptions, RestRequests } from './RestRequests';
 
 import request, { AxiosResponse } from 'axios';
 import FormData from 'form-data';
@@ -71,11 +71,11 @@ export class Rest extends RestRequests {
         });
     }
 
-    public async request(method: RestMethod, route: string, options?: RestOptions & RestData): Promise<any> {
+    public async request(method: RestMethod, route: string, options?: RestRequestOptions & RestData): Promise<any> {
         return (await this._make(method, route, options)).data;
     }
 
-    private async _make(method: RestMethod, route: string, options: RestOptions & RestData = {}): Promise<AxiosResponse> {
+    private async _make(method: RestMethod, route: string, options: RestRequestOptions & RestData = {}): Promise<AxiosResponse> {
         const usingFormData: boolean = options.data instanceof FormData;
 
         const headers: Record<string, string> = {
@@ -92,7 +92,7 @@ export class Rest extends RestRequests {
             ...this.options,
             ...options,
             data: usingFormData ? options.data : options.data,
-            baseURL: `${DiscordConstants.BASE_URL}/v${(options.version ?? this.options.version) ?? DiscordConstants.DEFAULT_REST_VERSION}`,
+            baseURL: `${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`,
             url: route,
             method,
             headers

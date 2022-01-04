@@ -13,10 +13,6 @@ export const DiscordConstants = {
      */
     CDN_URL: `https://cdn.discordapp.com`,
     /**
-     * The default version to use for making REST requests.
-     */
-    DEFAULT_REST_VERSION: 9,
-    /**
      * Gateway ratelimits.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
      */
