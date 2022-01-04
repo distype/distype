@@ -18,5 +18,13 @@ export const DefaultOptions = {
         version: 9,
         wsOptions: undefined
     },
-    REST: { version: 9 }
+    REST: {
+        code500retries: 2,
+        ratelimits: {
+            globalPerSecond: 50,
+            pause: 10,
+            reject: false
+        },
+        version: 9
+    }
 } as const;
