@@ -1,9 +1,9 @@
 import { BoogcordConstants } from '../utils/BoogcordConstants';
-import { completeRestOptions } from './completeRestOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
+import { RestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 
-import request, { AxiosResponse, AxiosRequestConfig } from 'axios';
+import request, { AxiosResponse } from 'axios';
 import FormData from 'form-data';
 
 /**
@@ -31,20 +31,6 @@ export interface RestData {
 export type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 
 /**
- * Options for the rest manager and premade request methods.
- * Extends axios request configuration.
- * @see [Axios Documentation](https://axios-http.com/docs/req_config)
- */
-export interface RestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL` | `data` | `method` | `params` | `responseType` | `signal` | `transitional` | `url`> {
-    /**
-     * The API version to use.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
-     * @default 9
-     */
-    version?: number
-}
-
-/**
  * The rest manager.
  * Used for making rest requests to the Discord API.
  */
@@ -53,7 +39,7 @@ export class Rest extends RestRequests {
      * Options for the rest manager.
      */
     // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
-    public readonly options: RestOptions & { version: number };
+    public readonly options: RestOptions;
 
     /**
      * The bot's token.
@@ -66,7 +52,7 @@ export class Rest extends RestRequests {
      * @param token The bot's token.
      * @param options Rest options.
      */
-    constructor(token: string, options: RestOptions = {}) {
+    constructor(token: string, options: RestOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -80,7 +66,7 @@ export class Rest extends RestRequests {
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
-            value: Object.freeze(completeRestOptions(options)) as Rest[`options`],
+            value: Object.freeze(options) as Rest[`options`],
             writable: false
         });
     }
@@ -106,7 +92,7 @@ export class Rest extends RestRequests {
             ...this.options,
             ...options,
             data: usingFormData ? options.data : options.data,
-            baseURL: `${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`,
+            baseURL: `${DiscordConstants.BASE_URL}/v${(options.version ?? this.options.version) ?? DiscordConstants.DEFAULT_REST_VERSION}`,
             url: route,
             method,
             headers

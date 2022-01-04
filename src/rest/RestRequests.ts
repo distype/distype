@@ -1,4 +1,5 @@
-import { RestData, RestMethod, RestOptions } from './Rest';
+import { RestData, RestMethod } from './Rest';
+import { RestOptions } from './RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v9';
 import FormData from 'form-data';

@@ -1,7 +1,7 @@
 import { Cache } from '../cache/Cache';
-import { completeGatewayOptions } from './completeGatewayOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
-import { GatewayShard, GatewayShardOptions } from './GatewayShard';
+import { GatewayOptions } from './GatewayOptions';
+import { GatewayShard } from './GatewayShard';
 import { Rest } from '../rest/Rest';
 
 import Collection from '@discordjs/collection';
@@ -101,81 +101,11 @@ export interface GatewayEvents {
 }
 
 /**
- * Gateway options.
- */
-export interface GatewayOptions extends Omit<GatewayShardOptions, `intents` | `numShards` | `url`> {
-    /**
-     * Gateway intents.
-     * A numerical value is simply passed to the identify payload.
-     * An array of intent names will only enable the specified intents.
-     * `all` enables all intents, including privileged intents.
-     * `nonPrivileged` enables all non-privileged intents.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
-     * @default `nonPrivileged`
-     */
-    intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`
-    /**
-     * Gateway sharding.
-     * Unless you are using a custom scaling solution (for example, running your bot across numerous servers or processes), it is recommended that you leave all of these options undefined.
-     * If you wish to manually specify the number of shards to spawn across your bot, you only need to set `GatewayOptions#sharding#totalBotShards`.
-     *
-     * When using a `Client`, specified options are passed directly to the gateway manager, without manipulation.
-     *
-     * When using a `ClientMaster` and `ClientWorker`, specified options are adapted internally to evenly distribute shards across workers.
-     * Because these options are specified on `ClientMaster`, they act as if they're dictating 1 `Client` / `Gateway` instance.
-     * This means that the options parameter of a `Gateway` instance may not exactly reflect the options specified.
-     * - `GatewayOptions#sharding#totalBotShards` - Stays the same.
-     * - `GatewayOptions#sharding#shards` - The amount of shards that will be spawned across all `ClientWorker`s. An individual `ClientWorker` will have `numWorkers / (totalBotShards - offset)` shards. This option does not have to be a multiple of the number of workers spawned; a non-multiple being specified will simply result in some workers having less shards. This is useful if you only wish to spawn a fraction of your bot's total shards on once instance.
-     * - `GatewayOptions#sharding#offset` - The amount of shards to offset spawning by across all `ClientWorker`s. This option is adapted to have the "first" `ClientWorker` start at the specified offset, then following workers will be offset by the initial offset in addition to the number of shards spawned in previous workers. This option is useful if you are scaling your bot across numerous servers or processes.
-     *
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
-     */
-    sharding?: {
-        /**
-         * The number of shards the bot will have in total.
-         * This value is used for the `num_shards` property sent in the identify payload.
-         * **This is NOT the amount of shards the process will spawn. For that option, specify `GatewayOptions#sharding#shards`.**
-         * `auto` will use the recommended number from Discord.
-         * @default `auto`
-         */
-        totalBotShards?: number | `auto`
-        /**
-         * The amount of shards to spawn.
-         * By default, `GatewayOptions#sharding#totalBotShards` is used.
-         */
-        shards?: number
-        /**
-         * The number of shards to offset spawning by.
-         *
-         * For example, with the following configuration, the last 2 of the total 4 shards would be spawned.
-         * ```ts
-         * const gatewayOptions: GatewayOptions = {
-         *   sharding: {
-         *     totalBotShards: 4,
-         *     shards: 2,
-         *     offset: 2
-         *   }
-         * }
-         * ```
-         * This option should only be manually defined if you are using a custom scaling solution externally from the library and hosting multiple instances of your bot, to prevent unexpected behavior.
-         * @default 0
-         */
-        offset?: number
-    }
-    /**
-     * The Gateway version to use.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
-     * @default 9
-     */
-    version?: number
-}
-
-/**
  * The gateway manager.
  * Manages shards, handles incoming payloads, and sends commands to the Discord gateway.
  *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
- * Dispatched events are emitted under the `*` event prior to being passed through the cache manager.
+ * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 export class Gateway extends EventEmitter<GatewayEvents> {
@@ -187,16 +117,15 @@ export class Gateway extends EventEmitter<GatewayEvents> {
 
     /**
      * Options for the gateway manager.
+     * Note that if you are using a `Client` or `ClientWorker` / `ClientMaster` and not manually creating a `Gateway` separately, these options may differ than the options specified when creating the client due to them being passed through the options factory.
      */
     // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
-    public readonly options: Omit<Required<GatewayOptions>, `intents`> & {
-        intents: number
-    };
+    public readonly options: GatewayOptions;
 
     /**
      * The cache manager to update from incoming events.
      */
-    private _cache: Cache;
+    private _cache?: Cache;
     /**
      * The rest manager to use for fetching gateway endpoints.
      */
@@ -211,11 +140,11 @@ export class Gateway extends EventEmitter<GatewayEvents> {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
-     * @param cache The cache manager to update from incoming events.
+     * @param cache The cache manager to update from incoming events. If `false` is specified, gateway events will not be passed to a cache handler.
      * @param rest The rest manager to use for fetching gateway endpoints.
      * @param options Gateway options.
      */
-    constructor(token: string, cache: Cache, rest: Rest, options: GatewayOptions = {}) {
+    constructor(token: string, cache: Cache | false, rest: Rest, options: GatewayOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -231,15 +160,15 @@ export class Gateway extends EventEmitter<GatewayEvents> {
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
-            value: Object.freeze(completeGatewayOptions(options)) as Gateway[`options`],
+            value: Object.freeze(options) as Gateway[`options`],
             writable: false
         });
 
-        this._cache = cache;
+        if (cache) this._cache = cache;
         this._rest = rest;
 
         this.on(`*`, (data) => {
-            this._cache.options.cacheEventHandler(this._cache, data);
+            if (this._cache) this._cache.options.cacheEventHandler(this._cache, data);
             this.emit(data.t, data as any);
         });
     }
@@ -267,19 +196,9 @@ export class Gateway extends EventEmitter<GatewayEvents> {
         const buckets: Collection<number, Collection<number, GatewayShard>> = new Collection();
         for (let i = 0; i < this.options.sharding.shards; i++) {
             this.emit(`DEBUG`, `Creating shard ${i}`);
-            const shard = new GatewayShard(this._token, i, {
-                intents: this.options.intents,
-                largeGuildThreshold: this.options.largeGuildThreshold,
-                numShards: this.options.sharding.totalBotShards,
-                presence: this.options.presence,
-                spawnAttemptDelay: this.options.spawnAttemptDelay,
-                spawnMaxAttempts: this.options.spawnMaxAttempts,
-                spawnTimeout: this.options.spawnTimeout,
-                url: new URL(`?${new URLSearchParams({
-                    v: `${this.options.version}`, encoding: `json`
-                } as DiscordTypes.GatewayURLQuery as any).toString()}`, gatewayBot.url).toString(),
-                wsOptions: this.options.wsOptions
-            });
+            const shard = new GatewayShard(this._token, i, this.options.sharding.totalBotShards, new URL(`?${new URLSearchParams({
+                v: `${this.options.version}`, encoding: `json`
+            } as DiscordTypes.GatewayURLQuery as any).toString()}`, gatewayBot.url).toString(), this.options);
             this.shards.set(i, shard);
             this.emit(`DEBUG`, `Shard ${shard.id} created and pushed to Gateway#shards`);
 
@@ -300,10 +219,10 @@ export class Gateway extends EventEmitter<GatewayEvents> {
 
         const results: Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>> = [];
         for (let i = 0; i < buckets.size; i++) {
-            this.emit(`DEBUG`, `Starting spawn process for bucket ${i}`);
+            this.emit(`DEBUG`, `Starting spawn process for shard ratelimit key ${i}`);
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
-            this.emit(`DEBUG`, `Finished spawn process for bucket ${i}`);
+            this.emit(`DEBUG`, `Finished spawn process for shard ratelimit key ${i}`);
             if (i !== buckets.size - 1) await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
 

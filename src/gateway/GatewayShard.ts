@@ -1,4 +1,6 @@
-import { ClientOptions, RawData, WebSocket } from 'ws';
+import { GatewayShardOptions } from './GatewayOptions';
+
+import { RawData, WebSocket } from 'ws';
 import { EventEmitter } from '@jpbberry/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v9';
 
@@ -42,54 +44,6 @@ export interface GatewayShardEvents {
      * When the shard enters a connected state.
      */
     STATE_CONNECTED: null
-}
-
-/**
- * Gateway shard options.
- */
-export interface GatewayShardOptions {
-    /**
-     * Gateway intents.
-     */
-    intents: number
-    /**
-     * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
-     * Must be between 50 and 250.
-     * @default 50
-     */
-    largeGuildThreshold?: number
-    /**
-     * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
-     */
-    numShards: number
-    /**
-     * The initial presence for the bot to use.
-     */
-    presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`]
-    /**
-     * The number of milliseconds to wait between spawn and resume attempts.
-     * @default 2500
-     */
-    spawnAttemptDelay?: number
-    /**
-     * The maximum number of spawn attempts before rejecting.
-     * @default 10
-     */
-    spawnMaxAttempts?: number
-    /**
-     * The time in milliseconds to wait until considering a spawn or resume attempt timed out.
-     * @default 30000
-     */
-    spawnTimeout?: number
-    /**
-     * The URL for the socket to connect to.
-     */
-    url: string
-    /**
-     * Advanced [ws](https://github.com/websockets/ws) options.
-     * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
-     */
-    wsOptions?: ClientOptions
 }
 
 /**
@@ -147,10 +101,21 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
     // @ts-expect-error Property 'id' has no initializer and is not definitely assigned in the constructor.
     public readonly id: number;
     /**
+     * The value to pass to `num_shards` in the identify payload.
+     */
+    // @ts-expect-error Property 'numShards' has no initializer and is not definitely assigned in the constructor.
+    public readonly numShards: number;
+    /**
+     * The URL being used to connect to the gateway.
+     */
+    // @ts-expect-error Property 'url' has no initializer and is not definitely assigned in the constructor.
+    public readonly url: string;
+    /**
      * Options for the gateway shard.
+     * Note that if you are using a `Client` or `ClientWorker` / `ClientMaster` and not manually creating a `GatewayShard` separately, these options may differ than the options specified when creating the client due to them being passed through the options factory.
      */
     // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
-    public readonly options: Required<GatewayShardOptions>;
+    public readonly options: GatewayShardOptions;
 
     /**
      * A timeout used when connecting or resuming the shard.
@@ -208,13 +173,17 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
+     * @param numShards The value to pass to `num_shards` in the identify payload.
+     * @param url The URL being used to connect to the gateway.
      * @param options Gateway shard options.
      */
-    constructor(token: string, id: number, options: Required<GatewayShardOptions>) {
+    constructor(token: string, id: number, numShards: number, url: string, options: GatewayShardOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
         if (typeof id !== `number`) throw new TypeError(`A shard ID must be specified`);
+        if (typeof numShards !== `number`) throw new TypeError(`numShards must be specified`);
+        if (typeof url !== `string`) throw new TypeError(`A shard url must be specified`);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
@@ -226,6 +195,18 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
             configurable: false,
             enumerable: true,
             value: id as GatewayShard[`id`],
+            writable: false
+        });
+        Object.defineProperty(this, `numShards`, {
+            configurable: false,
+            enumerable: true,
+            value: numShards as GatewayShard[`numShards`],
+            writable: false
+        });
+        Object.defineProperty(this, `url`, {
+            configurable: false,
+            enumerable: true,
+            value: url as GatewayShard[`url`],
             writable: false
         });
         Object.defineProperty(this, `options`, {
@@ -431,7 +412,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                 reject(error);
             }, this.options.spawnTimeout);
 
-            this._ws = new WebSocket(this.options.url, this.options.wsOptions);
+            this._ws = new WebSocket(this.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
 
             this._ws.once(`error`, (error) => {
@@ -605,7 +586,7 @@ export class GatewayShard extends EventEmitter<GatewayShardEvents> {
                                     $device: `boogcord`,
                                     $os: process.platform
                                 },
-                                shard: [this.id, this.options.numShards],
+                                shard: [this.id, this.numShards],
                                 token: this._token
                             }
                         }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`));

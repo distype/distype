@@ -1,8 +1,13 @@
 import { Cache } from './Cache';
-import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheTypes';
+import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { GatewayEvents } from '../gateway/Gateway';
 
 import Collection from '@discordjs/collection';
+
+/**
+ * A function that handles gateway events to update the cache.
+ */
+export type CacheEventHandler = typeof cacheEventHandler;
 
 /**
  * The built in cache event handler function.
