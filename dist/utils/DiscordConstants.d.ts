@@ -1,3 +1,4 @@
+import { GatewayIntentBits } from 'discord-api-types';
 /**
  * Discord API constants.
  */
@@ -32,30 +33,30 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
     readonly INTENTS: {
-        readonly GUILDS: number;
-        readonly GUILD_MEMBERS: number;
-        readonly GUILD_BANS: number;
-        readonly GUILD_EMOJIS_AND_STICKERS: number;
-        readonly GUILD_INTEGRATIONS: number;
-        readonly GUILD_WEBHOOKS: number;
-        readonly GUILD_INVITES: number;
-        readonly GUILD_VOICE_STATES: number;
-        readonly GUILD_PRESENCES: number;
-        readonly GUILD_MESSAGES: number;
-        readonly GUILD_MESSAGE_REACTIONS: number;
-        readonly GUILD_MESSAGE_TYPING: number;
-        readonly DIRECT_MESSAGES: number;
-        readonly DIRECT_MESSAGE_REACTIONS: number;
-        readonly DIRECT_MESSAGE_TYPING: number;
-        readonly GUILD_SCHEDULED_EVENTS: number;
+        readonly GUILDS: GatewayIntentBits.Guilds;
+        readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
+        readonly GUILD_BANS: GatewayIntentBits.GuildBans;
+        readonly GUILD_EMOJIS_AND_STICKERS: GatewayIntentBits.GuildEmojisAndStickers;
+        readonly GUILD_INTEGRATIONS: GatewayIntentBits.GuildIntegrations;
+        readonly GUILD_WEBHOOKS: GatewayIntentBits.GuildWebhooks;
+        readonly GUILD_INVITES: GatewayIntentBits.GuildInvites;
+        readonly GUILD_VOICE_STATES: GatewayIntentBits.GuildVoiceStates;
+        readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
+        readonly GUILD_MESSAGES: GatewayIntentBits.GuildMessages;
+        readonly GUILD_MESSAGE_REACTIONS: GatewayIntentBits.GuildMessageReactions;
+        readonly GUILD_MESSAGE_TYPING: GatewayIntentBits.GuildMessageTyping;
+        readonly DIRECT_MESSAGES: GatewayIntentBits.DirectMessages;
+        readonly DIRECT_MESSAGE_REACTIONS: GatewayIntentBits.DirectMessageReactions;
+        readonly DIRECT_MESSAGE_TYPING: GatewayIntentBits.DirectMessageTyping;
+        readonly GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents;
     };
     /**
      * Privileged gateway intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
     readonly PRIVILEGED_INTENTS: {
-        readonly GUILD_MEMBERS: number;
-        readonly GUILD_PRESENCES: number;
+        readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
+        readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
     };
     /**
      * The cooldown between spawning shards from the same bucket.

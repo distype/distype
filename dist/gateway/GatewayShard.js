@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
+const TypedEmitter_1 = require("../utils/TypedEmitter");
 const ws_1 = require("ws");
-const typed_emitter_1 = require("@jpbberry/typed-emitter");
 /**
  * Gateway shard states.
  */
@@ -38,7 +38,7 @@ var GatewayShardState;
  * A single gateway shard.
  * Handles the low level ws communication with Discord.
  */
-class GatewayShard extends typed_emitter_1.EventEmitter {
+class GatewayShard extends TypedEmitter_1.TypedEmitter {
     /**
      * Create a gateway shard.
      * @param token The bot's token.

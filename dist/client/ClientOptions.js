@@ -37,7 +37,16 @@ const optionsFactory = (options) => {
             version: options.gateway?.version ?? DefaultOptions_1.DefaultOptions.GATEWAY.version,
             wsOptions: options.gateway?.wsOptions ?? DefaultOptions_1.DefaultOptions.GATEWAY.wsOptions
         },
-        rest: { version: options.rest?.version ?? DefaultOptions_1.DefaultOptions.REST.version }
+        rest: {
+            ...options.rest,
+            code500retries: options.rest?.code500retries ?? DefaultOptions_1.DefaultOptions.REST.code500retries,
+            ratelimits: {
+                globalPerSecond: options.rest?.ratelimits?.globalPerSecond ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.globalPerSecond,
+                pause: options.rest?.ratelimits?.pause ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.pause,
+                reject: options.rest?.ratelimits?.reject ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.reject
+            } ?? DefaultOptions_1.DefaultOptions.REST.ratelimits,
+            version: options.rest?.version ?? DefaultOptions_1.DefaultOptions.REST.version
+        }
     };
 };
 exports.optionsFactory = optionsFactory;

@@ -2,9 +2,9 @@ import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 import { CacheEventHandler } from '../cache/CacheEventHandler';
 import { Client } from './Client';
 import { DiscordConstants } from '../utils/DiscordConstants';
-import { AxiosRequestConfig } from 'axios';
 import * as DiscordTypes from 'discord-api-types/v9';
 import { ClientOptions as WsClientOptions } from 'ws';
+import { request } from 'undici';
 /**
  * Options for the client.
  */
@@ -129,9 +129,35 @@ export interface ClientOptions {
          */
         version: number;
     };
-    rest?: Omit<AxiosRequestConfig, `auth` | `baseURL` | `data` | `method` | `params` | `responseType` | `signal` | `transitional` | `url`> & {
+    rest?: Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `bodyTimeout`> & {
         /**
-         * The API version to use.
+         * The amount of times to retry a request if it returns code `500`.
+         * @default 2
+         */
+        code500retries?: number;
+        /**
+         * Ratelimit options.
+         */
+        ratelimits?: {
+            /**
+             * The amount of requests to allow to be sent per second.
+             * Note that this only applies to a single `ClientWorker` instance (If `ClientWorker` and `ClientMaster` are being used), meaning that you still may encounter 429 errors from global ratelimits.
+             * @default 50
+             */
+            globalPerSecond?: number;
+            /**
+             * The amount of time in milliseconds to wait between requests.
+             * @default 10
+             */
+            pause?: number;
+            /**
+             * If a request should be rejected if ratelimited.
+             * @default false
+             */
+            reject?: boolean;
+        };
+        /**
+         * The Discord API version to use.
          * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
          * @default 9
          */

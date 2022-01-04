@@ -1,5 +1,5 @@
-import { RestOptions } from './RestOptions';
-import { RestRequestOptions, RestRequests } from './RestRequests';
+import { RestOptions, RestRequestOptions } from './RestOptions';
+import { RestRequests } from './RestRequests';
 import FormData from 'form-data';
 /**
  * Data for a request.
@@ -9,11 +9,15 @@ export interface RestData {
     /**
      * The request body.
      */
-    data?: Record<string, any> | FormData;
+    body?: Record<string, any> | FormData;
     /**
      * The request query.
      */
     params?: Record<string, any>;
+    /**
+     * The request query.
+     */
+    query?: Record<string, any>;
     /**
      * The value for the X-Audit-Log-Reason header.
      */

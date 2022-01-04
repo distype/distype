@@ -35,30 +35,30 @@ exports.DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
     INTENTS: {
-        GUILDS: 1 << 0,
-        GUILD_MEMBERS: 1 << 1,
-        GUILD_BANS: 1 << 2,
-        GUILD_EMOJIS_AND_STICKERS: 1 << 3,
-        GUILD_INTEGRATIONS: 1 << 4,
-        GUILD_WEBHOOKS: 1 << 5,
-        GUILD_INVITES: 1 << 6,
-        GUILD_VOICE_STATES: 1 << 7,
-        GUILD_PRESENCES: 1 << 8,
-        GUILD_MESSAGES: 1 << 9,
-        GUILD_MESSAGE_REACTIONS: 1 << 10,
-        GUILD_MESSAGE_TYPING: 1 << 11,
-        DIRECT_MESSAGES: 1 << 12,
-        DIRECT_MESSAGE_REACTIONS: 1 << 13,
-        DIRECT_MESSAGE_TYPING: 1 << 14,
-        GUILD_SCHEDULED_EVENTS: 1 << 16
+        GUILDS: 1 /* Guilds */,
+        GUILD_MEMBERS: 2 /* GuildMembers */,
+        GUILD_BANS: 4 /* GuildBans */,
+        GUILD_EMOJIS_AND_STICKERS: 8 /* GuildEmojisAndStickers */,
+        GUILD_INTEGRATIONS: 16 /* GuildIntegrations */,
+        GUILD_WEBHOOKS: 32 /* GuildWebhooks */,
+        GUILD_INVITES: 64 /* GuildInvites */,
+        GUILD_VOICE_STATES: 128 /* GuildVoiceStates */,
+        GUILD_PRESENCES: 256 /* GuildPresences */,
+        GUILD_MESSAGES: 512 /* GuildMessages */,
+        GUILD_MESSAGE_REACTIONS: 1024 /* GuildMessageReactions */,
+        GUILD_MESSAGE_TYPING: 2048 /* GuildMessageTyping */,
+        DIRECT_MESSAGES: 4096 /* DirectMessages */,
+        DIRECT_MESSAGE_REACTIONS: 8192 /* DirectMessageReactions */,
+        DIRECT_MESSAGE_TYPING: 16384 /* DirectMessageTyping */,
+        GUILD_SCHEDULED_EVENTS: 65536 /* GuildScheduledEvents */
     },
     /**
      * Privileged gateway intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
     PRIVILEGED_INTENTS: {
-        GUILD_MEMBERS: 1 << 1,
-        GUILD_PRESENCES: 1 << 8
+        GUILD_MEMBERS: 2 /* GuildMembers */,
+        GUILD_PRESENCES: 256 /* GuildPresences */
     },
     /**
      * The cooldown between spawning shards from the same bucket.

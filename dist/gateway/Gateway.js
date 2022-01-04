@@ -8,8 +8,8 @@ const Cache_1 = require("../cache/Cache");
 const DiscordConstants_1 = require("../utils/DiscordConstants");
 const GatewayShard_1 = require("./GatewayShard");
 const Rest_1 = require("../rest/Rest");
+const TypedEmitter_1 = require("../utils/TypedEmitter");
 const collection_1 = __importDefault(require("@discordjs/collection"));
-const typed_emitter_1 = require("@jpbberry/typed-emitter");
 const url_1 = require("url");
 /**
  * The gateway manager.
@@ -19,7 +19,7 @@ const url_1 = require("url");
  * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
-class Gateway extends typed_emitter_1.EventEmitter {
+class Gateway extends TypedEmitter_1.TypedEmitter {
     /**
      * Create a gateway manager.
      * @param token The bot's token.

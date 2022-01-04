@@ -2,9 +2,9 @@ import { Cache } from '../cache/Cache';
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
 import { Rest } from '../rest/Rest';
+import { TypedEmitter } from '../utils/TypedEmitter';
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types/v9';
-import { EventEmitter } from '@jpbberry/typed-emitter';
 /**
  * Gateway events.
  * Note that with the exception of `SHARDS_READY`, all events are a relay of a `GatewayShard` event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
@@ -101,7 +101,7 @@ export interface GatewayEvents {
  * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
-export declare class Gateway extends EventEmitter<GatewayEvents> {
+export declare class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Gateway shards.
      * Modifying this collection externally may result in unexpected behavior.

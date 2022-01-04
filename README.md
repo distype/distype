@@ -21,7 +21,7 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 
 - **Scalable:** With a built-in sharding manager, and even support for using Node.js worker threads, Distype makes it easy to scale your bot, from 10 servers to 10 thousand.
 - **Predictable:** Distype is as close as you can get to the Discord API, meaning that typically, what you see in Discord's documentation is also here.
-- **Lightweight:** Distype does minimal manipulation of incoming gateway events, responses to REST requests, etc. Additionally, Distype only has 6 direct dependencies, which resolve out to 12 in total.
+- **Lightweight:** Distype does minimal manipulation of incoming gateway events, responses to REST requests, etc. Additionally, Distype only has 5 direct dependencies.
 - **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
 - **Plugins:** Distype has several pre-built plugins that can be optionally installed, including a robust and easy to use command handler, a lavalink client for music bots, and a UI for monitoring your deployments along with manipulating multiple instances of your bot to cater zero downtime via rolling restarts.
 

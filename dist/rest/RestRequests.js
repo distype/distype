@@ -16,13 +16,13 @@ class RestRequests {
     }
     /**
      * @param applicationId The application ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#create-global-application-command)
      */
-    async createGlobalApplicationCommand(applicationId, data, options) {
+    async createGlobalApplicationCommand(applicationId, body, options) {
         return await this.request(`POST`, `/applications/${applicationId}/commands`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -37,13 +37,13 @@ class RestRequests {
     /**
      * @param applicationId The application ID.
      * @param commandId The command ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#edit-global-application-command)
      */
-    async editGlobalApplicationCommand(applicationId, commandId, data, options) {
+    async editGlobalApplicationCommand(applicationId, commandId, body, options) {
         return await this.request(`PATCH`, `/applications/${applicationId}/commands/${commandId}`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -57,13 +57,13 @@ class RestRequests {
     }
     /**
      * @param applicationId The application ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-global-application-commands)
      */
-    async bulkOverwriteGlobalApplicationCommands(applicationId, data, options) {
+    async bulkOverwriteGlobalApplicationCommands(applicationId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/commands`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -78,13 +78,13 @@ class RestRequests {
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#create-guild-application-command)
      */
-    async createGuildApplicationCommand(applicationId, guildId, data, options) {
+    async createGuildApplicationCommand(applicationId, guildId, body, options) {
         return await this.request(`POST`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -101,13 +101,13 @@ class RestRequests {
      * @param applicationId The application ID.
      * @param guildId The guild ID.
      * @param commandId The command ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#edit-guild-application-command)
      */
-    async editGuildApplicationCommand(applicationId, guildId, commandId, data, options) {
+    async editGuildApplicationCommand(applicationId, guildId, commandId, body, options) {
         return await this.request(`POST`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -123,13 +123,13 @@ class RestRequests {
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#bulk-overwrite-guild-application-commands)
      */
-    async bulkOverwriteGuildApplicationCommands(applicationId, guildId, data, options) {
+    async bulkOverwriteGuildApplicationCommands(applicationId, guildId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -155,37 +155,37 @@ class RestRequests {
      * @param applicationId The application ID.
      * @param guildId The guild ID.
      * @param commandId The command ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#edit-application-command-permissions)
      */
-    async editApplicationCommandPermissions(applicationId, guildId, commandId, data, options) {
+    async editApplicationCommandPermissions(applicationId, guildId, commandId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#batch-edit-application-command-permissions)
      */
-    async batchEditApplicationCommandPermissions(applicationId, guildId, data, options) {
+    async batchEditApplicationCommandPermissions(applicationId, guildId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/permissions`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
-    async createInteractionResponse(interactionId, interactionToken, data, options) {
+    async createInteractionResponse(interactionId, interactionToken, body, options) {
         return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}/callback`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -200,13 +200,13 @@ class RestRequests {
     /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
-    async editOriginalInteractionResponse(interactionId, interactionToken, data, options) {
+    async editOriginalInteractionResponse(interactionId, interactionToken, body, options) {
         return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -221,13 +221,13 @@ class RestRequests {
     /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
-    async createFollowupMessage(interactionId, interactionToken, data, options) {
+    async createFollowupMessage(interactionId, interactionToken, body, options) {
         return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -244,13 +244,13 @@ class RestRequests {
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
-    async editFollowupMessage(interactionId, interactionToken, messageId, data, options) {
+    async editFollowupMessage(interactionId, interactionToken, messageId, body, options) {
         return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
@@ -265,13 +265,13 @@ class RestRequests {
     }
     /**
      * @param guildId The guild ID.
-     * @param params Request query.
+     * @param query Request query.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log)
      */
-    async getGuildAuditLog(guildId, params = {}, options) {
+    async getGuildAuditLog(guildId, query = {}, options) {
         return await this.request(`GET`, `/guilds/${guildId}/audit-logs`, {
-            params, ...options
+            query, ...options
         });
     }
     /**
@@ -284,14 +284,14 @@ class RestRequests {
     }
     /**
      * @param channelId The channel ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param reason The value for the `X-Audit-Log-Reason` header.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#modify-channel)
      */
-    async modifyChannel(channelId, data, reason, options) {
+    async modifyChannel(channelId, body, reason, options) {
         return await this.request(`PATCH`, `/channels/${channelId}`, {
-            data, reason, ...options
+            body, reason, ...options
         });
     }
     /**
@@ -307,13 +307,13 @@ class RestRequests {
     }
     /**
      * @param channelId The channel ID.
-     * @param params Request query.
+     * @param query Request query.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-messages)
      */
-    async getChannelMessages(channelId, params = {}, options) {
+    async getChannelMessages(channelId, query = {}, options) {
         return await this.request(`GET`, `/channels/${channelId}/messages`, {
-            params, ...options
+            query, ...options
         });
     }
     /**
@@ -327,13 +327,13 @@ class RestRequests {
     }
     /**
      * @param channelId The channel ID.
-     * @param data Request body.
+     * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
      */
-    async createMessage(channelId, data, options) {
+    async createMessage(channelId, body, options) {
         return await this.request(`POST`, `/channels/${channelId}/messages`, {
-            data, ...options
+            body, ...options
         });
     }
     /**
