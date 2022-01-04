@@ -1,6 +1,6 @@
 {
-  "name": "boogcord",
-  "version": "0.0.2",
+  "name": "distype",
+  "version": "0.1.0",
   "description": "A light yet robust Discord library written in TypeScript, catered towards developers looking for a final, no compromises solution for creating Discord bots.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -18,23 +18,23 @@
   },
   "keywords": [
     "api",
-    "boogcord",
     "bot",
     "client",
     "discord",
     "discord-api",
     "discord-bot",
-    "discordapp"
+    "discordapp",
+    "distype"
   ],
-  "homepage": "https://boogcord.br88c.dev",
+  "homepage": "https://distype.br88c.dev",
   "bugs": {
-    "url": "https://github.com/boogcord/boogcord/issues"
+    "url": "https://github.com/distype/distype/issues"
   },
   "license": "Apache-2.0",
   "author": "BR88C",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/boogcord/boogcord.git"
+    "url": "git+https://github.com/distype/distype.git"
   },
   "dependencies": {
     "@discordjs/collection": "^0.4.0",

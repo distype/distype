@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Rest = void 0;
-const BoogcordConstants_1 = require("../utils/BoogcordConstants");
 const DiscordConstants_1 = require("../utils/DiscordConstants");
+const DistypeConstants_1 = require("../utils/DistypeConstants");
 const RestRequests_1 = require("./RestRequests");
 const axios_1 = __importDefault(require("axios"));
 const form_data_1 = __importDefault(require("form-data"));
@@ -45,7 +45,7 @@ class Rest extends RestRequests_1.RestRequests {
             ...options.headers,
             ...(usingFormData ? options.data?.getHeaders() : undefined),
             'Authorization': `Bot ${this._token}`,
-            'User-Agent': `DiscordBot (${BoogcordConstants_1.BoogcordConstants.URL}, v${BoogcordConstants_1.BoogcordConstants.VERSION})`
+            'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`
         };
         if (!usingFormData && options.data)
             headers[`Content-Type`] = `application/json`;
