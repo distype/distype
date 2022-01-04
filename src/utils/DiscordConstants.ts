@@ -1,3 +1,5 @@
+import { GatewayIntentBits } from 'discord-api-types';
+
 /**
  * Discord API constants.
  */
@@ -32,30 +34,30 @@ export const DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
     INTENTS: {
-        GUILDS: 1 << 0,
-        GUILD_MEMBERS: 1 << 1,
-        GUILD_BANS: 1 << 2,
-        GUILD_EMOJIS_AND_STICKERS: 1 << 3,
-        GUILD_INTEGRATIONS: 1 << 4,
-        GUILD_WEBHOOKS: 1 << 5,
-        GUILD_INVITES: 1 << 6,
-        GUILD_VOICE_STATES: 1 << 7,
-        GUILD_PRESENCES: 1 << 8,
-        GUILD_MESSAGES: 1 << 9,
-        GUILD_MESSAGE_REACTIONS: 1 << 10,
-        GUILD_MESSAGE_TYPING: 1 << 11,
-        DIRECT_MESSAGES: 1 << 12,
-        DIRECT_MESSAGE_REACTIONS: 1 << 13,
-        DIRECT_MESSAGE_TYPING: 1 << 14,
-        GUILD_SCHEDULED_EVENTS: 1 << 16
+        GUILDS: GatewayIntentBits.Guilds,
+        GUILD_MEMBERS: GatewayIntentBits.GuildMembers,
+        GUILD_BANS: GatewayIntentBits.GuildBans,
+        GUILD_EMOJIS_AND_STICKERS: GatewayIntentBits.GuildEmojisAndStickers,
+        GUILD_INTEGRATIONS: GatewayIntentBits.GuildIntegrations,
+        GUILD_WEBHOOKS: GatewayIntentBits.GuildWebhooks,
+        GUILD_INVITES: GatewayIntentBits.GuildInvites,
+        GUILD_VOICE_STATES: GatewayIntentBits.GuildVoiceStates,
+        GUILD_PRESENCES: GatewayIntentBits.GuildPresences,
+        GUILD_MESSAGES: GatewayIntentBits.GuildMessages,
+        GUILD_MESSAGE_REACTIONS: GatewayIntentBits.GuildMessageReactions,
+        GUILD_MESSAGE_TYPING: GatewayIntentBits.GuildMessageTyping,
+        DIRECT_MESSAGES: GatewayIntentBits.DirectMessages,
+        DIRECT_MESSAGE_REACTIONS: GatewayIntentBits.DirectMessageReactions,
+        DIRECT_MESSAGE_TYPING: GatewayIntentBits.DirectMessageTyping,
+        GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents
     },
     /**
      * Privileged gateway intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
     PRIVILEGED_INTENTS: {
-        GUILD_MEMBERS: 1 << 1,
-        GUILD_PRESENCES: 1 << 8
+        GUILD_MEMBERS: GatewayIntentBits.GuildMembers,
+        GUILD_PRESENCES: GatewayIntentBits.GuildPresences
     },
     /**
      * The cooldown between spawning shards from the same bucket.
