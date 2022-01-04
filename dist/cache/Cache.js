@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cache = void 0;
-const completeCacheOptions_1 = require("./completeCacheOptions");
 const collection_1 = __importDefault(require("@discordjs/collection"));
 /**
  * The cache manager.
@@ -18,11 +17,11 @@ class Cache {
      * Create a cache manager.
      * @param options Cache options.
      */
-    constructor(options = {}) {
+    constructor(options) {
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
-            value: Object.freeze((0, completeCacheOptions_1.completeCacheOptions)(options)),
+            value: Object.freeze(options),
             writable: false
         });
         // @ts-expect-error Property 'options' is used before being assigned.

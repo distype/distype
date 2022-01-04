@@ -1,14 +1,7 @@
-import { Cache, CacheOptions } from '../cache/Cache';
-import { Gateway, GatewayOptions } from '../gateway/Gateway';
-import { Rest, RestOptions } from '../rest/Rest';
-/**
- * Options for the client.
- */
-export interface ClientOptions {
-    cache?: CacheOptions;
-    gateway?: GatewayOptions;
-    rest?: RestOptions;
-}
+import { Cache } from '../cache/Cache';
+import { ClientOptions } from './ClientOptions';
+import { Gateway } from '../gateway/Gateway';
+import { Rest } from '../rest/Rest';
 /**
  * The Discord client.
  */
@@ -27,6 +20,7 @@ export declare class Client {
     rest: Rest;
     /**
      * Options for the client.
+     * Note that these options may differ than the options specified when creating the client due to them being passed through the options factory.
      */
     readonly options: {
         cache: Cache[`options`];

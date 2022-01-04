@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = void 0;
 const Cache_1 = require("../cache/Cache");
+const ClientOptions_1 = require("./ClientOptions");
 const Gateway_1 = require("../gateway/Gateway");
 const Rest_1 = require("../rest/Rest");
 /**
@@ -22,19 +23,18 @@ class Client {
             value: token,
             writable: false
         });
-        this.cache = new Cache_1.Cache(options.cache);
-        this.rest = new Rest_1.Rest(token, options.rest);
-        this.gateway = new Gateway_1.Gateway(token, this.cache, this.rest, options.gateway);
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
-            value: Object.freeze({
-                cache: this.cache.options,
-                gateway: this.gateway.options,
-                rest: this.rest.options
-            }),
+            value: Object.freeze((0, ClientOptions_1.optionsFactory)(options)),
             writable: false
         });
+        // @ts-expect-error Property 'options' is used before being assigned.
+        this.cache = new Cache_1.Cache(this.options.cache);
+        // @ts-expect-error Property 'options' is used before being assigned.
+        this.rest = new Rest_1.Rest(token, this.options.rest);
+        // @ts-expect-error Property 'options' is used before being assigned.
+        this.gateway = new Gateway_1.Gateway(token, this.cache, this.rest, this.options.gateway);
     }
 }
 exports.Client = Client;

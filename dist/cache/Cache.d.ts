@@ -1,37 +1,7 @@
-import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheTypes';
-import { cacheEventHandler } from './cacheEventHandler';
+import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
+import { CacheOptions } from './CacheOptions';
 import Collection from '@discordjs/collection';
 import { Snowflake } from 'discord-api-types/v9';
-/**
- * A function that handles gateway events to update the cache.
- */
-export declare type CacheEventHandler = typeof cacheEventHandler;
-/**
- * Cache options.
- */
-export interface CacheOptions {
-    /**
-     * Cache control.
-     * By default, nothing is cached. Cache is enabled on a per-key basis, meaning you specify what keys of data you wish to keep cached.
-     * Keep in mind that even if you select to cache data, that data may not be available until specific gateway dispatches are received.
-     * Defining an empty array (`[]`) will only cache the required data.
-     * @default {}
-     */
-    cacheControl?: {
-        channels?: Array<keyof Omit<CachedChannel, `id` | `guild_id`>>;
-        guilds?: Array<keyof Omit<CachedGuild, `id`>>;
-        members?: Array<keyof Omit<CachedMember, `user_id` | `guild_id`>>;
-        presences?: Array<keyof Omit<CachedPresence, `user_id` | `guild_id`>>;
-        roles?: Array<keyof Omit<CachedRole, `id` | `guild_id`>>;
-        users?: Array<keyof Omit<CachedUser, `id`>>;
-        voiceStates?: Array<keyof Omit<CachedVoiceState, `user_id` | `guild_id`>>;
-    };
-    /**
-     * A custom handler to use for updating the cache with incoming gateway events.
-     * It is recommended that you leave this undefined, so that the built-in handler is used.
-     */
-    cacheEventHandler?: CacheEventHandler;
-}
 /**
  * The cache manager.
  * Contains cached data, and handles dispatched gateway events to keep the cache up to date.
@@ -80,11 +50,12 @@ export declare class Cache {
     voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
     /**
      * Options for the cache manager.
+     * Note that if you are using a `Client` or `ClientWorker` / `ClientMaster` and not manually creating a `Cache` separately, these options may differ than the options specified when creating the client due to them being passed through the options factory.
      */
-    readonly options: Required<CacheOptions>;
+    readonly options: CacheOptions;
     /**
      * Create a cache manager.
      * @param options Cache options.
      */
-    constructor(options?: CacheOptions);
+    constructor(options: CacheOptions);
 }

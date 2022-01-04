@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Rest = void 0;
 const BoogcordConstants_1 = require("../utils/BoogcordConstants");
-const completeRestOptions_1 = require("./completeRestOptions");
 const DiscordConstants_1 = require("../utils/DiscordConstants");
 const RestRequests_1 = require("./RestRequests");
 const axios_1 = __importDefault(require("axios"));
@@ -20,7 +19,7 @@ class Rest extends RestRequests_1.RestRequests {
      * @param token The bot's token.
      * @param options Rest options.
      */
-    constructor(token, options = {}) {
+    constructor(token, options) {
         super();
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
@@ -33,7 +32,7 @@ class Rest extends RestRequests_1.RestRequests {
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
-            value: Object.freeze((0, completeRestOptions_1.completeRestOptions)(options)),
+            value: Object.freeze(options),
             writable: false
         });
     }
@@ -56,7 +55,7 @@ class Rest extends RestRequests_1.RestRequests {
             ...this.options,
             ...options,
             data: usingFormData ? options.data : options.data,
-            baseURL: `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`,
+            baseURL: `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${(options.version ?? this.options.version) ?? DiscordConstants_1.DiscordConstants.DEFAULT_REST_VERSION}`,
             url: route,
             method,
             headers

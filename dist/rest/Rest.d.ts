@@ -1,5 +1,5 @@
+import { RestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
-import { AxiosRequestConfig } from 'axios';
 import FormData from 'form-data';
 /**
  * Data for a request.
@@ -24,19 +24,6 @@ export interface RestData {
  */
 export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 /**
- * Options for the rest manager and premade request methods.
- * Extends axios request configuration.
- * @see [Axios Documentation](https://axios-http.com/docs/req_config)
- */
-export interface RestOptions extends Omit<AxiosRequestConfig, `auth` | `baseURL` | `data` | `method` | `params` | `responseType` | `signal` | `transitional` | `url`> {
-    /**
-     * The API version to use.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
-     * @default 9
-     */
-    version?: number;
-}
-/**
  * The rest manager.
  * Used for making rest requests to the Discord API.
  */
@@ -44,9 +31,7 @@ export declare class Rest extends RestRequests {
     /**
      * Options for the rest manager.
      */
-    readonly options: RestOptions & {
-        version: number;
-    };
+    readonly options: RestOptions;
     /**
      * The bot's token.
      */
@@ -56,7 +41,7 @@ export declare class Rest extends RestRequests {
      * @param token The bot's token.
      * @param options Rest options.
      */
-    constructor(token: string, options?: RestOptions);
+    constructor(token: string, options: RestOptions);
     request(method: RestMethod, route: string, options?: RestOptions & RestData): Promise<any>;
     private _make;
 }

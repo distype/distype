@@ -1,4 +1,4 @@
-import { ClientOptions } from 'ws';
+import { GatewayShardOptions } from './GatewayOptions';
 import { EventEmitter } from '@jpbberry/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v9';
 /**
@@ -41,53 +41,6 @@ export interface GatewayShardEvents {
      * When the shard enters a connected state.
      */
     STATE_CONNECTED: null;
-}
-/**
- * Gateway shard options.
- */
-export interface GatewayShardOptions {
-    /**
-     * Gateway intents.
-     */
-    intents: number;
-    /**
-     * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
-     * Must be between 50 and 250.
-     * @default 50
-     */
-    largeGuildThreshold?: number;
-    /**
-     * The total number of shards being spawned / the value to pass to `num_shards` in the identify payload.
-     */
-    numShards: number;
-    /**
-     * The initial presence for the bot to use.
-     */
-    presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`];
-    /**
-     * The number of milliseconds to wait between spawn and resume attempts.
-     * @default 2500
-     */
-    spawnAttemptDelay?: number;
-    /**
-     * The maximum number of spawn attempts before rejecting.
-     * @default 10
-     */
-    spawnMaxAttempts?: number;
-    /**
-     * The time in milliseconds to wait until considering a spawn or resume attempt timed out.
-     * @default 30000
-     */
-    spawnTimeout?: number;
-    /**
-     * The URL for the socket to connect to.
-     */
-    url: string;
-    /**
-     * Advanced [ws](https://github.com/websockets/ws) options.
-     * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
-     */
-    wsOptions?: ClientOptions;
 }
 /**
  * Gateway shard states.
@@ -141,9 +94,18 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      */
     readonly id: number;
     /**
-     * Options for the gateway shard.
+     * The value to pass to `num_shards` in the identify payload.
      */
-    readonly options: Required<GatewayShardOptions>;
+    readonly numShards: number;
+    /**
+     * The URL being used to connect to the gateway.
+     */
+    readonly url: string;
+    /**
+     * Options for the gateway shard.
+     * Note that if you are using a `Client` or `ClientWorker` / `ClientMaster` and not manually creating a `GatewayShard` separately, these options may differ than the options specified when creating the client due to them being passed through the options factory.
+     */
+    readonly options: GatewayShardOptions;
     /**
      * A timeout used when connecting or resuming the shard.
      */
@@ -172,9 +134,11 @@ export declare class GatewayShard extends EventEmitter<GatewayShardEvents> {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
+     * @param numShards The value to pass to `num_shards` in the identify payload.
+     * @param url The URL being used to connect to the gateway.
      * @param options Gateway shard options.
      */
-    constructor(token: string, id: number, options: Required<GatewayShardOptions>);
+    constructor(token: string, id: number, numShards: number, url: string, options: GatewayShardOptions);
     /**
      * Connect to the gateway.
      * The shard must be in a `DISCONNECTED` state.

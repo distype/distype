@@ -11,7 +11,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./cache/Cache"), exports);
-__exportStar(require("./cache/CacheTypes"), exports);
+__exportStar(require("./cache/CacheEventHandler"), exports);
+__exportStar(require("./cache/CacheObjects"), exports);
+__exportStar(require("./cache/CacheOptions"), exports);
 __exportStar(require("./client/Client"), exports);
 __exportStar(require("./client/scaling/ClientMaster"), exports);
 __exportStar(require("./client/scaling/ClientWorker"), exports);

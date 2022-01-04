@@ -43,9 +43,11 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
+     * @param numShards The value to pass to `num_shards` in the identify payload.
+     * @param url The URL being used to connect to the gateway.
      * @param options Gateway shard options.
      */
-    constructor(token, id, options) {
+    constructor(token, id, numShards, url, options) {
         super();
         /**
          * The last sequence number received.
@@ -101,6 +103,10 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
             throw new TypeError(`A bot token must be specified`);
         if (typeof id !== `number`)
             throw new TypeError(`A shard ID must be specified`);
+        if (typeof numShards !== `number`)
+            throw new TypeError(`numShards must be specified`);
+        if (typeof url !== `string`)
+            throw new TypeError(`A shard url must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
@@ -111,6 +117,18 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
             configurable: false,
             enumerable: true,
             value: id,
+            writable: false
+        });
+        Object.defineProperty(this, `numShards`, {
+            configurable: false,
+            enumerable: true,
+            value: numShards,
+            writable: false
+        });
+        Object.defineProperty(this, `url`, {
+            configurable: false,
+            enumerable: true,
+            value: url,
             writable: false
         });
         Object.defineProperty(this, `options`, {
@@ -298,7 +316,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                 this._enterState(GatewayShardState.DISCONNECTED);
                 reject(error);
             }, this.options.spawnTimeout);
-            this._ws = new ws_1.WebSocket(this.options.url, this.options.wsOptions);
+            this._ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
             this.emit(`DEBUG`, `Created WebSocket`);
             this._ws.once(`error`, (error) => {
                 this.emit(`DEBUG`, `Failed to connect shard: ${error.name} | ${error.message}`);
@@ -452,7 +470,7 @@ class GatewayShard extends typed_emitter_1.EventEmitter {
                                     $device: `boogcord`,
                                     $os: process.platform
                                 },
-                                shard: [this.id, this.options.numShards],
+                                shard: [this.id, this.numShards],
                                 token: this._token
                             }
                         }, true).catch((error) => this.emit(`DEBUG`, `Failed to send identify: ${error.name} | ${error.message}`));

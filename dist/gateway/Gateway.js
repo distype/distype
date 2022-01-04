@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = void 0;
 const Cache_1 = require("../cache/Cache");
-const completeGatewayOptions_1 = require("./completeGatewayOptions");
 const DiscordConstants_1 = require("../utils/DiscordConstants");
 const GatewayShard_1 = require("./GatewayShard");
 const Rest_1 = require("../rest/Rest");
@@ -17,18 +16,18 @@ const url_1 = require("url");
  * Manages shards, handles incoming payloads, and sends commands to the Discord gateway.
  *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
- * Dispatched events are emitted under the `*` event prior to being passed through the cache manager.
+ * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
  * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 class Gateway extends typed_emitter_1.EventEmitter {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
-     * @param cache The cache manager to update from incoming events.
+     * @param cache The cache manager to update from incoming events. If `false` is specified, gateway events will not be passed to a cache handler.
      * @param rest The rest manager to use for fetching gateway endpoints.
      * @param options Gateway options.
      */
-    constructor(token, cache, rest, options = {}) {
+    constructor(token, cache, rest, options) {
         super();
         /**
          * Gateway shards.
@@ -50,13 +49,15 @@ class Gateway extends typed_emitter_1.EventEmitter {
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
-            value: Object.freeze((0, completeGatewayOptions_1.completeGatewayOptions)(options)),
+            value: Object.freeze(options),
             writable: false
         });
-        this._cache = cache;
+        if (cache)
+            this._cache = cache;
         this._rest = rest;
         this.on(`*`, (data) => {
-            this._cache.options.cacheEventHandler(this._cache, data);
+            if (this._cache)
+                this._cache.options.cacheEventHandler(this._cache, data);
             this.emit(data.t, data);
         });
     }
@@ -79,19 +80,9 @@ class Gateway extends typed_emitter_1.EventEmitter {
         const buckets = new collection_1.default();
         for (let i = 0; i < this.options.sharding.shards; i++) {
             this.emit(`DEBUG`, `Creating shard ${i}`);
-            const shard = new GatewayShard_1.GatewayShard(this._token, i, {
-                intents: this.options.intents,
-                largeGuildThreshold: this.options.largeGuildThreshold,
-                numShards: this.options.sharding.totalBotShards,
-                presence: this.options.presence,
-                spawnAttemptDelay: this.options.spawnAttemptDelay,
-                spawnMaxAttempts: this.options.spawnMaxAttempts,
-                spawnTimeout: this.options.spawnTimeout,
-                url: new url_1.URL(`?${new url_1.URLSearchParams({
-                    v: `${this.options.version}`, encoding: `json`
-                }).toString()}`, gatewayBot.url).toString(),
-                wsOptions: this.options.wsOptions
-            });
+            const shard = new GatewayShard_1.GatewayShard(this._token, i, this.options.sharding.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
+                v: `${this.options.version}`, encoding: `json`
+            }).toString()}`, gatewayBot.url).toString(), this.options);
             this.shards.set(i, shard);
             this.emit(`DEBUG`, `Shard ${shard.id} created and pushed to Gateway#shards`);
             shard.on(`*`, (data) => this.emit(`*`, data));
@@ -111,10 +102,10 @@ class Gateway extends typed_emitter_1.EventEmitter {
         }
         const results = [];
         for (let i = 0; i < buckets.size; i++) {
-            this.emit(`DEBUG`, `Starting spawn process for bucket ${i}`);
+            this.emit(`DEBUG`, `Starting spawn process for shard ratelimit key ${i}`);
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
-            this.emit(`DEBUG`, `Finished spawn process for bucket ${i}`);
+            this.emit(`DEBUG`, `Finished spawn process for shard ratelimit key ${i}`);
             if (i !== buckets.size - 1)
                 await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
