@@ -15,13 +15,9 @@ export interface RestOptions extends RestRequestOptions {
          */
         globalPerSecond: number
         /**
-         * The amount of time in milliseconds to wait between requests.
+         * The amount of time in milliseconds to wait between ratelimited requests in the same bucket.
          */
         pause: number
-        /**
-         * If a request should be rejected if ratelimited.
-         */
-        reject: boolean
     }
     version: number
 }

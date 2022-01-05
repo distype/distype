@@ -1,11 +1,12 @@
 import { DiscordConstants } from '../utils/DiscordConstants';
-import { DistypeConstants } from '../utils/DistypeConstants';
+import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
+import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
-import { Dispatcher, request } from 'undici';
+import Collection from '@discordjs/collection';
 import FormData from 'form-data';
-import { URL, URLSearchParams } from 'url';
+import { Snowflake } from 'discord-api-types';
 
 /**
  * Data for a request.
@@ -36,10 +37,58 @@ export interface RestData {
 export type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 
 /**
+ * A rest bucket hash.
+ */
+export type RestBucketHashLike = `${string}` | `global;${RestRouteHashLike}`;
+
+/**
+ * A rest bucket ID.
+ */
+export type RestBucketIdLike = `${RestBucketHashLike}(${RestMajorParameterLike})`;
+
+/**
+ * A major rest ratelimit parameter.
+ */
+export type RestMajorParameterLike = `global` | Snowflake;
+
+/**
+ * A rest route.
+ */
+export type RestRouteLike = `/${string}`;
+
+/**
+ * A rest route hash.
+ */
+export type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}`;
+
+/**
  * The rest manager.
  * Used for making rest requests to the Discord API.
  */
 export class Rest extends RestRequests {
+    /**
+     * Rate limit buckets.
+     * Each bucket's key is it's ID.
+     */
+    public buckets: Collection<RestBucketIdLike, RestBucket> = new Collection();
+    /**
+     * The amount of requests left in the global ratelimit bucket.
+     */
+    public globalLeft: number;
+    /**
+     * A unix millisecond timestamp at which the global ratelimit resets.
+     */
+    public globalResetAt = -1;
+    /**
+     * A tally of the number of responses that returned a specific response code.
+     */
+    public responseCodeTally: Record<string, number> = {};
+    /**
+     * Cached route rate limit bucket hashes.
+     * Keys are cached route hashes, with their values being their corresponding bucket hash.
+     */
+    public routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike> = new Collection();
+
     /**
      * Options for the rest manager.
      */
@@ -74,43 +123,34 @@ export class Rest extends RestRequests {
             value: Object.freeze(options) as Rest[`options`],
             writable: false
         });
+
+        this.globalLeft = options.ratelimits.globalPerSecond;
     }
 
-    public async request(method: RestMethod, route: string, options?: RestRequestOptions & RestData): Promise<any> {
-        return await (await this._make(method, route, options)).body;
+    /**
+     * Make a rest request.
+     * @param method The request's method.
+     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
+     * @param options Request options.
+     * @returns Response data.
+     */
+    public async request(method: RestMethod, route: RestRouteLike, options: RestRequestOptions & RestData = {}): Promise<any> {
+        const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
+        const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+
+        const routeHash: RestRouteHashLike = `${method};${rawHash}${oldMessage}`;
+        const bucketHash: RestBucketHashLike = this.routeHashCache.get(routeHash) ?? `global;${routeHash}`;
+        const majorParameter: RestMajorParameterLike = /^\/(?:channels|guilds|webhooks)\/(\d{16,19})/.exec(route)?.[1] ?? `global`;
+        const bucketId: RestBucketIdLike = `${bucketHash}(${majorParameter})`;
+
+        const bucket = this.buckets.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
+
+        return await bucket.request(method, route, routeHash, options);
     }
 
-    private async _make(method: RestMethod, route: string, options: RestRequestOptions & RestData = {}): Promise<Dispatcher.ResponseData & { body: any }> {
-        const usingFormData: boolean = options.body instanceof FormData;
-
-        const headers: Record<string, string> = {
-            ...options.headers,
-            ...(usingFormData ? options.body!.getHeaders() : undefined),
-            'Authorization': `Bot ${this._token}`,
-            'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`
-        };
-
-        if (!usingFormData && options.body) headers[`Content-Type`] = `application/json`;
-        if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
-
-        const url = new URL(`${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}${route.at(0) === `/` ? `` : `/`}${route}`);
-        url.search = new URLSearchParams(options.query).toString();
-
-        const req = request(url, {
-            ...this.options,
-            ...options,
-            method,
-            headers,
-            body: usingFormData ? undefined : JSON.stringify(options.body),
-            bodyTimeout: options.timeout ?? this.options.timeout
-        });
-
-        if (usingFormData) options.body!.pipe(req);
-
-        const res = await req;
-        return {
-            ...res,
-            body: await res.body.json()
-        };
+    private _createBucket (bucketId: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike): RestBucket {
+        const bucket = new RestBucket(this, bucketId, bucketHash, majorParameter);
+        this.buckets.set(bucketId, bucket);
+        return bucket;
     }
 }

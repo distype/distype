@@ -149,15 +149,10 @@ export interface ClientOptions {
              */
             globalPerSecond?: number
             /**
-             * The amount of time in milliseconds to wait between requests.
+             * The amount of time in milliseconds to wait between ratelimited requests in the same bucket.
              * @default 10
              */
             pause?: number
-            /**
-             * If a request should be rejected if ratelimited.
-             * @default false
-             */
-            reject?: boolean
         }
         /**
          * The Discord API version to use.
@@ -203,8 +198,7 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
             code500retries: options.rest?.code500retries ?? DefaultOptions.REST.code500retries,
             ratelimits: {
                 globalPerSecond: options.rest?.ratelimits?.globalPerSecond ?? DefaultOptions.REST.ratelimits.globalPerSecond,
-                pause: options.rest?.ratelimits?.pause ?? DefaultOptions.REST.ratelimits.pause,
-                reject: options.rest?.ratelimits?.reject ?? DefaultOptions.REST.ratelimits.reject
+                pause: options.rest?.ratelimits?.pause ?? DefaultOptions.REST.ratelimits.pause
             } ?? DefaultOptions.REST.ratelimits,
             version: options.rest?.version ?? DefaultOptions.REST.version
         }
