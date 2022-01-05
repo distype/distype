@@ -42,8 +42,7 @@ const optionsFactory = (options) => {
             code500retries: options.rest?.code500retries ?? DefaultOptions_1.DefaultOptions.REST.code500retries,
             ratelimits: {
                 globalPerSecond: options.rest?.ratelimits?.globalPerSecond ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.globalPerSecond,
-                pause: options.rest?.ratelimits?.pause ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.pause,
-                reject: options.rest?.ratelimits?.reject ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.reject
+                pause: options.rest?.ratelimits?.pause ?? DefaultOptions_1.DefaultOptions.REST.ratelimits.pause
             } ?? DefaultOptions_1.DefaultOptions.REST.ratelimits,
             version: options.rest?.version ?? DefaultOptions_1.DefaultOptions.REST.version
         }

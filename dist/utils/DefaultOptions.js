@@ -24,8 +24,7 @@ exports.DefaultOptions = {
         code500retries: 2,
         ratelimits: {
             globalPerSecond: 50,
-            pause: 10,
-            reject: false
+            pause: 10
         },
         version: 9
     }

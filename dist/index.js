@@ -25,3 +25,4 @@ __exportStar(require("./rest/Rest"), exports);
 __exportStar(require("./rest/RestOptions"), exports);
 __exportStar(require("./utils/DiscordConstants"), exports);
 __exportStar(require("./utils/DistypeConstants"), exports);
+__exportStar(require("./utils/SnowflakeUtils"), exports);

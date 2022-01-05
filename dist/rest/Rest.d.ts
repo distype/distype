@@ -1,6 +1,9 @@
+import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
+import Collection from '@discordjs/collection';
 import FormData from 'form-data';
+import { Snowflake } from 'discord-api-types';
 /**
  * Data for a request.
  * Used by the `Rest#request()` method.
@@ -28,10 +31,52 @@ export interface RestData {
  */
 export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 /**
+ * A rest bucket hash.
+ */
+export declare type RestBucketHashLike = `${string}` | `global;${RestRouteHashLike}`;
+/**
+ * A rest bucket ID.
+ */
+export declare type RestBucketIdLike = `${RestBucketHashLike}(${RestMajorParameterLike})`;
+/**
+ * A major rest ratelimit parameter.
+ */
+export declare type RestMajorParameterLike = `global` | Snowflake;
+/**
+ * A rest route.
+ */
+export declare type RestRouteLike = `/${string}`;
+/**
+ * A rest route hash.
+ */
+export declare type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}`;
+/**
  * The rest manager.
  * Used for making rest requests to the Discord API.
  */
 export declare class Rest extends RestRequests {
+    /**
+     * Rate limit buckets.
+     * Each bucket's key is it's ID.
+     */
+    buckets: Collection<RestBucketIdLike, RestBucket>;
+    /**
+     * The amount of requests left in the global ratelimit bucket.
+     */
+    globalLeft: number;
+    /**
+     * A unix millisecond timestamp at which the global ratelimit resets.
+     */
+    globalResetAt: number;
+    /**
+     * A tally of the number of responses that returned a specific response code.
+     */
+    responseCodeTally: Record<string, number>;
+    /**
+     * Cached route rate limit bucket hashes.
+     * Keys are cached route hashes, with their values being their corresponding bucket hash.
+     */
+    routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike>;
     /**
      * Options for the rest manager.
      */
@@ -46,6 +91,13 @@ export declare class Rest extends RestRequests {
      * @param options Rest options.
      */
     constructor(token: string, options: RestOptions);
-    request(method: RestMethod, route: string, options?: RestRequestOptions & RestData): Promise<any>;
-    private _make;
+    /**
+     * Make a rest request.
+     * @param method The request's method.
+     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
+     * @param options Request options.
+     * @returns Response data.
+     */
+    request(method: RestMethod, route: RestRouteLike, options?: RestRequestOptions & RestData): Promise<any>;
+    private _createBucket;
 }
