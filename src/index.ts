@@ -17,5 +17,6 @@ export * from './rest/RestOptions';
 
 export * from './utils/DiscordConstants';
 export * from './utils/DistypeConstants';
+export * from './utils/SnowflakeUtils';
 
 export { Snowflake } from 'discord-api-types/v9';
