@@ -7,6 +7,10 @@ import FormData from 'form-data';
 import { request } from 'undici';
 import { URL, URLSearchParams } from 'url';
 
+/**
+ * A rest bucket.
+ * Used for ratelimiting requests.
+ */
 export class RestBucket {
     /**
      * The number of allowed requests per a ratelimit interval.
