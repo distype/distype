@@ -32,6 +32,7 @@ class Rest extends RestRequests_1.RestRequests {
         this.globalResetAt = -1;
         /**
          * A tally of the number of responses that returned a specific response code.
+         * Note that response codes aren't included if they were never received.
          */
         this.responseCodeTally = {};
         /**
@@ -54,6 +55,17 @@ class Rest extends RestRequests_1.RestRequests {
             writable: false
         });
         this.globalLeft = options.ratelimits.globalPerSecond;
+    }
+    /**
+     * Get the ratio of response codes.
+     * Each code's value is the percentage it was received (`0` to `100`).
+     * Note that response codes aren't included if they were never received.
+     */
+    get responseCodeRatio() {
+        const total = Object.values(this.responseCodeTally).reduce((p, c) => p += c);
+        const ratio = {};
+        Object.keys(this.responseCodeTally).forEach((key) => ratio[key] = (this.responseCodeTally[key] / total) * 100);
+        return ratio;
     }
     /**
      * Make a rest request.

@@ -9,6 +9,10 @@ const DistypeConstants_1 = require("../utils/DistypeConstants");
 const form_data_1 = __importDefault(require("form-data"));
 const undici_1 = require("undici");
 const url_1 = require("url");
+/**
+ * A rest bucket.
+ * Used for ratelimiting requests.
+ */
 class RestBucket {
     /**
      * Create a rest bucket.

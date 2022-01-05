@@ -70,6 +70,7 @@ export declare class Rest extends RestRequests {
     globalResetAt: number;
     /**
      * A tally of the number of responses that returned a specific response code.
+     * Note that response codes aren't included if they were never received.
      */
     responseCodeTally: Record<string, number>;
     /**
@@ -91,6 +92,12 @@ export declare class Rest extends RestRequests {
      * @param options Rest options.
      */
     constructor(token: string, options: RestOptions);
+    /**
+     * Get the ratio of response codes.
+     * Each code's value is the percentage it was received (`0` to `100`).
+     * Note that response codes aren't included if they were never received.
+     */
+    get responseCodeRatio(): Record<string, number>;
     /**
      * Make a rest request.
      * @param method The request's method.

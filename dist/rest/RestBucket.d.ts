@@ -1,5 +1,9 @@
 import { Rest, RestBucketHashLike, RestBucketIdLike, RestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { RestRequestOptions } from './RestOptions';
+/**
+ * A rest bucket.
+ * Used for ratelimiting requests.
+ */
 export declare class RestBucket {
     /**
      * The number of allowed requests per a ratelimit interval.
