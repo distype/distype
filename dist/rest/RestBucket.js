@@ -160,7 +160,7 @@ class RestBucket {
             this.manager.routeHashCache.set(routeHash, res.bucket);
         }
         this.requestsLeft = res.remaining;
-        this.resetAt = res.reset;
+        this.resetAt = res.resetAfter + Date.now();
         this.allowedRequestsPerRatelimit = res.limit;
         this.manager.responseCodeTally[res.statusCode] = (this.manager.responseCodeTally[res.statusCode] ?? 0) + 1;
         if (res.statusCode >= 200 && res.statusCode < 300) {
