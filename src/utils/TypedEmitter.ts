@@ -4,6 +4,7 @@ type Callback<V extends any[]|any> = (...data: V extends any[] ? V : [V]) => voi
 
 /**
  * A typed event emitter.
+ * @internal
  */
 export class TypedEmitter<Events extends Record<string, any>> extends EventEmitter {
     /**

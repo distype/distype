@@ -2,6 +2,7 @@ import { cacheEventHandler } from '../cache/CacheEventHandler';
 
 /**
  * Default options.
+ * @internal
  */
 export const DefaultOptions = {
     CACHE: {
