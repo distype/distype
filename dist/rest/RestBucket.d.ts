@@ -3,6 +3,7 @@ import { RestRequestOptions } from './RestOptions';
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
+ * @internal
  */
 export declare class RestBucket {
     /**

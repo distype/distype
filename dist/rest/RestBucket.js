@@ -12,6 +12,7 @@ const url_1 = require("url");
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
+ * @internal
  */
 class RestBucket {
     /**
