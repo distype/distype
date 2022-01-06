@@ -101,7 +101,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             this.emit(`DEBUG`, `Pushed shard ${shard.id} to bucket ${bucketId}`);
         }
         const results = [];
-        for (let i = 0; i < buckets.size; i++) {
+        for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
             this.emit(`DEBUG`, `Starting spawn process for shard ratelimit key ${i}`);
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
