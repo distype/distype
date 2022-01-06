@@ -27,6 +27,11 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 
 - **Not beginner friendly:** Distype doesn't aim to be easily understood by new developers; it looks to serve as the final destination for advanced Discord bot developers.
 
+## HTTP and WebSocket client used
+
+- **[undici](https://undici.nodejs.org/):** A HTTP/1.1 client written from scratch for Node.js, that is significantly faster than Node's built-in http client.
+- **[ws](https://github.com/websockets/ws):** A WebSocket client (and server) for Node.js.
+
 ## Todo
 - Add remaining rest routes
 - Add gateway shard send payload ratelimiting
