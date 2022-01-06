@@ -13,7 +13,6 @@
 ## About
 
 ***DISCLAIMER: DISTYPE IS STILL A WORK IN PROGRESS.***
-Not all features mentioned below are complete and implemented. This disclaimer will be removed when this statement is no longer true.
 
 A light yet robust Discord library written in TypeScript, catered towards developers looking for a final, no compromises solution for creating Discord bots. Distype aims to pass data straight from the [Discord API](https://discord.com/developers/docs/intro) to you; no bloated middleware, abstractions, etc.
 
@@ -23,11 +22,17 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 - **Predictable:** Distype is as close as you can get to the Discord API, meaning that typically, what you see in Discord's documentation is also here.
 - **Lightweight:** Distype does minimal manipulation of incoming gateway events, responses to REST requests, etc. Additionally, Distype only has 5 direct dependencies.
 - **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
-- **Plugins:** Distype has several pre-built plugins that can be optionally installed, including a robust and easy to use command handler, a lavalink client for music bots, and a UI for monitoring your deployments along with manipulating multiple instances of your bot to cater zero downtime via rolling restarts.
 
 ### Cons
 
 - **Not beginner friendly:** Distype doesn't aim to be easily understood by new developers; it looks to serve as the final destination for advanced Discord bot developers.
+
+## Todo
+- Add remaining rest routes
+- Add gateway shard send payload ratelimiting
+- Add message embed, message attachment, and message component builders
+- Add command handler
+- Add `ClientMaster` and `ClientWorker`
 
 ## Example Bot
 
