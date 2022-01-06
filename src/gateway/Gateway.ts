@@ -218,7 +218,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         }
 
         const results: Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>> = [];
-        for (let i = 0; i < buckets.size; i++) {
+        for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
             this.emit(`DEBUG`, `Starting spawn process for shard ratelimit key ${i}`);
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
