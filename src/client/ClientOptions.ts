@@ -75,7 +75,7 @@ export interface ClientOptions {
          *
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
          */
-         sharding: {
+        sharding?: {
             /**
              * The number of shards the bot will have in total.
              * This value is used for the `num_shards` property sent in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
@@ -131,7 +131,7 @@ export interface ClientOptions {
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
          * @default 9
          */
-        version: number
+        version?: number
     }
     rest?: Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `bodyTimeout`> & {
         /**
