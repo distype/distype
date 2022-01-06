@@ -14,10 +14,6 @@ export declare class RestBucket {
      */
     manager: Rest;
     /**
-     * The unix millisecond timestamp from the last time the bucket was used to make a request.
-     */
-    lastUsed: number;
-    /**
      * The current number of requests left.
      */
     requestsLeft: number;

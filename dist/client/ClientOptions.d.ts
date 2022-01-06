@@ -151,6 +151,12 @@ export interface ClientOptions {
              * @default 10
              */
             pause?: number;
+            /**
+             * An interval in milliseconds in which to sweep inactive buckets.
+             * False disables sweeping buckets automatically.
+             * @default 300000
+             */
+            sweepInterval: number | false;
         };
         /**
          * The Discord API version to use.

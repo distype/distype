@@ -27,10 +27,6 @@ class RestBucket {
          */
         this.allowedRequestsPerRatelimit = Infinity;
         /**
-         * The unix millisecond timestamp from the last time the bucket was used to make a request.
-         */
-        this.lastUsed = Date.now();
-        /**
          * The current number of requests left.
          */
         this.requestsLeft = 1;
@@ -86,7 +82,6 @@ class RestBucket {
      * @returns Response data.
      */
     async request(method, route, routeHash, options) {
-        this.lastUsed = Date.now();
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
@@ -149,12 +144,12 @@ class RestBucket {
             resetAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.resetAfter] ?? 0) * 1000,
             bucket: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.bucket],
             global: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.global] === `true`,
-            scope: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.scope],
-            retryAfter: Number(r.headers[`retry-after`] ?? 0) * 1000
+            globalRetryAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.globalRetryAfter] ?? 0) * 1000,
+            scope: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.scope]
         }));
-        if (res.retryAfter > 0 && res.global) {
+        if (res.globalRetryAfter > 0 && res.global) {
             this.manager.globalLeft = 0;
-            this.manager.globalResetAt = res.retryAfter + Date.now();
+            this.manager.globalResetAt = res.globalRetryAfter + Date.now();
         }
         if (res.bucket && res.bucket !== this.bucketHash) {
             this.manager.routeHashCache.set(routeHash, res.bucket);
@@ -164,7 +159,6 @@ class RestBucket {
         this.allowedRequestsPerRatelimit = res.limit;
         this.manager.responseCodeTally[res.statusCode] = (this.manager.responseCodeTally[res.statusCode] ?? 0) + 1;
         if (res.statusCode >= 200 && res.statusCode < 300) {
-            this.lastUsed = Date.now();
             return res.body;
         }
         else if (res.statusCode === 429) {

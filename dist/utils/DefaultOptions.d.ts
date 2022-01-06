@@ -21,6 +21,7 @@ export declare const DefaultOptions: {
         readonly ratelimits: {
             readonly globalPerSecond: 50;
             readonly pause: 10;
+            readonly sweepInterval: 300000;
         };
         readonly version: 9;
     };

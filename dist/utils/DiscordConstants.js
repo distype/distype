@@ -81,6 +81,7 @@ exports.DiscordConstants = {
         resetAfter: `x-ratelimit-reset-after`,
         bucket: `x-ratelimit-bucket`,
         global: `x-ratelimit-global`,
+        globalRetryAfter: `retry-after`,
         scope: `x-ratelimit-scope`
     },
     /**

@@ -27,6 +27,10 @@ class Rest extends RestRequests_1.RestRequests {
          */
         this.buckets = new collection_1.default();
         /**
+         * The interval used for sweeping inactive {@link RestBucket buckets}.
+         */
+        this.bucketSweepInterval = null;
+        /**
          * A unix millisecond timestamp at which the global ratelimit resets.
          */
         this.globalResetAt = -1;
@@ -54,6 +58,9 @@ class Rest extends RestRequests_1.RestRequests {
             value: Object.freeze(options),
             writable: false
         });
+        // @ts-expect-error Property 'options' is used before being assigned.
+        if (this.options.ratelimits.sweepInterval)
+            this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
         this.globalLeft = options.ratelimits.globalPerSecond;
     }
     /**
@@ -83,6 +90,12 @@ class Rest extends RestRequests_1.RestRequests {
         const bucketId = `${bucketHash}(${majorParameter})`;
         const bucket = this.buckets.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
         return await bucket.request(method, route, routeHash, options);
+    }
+    /**
+     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     */
+    sweepBuckets() {
+        this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
     }
     /**
      * Create a ratelimit {@link RestBucket bucket}.

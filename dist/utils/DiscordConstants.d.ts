@@ -79,6 +79,7 @@ export declare const DiscordConstants: {
         readonly resetAfter: "x-ratelimit-reset-after";
         readonly bucket: "x-ratelimit-bucket";
         readonly global: "x-ratelimit-global";
+        readonly globalRetryAfter: "retry-after";
         readonly scope: "x-ratelimit-scope";
     };
     /**

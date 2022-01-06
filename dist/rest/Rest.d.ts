@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
@@ -61,6 +62,10 @@ export declare class Rest extends RestRequests {
      */
     buckets: Collection<RestBucketIdLike, RestBucket>;
     /**
+     * The interval used for sweeping inactive {@link RestBucket buckets}.
+     */
+    bucketSweepInterval: NodeJS.Timer | null;
+    /**
      * The amount of requests left in the global ratelimit bucket.
      */
     globalLeft: number;
@@ -106,6 +111,10 @@ export declare class Rest extends RestRequests {
      * @returns Response data.
      */
     request(method: RestMethod, route: RestRouteLike, options?: RestRequestOptions & RestRequestData): Promise<any>;
+    /**
+     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     */
+    sweepBuckets(): void;
     /**
      * Create a ratelimit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketIdLike ID}.
