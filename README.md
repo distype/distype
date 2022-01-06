@@ -34,7 +34,7 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 - Add command handler
 - Add `ClientMaster` and `ClientWorker`
 - Refactor `Cache` to add support for compression and redis
-- Refactor the cache handler to ensure healthy data
+- Refactor the cache handler to ensure healthier data
 
 ## Example Bot
 
