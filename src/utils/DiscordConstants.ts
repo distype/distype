@@ -71,6 +71,7 @@ export const DiscordConstants = {
     },
     /**
      * Rest rate limit headers.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
     RATE_LIMIT_HEADERS: {
         limit: `x-ratelimit-limit`,

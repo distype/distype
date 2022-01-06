@@ -5,14 +5,9 @@ import { GatewayEvents } from '../gateway/Gateway';
 import Collection from '@discordjs/collection';
 
 /**
- * A function that handles gateway events to update the cache.
- */
-export type CacheEventHandler = typeof cacheEventHandler;
-
-/**
  * The built in cache event handler function.
- * @param cache The cache to update.
- * @param data A dispatched payload to handle.
+ * @param cache The {@link Cache cache} to update.
+ * @param data A {@link GatewayEvents dispatched payload} to handle.
  * @internal
  */
 export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void => {

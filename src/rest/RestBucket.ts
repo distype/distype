@@ -1,6 +1,6 @@
 import { DiscordConstants } from '../utils/DiscordConstants';
 import { DistypeConstants } from '../utils/DistypeConstants';
-import { Rest, RestBucketHashLike, RestBucketIdLike, RestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
+import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 
 import FormData from 'form-data';
@@ -8,7 +8,7 @@ import { request } from 'undici';
 import { URL, URLSearchParams } from 'url';
 
 /**
- * A rest bucket.
+ * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
  */
 export class RestBucket {
@@ -17,7 +17,7 @@ export class RestBucket {
      */
     public allowedRequestsPerRatelimit = Infinity;
     /**
-     * The rest manager the bucket is bound to.
+     * The {@link Rest rest manager} the bucket is bound to.
      */
     public manager: Rest;
     /**
@@ -34,17 +34,17 @@ export class RestBucket {
     public resetAt = -1;
 
     /**
-     * The bucket's unique hash string.
+     * The bucket's unique {@link RestBucketHashLike hash}.
      */
     // @ts-expect-error Property 'bucketHash' has no initializer and is not definitely assigned in the constructor.
     public readonly bucketHash: RestBucketHashLike;
     /**
-     * The bucket's ID.
+     * The bucket's {@link RestBucketIdLike ID}.
      */
     // @ts-expect-error Property 'id' has no initializer and is not definitely assigned in the constructor.
     public readonly id: RestBucketIdLike;
     /**
-     * The major parameter associated with the bucket.
+     * The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
     // @ts-expect-error Property 'majorParameter' has no initializer and is not definitely assigned in the constructor.
     public readonly majorParameter: RestMajorParameterLike;
@@ -59,10 +59,10 @@ export class RestBucket {
 
     /**
      * Create a rest bucket.
-     * @param manager The rest manager the bucket is bound to.
-     * @param id The bucket's ID.
-     * @param bucketHash The bucket's unique hash string.
-     * @param majorParameter The major parameter associated with the bucket.
+     * @param manager The {@link Rest rest manager} the bucket is bound to.
+     * @param id The bucket's {@link RestBucketIdLike ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
+     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
     constructor (manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike) {
         this.manager = manager;
@@ -106,13 +106,13 @@ export class RestBucket {
 
     /**
      * Make a rest request with this bucket's ratelimits.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
-     * @param routeHash The request's route hash.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHashLike route hash}.
      * @param options Request options.
      * @returns Response data.
      */
-    public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestData): Promise<any> {
+    public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData): Promise<any> {
         this.lastUsed = Date.now();
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
@@ -130,14 +130,14 @@ export class RestBucket {
 
     /**
      * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
-     * @param routeHash The request's route hash.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHashLike route hash}.
      * @param options Request options.
      * @param attempt The current attempt value.
      * @returns Response data.
      */
-    private async _make(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestData, attempt = 0): Promise<any> {
+    private async _make(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData, attempt = 0): Promise<any> {
         await this._awaitRatelimit();
 
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {

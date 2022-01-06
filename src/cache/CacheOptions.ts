@@ -1,8 +1,8 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
-import { CacheEventHandler } from './CacheEventHandler';
+import { cacheEventHandler } from './CacheEventHandler';
 
 /**
- * Cache options.
+ * {@link Cache} options.
  */
 export interface CacheOptions {
     /**
@@ -22,7 +22,7 @@ export interface CacheOptions {
     }
     /**
      * A custom handler to use for updating the cache with incoming gateway events.
-     * It is recommended that you leave this undefined, so that the built-in handler is used.
+     * It is recommended that you leave this undefined, so that the {@link cacheEventHandler built-in handler} is used.
      */
-    cacheEventHandler: CacheEventHandler
+    cacheEventHandler: typeof cacheEventHandler
 }

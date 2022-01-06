@@ -10,13 +10,13 @@ import * as DiscordTypes from 'discord-api-types/v9';
 import { URL, URLSearchParams } from 'url';
 
 /**
- * Gateway events.
- * Note that with the exception of `SHARDS_READY`, all events are a relay of a `GatewayShard` event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
+ * {@link Gateway} events.
+ * Note that with the exception of `SHARDS_READY`, all events are a relay of a {@link GatewayShard} event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export interface GatewayEvents {
     /**
-     * When all shards are spawned and ready.
+     * When all {@link GatewayShard shards} are spawned and ready.
      */
     SHARDS_READY: null
 
@@ -25,19 +25,19 @@ export interface GatewayEvents {
      */
     SENT: string
     /**
-     * When a shard enters a disconnected state.
+     * When a {@link GatewayShard shard} enters a disconnected state.
      */
     SHARD_STATE_DISCONNECTED: GatewayShard
     /**
-     * When a shard enters a connecting state.
+     * When a {@link GatewayShard shard} enters a connecting state.
      */
     SHARD_STATE_CONNECTING: GatewayShard
     /**
-     * When a shard enters a resuming state.
+     * When a {@link GatewayShard shard} enters a resuming state.
      */
     SHARD_STATE_RESUMING: GatewayShard
     /**
-     * When a shard enters a connected state.
+     * When a {@link GatewayShard shard} enters a connected state.
      */
     SHARD_STATE_CONNECTED: GatewayShard
 
@@ -102,32 +102,32 @@ export interface GatewayEvents {
 
 /**
  * The gateway manager.
- * Manages shards, handles incoming payloads, and sends commands to the Discord gateway.
+ * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
  *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
- * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
- * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
+ * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the {@link cacheEventHandler}.
+ * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
-     * Gateway shards.
+     * {@link GatewayShard Gateway shards}.
      * Modifying this collection externally may result in unexpected behavior.
      */
     public shards: Collection<number, GatewayShard> = new Collection();
 
     /**
-     * Options for the gateway manager.
-     * Note that if you are using a `Client` or `ClientWorker` / `ClientMaster` and not manually creating a `Gateway` separately, these options may differ than the options specified when creating the client due to them being passed through the options factory.
+     * {@link GatewayOptions Options} for the gateway manager.
+     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
     // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: GatewayOptions;
 
     /**
-     * The cache manager to update from incoming events.
+     * The {@link Cache cache manager} to update from incoming events.
      */
     private _cache?: Cache;
     /**
-     * The rest manager to use for fetching gateway endpoints.
+     * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
     private _rest: Rest;
 
@@ -140,9 +140,9 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
-     * @param cache The cache manager to update from incoming events. If `false` is specified, gateway events will not be passed to a cache handler.
-     * @param rest The rest manager to use for fetching gateway endpoints.
-     * @param options Gateway options.
+     * @param cache The {@link Cache cache manager} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a {@link cacheEventHandler}.
+     * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
+     * @param options {@link GatewayOptions Gateway options}.
      */
     constructor(token: string, cache: Cache | false, rest: Rest, options: GatewayOptions) {
         super();
@@ -175,7 +175,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
     /**
      * Connect to the gateway.
-     * @returns The results from shard spawns.
+     * @returns The results from {@link GatewayShard shard} spawns.
      */
     public async connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
         this.emit(`DEBUG`, `Starting connection process`);

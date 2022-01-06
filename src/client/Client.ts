@@ -8,21 +8,21 @@ import { Rest } from '../rest/Rest';
  */
 export class Client {
     /**
-     * The client's cache.
+     * The client's {@link Cache cache}.
      */
     public cache: Cache;
     /**
-     * The client's gateway manager.
+     * The client's {@link Gateway gateway manager}.
      */
     public gateway: Gateway;
     /**
-     * The client's rest manager.
+     * The client's {@link Rest rest manager}.
      */
     public rest: Rest;
 
     /**
-     * Options for the client.
-     * Note that these options may differ than the options specified when creating the client due to them being passed through the options factory.
+     * {@link ClientOptions Options} for the client.
+     * Note that these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
     // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: {
@@ -40,7 +40,7 @@ export class Client {
     /**
      * Create a client.
      * @param token The bot's token.
-     * @param options Client options.
+     * @param options {@link ClientOptions Client options}.
      */
     constructor(token: string, options: ClientOptions = {}) {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);

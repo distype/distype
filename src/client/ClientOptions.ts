@@ -1,5 +1,5 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
-import { CacheEventHandler } from '../cache/CacheEventHandler';
+import { cacheEventHandler } from '../cache/CacheEventHandler';
 import { Client } from './Client';
 import { DefaultOptions } from '../utils/DefaultOptions';
 import { DiscordConstants } from '../utils/DiscordConstants';
@@ -9,7 +9,7 @@ import { ClientOptions as WsClientOptions } from 'ws';
 import { request } from 'undici';
 
 /**
- * Options for the client.
+ * Options for the {@link Client client}.
  */
 export interface ClientOptions {
     cache?: {
@@ -31,9 +31,9 @@ export interface ClientOptions {
         }
         /**
          * A custom handler to use for updating the cache with incoming gateway events.
-         * It is recommended that you leave this undefined, so that the built-in handler is used.
+         * It is recommended that you leave this undefined, so that the {@link cacheEventHandler built-in handler} is used.
          */
-        cacheEventHandler?: CacheEventHandler
+        cacheEventHandler?: typeof cacheEventHandler
     }
     gateway?: {
         /**
@@ -55,6 +55,7 @@ export interface ClientOptions {
         largeGuildThreshold?: number
         /**
          * The initial presence for the bot to use.
+         * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-presence-gateway-presence-update-structure)
          * @default undefined
          */
         presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`]
@@ -77,9 +78,9 @@ export interface ClientOptions {
          sharding: {
             /**
              * The number of shards the bot will have in total.
-             * This value is used for the `num_shards` property sent in the identify payload.
+             * This value is used for the `num_shards` property sent in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
              * **This is NOT the amount of shards the process will spawn. For that option, specify `GatewayOptions#sharding#shards`.**
-             * `auto` will use the recommended number from Discord.
+             * `auto` will use the [recommended number from Discord](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
              */
             totalBotShards?: number | `auto`
             /**
@@ -144,7 +145,7 @@ export interface ClientOptions {
         ratelimits?: {
             /**
              * The amount of requests to allow to be sent per second.
-             * Note that this only applies to a single `ClientWorker` instance (If `ClientWorker` and `ClientMaster` are being used), meaning that you still may encounter 429 errors from global ratelimits.
+             * Note that this only applies to a single {@link ClientWorker} instance (If {@link ClientMaster} / {@link ClientWorker} are being used), meaning that you still may encounter `429` errors from global ratelimits.
              * @default 50
              */
             globalPerSecond?: number
