@@ -33,6 +33,8 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 - Add message embed, message attachment, and message component builders
 - Add command handler
 - Add `ClientMaster` and `ClientWorker`
+- Refactor `Cache` to add support for compression and redis
+- Refactor the cache handler to ensure healthy data
 
 ## Example Bot
 
