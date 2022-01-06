@@ -13,6 +13,7 @@ export * from './gateway/GatewayOptions';
 export * from './gateway/GatewayShard';
 
 export * from './rest/Rest';
+export * from './rest/RestBucket';
 export * from './rest/RestOptions';
 
 export * from './utils/DiscordConstants';
