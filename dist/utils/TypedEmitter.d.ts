@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 declare type Callback<V extends any[] | any> = (...data: V extends any[] ? V : [V]) => void | any;
 /**
  * A typed event emitter.
+ * @internal
  */
 export declare class TypedEmitter<Events extends Record<string, any>> extends EventEmitter {
     /**

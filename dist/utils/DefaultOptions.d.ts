@@ -1,5 +1,6 @@
 /**
  * Default options.
+ * @internal
  */
 export declare const DefaultOptions: {
     readonly CACHE: {

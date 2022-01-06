@@ -4,6 +4,7 @@ exports.DefaultOptions = void 0;
 const CacheEventHandler_1 = require("../cache/CacheEventHandler");
 /**
  * Default options.
+ * @internal
  */
 exports.DefaultOptions = {
     CACHE: {
