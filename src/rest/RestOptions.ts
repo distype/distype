@@ -18,6 +18,11 @@ export interface RestOptions extends RestRequestOptions {
          * The amount of time in milliseconds to wait between ratelimited requests in the same bucket.
          */
         pause: number
+        /**
+         * An interval in milliseconds in which to sweep inactive buckets.
+         * False disables sweeping buckets automatically.
+         */
+        sweepInterval: number | false
     }
     version: number
 }

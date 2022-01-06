@@ -154,6 +154,12 @@ export interface ClientOptions {
              * @default 10
              */
             pause?: number
+            /**
+             * An interval in milliseconds in which to sweep inactive buckets.
+             * False disables sweeping buckets automatically.
+             * @default 300000
+             */
+            sweepInterval: number | false
         }
         /**
          * The Discord API version to use.
@@ -199,7 +205,8 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
             code500retries: options.rest?.code500retries ?? DefaultOptions.REST.code500retries,
             ratelimits: {
                 globalPerSecond: options.rest?.ratelimits?.globalPerSecond ?? DefaultOptions.REST.ratelimits.globalPerSecond,
-                pause: options.rest?.ratelimits?.pause ?? DefaultOptions.REST.ratelimits.pause
+                pause: options.rest?.ratelimits?.pause ?? DefaultOptions.REST.ratelimits.pause,
+                sweepInterval: options.rest?.ratelimits?.sweepInterval ?? DefaultOptions.REST.ratelimits.sweepInterval
             } ?? DefaultOptions.REST.ratelimits,
             version: options.rest?.version ?? DefaultOptions.REST.version
         }

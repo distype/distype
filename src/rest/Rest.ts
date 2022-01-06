@@ -72,6 +72,10 @@ export class Rest extends RestRequests {
      */
     public buckets: Collection<RestBucketIdLike, RestBucket> = new Collection();
     /**
+     * The interval used for sweeping inactive {@link RestBucket buckets}.
+     */
+    public bucketSweepInterval: NodeJS.Timer | null = null;
+    /**
      * The amount of requests left in the global ratelimit bucket.
      */
     public globalLeft: number;
@@ -125,6 +129,9 @@ export class Rest extends RestRequests {
             writable: false
         });
 
+        // @ts-expect-error Property 'options' is used before being assigned.
+        if (this.options.ratelimits.sweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
+
         this.globalLeft = options.ratelimits.globalPerSecond;
     }
 
@@ -159,6 +166,13 @@ export class Rest extends RestRequests {
         const bucket = this.buckets.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
 
         return await bucket.request(method, route, routeHash, options);
+    }
+
+    /**
+     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     */
+    public sweepBuckets (): void {
+        this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
     }
 
     /**
