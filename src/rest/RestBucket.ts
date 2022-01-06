@@ -196,7 +196,7 @@ export class RestBucket {
         }
 
         this.requestsLeft = res.remaining;
-        this.resetAt = res.reset;
+        this.resetAt = res.resetAfter + Date.now();
         this.allowedRequestsPerRatelimit = res.limit;
 
         this.manager.responseCodeTally[res.statusCode] = (this.manager.responseCodeTally[res.statusCode] ?? 0) + 1;
