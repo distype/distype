@@ -2,11 +2,11 @@ import { GatewayShardOptions } from './GatewayOptions';
 import { TypedEmitter } from '../utils/TypedEmitter';
 import * as DiscordTypes from 'discord-api-types/v9';
 /**
- * Gateway shard events.
+ * {@link GatewayShard Gateway shard} events.
  */
 export interface GatewayShardEvents {
     /**
-     * When the shard receives a payload. Data is the parsed payload.
+     * When the {@link GatewayShard shard} receives a payload. Data is the parsed payload.
      */
     '*': DiscordTypes.GatewayDispatchPayload;
     /**
@@ -14,11 +14,11 @@ export interface GatewayShardEvents {
      */
     DEBUG: string;
     /**
-     * When the shard gets a ready dispatch. Data is the `READY` payload.
+     * When the {@link GatewayShard shard} gets a ready dispatch. Data is the [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     READY: DiscordTypes.GatewayReadyDispatch;
     /**
-     * When the shard gets a resumed dispatch. Data is the `RESUMED` payload.
+     * When the {@link GatewayShard shard} gets a resumed dispatch. Data is the [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     RESUMED: DiscordTypes.GatewayResumedDispatch;
     /**
@@ -26,33 +26,33 @@ export interface GatewayShardEvents {
      */
     SENT: string;
     /**
-     * When the shard enters a disconnected state.
+     * When the {@link GatewayShard shard} enters a disconnected state.
      */
     STATE_DISCONNECTED: null;
     /**
-     * When the shard enters a connecting state.
+     * When the {@link GatewayShard shard} enters a connecting state.
      */
     STATE_CONNECTING: null;
     /**
-     * When the shard enters a resuming state.
+     * When the {@link GatewayShard shard} enters a resuming state.
      */
     STATE_RESUMING: null;
     /**
-     * When the shard enters a connected state.
+     * When the {@link GatewayShard shard} enters a connected state.
      */
     STATE_CONNECTED: null;
 }
 /**
- * Gateway shard states.
+ * {@link GatewayShard Gateway shard} states.
  */
 export declare enum GatewayShardState {
     /**
-     * The shard is disconnected.
+     * The {@link GatewayShard shard} is disconnected.
      */
     DISCONNECTED = 0,
     /**
-     * The shard is connecting. `GatewayShard#_ws` may be defined, however the connection process has not finished.
-     * During this stage, the `GatewayShard`:
+     * The {@link GatewayShard shard} is connecting. `GatewayShard#_ws` may be defined, however the connection process has not finished.
+     * During this stage, the {@link GatewayShard shard}:
      * - Waits for an opcode 10 "hello" payload
      * - Responds with a heartbeat
      * - Waits for the first heartbeat ACK
@@ -61,32 +61,32 @@ export declare enum GatewayShardState {
      */
     CONNECTING = 1,
     /**
-     * The shard is resuming. `GatewayShard#_ws` may be defined, however the resuming process has not finished.
-     * During this stage, the `GatewayShard`:
+     * The {@link GatewayShard shard} is resuming. `GatewayShard#_ws` may be defined, however the resuming process has not finished.
+     * During this stage, the {@link GatewayShard shard}:
      * - Sends a resume payload
      * - Waits for the resumed event
      */
     RESUMING = 2,
     /**
-     * The shard is connected and is operating normally. A ready or resume event has been received.
+     * The {@link GatewayShard shard} is connected and is operating normally. A [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
      */
     CONNECTED = 3
 }
 /**
- * A single gateway shard.
+ * A gateway shard.
  * Handles the low level ws communication with Discord.
  */
 export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
-     * The last sequence number received.
+     * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
     lastSequence: number | null;
     /**
-     * The shard's session ID.
+     * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
      */
     sessionId: string | null;
     /**
-     * The state of the shard's connection.
+     * The {@link GatewayShardState state} of the shard's connection.
      */
     state: GatewayShardState;
     /**
@@ -94,7 +94,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     readonly id: number;
     /**
-     * The value to pass to `num_shards` in the identify payload.
+     * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      */
     readonly numShards: number;
     /**
@@ -102,8 +102,8 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     readonly url: string;
     /**
-     * Options for the gateway shard.
-     * Note that if you are using a `Client` or `ClientWorker` / `ClientMaster` and not manually creating a `GatewayShard` separately, these options may differ than the options specified when creating the client due to them being passed through the options factory.
+     * {@link GatewayShardOptions Options} for the gateway shard.
+     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
     readonly options: GatewayShardOptions;
     /**
@@ -111,7 +111,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _connectionTimeout;
     /**
-     * Heartbeat properties.
+     * [Heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating) properties.
      */
     private _heartbeat;
     /**
@@ -134,19 +134,20 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
-     * @param numShards The value to pass to `num_shards` in the identify payload.
+     * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      * @param url The URL being used to connect to the gateway.
-     * @param options Gateway shard options.
+     * @param options {@link GatewayShardOptions Gateway shard options}.
      */
     constructor(token: string, id: number, numShards: number, url: string, options: GatewayShardOptions);
     /**
      * Connect to the gateway.
-     * The shard must be in a `DISCONNECTED` state.
-     * @returns The ready payload.
+     * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
+     * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     spawn(): Promise<DiscordTypes.GatewayReadyDispatch>;
     /**
      * Restart / resume the shard.
+     * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     restart(): Promise<DiscordTypes.GatewayResumedDispatch>;
     /**
@@ -158,7 +159,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Send a payload.
      * @param data The data to send.
-     * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a `CONNECTED` state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the `READY` event. This option is primarily used internally, for dispatches such as a heartbeat or identify.
+     * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a {@link GatewayShardState CONNECTED} state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the [ready event](https://discord.com/developers/docs/topics/gateway#ready). This option is primarily used internally, for dispatches such as a heartbeat or identify.
      */
     send(data: DiscordTypes.GatewaySendPayload, force?: boolean): Promise<void>;
     /**
@@ -166,8 +167,8 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _clearTimers;
     /**
-     * Set the shard's state.
-     * @param state The state to set the shard to.
+     * Set the shard's {@link GatewayShardState state}.
+     * @param state The {@link GatewayShardState state} to set the shard to.
      */
     private _enterState;
     /**
@@ -177,8 +178,8 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Initiates the socket connection.
      * Creates `GatewayManager#_ws`, waits for open, binds events, then returns.
-     * This method does not wait for a ready or resumed event.
-     * Expects the shard to be in a "CONNECTING" or "RESUMING" state.
+     * This method does not wait for a [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event.
+     * Expects the shard to be in a {@link GatewayShardState CONNECTING} or {@link GatewayShardState RESUMING} state.
      * @param resume If the shard is being resumed.
      */
     private _initConnection;

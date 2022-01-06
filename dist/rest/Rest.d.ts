@@ -5,10 +5,26 @@ import Collection from '@discordjs/collection';
 import FormData from 'form-data';
 import { Snowflake } from 'discord-api-types';
 /**
- * Data for a request.
+ * {@link Rest} request methods.
+ */
+export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
+/**
+ * A {@link Rest rest} bucket hash.
+ */
+export declare type RestBucketHashLike = `${string}` | `global;${RestRouteHashLike}`;
+/**
+ * A {@link RestBucket rest bucket} ID.
+ */
+export declare type RestBucketIdLike = `${RestBucketHashLike}(${RestMajorParameterLike})`;
+/**
+ * A major {@link Rest rest} ratelimit parameter.
+ */
+export declare type RestMajorParameterLike = `global` | Snowflake;
+/**
+ * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
  */
-export interface RestData {
+export interface RestRequestData {
     /**
      * The request body.
      */
@@ -27,27 +43,11 @@ export interface RestData {
     reason?: string;
 }
 /**
- * Rest request methods.
- */
-export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
-/**
- * A rest bucket hash.
- */
-export declare type RestBucketHashLike = `${string}` | `global;${RestRouteHashLike}`;
-/**
- * A rest bucket ID.
- */
-export declare type RestBucketIdLike = `${RestBucketHashLike}(${RestMajorParameterLike})`;
-/**
- * A major rest ratelimit parameter.
- */
-export declare type RestMajorParameterLike = `global` | Snowflake;
-/**
- * A rest route.
+ * A {@link Rest rest} route.
  */
 export declare type RestRouteLike = `/${string}`;
 /**
- * A rest route hash.
+ * A {@link RestRouteLike rest route} hash.
  */
 export declare type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}`;
 /**
@@ -56,8 +56,8 @@ export declare type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}
  */
 export declare class Rest extends RestRequests {
     /**
-     * Rate limit buckets.
-     * Each bucket's key is it's ID.
+     * Rate limit {@link RestBucket buckets}.
+     * Each bucket's key is it's {@link RestBucketIdLike ID}.
      */
     buckets: Collection<RestBucketIdLike, RestBucket>;
     /**
@@ -75,11 +75,11 @@ export declare class Rest extends RestRequests {
     responseCodeTally: Record<string, number>;
     /**
      * Cached route rate limit bucket hashes.
-     * Keys are cached route hashes, with their values being their corresponding bucket hash.
+     * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
      */
     routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike>;
     /**
-     * Options for the rest manager.
+     * {@link RestOptions Options} for the rest manager.
      */
     readonly options: RestOptions;
     /**
@@ -89,7 +89,7 @@ export declare class Rest extends RestRequests {
     /**
      * Create a rest manager.
      * @param token The bot's token.
-     * @param options Rest options.
+     * @param options {@link RestOptions Rest options}.
      */
     constructor(token: string, options: RestOptions);
     /**
@@ -100,11 +100,18 @@ export declare class Rest extends RestRequests {
     get responseCodeRatio(): Record<string, number>;
     /**
      * Make a rest request.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns Response data.
      */
-    request(method: RestMethod, route: RestRouteLike, options?: RestRequestOptions & RestData): Promise<any>;
+    request(method: RestMethod, route: RestRouteLike, options?: RestRequestOptions & RestRequestData): Promise<any>;
+    /**
+     * Create a ratelimit {@link RestBucket bucket}.
+     * @param bucketId The bucket's {@link RestBucketIdLike ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
+     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @returns The created bucket.
+     */
     private _createBucket;
 }

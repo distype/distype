@@ -1,7 +1,7 @@
-import { Rest, RestBucketHashLike, RestBucketIdLike, RestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
+import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 /**
- * A rest bucket.
+ * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
  */
 export declare class RestBucket {
@@ -10,7 +10,7 @@ export declare class RestBucket {
      */
     allowedRequestsPerRatelimit: number;
     /**
-     * The rest manager the bucket is bound to.
+     * The {@link Rest rest manager} the bucket is bound to.
      */
     manager: Rest;
     /**
@@ -26,15 +26,15 @@ export declare class RestBucket {
      */
     resetAt: number;
     /**
-     * The bucket's unique hash string.
+     * The bucket's unique {@link RestBucketHashLike hash}.
      */
     readonly bucketHash: RestBucketHashLike;
     /**
-     * The bucket's ID.
+     * The bucket's {@link RestBucketIdLike ID}.
      */
     readonly id: RestBucketIdLike;
     /**
-     * The major parameter associated with the bucket.
+     * The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
     readonly majorParameter: RestMajorParameterLike;
     /**
@@ -43,10 +43,10 @@ export declare class RestBucket {
     private queue;
     /**
      * Create a rest bucket.
-     * @param manager The rest manager the bucket is bound to.
-     * @param id The bucket's ID.
-     * @param bucketHash The bucket's unique hash string.
-     * @param majorParameter The major parameter associated with the bucket.
+     * @param manager The {@link Rest rest manager} the bucket is bound to.
+     * @param id The bucket's {@link RestBucketIdLike ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
+     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
     constructor(manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike);
     /**
@@ -62,22 +62,22 @@ export declare class RestBucket {
     };
     /**
      * Make a rest request with this bucket's ratelimits.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
-     * @param routeHash The request's route hash.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHashLike route hash}.
      * @param options Request options.
      * @returns Response data.
      */
-    request(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestData): Promise<any>;
+    request(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData): Promise<any>;
     /**
      * Waits for the bucket to no longer be rate limited.
      */
     private _awaitRatelimit;
     /**
      * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
-     * @param routeHash The request's route hash.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHashLike route hash}.
      * @param options Request options.
      * @param attempt The current attempt value.
      * @returns Response data.

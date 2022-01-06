@@ -17,13 +17,13 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Create a rest manager.
      * @param token The bot's token.
-     * @param options Rest options.
+     * @param options {@link RestOptions Rest options}.
      */
     constructor(token, options) {
         super();
         /**
-         * Rate limit buckets.
-         * Each bucket's key is it's ID.
+         * Rate limit {@link RestBucket buckets}.
+         * Each bucket's key is it's {@link RestBucketIdLike ID}.
          */
         this.buckets = new collection_1.default();
         /**
@@ -37,7 +37,7 @@ class Rest extends RestRequests_1.RestRequests {
         this.responseCodeTally = {};
         /**
          * Cached route rate limit bucket hashes.
-         * Keys are cached route hashes, with their values being their corresponding bucket hash.
+         * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
          */
         this.routeHashCache = new collection_1.default();
         if (typeof token !== `string`)
@@ -69,8 +69,8 @@ class Rest extends RestRequests_1.RestRequests {
     }
     /**
      * Make a rest request.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns Response data.
      */
@@ -84,6 +84,13 @@ class Rest extends RestRequests_1.RestRequests {
         const bucket = this.buckets.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
         return await bucket.request(method, route, routeHash, options);
     }
+    /**
+     * Create a ratelimit {@link RestBucket bucket}.
+     * @param bucketId The bucket's {@link RestBucketIdLike ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
+     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @returns The created bucket.
+     */
     _createBucket(bucketId, bucketHash, majorParameter) {
         const bucket = new RestBucket_1.RestBucket(this, bucketId, bucketHash, majorParameter);
         this.buckets.set(bucketId, bucket);

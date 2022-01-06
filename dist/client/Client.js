@@ -12,7 +12,7 @@ class Client {
     /**
      * Create a client.
      * @param token The bot's token.
-     * @param options Client options.
+     * @param options {@link ClientOptions Client options}.
      */
     constructor(token, options = {}) {
         if (typeof token !== `string`)

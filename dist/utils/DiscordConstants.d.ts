@@ -70,6 +70,7 @@ export declare const DiscordConstants: {
     };
     /**
      * Rest rate limit headers.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
     readonly RATE_LIMIT_HEADERS: {
         readonly limit: "x-ratelimit-limit";

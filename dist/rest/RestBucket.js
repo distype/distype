@@ -10,16 +10,16 @@ const form_data_1 = __importDefault(require("form-data"));
 const undici_1 = require("undici");
 const url_1 = require("url");
 /**
- * A rest bucket.
+ * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
  */
 class RestBucket {
     /**
      * Create a rest bucket.
-     * @param manager The rest manager the bucket is bound to.
-     * @param id The bucket's ID.
-     * @param bucketHash The bucket's unique hash string.
-     * @param majorParameter The major parameter associated with the bucket.
+     * @param manager The {@link Rest rest manager} the bucket is bound to.
+     * @param id The bucket's {@link RestBucketIdLike ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
+     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
     constructor(manager, id, bucketHash, majorParameter) {
         /**
@@ -79,9 +79,9 @@ class RestBucket {
     }
     /**
      * Make a rest request with this bucket's ratelimits.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
-     * @param routeHash The request's route hash.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHashLike route hash}.
      * @param options Request options.
      * @returns Response data.
      */
@@ -102,9 +102,9 @@ class RestBucket {
     }
     /**
      * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
-     * @param method The request's method.
-     * @param route The requests's route, relative to the base Discord API URL. (Example: `/channels/:id`)
-     * @param routeHash The request's route hash.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHashLike route hash}.
      * @param options Request options.
      * @param attempt The current attempt value.
      * @returns Response data.

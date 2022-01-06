@@ -7,20 +7,20 @@ import { Rest } from '../rest/Rest';
  */
 export declare class Client {
     /**
-     * The client's cache.
+     * The client's {@link Cache cache}.
      */
     cache: Cache;
     /**
-     * The client's gateway manager.
+     * The client's {@link Gateway gateway manager}.
      */
     gateway: Gateway;
     /**
-     * The client's rest manager.
+     * The client's {@link Rest rest manager}.
      */
     rest: Rest;
     /**
-     * Options for the client.
-     * Note that these options may differ than the options specified when creating the client due to them being passed through the options factory.
+     * {@link ClientOptions Options} for the client.
+     * Note that these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
     readonly options: {
         cache: Cache[`options`];
@@ -34,7 +34,7 @@ export declare class Client {
     /**
      * Create a client.
      * @param token The bot's token.
-     * @param options Client options.
+     * @param options {@link ClientOptions Client options}.
      */
     constructor(token: string, options?: ClientOptions);
 }

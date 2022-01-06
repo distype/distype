@@ -13,24 +13,24 @@ const collection_1 = __importDefault(require("@discordjs/collection"));
 const url_1 = require("url");
 /**
  * The gateway manager.
- * Manages shards, handles incoming payloads, and sends commands to the Discord gateway.
+ * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
  *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
- * Dispatched events are emitted under the `*` event prior to being passed through the cache manager handler.
- * After being handled by the cache manager, they are emitted again under their individual event name (example: `GUILD_CREATE`).
+ * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the {@link cacheEventHandler}.
+ * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 class Gateway extends TypedEmitter_1.TypedEmitter {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
-     * @param cache The cache manager to update from incoming events. If `false` is specified, gateway events will not be passed to a cache handler.
-     * @param rest The rest manager to use for fetching gateway endpoints.
-     * @param options Gateway options.
+     * @param cache The {@link Cache cache manager} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a {@link cacheEventHandler}.
+     * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
+     * @param options {@link GatewayOptions Gateway options}.
      */
     constructor(token, cache, rest, options) {
         super();
         /**
-         * Gateway shards.
+         * {@link GatewayShard Gateway shards}.
          * Modifying this collection externally may result in unexpected behavior.
          */
         this.shards = new collection_1.default();
@@ -63,7 +63,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
     }
     /**
      * Connect to the gateway.
-     * @returns The results from shard spawns.
+     * @returns The results from {@link GatewayShard shard} spawns.
      */
     async connect() {
         this.emit(`DEBUG`, `Starting connection process`);

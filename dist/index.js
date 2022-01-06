@@ -22,6 +22,7 @@ __exportStar(require("./gateway/Gateway"), exports);
 __exportStar(require("./gateway/GatewayOptions"), exports);
 __exportStar(require("./gateway/GatewayShard"), exports);
 __exportStar(require("./rest/Rest"), exports);
+__exportStar(require("./rest/RestBucket"), exports);
 __exportStar(require("./rest/RestOptions"), exports);
 __exportStar(require("./utils/DiscordConstants"), exports);
 __exportStar(require("./utils/DistypeConstants"), exports);

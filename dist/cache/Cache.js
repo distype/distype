@@ -7,15 +7,15 @@ exports.Cache = void 0;
 const collection_1 = __importDefault(require("@discordjs/collection"));
 /**
  * The cache manager.
- * Contains cached data, and handles dispatched gateway events to keep the cache up to date.
- * Keep in mind that there are many caveats to the gateway, and that real-world cache data may not directly reflect your cache control options.
- * It is recommended that you research intents and the caveats to the gateway, to make sure your bot receives sufficient data for your use case.
+ * Contains cached data, and {@link cacheEventHandler handles dispatched gateway events} to keep the cache up to date.
+ * Keep in mind that there are many caveats to the gateway, and that real-world cache data may not directly reflect your {@link CacheOptions cache control options}.
+ * It is recommended that you research [intents](https://discord.com/developers/docs/topics/gateway#gateway-intents) and the [caveats](https://discord.com/developers/docs/topics/gateway#caveats) to the gateway, to make sure your bot receives sufficient data for your use case.
  * [Discord API Reference](https://discord.com/developers/docs/topics/gateway)
  */
 class Cache {
     /**
      * Create a cache manager.
-     * @param options Cache options.
+     * @param options {@link CacheOptions Cache options}.
      */
     constructor(options) {
         Object.defineProperty(this, `options`, {

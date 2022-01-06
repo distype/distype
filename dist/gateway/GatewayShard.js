@@ -4,17 +4,17 @@ exports.GatewayShard = exports.GatewayShardState = void 0;
 const TypedEmitter_1 = require("../utils/TypedEmitter");
 const ws_1 = require("ws");
 /**
- * Gateway shard states.
+ * {@link GatewayShard Gateway shard} states.
  */
 var GatewayShardState;
 (function (GatewayShardState) {
     /**
-     * The shard is disconnected.
+     * The {@link GatewayShard shard} is disconnected.
      */
     GatewayShardState[GatewayShardState["DISCONNECTED"] = 0] = "DISCONNECTED";
     /**
-     * The shard is connecting. `GatewayShard#_ws` may be defined, however the connection process has not finished.
-     * During this stage, the `GatewayShard`:
+     * The {@link GatewayShard shard} is connecting. `GatewayShard#_ws` may be defined, however the connection process has not finished.
+     * During this stage, the {@link GatewayShard shard}:
      * - Waits for an opcode 10 "hello" payload
      * - Responds with a heartbeat
      * - Waits for the first heartbeat ACK
@@ -23,19 +23,19 @@ var GatewayShardState;
      */
     GatewayShardState[GatewayShardState["CONNECTING"] = 1] = "CONNECTING";
     /**
-     * The shard is resuming. `GatewayShard#_ws` may be defined, however the resuming process has not finished.
-     * During this stage, the `GatewayShard`:
+     * The {@link GatewayShard shard} is resuming. `GatewayShard#_ws` may be defined, however the resuming process has not finished.
+     * During this stage, the {@link GatewayShard shard}:
      * - Sends a resume payload
      * - Waits for the resumed event
      */
     GatewayShardState[GatewayShardState["RESUMING"] = 2] = "RESUMING";
     /**
-     * The shard is connected and is operating normally. A ready or resume event has been received.
+     * The {@link GatewayShard shard} is connected and is operating normally. A [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
      */
     GatewayShardState[GatewayShardState["CONNECTED"] = 3] = "CONNECTED";
 })(GatewayShardState = exports.GatewayShardState || (exports.GatewayShardState = {}));
 /**
- * A single gateway shard.
+ * A gateway shard.
  * Handles the low level ws communication with Discord.
  */
 class GatewayShard extends TypedEmitter_1.TypedEmitter {
@@ -43,22 +43,22 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
-     * @param numShards The value to pass to `num_shards` in the identify payload.
+     * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      * @param url The URL being used to connect to the gateway.
-     * @param options Gateway shard options.
+     * @param options {@link GatewayShardOptions Gateway shard options}.
      */
     constructor(token, id, numShards, url, options) {
         super();
         /**
-         * The last sequence number received.
+         * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
          */
         this.lastSequence = null;
         /**
-         * The shard's session ID.
+         * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
          */
         this.sessionId = null;
         /**
-         * The state of the shard's connection.
+         * The {@link GatewayShardState state} of the shard's connection.
          */
         this.state = GatewayShardState.DISCONNECTED;
         /**
@@ -66,7 +66,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
          */
         this._connectionTimeout = null;
         /**
-         * Heartbeat properties.
+         * [Heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating) properties.
          */
         this._heartbeat = {
             interval: null,
@@ -140,8 +140,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     }
     /**
      * Connect to the gateway.
-     * The shard must be in a `DISCONNECTED` state.
-     * @returns The ready payload.
+     * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
+     * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     async spawn() {
         if (this.state !== GatewayShardState.DISCONNECTED) {
@@ -168,6 +168,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     }
     /**
      * Restart / resume the shard.
+     * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     async restart() {
         if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) {
@@ -216,7 +217,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     /**
      * Send a payload.
      * @param data The data to send.
-     * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a `CONNECTED` state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the `READY` event. This option is primarily used internally, for dispatches such as a heartbeat or identify.
+     * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a {@link GatewayShardState CONNECTED} state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the [ready event](https://discord.com/developers/docs/topics/gateway#ready). This option is primarily used internally, for dispatches such as a heartbeat or identify.
      */
     async send(data, force = false) {
         return await new Promise((resolve, reject) => {
@@ -246,8 +247,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         this.emit(`DEBUG`, `Cleared timers`);
     }
     /**
-     * Set the shard's state.
-     * @param state The state to set the shard to.
+     * Set the shard's {@link GatewayShardState state}.
+     * @param state The {@link GatewayShardState state} to set the shard to.
      */
     _enterState(state) {
         switch (state) {
@@ -290,8 +291,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     /**
      * Initiates the socket connection.
      * Creates `GatewayManager#_ws`, waits for open, binds events, then returns.
-     * This method does not wait for a ready or resumed event.
-     * Expects the shard to be in a "CONNECTING" or "RESUMING" state.
+     * This method does not wait for a [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event.
+     * Expects the shard to be in a {@link GatewayShardState CONNECTING} or {@link GatewayShardState RESUMING} state.
      * @param resume If the shard is being resumed.
      */
     async _initConnection(resume) {

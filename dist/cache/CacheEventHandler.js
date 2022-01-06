@@ -7,8 +7,8 @@ exports.cacheEventHandler = void 0;
 const collection_1 = __importDefault(require("@discordjs/collection"));
 /**
  * The built in cache event handler function.
- * @param cache The cache to update.
- * @param data A dispatched payload to handle.
+ * @param cache The {@link Cache cache} to update.
+ * @param data A {@link GatewayEvents dispatched payload} to handle.
  * @internal
  */
 const cacheEventHandler = (cache, data) => {

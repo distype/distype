@@ -1,6 +1,6 @@
 import { request } from 'undici';
 /**
- * Rest options.
+ * {@link Rest} options.
  */
 export interface RestOptions extends RestRequestOptions {
     code500retries: number;
@@ -10,7 +10,7 @@ export interface RestOptions extends RestRequestOptions {
     ratelimits: {
         /**
          * The amount of requests to allow to be sent per second.
-         * Note that this only applies to a single `ClientWorker` instance (If `ClientWorker` and `ClientMaster` are being used), meaning that you still may encounter 429 errors from global ratelimits.
+         * Note that this only applies to a single {@link ClientWorker} instance (If {@link ClientMaster} / {@link ClientWorker} are being used), meaning that you still may encounter `429` errors from global ratelimits.
          */
         globalPerSecond: number;
         /**

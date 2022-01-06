@@ -1,4 +1,4 @@
-import { RestData, RestMethod } from './Rest';
+import { RestRequestData, RestMethod } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 import * as DiscordTypes from 'discord-api-types/v9';
 import FormData from 'form-data';
@@ -8,7 +8,7 @@ import { Snowflake } from 'discord-api-types/v9';
  * @internal
  */
 export declare abstract class RestRequests {
-    abstract request(method: RestMethod, route: string, options?: RestRequestOptions & RestData): Promise<any>;
+    abstract request(method: RestMethod, route: string, options?: RestRequestOptions & RestRequestData): Promise<any>;
     /**
      * @param applicationId The application ID.
      * @param options Request options.
