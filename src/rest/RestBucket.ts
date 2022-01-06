@@ -10,6 +10,7 @@ import { URL, URLSearchParams } from 'url';
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
+ * @internal
  */
 export class RestBucket {
     /**
