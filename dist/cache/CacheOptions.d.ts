@@ -1,5 +1,5 @@
-import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { cacheEventHandler } from './CacheEventHandler';
+import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 /**
  * {@link Cache} options.
  */

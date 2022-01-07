@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = void 0;
-const Cache_1 = require("../cache/Cache");
 const ClientOptions_1 = require("./ClientOptions");
+const Cache_1 = require("../cache/Cache");
 const Gateway_1 = require("../gateway/Gateway");
 const Rest_1 = require("../rest/Rest");
 /**

@@ -1,5 +1,5 @@
-import { Cache } from '../cache/Cache';
 import { ClientOptions } from './ClientOptions';
+import { Cache } from '../cache/Cache';
 import { Gateway } from '../gateway/Gateway';
 import { Rest } from '../rest/Rest';
 /**

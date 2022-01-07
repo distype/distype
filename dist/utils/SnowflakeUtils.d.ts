@@ -1,4 +1,4 @@
-import { Snowflake } from 'discord-api-types';
+import { Snowflake } from 'discord-api-types/v9';
 /**
  * Utilities for Discord snowflakes.
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes)

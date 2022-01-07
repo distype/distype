@@ -1,6 +1,6 @@
-import { Cache } from '../cache/Cache';
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
+import { Cache } from '../cache/Cache';
 import { Rest } from '../rest/Rest';
 import { TypedEmitter } from '../utils/TypedEmitter';
 import Collection from '@discordjs/collection';

@@ -3,8 +3,8 @@ import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import Collection from '@discordjs/collection';
+import { Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
-import { Snowflake } from 'discord-api-types';
 /**
  * {@link Rest} request methods.
  */

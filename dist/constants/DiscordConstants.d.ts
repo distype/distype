@@ -1,4 +1,4 @@
-import { GatewayIntentBits } from 'discord-api-types';
+import { GatewayIntentBits } from 'discord-api-types/v9';
 /**
  * Discord API constants.
  */
