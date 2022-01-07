@@ -5,6 +5,7 @@ import { Rest } from '../rest/Rest';
 import { TypedEmitter } from '../utils/TypedEmitter';
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v9';
 /**
  * {@link Gateway} events.
  * Note that with the exception of `SHARDS_READY`, all events are a relay of a {@link GatewayShard} event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
@@ -121,6 +122,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _rest;
     /**
+     * Stored response from `Rest#getGatewayBot()`.
+     */
+    private _storedGetGatewayBot;
+    /**
      * The bot's token.
      */
     private readonly _token;
@@ -133,8 +138,19 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     constructor(token: string, cache: Cache | false, rest: Rest, options: GatewayOptions);
     /**
+     * If all shards are in a {@link GatewayShardState READY} state.
+     */
+    get shardsReady(): boolean;
+    /**
      * Connect to the gateway.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>>;
+    /**
+     * Get a guild's shard.
+     * @param guildId The guild's ID.
+     * @returns The guild's shard, or a shard ID if the shard is not in this manager.
+     * @see [Discord API Reference]
+     */
+    guildShard(guildId: Snowflake): GatewayShard | number;
 }

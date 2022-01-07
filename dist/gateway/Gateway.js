@@ -34,6 +34,10 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
          * Modifying this collection externally may result in unexpected behavior.
          */
         this.shards = new collection_1.default();
+        /**
+         * Stored response from `Rest#getGatewayBot()`.
+         */
+        this._storedGetGatewayBot = null;
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
         if (!(cache instanceof Cache_1.Cache))
@@ -62,18 +66,24 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         });
     }
     /**
+     * If all shards are in a {@link GatewayShardState READY} state.
+     */
+    get shardsReady() {
+        return this.shards.every((shard) => shard.state === GatewayShard_1.GatewayShardState.CONNECTED);
+    }
+    /**
      * Connect to the gateway.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     async connect() {
         this.emit(`DEBUG`, `Starting connection process`);
-        const gatewayBot = await this._rest.getGatewayBot();
+        this._storedGetGatewayBot = await this._rest.getGatewayBot();
         this.emit(`DEBUG`, `Got bot gateway information`);
-        this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? gatewayBot.shards : (this.options.sharding.totalBotShards ?? gatewayBot.shards);
+        this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
         this.options.sharding.offset = this.options.sharding.offset ?? 0;
-        if (this.options.sharding.shards > gatewayBot.session_start_limit.remaining) {
-            const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`);
+        if (this.options.sharding.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
+            const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
             this.emit(`DEBUG`, `Unable to connect shards: ${error.name} | ${error.message}`);
             throw error;
         }
@@ -82,7 +92,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             this.emit(`DEBUG`, `Creating shard ${i}`);
             const shard = new GatewayShard_1.GatewayShard(this._token, i, this.options.sharding.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
                 v: `${this.options.version}`, encoding: `json`
-            }).toString()}`, gatewayBot.url).toString(), this.options);
+            }).toString()}`, this._storedGetGatewayBot.url).toString(), this.options);
             this.shards.set(i, shard);
             this.emit(`DEBUG`, `Shard ${shard.id} created and pushed to Gateway#shards`);
             shard.on(`*`, (data) => this.emit(`*`, data));
@@ -93,7 +103,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard));
             shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard));
             this.emit(`DEBUG`, `Bound shard ${shard.id} events`);
-            const bucketId = shard.id % gatewayBot.session_start_limit.max_concurrency;
+            const bucketId = shard.id % this._storedGetGatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId))
                 buckets.get(bucketId)?.set(shard.id, shard);
             else
@@ -112,6 +122,18 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this.emit(`SHARDS_READY`, null);
         this.emit(`DEBUG`, `Finished connection process`);
         return results;
+    }
+    /**
+     * Get a guild's shard.
+     * @param guildId The guild's ID.
+     * @returns The guild's shard, or a shard ID if the shard is not in this manager.
+     * @see [Discord API Reference]
+     */
+    guildShard(guildId) {
+        if (!this.shards.size || (typeof this.options.sharding.totalBotShards !== `number` && !this._storedGetGatewayBot?.shards))
+            throw new Error(`Shards are not available.`);
+        const shardId = Number((BigInt(guildId) >> 22n) % BigInt(typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot.shards));
+        return this.shards.get(shardId) ?? shardId;
     }
 }
 exports.Gateway = Gateway;
