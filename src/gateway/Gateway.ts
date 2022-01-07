@@ -251,13 +251,16 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Get a guild's shard.
      * @param guildId The guild's ID.
+     * @param ensure If true, an error is thrown if a {@link GatewayShard} is not found.
      * @returns The guild's shard, or a shard ID if the shard is not in this manager.
      * @see [Discord API Reference]
      */
-    public guildShard (guildId: Snowflake): GatewayShard | number {
+    public guildShard <T extends boolean>(guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
         if (!this.shards.size || (typeof this.options.sharding.totalBotShards !== `number` && !this._storedGetGatewayBot?.shards)) throw new Error(`Shards are not available.`);
         const shardId = Number((BigInt(guildId) >> 22n) % BigInt(typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot!.shards));
-        return this.shards.get(shardId) ?? shardId;
+        const shard = this.shards.get(shardId);
+        if (ensure && !(shard instanceof GatewayShard)) throw new Error(`No shard with the specified guild ID found on this gateway manager`);
+        return (shard ?? shardId) as any;
     }
 
     /**
@@ -275,8 +278,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         if (options.query && options.user_ids) throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
         if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH) throw new Error(`nonce length is greater than the allowed ${DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`);
 
-        const shard = this.guildShard(guildId);
-        if (!(shard instanceof GatewayShard)) throw new Error(`No shard with the specified guild ID found on this gateway manager`);
+        const shard = this.guildShard(guildId, true);
 
         const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
         this._requestGuildMembersNonceIncrement++;
