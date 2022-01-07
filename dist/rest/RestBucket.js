@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestBucket = void 0;
-const DiscordConstants_1 = require("../utils/DiscordConstants");
-const DistypeConstants_1 = require("../utils/DistypeConstants");
+const DiscordConstants_1 = require("../constants/DiscordConstants");
+const DistypeConstants_1 = require("../constants/DistypeConstants");
 const form_data_1 = __importDefault(require("form-data"));
 const undici_1 = require("undici");
 const url_1 = require("url");

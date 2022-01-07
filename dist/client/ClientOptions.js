@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.optionsFactory = void 0;
-const DefaultOptions_1 = require("../utils/DefaultOptions");
-const DiscordConstants_1 = require("../utils/DiscordConstants");
+const DefaultOptions_1 = require("../constants/DefaultOptions");
+const DiscordConstants_1 = require("../constants/DiscordConstants");
 /**
  * Converts specified client options into complete client options.
  * @param options Provided options.

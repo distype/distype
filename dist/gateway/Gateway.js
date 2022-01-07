@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = void 0;
 const Cache_1 = require("../cache/Cache");
-const DiscordConstants_1 = require("../utils/DiscordConstants");
+const DiscordConstants_1 = require("../constants/DiscordConstants");
 const GatewayShard_1 = require("./GatewayShard");
 const Rest_1 = require("../rest/Rest");
 const TypedEmitter_1 = require("../utils/TypedEmitter");

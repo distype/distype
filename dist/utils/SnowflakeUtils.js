@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SnowflakeUtils = void 0;
-const DiscordConstants_1 = require("./DiscordConstants");
+const DiscordConstants_1 = require("../constants/DiscordConstants");
 /**
  * Utilities for Discord snowflakes.
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes)
