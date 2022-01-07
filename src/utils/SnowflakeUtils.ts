@@ -1,5 +1,5 @@
 import { Snowflake } from 'discord-api-types';
-import { DiscordConstants } from './DiscordConstants';
+import { DiscordConstants } from '../constants/DiscordConstants';
 
 /**
  * Utilities for Discord snowflakes.

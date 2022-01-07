@@ -8,6 +8,9 @@ export * from './client/ClientOptions';
 export * from './client/scaling/ClientMaster';
 export * from './client/scaling/ClientWorker';
 
+export * from './constants/DiscordConstants';
+export * from './constants/DistypeConstants';
+
 export * from './gateway/Gateway';
 export * from './gateway/GatewayOptions';
 export * from './gateway/GatewayShard';
@@ -16,8 +19,6 @@ export * from './rest/Rest';
 export * from './rest/RestBucket';
 export * from './rest/RestOptions';
 
-export * from './utils/DiscordConstants';
-export * from './utils/DistypeConstants';
 export * from './utils/SnowflakeUtils';
 
 export { Snowflake } from 'discord-api-types/v9';

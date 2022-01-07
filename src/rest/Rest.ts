@@ -1,4 +1,4 @@
-import { DiscordConstants } from '../utils/DiscordConstants';
+import { DiscordConstants } from '../constants/DiscordConstants';
 import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';

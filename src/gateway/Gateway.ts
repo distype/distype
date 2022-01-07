@@ -1,5 +1,5 @@
 import { Cache } from '../cache/Cache';
-import { DiscordConstants } from '../utils/DiscordConstants';
+import { DiscordConstants } from '../constants/DiscordConstants';
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
 import { Rest } from '../rest/Rest';

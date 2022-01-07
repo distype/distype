@@ -1,5 +1,5 @@
-import { DiscordConstants } from '../utils/DiscordConstants';
-import { DistypeConstants } from '../utils/DistypeConstants';
+import { DiscordConstants } from '../constants/DiscordConstants';
+import { DistypeConstants } from '../constants/DistypeConstants';
 import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 
