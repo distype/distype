@@ -1,5 +1,5 @@
 import { GatewayOptions } from './GatewayOptions';
-import { GatewayShard } from './GatewayShard';
+import { GatewayShard, GatewayShardState } from './GatewayShard';
 
 import { Cache } from '../cache/Cache';
 import { DiscordConstants } from '../constants/DiscordConstants';
@@ -8,6 +8,7 @@ import { TypedEmitter } from '../utils/TypedEmitter';
 
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v9';
 import { URL, URLSearchParams } from 'url';
 
 /**
@@ -131,6 +132,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
     private _rest: Rest;
+    /**
+     * Stored response from `Rest#getGatewayBot()`.
+     */
+    private _storedGetGatewayBot: DiscordTypes.APIGatewayBotInfo | null = null;
 
     /**
      * The bot's token.
@@ -175,21 +180,28 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     }
 
     /**
+     * If all shards are in a {@link GatewayShardState READY} state.
+     */
+    public get shardsReady (): boolean {
+        return this.shards.every((shard) => shard.state === GatewayShardState.CONNECTED);
+    }
+
+    /**
      * Connect to the gateway.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     public async connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
         this.emit(`DEBUG`, `Starting connection process`);
 
-        const gatewayBot = await this._rest.getGatewayBot();
+        this._storedGetGatewayBot = await this._rest.getGatewayBot();
         this.emit(`DEBUG`, `Got bot gateway information`);
 
-        this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? gatewayBot.shards : (this.options.sharding.totalBotShards ?? gatewayBot.shards);
+        this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
         this.options.sharding.offset = this.options.sharding.offset ?? 0;
 
-        if (this.options.sharding.shards > gatewayBot.session_start_limit.remaining) {
-            const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`);
+        if (this.options.sharding.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
+            const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
             this.emit(`DEBUG`, `Unable to connect shards: ${error.name} | ${error.message}`);
             throw error;
         }
@@ -199,7 +211,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             this.emit(`DEBUG`, `Creating shard ${i}`);
             const shard = new GatewayShard(this._token, i, this.options.sharding.totalBotShards, new URL(`?${new URLSearchParams({
                 v: `${this.options.version}`, encoding: `json`
-            } as DiscordTypes.GatewayURLQuery as any).toString()}`, gatewayBot.url).toString(), this.options);
+            } as DiscordTypes.GatewayURLQuery as any).toString()}`, this._storedGetGatewayBot.url).toString(), this.options);
             this.shards.set(i, shard);
             this.emit(`DEBUG`, `Shard ${shard.id} created and pushed to Gateway#shards`);
 
@@ -212,7 +224,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard));
             this.emit(`DEBUG`, `Bound shard ${shard.id} events`);
 
-            const bucketId = shard.id % gatewayBot.session_start_limit.max_concurrency;
+            const bucketId = shard.id % this._storedGetGatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId)) buckets.get(bucketId)?.set(shard.id, shard);
             else buckets.set(bucketId, new Collection()).get(bucketId)!.set(shard.id, shard);
             this.emit(`DEBUG`, `Pushed shard ${shard.id} to bucket ${bucketId}`);
@@ -230,5 +242,17 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this.emit(`SHARDS_READY`, null);
         this.emit(`DEBUG`, `Finished connection process`);
         return results;
+    }
+
+    /**
+     * Get a guild's shard.
+     * @param guildId The guild's ID.
+     * @returns The guild's shard, or a shard ID if the shard is not in this manager.
+     * @see [Discord API Reference]
+     */
+    public guildShard (guildId: Snowflake): GatewayShard | number {
+        if (!this.shards.size || (typeof this.options.sharding.totalBotShards !== `number` && !this._storedGetGatewayBot?.shards)) throw new Error(`Shards are not available.`);
+        const shardId = Number((BigInt(guildId) >> 22n) % BigInt(typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot!.shards));
+        return this.shards.get(shardId) ?? shardId;
     }
 }
