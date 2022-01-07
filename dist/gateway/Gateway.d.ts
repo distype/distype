@@ -153,10 +153,11 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Get a guild's shard.
      * @param guildId The guild's ID.
+     * @param ensure If true, an error is thrown if a {@link GatewayShard} is not found.
      * @returns The guild's shard, or a shard ID if the shard is not in this manager.
      * @see [Discord API Reference]
      */
-    guildShard(guildId: Snowflake): GatewayShard | number;
+    guildShard<T extends boolean>(guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number;
     /**
      * Get members from a guild.
      * @param guildId The ID of the guild to get members from.
