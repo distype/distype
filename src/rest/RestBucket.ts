@@ -1,7 +1,8 @@
-import { DiscordConstants } from '../constants/DiscordConstants';
-import { DistypeConstants } from '../constants/DistypeConstants';
 import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { RestRequestOptions } from './RestOptions';
+
+import { DiscordConstants } from '../constants/DiscordConstants';
+import { DistypeConstants } from '../constants/DistypeConstants';
 
 import FormData from 'form-data';
 import { request } from 'undici';

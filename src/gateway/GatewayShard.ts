@@ -1,8 +1,9 @@
 import { GatewayShardOptions } from './GatewayOptions';
+
 import { TypedEmitter } from '../utils/TypedEmitter';
 
-import { RawData, WebSocket } from 'ws';
 import * as DiscordTypes from 'discord-api-types/v9';
+import { RawData, WebSocket } from 'ws';
 
 /**
  * {@link GatewayShard Gateway shard} events.

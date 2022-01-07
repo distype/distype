@@ -1,7 +1,8 @@
-import { Cache } from '../cache/Cache';
-import { DiscordConstants } from '../constants/DiscordConstants';
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
+
+import { Cache } from '../cache/Cache';
+import { DiscordConstants } from '../constants/DiscordConstants';
 import { Rest } from '../rest/Rest';
 import { TypedEmitter } from '../utils/TypedEmitter';
 

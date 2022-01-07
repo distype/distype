@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-type Callback<V extends any[]|any> = (...data: V extends any[] ? V : [V]) => void | any
+type Callback<V extends any[] | any> = (...data: V extends any[] ? V : [V]) => void | any
 
 /**
  * A typed event emitter.

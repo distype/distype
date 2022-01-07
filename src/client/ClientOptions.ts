@@ -1,12 +1,13 @@
-import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
-import { cacheEventHandler } from '../cache/CacheEventHandler';
 import { Client } from './Client';
+
+import { cacheEventHandler } from '../cache/CacheEventHandler';
+import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { DiscordConstants } from '../constants/DiscordConstants';
 
 import * as DiscordTypes from 'discord-api-types/v9';
-import { ClientOptions as WsClientOptions } from 'ws';
 import { request } from 'undici';
+import { ClientOptions as WsClientOptions } from 'ws';
 
 /**
  * Options for the {@link Client client}.

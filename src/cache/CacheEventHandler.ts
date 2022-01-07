@@ -1,5 +1,6 @@
 import { Cache } from './Cache';
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
+
 import { GatewayEvents } from '../gateway/Gateway';
 
 import Collection from '@discordjs/collection';
