@@ -118,6 +118,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _cache?;
     /**
+     * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
+     */
+    private _requestGuildMembersNonceIncrement;
+    /**
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
     private _rest;
@@ -153,4 +157,16 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @see [Discord API Reference]
      */
     guildShard(guildId: Snowflake): GatewayShard | number;
+    /**
+     * Get members from a guild.
+     * @param guildId The ID of the guild to get members from.
+     * @param options Guild member request options.
+     * @returns Received members, presences, and unfound members.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
+     */
+    getGuildMembers(guildId: Snowflake, options?: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersData, `guild_id` | `presences`>>): Promise<{
+        members: Collection<Snowflake, DiscordTypes.APIGuildMember>;
+        presences?: Collection<Snowflake, DiscordTypes.GatewayPresenceUpdate>;
+        notFound?: Snowflake[];
+    }>;
 }

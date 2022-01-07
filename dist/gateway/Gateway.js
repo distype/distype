@@ -35,6 +35,10 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
          */
         this.shards = new collection_1.default();
         /**
+         * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
+         */
+        this._requestGuildMembersNonceIncrement = 0;
+        /**
          * Stored response from `Rest#getGatewayBot()`.
          */
         this._storedGetGatewayBot = null;
@@ -134,6 +138,56 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             throw new Error(`Shards are not available.`);
         const shardId = Number((BigInt(guildId) >> 22n) % BigInt(typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot.shards));
         return this.shards.get(shardId) ?? shardId;
+    }
+    /**
+     * Get members from a guild.
+     * @param guildId The ID of the guild to get members from.
+     * @param options Guild member request options.
+     * @returns Received members, presences, and unfound members.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
+     */
+    getGuildMembers(guildId, options = {}) {
+        if (options.query && options.user_ids)
+            throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH)
+            throw new Error(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`);
+        const shard = this.guildShard(guildId);
+        if (!(shard instanceof GatewayShard_1.GatewayShard))
+            throw new Error(`No shard with the specified guild ID found on this gateway manager`);
+        const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants_1.DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
+        this._requestGuildMembersNonceIncrement++;
+        const members = new collection_1.default();
+        const presences = new collection_1.default();
+        const notFound = [];
+        return new Promise((resolve, reject) => {
+            const listener = (data) => {
+                if (data.d.nonce !== nonce || data.d.guild_id !== guildId)
+                    return;
+                data.d.members.filter((member) => member.user).forEach((member) => members.set(member.user.id, member));
+                data.d.presences?.forEach((presence) => presences.set(presence.user.id, presence));
+                notFound.push(...(data.d.not_found ?? []));
+                if (data.d.chunk_index === (data.d.chunk_count ?? 1) - 1) {
+                    this.off(`GUILD_MEMBERS_CHUNK`, listener);
+                    resolve({
+                        members,
+                        presences: presences.size > 0 ? presences : undefined,
+                        notFound: notFound.length > 0 ? notFound : undefined
+                    });
+                }
+            };
+            this.on(`GUILD_MEMBERS_CHUNK`, listener);
+            shard.send({
+                op: 8,
+                d: {
+                    guild_id: guildId,
+                    query: !options.query && !options.user_ids ? `` : options.query,
+                    limit: options.limit ?? 0,
+                    presences: (this.options.intents & DiscordConstants_1.DiscordConstants.INTENTS.GUILD_PRESENCES) !== 0,
+                    user_ids: options.user_ids,
+                    nonce
+                }
+            }).catch(reject);
+        });
     }
 }
 exports.Gateway = Gateway;

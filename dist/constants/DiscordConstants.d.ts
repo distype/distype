@@ -56,6 +56,10 @@ export declare const DiscordConstants: {
         readonly GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents;
     };
     /**
+     * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
+     */
+    readonly MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH: 32;
+    /**
      * The amount of milliseconds after a message is created where it causes issues with rate limiting.
      * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
      */
