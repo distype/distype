@@ -179,4 +179,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-voice-state)
      */
     updateVoiceState(guildId: Snowflake, channelId: Snowflake | null, mute?: boolean, deafen?: boolean): Promise<void>;
+    /**
+     * Update the bot's presence.
+     * @param presence Presence data.
+     * @param shard A shard or shards to set the presence on. A number will set the presence on a single shard with a matching ID, a number array will set the presence on all shards matching am ID in the array, and `all` will set the presence on all shards.
+     */
+    updatePresence(presence: DiscordTypes.GatewayPresenceUpdateData, shard?: number | number[] | `all`): Promise<void>;
 }
