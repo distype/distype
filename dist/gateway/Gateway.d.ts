@@ -170,4 +170,13 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
         presences?: Collection<Snowflake, DiscordTypes.GatewayPresenceUpdate>;
         notFound?: Snowflake[];
     }>;
+    /**
+     * Update the bot's voice state.
+     * @param guildId The guild to set the voice state in.
+     * @param channelId The channel to join. `null`disconnects the bot.
+     * @param mute If the bot should self mute.
+     * @param deafen If the bot should self deafen.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-voice-state)
+     */
+    updateVoiceState(guildId: Snowflake, channelId: Snowflake | null, mute?: boolean, deafen?: boolean): Promise<void>;
 }

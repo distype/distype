@@ -191,5 +191,24 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             }).catch(reject);
         });
     }
+    /**
+     * Update the bot's voice state.
+     * @param guildId The guild to set the voice state in.
+     * @param channelId The channel to join. `null`disconnects the bot.
+     * @param mute If the bot should self mute.
+     * @param deafen If the bot should self deafen.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-voice-state)
+     */
+    async updateVoiceState(guildId, channelId, mute = false, deafen = false) {
+        return await this.guildShard(guildId, true).send({
+            op: 4,
+            d: {
+                guild_id: guildId,
+                channel_id: channelId,
+                self_mute: mute,
+                self_deaf: deafen
+            }
+        });
+    }
 }
 exports.Gateway = Gateway;
