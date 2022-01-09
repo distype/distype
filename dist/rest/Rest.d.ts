@@ -33,10 +33,6 @@ export interface RestRequestData {
     /**
      * The request query.
      */
-    params?: Record<string, any>;
-    /**
-     * The request query.
-     */
     query?: Record<string, any>;
     /**
      * The value for the X-Audit-Log-Reason header.
