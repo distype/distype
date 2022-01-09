@@ -114,6 +114,7 @@ class RestBucket {
         this.manager.globalLeft--;
         const usingFormData = options.body instanceof form_data_1.default;
         const headers = {
+            ...this.manager.options.headers,
             ...options.headers,
             ...(usingFormData ? options.body.getHeaders() : undefined),
             // @ts-expect-error Property '_token' is private and only accessible within class 'Rest'.
