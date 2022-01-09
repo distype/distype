@@ -10,7 +10,7 @@ import FormData from 'form-data';
  * @internal
  */
 export abstract class RestRequests {
-    abstract request(method: RestMethod, route: string, options?: RestRequestOptions & RestRequestData): Promise<any>;
+    public abstract request(method: RestMethod, route: string, options?: RestRequestOptions & RestRequestData): Promise<any>;
 
     /**
      * @param applicationId The application ID.
