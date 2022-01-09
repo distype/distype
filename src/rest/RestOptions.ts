@@ -32,7 +32,7 @@ export interface RestOptions extends RestRequestOptions {
  * Extends undici request options.
  * @see [Undici Documentation](https://undici.nodejs.org/#/?id=undicirequesturl-options-promise)
  */
-export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `bodyTimeout`> {
+export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `bodyTimeout` | `method`> {
     /**
      * The amount of times to retry a request if it returns code `500`.
      */
