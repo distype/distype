@@ -35,6 +35,10 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
          */
         this.shards = new collection_1.default();
         /**
+         * The latest self user received from the gateway.
+         */
+        this.user = null;
+        /**
          * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
          */
         this._requestGuildMembersNonceIncrement = 0;
@@ -66,6 +70,10 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this.on(`*`, (data) => {
             if (this._cache)
                 this._cache.options.cacheEventHandler(this._cache, data);
+            if (data.t === `READY`)
+                this.user = data.d.user;
+            if (data.t === `USER_UPDATE` && data.d.id === this.user?.id)
+                this.user = data.d;
             this.emit(data.t, data);
         });
     }
