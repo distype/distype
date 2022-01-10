@@ -116,6 +116,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * Modifying this collection externally may result in unexpected behavior.
      */
     public shards: Collection<number, GatewayShard> = new Collection();
+    /**
+     * The latest self user received from the gateway.
+     */
+    public user: DiscordTypes.APIUser | null = null;
 
     /**
      * {@link GatewayOptions Options} for the gateway manager.
@@ -179,6 +183,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
         this.on(`*`, (data) => {
             if (this._cache) this._cache.options.cacheEventHandler(this._cache, data);
+
+            if (data.t === `READY`) this.user = data.d.user;
+            if (data.t === `USER_UPDATE` && data.d.id === this.user?.id) this.user = data.d;
+
             this.emit(data.t, data as any);
         });
     }
