@@ -9,28 +9,28 @@ export class SnowflakeUtils {
     /**
      * For every ID that is generated on a process, this property of the snowflake is incremented.
      */
-    static increment (snowflake: Snowflake): number {
+    public static increment (snowflake: Snowflake): number {
         return Number(BigInt(snowflake) & 0xFFFn);
     }
 
     /**
      * Internal Discord process ID the snowflake was created on.
      */
-    static processId (snowflake: Snowflake): number {
+    public static processId (snowflake: Snowflake): number {
         return Number((BigInt(snowflake) & 0x1F000n) >> 12n);
     }
 
     /**
      * The time at which the snowflake was created as a unix millisecond timestamp.
      */
-    static time (snowflake: Snowflake): number {
+    public static time (snowflake: Snowflake): number {
         return Number((BigInt(snowflake) >> 22n) + BigInt(DiscordConstants.DISCORD_EPOCH));
     }
 
     /**
      * Internal Discord worker ID the snowflake was created on.
      */
-    static workerId (snowflake: Snowflake): number {
+    public static workerId (snowflake: Snowflake): number {
         return Number((BigInt(snowflake) & 0x3E0000n) >> 17n);
     }
 }

@@ -16,110 +16,110 @@ export class TypedEmitter<Events extends Record<string, any>> extends EventEmitt
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static readonly captureRejectionSymbol;
+    public static readonly captureRejectionSymbol;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static captureRejections;
+    public static captureRejections;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static defaultMaxListeners;
+    public static defaultMaxListeners;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    emit: <K extends keyof Events>(event: K | symbol, ...data: Events[K] extends any[] ? Events[K] : [Events[K]]) => boolean;
+    public emit: <K extends keyof Events>(event: K | symbol, ...data: Events[K] extends any[] ? Events[K] : [Events[K]]) => boolean;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static readonly errorMonitor;
+    public static readonly errorMonitor;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    eventNames: <K extends keyof Events>() => Array<(K | symbol)>;
+    public eventNames: <K extends keyof Events>() => Array<(K | symbol)>;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static getEventListeners;
+    public static getEventListeners;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    getMaxListeners: () => number;
+    public getMaxListeners: () => number;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    listenerCount: <K extends keyof Events>(event: K | symbol) => number;
+    public listenerCount: <K extends keyof Events>(event: K | symbol) => number;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static listenerCount;
+    public static listenerCount;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    listeners: <K extends keyof Events>(event: K | symbol) => Array<Callback<Events[K]>>;
+    public listeners: <K extends keyof Events>(event: K | symbol) => Array<Callback<Events[K]>>;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    off: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
+    public off: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    on: <K extends keyof Events>(event: symbol | K, listener?: Callback<Events[K]>) => this;
+    public on: <K extends keyof Events>(event: symbol | K, listener?: Callback<Events[K]>) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static on;
+    public static on;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    once: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
+    public once: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 4144 7008
-    static once;
+    public static once;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    prependListener: <K extends keyof Events>(event: symbol | K, listener?: Callback<Events[K]>) => this;
+    public prependListener: <K extends keyof Events>(event: symbol | K, listener?: Callback<Events[K]>) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    prependOnceListener: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
+    public prependOnceListener: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    rawListeners: <K extends keyof Events>(event: K | symbol) => Array<Callback<Events[K]>>;
+    public rawListeners: <K extends keyof Events>(event: K | symbol) => Array<Callback<Events[K]>>;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    removeAllListeners: <K extends keyof Events>(event?: K | symbol) => this;
+    public removeAllListeners: <K extends keyof Events>(event?: K | symbol) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    removeListener: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
+    public removeListener: <K extends keyof Events>(event: K | symbol, listener?: Callback<Events[K]>) => this;
     /**
      * @hidden
      */
     // @ts-expect-error 2564 4144
-    setMaxListeners: (n: number) => this;
+    public setMaxListeners: (n: number) => this;
 }
