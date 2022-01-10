@@ -44,7 +44,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this._storedGetGatewayBot = null;
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
-        if (!(cache instanceof Cache_1.Cache))
+        if (!(cache instanceof Cache_1.Cache) && cache !== false)
             throw new TypeError(`A cache manager must be specified`);
         if (!(rest instanceof Rest_1.Rest))
             throw new TypeError(`A rest manager must be specified`);
