@@ -405,6 +405,18 @@ export abstract class RestRequests {
         return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction>;
     }
 
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
+     */
+    public async modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<void> {
+        return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/@me`, {
+            body, ...options
+        });
+    }
+
     // --------------------
 
     /**
