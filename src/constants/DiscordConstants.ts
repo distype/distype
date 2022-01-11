@@ -1,4 +1,4 @@
-import { GatewayIntentBits } from 'discord-api-types/v9';
+import { GatewayIntentBits, PermissionFlagsBits } from 'discord-api-types/v9';
 
 /**
  * Discord API constants.
@@ -65,6 +65,61 @@ export const DiscordConstants = {
      * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
      */
     OLD_MESSAGE_THRESHOLD: 1209600000,
+    /**
+     * Bitwise permission flags.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
+     */
+    PERMISSION_FLAGS: {
+        CREATE_INSTANT_INVITE: PermissionFlagsBits.CreateInstantInvite,
+        KICK_MEMBERS: PermissionFlagsBits.KickMembers,
+        BAN_MEMBERS: PermissionFlagsBits.BanMembers,
+        ADMINISTRATOR: PermissionFlagsBits.Administrator,
+        MANAGE_CHANNELS: PermissionFlagsBits.ManageChannels,
+        MANAGE_GUILD: PermissionFlagsBits.ManageGuild,
+        ADD_REACTIONS: PermissionFlagsBits.AddReactions,
+        VIEW_AUDIT_LOG: PermissionFlagsBits.ViewAuditLog,
+        PRIORITY_SPEAKER: PermissionFlagsBits.PrioritySpeaker,
+        STREAM: PermissionFlagsBits.Stream,
+        VIEW_CHANNEL: PermissionFlagsBits.ViewChannel,
+        SEND_MESSAGES: PermissionFlagsBits.SendMessages,
+        SEND_TTS_MESSAGES: PermissionFlagsBits.SendTTSMessages,
+        MANAGE_MESSAGES: PermissionFlagsBits.ManageMessages,
+        EMBED_LINKS: PermissionFlagsBits.EmbedLinks,
+        ATTACH_FILES: PermissionFlagsBits.AttachFiles,
+        READ_MESSAGE_HISTORY: PermissionFlagsBits.ReadMessageHistory,
+        MENTION_EVERYONE: PermissionFlagsBits.MentionEveryone,
+        USE_EXTERNAL_EMOJIS: PermissionFlagsBits.UseExternalEmojis,
+        VIEW_GUILD_INSIGHTS: PermissionFlagsBits.ViewGuildInsights,
+        CONNECT: PermissionFlagsBits.Connect,
+        SPEAK: PermissionFlagsBits.Speak,
+        MUTE_MEMBERS: PermissionFlagsBits.MuteMembers,
+        DEAFEN_MEMBERS: PermissionFlagsBits.DeafenMembers,
+        MOVE_MEMBERS: PermissionFlagsBits.MoveMembers,
+        USE_VAD: PermissionFlagsBits.UseVAD,
+        CHANGE_NICKNAME: PermissionFlagsBits.ChangeNickname,
+        MANAGE_NICKNAMES: PermissionFlagsBits.ManageNicknames,
+        MANAGE_ROLES: PermissionFlagsBits.ManageRoles,
+        MANAGE_WEBHOOKS: PermissionFlagsBits.ManageWebhooks,
+        MANAGE_EMOJIS_AND_STICKERS: PermissionFlagsBits.ManageEmojisAndStickers,
+        USE_APPLICATION_COMMANDS: PermissionFlagsBits.UseApplicationCommands,
+        REQUEST_TO_SPEAK: PermissionFlagsBits.RequestToSpeak,
+        MANAGE_EVENTS: PermissionFlagsBits.ManageEvents,
+        MANAGE_THREADS: PermissionFlagsBits.ManageThreads,
+        CREATE_PUBLIC_THREADS: PermissionFlagsBits.CreatePublicThreads,
+        CREATE_PRIVATE_THREADS: PermissionFlagsBits.CreatePrivateThreads,
+        USE_EXTERNAL_STICKERS: PermissionFlagsBits.UseExternalStickers,
+        SEND_MESSAGES_IN_THREADS: PermissionFlagsBits.SendMessagesInThreads,
+        START_EMBEDDED_ACTIVITIES: PermissionFlagsBits.StartEmbeddedActivities,
+        MODERATE_MEMBERS: PermissionFlagsBits.ModerateMembers
+    },
+    /**
+     * Bitwise permission flags for when a user is timed out.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-for-timed-out-members)
+     */
+    PERMISSION_FLAGS_TIMEOUT: {
+        VIEW_CHANNEL: PermissionFlagsBits.ViewChannel,
+        READ_MESSAGE_HISTORY: PermissionFlagsBits.ReadMessageHistory
+    },
     /**
      * Privileged gateway intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
