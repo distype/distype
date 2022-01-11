@@ -123,7 +123,7 @@ export class PermissionsUtils {
      * @param baseFlags The base flags to subtract from.
      * @param flags The flags to subtract.
      */
-    public static remove (baseFlags: number | bigint, ...flags: Array<number | bigint>): bigint {
+    public static remove (baseFlags: number | bigint, ...flags: Array<number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)>): bigint {
         return BigInt(baseFlags) & ~this.combine(...flags);
     }
 
