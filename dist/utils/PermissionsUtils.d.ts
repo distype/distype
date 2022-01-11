@@ -73,7 +73,7 @@ export declare class PermissionsUtils {
      * @param baseFlags The base flags to subtract from.
      * @param flags The flags to subtract.
      */
-    static remove(baseFlags: number | bigint, ...flags: Array<number | bigint>): bigint;
+    static remove(baseFlags: number | bigint, ...flags: Array<number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)>): bigint;
     /**
      * Applies timeout overwrites to permission flags.
      * @param perms The permissions to convert.
