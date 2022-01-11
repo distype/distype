@@ -267,6 +267,13 @@ export declare abstract class RestRequests {
      */
     deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction>;
     /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
+     */
+    modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<void>;
+    /**
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway)
      */
