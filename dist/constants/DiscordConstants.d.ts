@@ -65,6 +65,61 @@ export declare const DiscordConstants: {
      */
     readonly OLD_MESSAGE_THRESHOLD: 1209600000;
     /**
+     * Bitwise permission flags.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
+     */
+    readonly PERMISSION_FLAGS: {
+        readonly CREATE_INSTANT_INVITE: bigint;
+        readonly KICK_MEMBERS: bigint;
+        readonly BAN_MEMBERS: bigint;
+        readonly ADMINISTRATOR: bigint;
+        readonly MANAGE_CHANNELS: bigint;
+        readonly MANAGE_GUILD: bigint;
+        readonly ADD_REACTIONS: bigint;
+        readonly VIEW_AUDIT_LOG: bigint;
+        readonly PRIORITY_SPEAKER: bigint;
+        readonly STREAM: bigint;
+        readonly VIEW_CHANNEL: bigint;
+        readonly SEND_MESSAGES: bigint;
+        readonly SEND_TTS_MESSAGES: bigint;
+        readonly MANAGE_MESSAGES: bigint;
+        readonly EMBED_LINKS: bigint;
+        readonly ATTACH_FILES: bigint;
+        readonly READ_MESSAGE_HISTORY: bigint;
+        readonly MENTION_EVERYONE: bigint;
+        readonly USE_EXTERNAL_EMOJIS: bigint;
+        readonly VIEW_GUILD_INSIGHTS: bigint;
+        readonly CONNECT: bigint;
+        readonly SPEAK: bigint;
+        readonly MUTE_MEMBERS: bigint;
+        readonly DEAFEN_MEMBERS: bigint;
+        readonly MOVE_MEMBERS: bigint;
+        readonly USE_VAD: bigint;
+        readonly CHANGE_NICKNAME: bigint;
+        readonly MANAGE_NICKNAMES: bigint;
+        readonly MANAGE_ROLES: bigint;
+        readonly MANAGE_WEBHOOKS: bigint;
+        readonly MANAGE_EMOJIS_AND_STICKERS: bigint;
+        readonly USE_APPLICATION_COMMANDS: bigint;
+        readonly REQUEST_TO_SPEAK: bigint;
+        readonly MANAGE_EVENTS: bigint;
+        readonly MANAGE_THREADS: bigint;
+        readonly CREATE_PUBLIC_THREADS: bigint;
+        readonly CREATE_PRIVATE_THREADS: bigint;
+        readonly USE_EXTERNAL_STICKERS: bigint;
+        readonly SEND_MESSAGES_IN_THREADS: bigint;
+        readonly START_EMBEDDED_ACTIVITIES: bigint;
+        readonly MODERATE_MEMBERS: bigint;
+    };
+    /**
+     * Bitwise permission flags for when a user is timed out.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-for-timed-out-members)
+     */
+    readonly PERMISSION_FLAGS_TIMEOUT: {
+        readonly VIEW_CHANNEL: bigint;
+        readonly READ_MESSAGE_HISTORY: bigint;
+    };
+    /**
      * Privileged gateway intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
