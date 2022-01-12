@@ -174,14 +174,14 @@ export class RestBucket {
         const res = await req.then(async (r) => ({
             ...r,
             body: await r.body.json(),
-            limit: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.limit] ?? Infinity),
-            remaining: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.remaining] ?? 1),
-            reset: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.reset] ?? Date.now()) * 1000,
-            resetAfter: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.resetAfter] ?? 0) * 1000,
-            bucket: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.bucket] as string | undefined,
-            global: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.global] === `true`,
-            globalRetryAfter: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.globalRetryAfter] ?? 0) * 1000,
-            scope: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.scope] as `global` | `shared` | `user` | undefined
+            limit: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.LIMIT] ?? Infinity),
+            remaining: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.REMAINING] ?? 1),
+            reset: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.RESET] ?? Date.now()) * 1000,
+            resetAfter: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000,
+            bucket: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.BUCKET] as string | undefined,
+            global: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL] === `true`,
+            globalRetryAfter: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000,
+            scope: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.SCOPE] as `global` | `shared` | `user` | undefined
         }));
 
         if (res.globalRetryAfter > 0 && res.global) {

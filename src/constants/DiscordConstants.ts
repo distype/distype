@@ -143,14 +143,14 @@ export const DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
     RATE_LIMIT_HEADERS: {
-        limit: `x-ratelimit-limit`,
-        remaining: `x-ratelimit-remaining`,
-        reset: `x-ratelimit-reset`,
-        resetAfter: `x-ratelimit-reset-after`,
-        bucket: `x-ratelimit-bucket`,
-        global: `x-ratelimit-global`,
-        globalRetryAfter: `retry-after`,
-        scope: `x-ratelimit-scope`
+        LIMIT: `x-ratelimit-limit`,
+        REMAINING: `x-ratelimit-remaining`,
+        RESET: `x-ratelimit-reset`,
+        RESET_AFTER: `x-ratelimit-reset-after`,
+        BUCKET: `x-ratelimit-bucket`,
+        GLOBAL: `x-ratelimit-global`,
+        GLOBAL_RETRY_AFTER: `retry-after`,
+        SCOPE: `x-ratelimit-scope`
     },
     /**
      * The cooldown between spawning shards from the same bucket.
