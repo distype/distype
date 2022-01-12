@@ -26,4 +26,6 @@ __exportStar(require("./gateway/GatewayShard"), exports);
 __exportStar(require("./rest/Rest"), exports);
 __exportStar(require("./rest/RestBucket"), exports);
 __exportStar(require("./rest/RestOptions"), exports);
+__exportStar(require("./utils/CDNUtils"), exports);
+__exportStar(require("./utils/PermissionsUtils"), exports);
 __exportStar(require("./utils/SnowflakeUtils"), exports);

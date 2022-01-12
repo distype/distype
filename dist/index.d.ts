@@ -14,5 +14,7 @@ export * from './gateway/GatewayShard';
 export * from './rest/Rest';
 export * from './rest/RestBucket';
 export * from './rest/RestOptions';
+export * from './utils/CDNUtils';
+export * from './utils/PermissionsUtils';
 export * from './utils/SnowflakeUtils';
 export { Snowflake } from 'discord-api-types/v9';
