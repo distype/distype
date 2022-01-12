@@ -142,14 +142,14 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
     readonly RATE_LIMIT_HEADERS: {
-        readonly limit: "x-ratelimit-limit";
-        readonly remaining: "x-ratelimit-remaining";
-        readonly reset: "x-ratelimit-reset";
-        readonly resetAfter: "x-ratelimit-reset-after";
-        readonly bucket: "x-ratelimit-bucket";
-        readonly global: "x-ratelimit-global";
-        readonly globalRetryAfter: "retry-after";
-        readonly scope: "x-ratelimit-scope";
+        readonly LIMIT: "x-ratelimit-limit";
+        readonly REMAINING: "x-ratelimit-remaining";
+        readonly RESET: "x-ratelimit-reset";
+        readonly RESET_AFTER: "x-ratelimit-reset-after";
+        readonly BUCKET: "x-ratelimit-bucket";
+        readonly GLOBAL: "x-ratelimit-global";
+        readonly GLOBAL_RETRY_AFTER: "retry-after";
+        readonly SCOPE: "x-ratelimit-scope";
     };
     /**
      * The cooldown between spawning shards from the same bucket.

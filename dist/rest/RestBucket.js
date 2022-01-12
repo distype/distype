@@ -140,14 +140,14 @@ class RestBucket {
         const res = await req.then(async (r) => ({
             ...r,
             body: await r.body.json(),
-            limit: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.limit] ?? Infinity),
-            remaining: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.remaining] ?? 1),
-            reset: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.reset] ?? Date.now()) * 1000,
-            resetAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.resetAfter] ?? 0) * 1000,
-            bucket: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.bucket],
-            global: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.global] === `true`,
-            globalRetryAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.globalRetryAfter] ?? 0) * 1000,
-            scope: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.scope]
+            limit: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.LIMIT] ?? Infinity),
+            remaining: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.REMAINING] ?? 1),
+            reset: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.RESET] ?? Date.now()) * 1000,
+            resetAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000,
+            bucket: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.BUCKET],
+            global: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL] === `true`,
+            globalRetryAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000,
+            scope: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.SCOPE]
         }));
         if (res.globalRetryAfter > 0 && res.global) {
             this.manager.globalLeft = 0;
