@@ -33,6 +33,16 @@ export declare const DiscordConstants: {
         readonly RESET_AFTER: 60000;
     };
     /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    readonly IMAGE_FORMATS: readonly ["gif", "jpeg", "jpg", "json", "png", "webp"];
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    readonly IMAGE_SIZES: readonly [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+    /**
      * Gateway intents.
      * Includes privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
