@@ -8,7 +8,7 @@ exports.DistypeConstants = {
     /**
      * The package's version.
      */
-    VERSION: `0.3.0`,
+    VERSION: `0.4.0`,
     /**
      * The URL to Distype's source.
      */
