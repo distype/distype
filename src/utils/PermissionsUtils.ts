@@ -14,7 +14,7 @@ export interface PermissionsChannel {
  */
 export interface PermissionsGuild {
     id: Snowflake
-    owner_id: Snowflake
+    owner_id?: Snowflake
     roles?: Array<{
         id: Snowflake
         permissions: string | number | bigint
