@@ -407,6 +407,31 @@ export abstract class RestRequests {
 
     /**
      * @param guildId The guild ID.
+     * @param options Request options.
+     */
+    public async getGuild (guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildResult> {
+        return await this.request(`GET`, `/guilds/${guildId}`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     */
+    public async getGuildMember (guildId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildMemberResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/members/${userId}`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     */
+    public async getGuildRoles (guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildRolesResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/roles`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
