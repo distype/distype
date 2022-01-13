@@ -367,6 +367,28 @@ class RestRequests {
     }
     /**
      * @param guildId The guild ID.
+     * @param options Request options.
+     */
+    async getGuild(guildId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     */
+    async getGuildMember(guildId, userId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/members/${userId}`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     */
+    async getGuildRoles(guildId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/roles`, options);
+    }
+    /**
+     * @param guildId The guild ID.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)

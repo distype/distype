@@ -268,6 +268,22 @@ export declare abstract class RestRequests {
     deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction>;
     /**
      * @param guildId The guild ID.
+     * @param options Request options.
+     */
+    getGuild(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     */
+    getGuildMember(guildId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildMemberResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     */
+    getGuildRoles(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildRolesResult>;
+    /**
+     * @param guildId The guild ID.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
