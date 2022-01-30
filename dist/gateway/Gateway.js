@@ -114,7 +114,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             });
             throw error;
         }
-        this._logger?.log(`Starting ${this.options.sharding.shards} shards`, { system: `Gateway` });
+        this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, { system: `Gateway` });
         const buckets = new collection_1.default();
         for (let i = 0; i < this.options.sharding.shards; i++) {
             this._logger?.log(`Creating shard ${i}`, {
@@ -159,10 +159,11 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
                 await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
         this.emit(`SHARDS_READY`, null);
-        this._logger?.log(`Finished connection process: ${results.filter((result) => result.status === `fulfilled`).length} / ${this.options.sharding.shards} shards spawned`, {
+        this._logger?.log(`Finished connection process`, {
             level: `DEBUG`, system: `Gateway`
         });
-        this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}!` : ``}: ${results.filter((result) => result.status === `fulfilled`).length} / ${this.options.sharding.shards} shards spawned`, { system: `Gateway` });
+        this._logger?.log(`${results.filter((result) => result.status === `fulfilled`).length} / ${this.options.sharding.shards} shards spawned`, { system: `Gateway` });
+        this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, { system: `Gateway` });
         return results;
     }
     /**
