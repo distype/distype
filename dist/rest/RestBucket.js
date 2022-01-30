@@ -4,8 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestBucket = void 0;
+const Rest_1 = require("./Rest");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
+const Logger_1 = require("../logger/Logger");
 const form_data_1 = __importDefault(require("form-data"));
 const undici_1 = require("undici");
 const url_1 = require("url");
@@ -22,7 +24,7 @@ class RestBucket {
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
-    constructor(manager, id, bucketHash, majorParameter) {
+    constructor(manager, id, bucketHash, majorParameter, logger) {
         /**
          * The number of allowed requests per a ratelimit interval.
          */
@@ -38,8 +40,17 @@ class RestBucket {
         /**
          * The request queue.
          */
-        this.queue = [];
-        this.manager = manager;
+        this._queue = [];
+        if (!(manager instanceof Rest_1.Rest))
+            throw new TypeError(`A rest manager must be specified`);
+        if (typeof id !== `string`)
+            throw new TypeError(`A bucket ID must be specified`);
+        if (typeof bucketHash !== `string`)
+            throw new TypeError(`A bucket hash must be specified`);
+        if (typeof majorParameter !== `string`)
+            throw new TypeError(`A major parameter must be specified`);
+        if (!(logger instanceof Logger_1.Logger) && logger !== false)
+            throw new TypeError(`A logger or false must be specified`);
         Object.defineProperty(this, `bucketHash`, {
             configurable: false,
             enumerable: true,
@@ -58,12 +69,18 @@ class RestBucket {
             value: majorParameter,
             writable: false
         });
+        this.manager = manager;
+        if (logger)
+            this._logger = logger;
+        this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
+            level: `DEBUG`, system: `Rest`
+        });
     }
     /**
      * If the bucket is currently making a request.
      */
     get active() {
-        return this.queue.length > 0;
+        return this._queue.length > 0;
     }
     /**
      * Get information on the bucket's current ratelimit restrictions.
@@ -83,6 +100,9 @@ class RestBucket {
      * @returns Response data.
      */
     async request(method, route, routeHash, options) {
+        this._logger?.log(`Waiting for queue: request ${method} ${route}`, {
+            level: `DEBUG`, system: `Rest`
+        });
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
@@ -106,7 +126,13 @@ class RestBucket {
      * @returns Response data.
      */
     async _make(method, route, routeHash, options, attempt = 0) {
+        this._logger?.log(`Waiting for ratelimit: request ${method} ${route}`, {
+            level: `DEBUG`, system: `Rest`
+        });
         await this._awaitRatelimit();
+        this._logger?.log(`Making request ${method} ${route}`, {
+            level: `DEBUG`, system: `Rest`
+        });
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
             this.manager.globalLeft = this.manager.options.ratelimits.globalPerSecond;
@@ -149,6 +175,9 @@ class RestBucket {
             globalRetryAfter: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000,
             scope: r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.SCOPE]
         }));
+        this._logger?.log(`Made request ${method} ${route}`, {
+            level: `DEBUG`, system: `Rest`
+        });
         if (res.globalRetryAfter > 0 && res.global) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = res.globalRetryAfter + Date.now();
@@ -161,15 +190,27 @@ class RestBucket {
         this.allowedRequestsPerRatelimit = res.limit;
         this.manager.responseCodeTally[res.statusCode] = (this.manager.responseCodeTally[res.statusCode] ?? 0) + 1;
         if (res.statusCode >= 200 && res.statusCode < 300) {
+            this._logger?.log(`Success: request ${method} ${route}`, {
+                level: `DEBUG`, system: `Rest`
+            });
             return res.body;
         }
         else if (res.statusCode === 429) {
+            this._logger?.log(`429 Ratelimited: request ${method} ${route}`, {
+                level: `DEBUG`, system: `Rest`
+            });
             return this._make(method, route, routeHash, options);
         }
         else if (res.statusCode >= 400 && res.statusCode < 500) {
+            this._logger?.log(`4xx Error: request ${method} ${route}`, {
+                level: `DEBUG`, system: `Rest`
+            });
             throw new Error(res.body);
         }
         else if (res.statusCode >= 500 && res.statusCode < 600) {
+            this._logger?.log(`5xx Error: request ${method} ${route}`, {
+                level: `DEBUG`, system: `Rest`
+            });
             if (attempt === (options.code500retries ?? this.manager.options.code500retries) - 1)
                 throw new Error(res.body);
             else
@@ -180,7 +221,7 @@ class RestBucket {
      * Shifts the queue.
      */
     _shiftQueue() {
-        const shift = this.queue.shift();
+        const shift = this._queue.shift();
         if (shift)
             shift.resolve();
     }
@@ -188,12 +229,12 @@ class RestBucket {
      * Waits for the queue to be clear.
      */
     _waitForQueue() {
-        const next = this.queue.length ? this.queue[this.queue.length - 1].promise : Promise.resolve();
+        const next = this._queue.length ? this._queue[this._queue.length - 1].promise : Promise.resolve();
         let resolve;
         const promise = new Promise((r) => {
             resolve = r;
         });
-        this.queue.push({
+        this._queue.push({
             resolve: resolve,
             promise
         });

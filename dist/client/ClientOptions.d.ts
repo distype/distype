@@ -2,6 +2,7 @@ import { Client } from './Client';
 import { cacheEventHandler } from '../cache/CacheEventHandler';
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
 import { DiscordConstants } from '../constants/DiscordConstants';
+import { LoggerFormats, LoggerLevel } from '../logger/Logger';
 import * as DiscordTypes from 'discord-api-types/v9';
 import { request } from 'undici';
 import { ClientOptions as WsClientOptions } from 'ws';
@@ -9,6 +10,9 @@ import { ClientOptions as WsClientOptions } from 'ws';
  * Options for the {@link Client client}.
  */
 export interface ClientOptions {
+    /**
+     * Options for the cache manager.
+     */
     cache?: {
         /**
          * Cache control.
@@ -32,6 +36,9 @@ export interface ClientOptions {
          */
         cacheEventHandler?: typeof cacheEventHandler;
     };
+    /**
+     * Options for the gateway manager.
+     */
     gateway?: {
         /**
          * Gateway intents.
@@ -130,6 +137,72 @@ export interface ClientOptions {
          */
         version?: number;
     };
+    /**
+     * Options for the logger.
+     * Specifying `false` will disable the logger.
+     */
+    logger?: {
+        /**
+         * The logger's enabled output.
+         */
+        enabledOutput?: {
+            /**
+             * The levels to output from `console.log()`.
+             * @default [`INFO`, `WARN`, `ERROR`]
+             */
+            log?: LoggerLevel[];
+            /**
+             * The levels to output from the logger's event emitter.
+             * @default [`DEBUG`, `INFO`, `WARN`, `ERROR`]
+             */
+            events?: LoggerLevel[];
+        };
+        /**
+         * The format for the logger to use.
+         * Note these only apply to the `console.log()`.
+         */
+        format?: {
+            /**
+             * The format for the dividers.
+             * @default `DIM`
+             */
+            divider?: LoggerFormats;
+            /**
+             * The format for the timestamp.
+             * @default `WHITE`
+             */
+            timestamp?: LoggerFormats;
+            /**
+             * The format for the logging level.
+             * @default {
+             *   ALL: `BRIGHT`,
+             *   DEBUG: `WHITE`,
+             *   INFO: `CYAN`,
+             *   WARN: `YELLOW`,
+             *   ERROR: `RED`
+             * }
+             */
+            levels?: Record<LoggerLevel | `ALL`, LoggerFormats> | LoggerFormats;
+            /**
+             * The format for the system.
+             * @default [`BRIGHT`, `WHITE`]
+             */
+            system?: LoggerFormats;
+            /**
+             * The format for the message.
+             * @default `WHITE`
+             */
+            message?: LoggerFormats;
+        };
+        /**
+         * If the timestamp should be included in the `console.log()` message.
+         * @default true
+         */
+        showTime?: boolean;
+    } | false;
+    /**
+     * Options for the rest manager.
+     */
     rest?: Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `bodyTimeout`> & {
         /**
          * The amount of times to retry a request if it returns code `500`.

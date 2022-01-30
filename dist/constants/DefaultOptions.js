@@ -21,6 +21,11 @@ exports.DefaultOptions = {
         version: 9,
         wsOptions: undefined
     },
+    LOGGER: {
+        enabledOutput: {},
+        format: {},
+        showTime: true
+    },
     REST: {
         code500retries: 2,
         ratelimits: {

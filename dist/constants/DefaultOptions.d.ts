@@ -17,6 +17,11 @@ export declare const DefaultOptions: {
         readonly version: 9;
         readonly wsOptions: undefined;
     };
+    readonly LOGGER: {
+        readonly enabledOutput: {};
+        readonly format: {};
+        readonly showTime: true;
+    };
     readonly REST: {
         readonly code500retries: 2;
         readonly ratelimits: {

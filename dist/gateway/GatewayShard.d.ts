@@ -1,4 +1,5 @@
 import { GatewayShardOptions } from './GatewayOptions';
+import { Logger } from '../logger/Logger';
 import { TypedEmitter } from '../utils/TypedEmitter';
 import * as DiscordTypes from 'discord-api-types/v9';
 /**
@@ -9,10 +10,6 @@ export interface GatewayShardEvents {
      * When the {@link GatewayShard shard} receives a payload. Data is the parsed payload.
      */
     '*': DiscordTypes.GatewayDispatchPayload;
-    /**
-     * Debugging event. Data is the message.
-     */
-    DEBUG: string;
     /**
      * When the {@link GatewayShard shard} gets a ready dispatch. Data is the [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
@@ -115,6 +112,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _heartbeat;
     /**
+     * The {@link Logger logger} used by the gateway shard.
+     */
+    private _logger?;
+    /**
      * The pending reject callback for the promise starting the shard.
      */
     private _pendingStartReject;
@@ -136,9 +137,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param id The shard's ID.
      * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      * @param url The URL being used to connect to the gateway.
+     * @param logger The {@link Logger logger} for the gateway shard to use. If `false` is specified, no logger will be used.
      * @param options {@link GatewayShardOptions Gateway shard options}.
      */
-    constructor(token: string, id: number, numShards: number, url: string, options: GatewayShardOptions);
+    constructor(token: string, id: number, numShards: number, url: string, logger: Logger | false, options: GatewayShardOptions);
     /**
      * Connect to the gateway.
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.

@@ -1,6 +1,7 @@
 import { ClientOptions } from './ClientOptions';
 import { Cache } from '../cache/Cache';
 import { Gateway } from '../gateway/Gateway';
+import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
 /**
  * The Discord client.
@@ -15,6 +16,10 @@ export declare class Client {
      */
     gateway: Gateway;
     /**
+     * The client's logger.
+     */
+    logger?: Logger;
+    /**
      * The client's {@link Rest rest manager}.
      */
     rest: Rest;
@@ -25,6 +30,7 @@ export declare class Client {
     readonly options: {
         cache: Cache[`options`];
         gateway: Gateway[`options`];
+        logger: Logger[`options`] | false;
         rest: Rest[`options`];
     };
     /**

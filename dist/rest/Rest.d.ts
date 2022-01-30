@@ -2,6 +2,7 @@
 import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
+import { Logger } from '../logger/Logger';
 import Collection from '@discordjs/collection';
 import { Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
@@ -84,15 +85,20 @@ export declare class Rest extends RestRequests {
      */
     readonly options: RestOptions;
     /**
+     * The {@link Logger logger} used by the rest manager.
+     */
+    private _logger?;
+    /**
      * The bot's token.
      */
     private readonly _token;
     /**
      * Create a rest manager.
      * @param token The bot's token.
+     * @param logger The {@link Logger logger} for the rest manager to use. If `false` is specified, no logger will be used.
      * @param options {@link RestOptions Rest options}.
      */
-    constructor(token: string, options: RestOptions);
+    constructor(token: string, logger: Logger | false, options: RestOptions);
     /**
      * Get the ratio of response codes.
      * Each code's value is the percentage it was received (`0` to `100`).

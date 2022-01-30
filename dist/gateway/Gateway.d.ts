@@ -1,6 +1,7 @@
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
 import { Cache } from '../cache/Cache';
+import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
 import { TypedEmitter } from '../utils/TypedEmitter';
 import Collection from '@discordjs/collection';
@@ -37,7 +38,6 @@ export interface GatewayEvents {
      */
     SHARD_STATE_CONNECTED: GatewayShard;
     '*': DiscordTypes.GatewayDispatchPayload;
-    DEBUG: string;
     READY: DiscordTypes.GatewayReadyDispatch;
     RESUMED: DiscordTypes.GatewayResumedDispatch;
     CHANNEL_CREATE: DiscordTypes.GatewayChannelCreateDispatch;
@@ -122,6 +122,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _cache?;
     /**
+     * The {@link Logger logger} used by the gateway manager.
+     */
+    private _logger?;
+    /**
      * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
      */
     private _requestGuildMembersNonceIncrement;
@@ -141,10 +145,11 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * Create a gateway manager.
      * @param token The bot's token.
      * @param cache The {@link Cache cache manager} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a {@link cacheEventHandler}.
+     * @param logger The {@link Logger logger} for the gateway manager to use. If `false` is specified, no logger will be used.
      * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
      * @param options {@link GatewayOptions Gateway options}.
      */
-    constructor(token: string, cache: Cache | false, rest: Rest, options: GatewayOptions);
+    constructor(token: string, cache: Cache | false, logger: Logger | false, rest: Rest, options: GatewayOptions);
     /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */

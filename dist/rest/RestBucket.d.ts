@@ -1,5 +1,6 @@
 import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { RestRequestOptions } from './RestOptions';
+import { Logger } from '../logger/Logger';
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
@@ -35,9 +36,13 @@ export declare class RestBucket {
      */
     readonly majorParameter: RestMajorParameterLike;
     /**
+     * The {@link Logger logger} used by the rest bucket.
+     */
+    private _logger?;
+    /**
      * The request queue.
      */
-    private queue;
+    private _queue;
     /**
      * Create a rest bucket.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
@@ -45,7 +50,7 @@ export declare class RestBucket {
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
-    constructor(manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike);
+    constructor(manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, logger: Logger | false);
     /**
      * If the bucket is currently making a request.
      */

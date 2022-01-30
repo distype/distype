@@ -7,6 +7,7 @@ exports.Rest = void 0;
 const RestBucket_1 = require("./RestBucket");
 const RestRequests_1 = require("./RestRequests");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
+const Logger_1 = require("../logger/Logger");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const collection_1 = __importDefault(require("@discordjs/collection"));
 /**
@@ -17,9 +18,10 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Create a rest manager.
      * @param token The bot's token.
+     * @param logger The {@link Logger logger} for the rest manager to use. If `false` is specified, no logger will be used.
      * @param options {@link RestOptions Rest options}.
      */
-    constructor(token, options) {
+    constructor(token, logger, options) {
         super();
         /**
          * Rate limit {@link RestBucket buckets}.
@@ -46,6 +48,8 @@ class Rest extends RestRequests_1.RestRequests {
         this.routeHashCache = new collection_1.default();
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
+        if (!(logger instanceof Logger_1.Logger) && logger !== false)
+            throw new TypeError(`A logger or false must be specified`);
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
@@ -58,10 +62,15 @@ class Rest extends RestRequests_1.RestRequests {
             value: Object.freeze(options),
             writable: false
         });
+        if (logger)
+            this._logger = logger;
         // @ts-expect-error Property 'options' is used before being assigned.
         if (this.options.ratelimits.sweepInterval)
             this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
         this.globalLeft = options.ratelimits.globalPerSecond;
+        this._logger?.log(`Initialized rest manager`, {
+            level: `DEBUG`, system: `Rest`
+        });
     }
     /**
      * Get the ratio of response codes.
@@ -82,6 +91,9 @@ class Rest extends RestRequests_1.RestRequests {
      * @returns Response data.
      */
     async request(method, route, options = {}) {
+        this._logger?.log(`Starting request ${method} ${route}`, {
+            level: `DEBUG`, system: `Rest`
+        });
         const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
         const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
         const routeHash = `${method};${rawHash}${oldMessage}`;
@@ -95,7 +107,10 @@ class Rest extends RestRequests_1.RestRequests {
      * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     sweepBuckets() {
-        this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
+        const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
+        this._logger?.log(`Sweeped ${sweeped} buckets`, {
+            level: `DEBUG`, system: `Rest`
+        });
     }
     /**
      * Create a ratelimit {@link RestBucket bucket}.
@@ -105,8 +120,11 @@ class Rest extends RestRequests_1.RestRequests {
      * @returns The created bucket.
      */
     _createBucket(bucketId, bucketHash, majorParameter) {
-        const bucket = new RestBucket_1.RestBucket(this, bucketId, bucketHash, majorParameter);
+        const bucket = new RestBucket_1.RestBucket(this, bucketId, bucketHash, majorParameter, this._logger ?? false);
         this.buckets.set(bucketId, bucket);
+        this._logger?.log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
+            level: `DEBUG`, system: `Rest`
+        });
         return bucket;
     }
 }
