@@ -3,6 +3,7 @@ import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
+import { Logger } from '../logger/Logger';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
 import Collection from '@discordjs/collection';
@@ -98,6 +99,11 @@ export class Rest extends RestRequests {
     public readonly options: RestOptions;
 
     /**
+     * The {@link Logger logger} used by the rest manager.
+     */
+    private _logger?: Logger;
+
+    /**
      * The bot's token.
      */
     // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
@@ -106,12 +112,14 @@ export class Rest extends RestRequests {
     /**
      * Create a rest manager.
      * @param token The bot's token.
+     * @param logger The {@link Logger logger} for the rest manager to use. If `false` is specified, no logger will be used.
      * @param options {@link RestOptions Rest options}.
      */
-    constructor(token: string, options: RestOptions) {
+    constructor(token: string, logger: Logger | false, options: RestOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
+        if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
@@ -126,10 +134,16 @@ export class Rest extends RestRequests {
             writable: false
         });
 
+        if (logger) this._logger = logger;
+
         // @ts-expect-error Property 'options' is used before being assigned.
         if (this.options.ratelimits.sweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
 
         this.globalLeft = options.ratelimits.globalPerSecond;
+
+        this._logger?.log(`Initialized rest manager`, {
+            level: `DEBUG`, system: `Rest`
+        });
     }
 
     /**
@@ -152,6 +166,10 @@ export class Rest extends RestRequests {
      * @returns Response data.
      */
     public async request(method: RestMethod, route: RestRouteLike, options: RestRequestOptions & RestRequestData = {}): Promise<any> {
+        this._logger?.log(`Starting request ${method} ${route}`, {
+            level: `DEBUG`, system: `Rest`
+        });
+
         const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
         const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
 
@@ -169,7 +187,10 @@ export class Rest extends RestRequests {
      * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     public sweepBuckets (): void {
-        this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
+        const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
+        this._logger?.log(`Sweeped ${sweeped} buckets`, {
+            level: `DEBUG`, system: `Rest`
+        });
     }
 
     /**
@@ -180,8 +201,11 @@ export class Rest extends RestRequests {
      * @returns The created bucket.
      */
     private _createBucket (bucketId: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike): RestBucket {
-        const bucket = new RestBucket(this, bucketId, bucketHash, majorParameter);
+        const bucket = new RestBucket(this, bucketId, bucketHash, majorParameter, this._logger ?? false);
         this.buckets.set(bucketId, bucket);
+        this._logger?.log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
+            level: `DEBUG`, system: `Rest`
+        });
         return bucket;
     }
 }

@@ -1,6 +1,8 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
 
+import { Logger } from '../logger/Logger';
+
 import Collection from '@discordjs/collection';
 import { Snowflake } from 'discord-api-types/v9';
 
@@ -59,10 +61,18 @@ export class Cache {
     public readonly options: CacheOptions;
 
     /**
+     * The {@link Logger logger} used by the cache manager.
+     */
+    private _logger?: Logger;
+
+    /**
      * Create a cache manager.
+     * @param logger The {@link Logger logger} for the cache manager to use. If `false` is specified, no logger will be used.
      * @param options {@link CacheOptions Cache options}.
      */
-    constructor(options: CacheOptions) {
+    constructor(logger: Logger | false, options: CacheOptions) {
+        if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
+
         Object.defineProperty(this, `options`, {
             configurable: false,
             enumerable: true,
@@ -73,6 +83,12 @@ export class Cache {
         // @ts-expect-error Property 'options' is used before being assigned.
         (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => {
             if (this.options.cacheControl[key] instanceof Array) this[key] = new Collection<any, any>();
+        });
+
+        if (logger) this._logger = logger;
+
+        this._logger?.log(`Initialized cache manager`, {
+            level: `DEBUG`, system: `Cache`
         });
     }
 }

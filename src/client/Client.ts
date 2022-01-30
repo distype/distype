@@ -2,6 +2,7 @@ import { ClientOptions, optionsFactory } from './ClientOptions';
 
 import { Cache } from '../cache/Cache';
 import { Gateway } from '../gateway/Gateway';
+import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
 
 /**
@@ -17,6 +18,10 @@ export class Client {
      */
     public gateway: Gateway;
     /**
+     * The client's logger.
+     */
+    public logger?: Logger;
+    /**
      * The client's {@link Rest rest manager}.
      */
     public rest: Rest;
@@ -29,6 +34,7 @@ export class Client {
     public readonly options: {
         cache: Cache[`options`]
         gateway: Gateway[`options`]
+        logger: Logger[`options`] | false
         rest: Rest[`options`]
     };
 
@@ -60,10 +66,16 @@ export class Client {
         });
 
         // @ts-expect-error Property 'options' is used before being assigned.
-        this.cache = new Cache(this.options.cache);
+        if (options.logger !== false) this.logger = new Logger(this.options.logger);
         // @ts-expect-error Property 'options' is used before being assigned.
-        this.rest = new Rest(token, this.options.rest);
+        this.cache = new Cache(this.logger ?? false, this.options.cache);
         // @ts-expect-error Property 'options' is used before being assigned.
-        this.gateway = new Gateway(token, this.cache, this.rest, this.options.gateway);
+        this.rest = new Rest(token, this.logger ?? false, this.options.rest);
+        // @ts-expect-error Property 'options' is used before being assigned.
+        this.gateway = new Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
+
+        this.logger?.log(`Initialized client`, {
+            level: `DEBUG`, system: `Client`
+        });
     }
 }
