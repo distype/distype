@@ -107,14 +107,14 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
         this.options.sharding.offset = this.options.sharding.offset ?? 0;
+        this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, { system: `Gateway` });
         if (this.options.sharding.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
             const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
-            this._logger?.log(`Unable to connect shards: ${error.name} | ${error.message}`, {
-                level: `DEBUG`, system: `Gateway`
+            this._logger?.log(`Unable to connect shards: ${error.message}`, {
+                level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
-        this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, { system: `Gateway` });
         const buckets = new collection_1.default();
         for (let i = 0; i < this.options.sharding.shards; i++) {
             this._logger?.log(`Creating shard ${i}`, {

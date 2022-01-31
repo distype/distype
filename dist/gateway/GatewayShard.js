@@ -161,8 +161,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     async spawn() {
         if (this.state !== GatewayShardState.DISCONNECTED) {
             const error = new Error(`Cannot spawn when the shard isn't in a disconnected state`);
-            this._logger?.log(`Failed to spawn shard: ${error.name} | ${error.message}`, {
-                level: `DEBUG`, system: `Gateway`
+            this._logger?.log(`Failed to spawn shard: ${error.message}`, {
+                level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
@@ -188,10 +188,11 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             else if (i !== this.options.spawnMaxAttempts - 1)
                 await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
         }
-        this._logger?.log(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`, {
-            level: `DEBUG`, system: `Gateway`
+        const error = new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
+        this._logger?.log(error.message, {
+            level: `ERROR`, system: `Gateway`
         });
-        throw new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
+        throw error;
     }
     /**
      * Restart / resume the shard.
@@ -200,8 +201,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     async restart() {
         if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) {
             const error = new Error(`Cannot resume when the shard isn't in a disconnected or connected state`);
-            this._logger?.log(`Failed to spawn shard: ${error.name} | ${error.message}`, {
-                level: `DEBUG`, system: `Gateway`
+            this._logger?.log(`Failed to spawn shard: ${error.message}`, {
+                level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
@@ -360,8 +361,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         });
         if (this.state !== GatewayShardState.CONNECTING && this.state !== GatewayShardState.RESUMING) {
             const error = new Error(`Cannot initiate a connection when the shard isn't in a connecting or resuming state`);
-            this._logger?.log(`Failed to connect shard: ${error.name} | ${error.message}`, {
-                level: `DEBUG`, system: `Gateway`
+            this._logger?.log(`Failed to connect shard: ${error.message}`, {
+                level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
@@ -375,8 +376,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             this._pendingStartReject = reject;
             this._connectionTimeout = setTimeout(() => {
                 const error = new Error(`Timed out while connecting shard`);
-                this._logger?.log(`Failed to connect shard: ${error.name} | ${error.message}`, {
-                    level: `DEBUG`, system: `Gateway`
+                this._logger?.log(`Failed to connect shard: ${error.message}`, {
+                    level: `ERROR`, system: `Gateway`
                 });
                 this._ws?.removeAllListeners();
                 this._ws = null;
@@ -389,8 +390,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 level: `DEBUG`, system: `Gateway`
             });
             this._ws.once(`error`, (error) => {
-                this._logger?.log(`Failed to connect shard: ${error.name} | ${error.message}`, {
-                    level: `DEBUG`, system: `Gateway`
+                this._logger?.log(`Failed to connect shard: ${error.message}`, {
+                    level: `ERROR`, system: `Gateway`
                 });
                 this._ws?.removeAllListeners();
                 this._ws = null;
@@ -443,8 +444,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         return await new Promise((resolve, reject) => {
             if (!this._ws || this._ws.readyState !== ws_1.WebSocket.OPEN) {
                 const error = new Error(`The shard's socket must be defined and open to send a payload`);
-                this._logger?.log(`Failed to send payload "${payload}": ${error.name} | ${error.message}`, {
-                    level: `DEBUG`, system: `Gateway`
+                this._logger?.log(`Failed to send payload "${payload}": ${error.message}`, {
+                    level: `ERROR`, system: `Gateway`
                 });
                 return reject(error);
             }
@@ -453,8 +454,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             });
             this._ws.send(payload, (error) => {
                 if (error) {
-                    this._logger?.log(`Failed to send payload "${payload}": ${error.name} | ${error.message}`, {
-                        level: `DEBUG`, system: `Gateway`
+                    this._logger?.log(`Failed to send payload "${payload}": ${error.message}`, {
+                        level: `ERROR`, system: `Gateway`
                     });
                     reject(error);
                 }
