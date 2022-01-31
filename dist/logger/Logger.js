@@ -8,6 +8,10 @@ const TypedEmitter_1 = require("../utils/TypedEmitter");
  * Used to simplify detailed logging.
  */
 class Logger extends TypedEmitter_1.TypedEmitter {
+    /**
+     * Create a logger.
+     * @param options {@link LoggerOptions Logger options}.
+     */
     constructor(options) {
         super();
         this.options = options;

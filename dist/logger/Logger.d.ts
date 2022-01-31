@@ -48,7 +48,14 @@ export declare type LoggerSystem = `General` | `Client` | `Cache` | `Gateway` | 
  * Used to simplify detailed logging.
  */
 export declare class Logger extends TypedEmitter<LoggerEvents> {
+    /**
+     * {@link LoggerOptions Options} for the logger.
+     */
     readonly options: LoggerOptions;
+    /**
+     * Create a logger.
+     * @param options {@link LoggerOptions Logger options}.
+     */
     constructor(options: LoggerOptions);
     /**
      * Log a message.
