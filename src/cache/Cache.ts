@@ -88,7 +88,7 @@ export class Cache {
         if (logger) this._logger = logger;
 
         this._logger?.log(`Initialized cache manager`, {
-            level: `DEBUG`, system: `Cache`
+            internal: true, level: `DEBUG`, system: `Cache`
         });
     }
 }

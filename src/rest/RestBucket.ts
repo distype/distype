@@ -97,7 +97,7 @@ export class RestBucket {
         if (logger) this._logger = logger;
 
         this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
     }
 
@@ -128,7 +128,7 @@ export class RestBucket {
      */
     public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData): Promise<any> {
         this._logger?.log(`Waiting for queue: request ${method} ${route}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
@@ -155,12 +155,12 @@ export class RestBucket {
      */
     private async _make(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData, attempt = 0): Promise<any> {
         this._logger?.log(`Waiting for ratelimit: request ${method} ${route}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
         await this._awaitRatelimit();
 
         this._logger?.log(`Making request ${method} ${route}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
@@ -210,7 +210,7 @@ export class RestBucket {
         }));
 
         this._logger?.log(`Made request ${method} ${route}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
 
         if (res.globalRetryAfter > 0 && res.global) {
@@ -229,26 +229,26 @@ export class RestBucket {
         this.manager.responseCodeTally[res.statusCode] = (this.manager.responseCodeTally[res.statusCode] ?? 0) + 1;
         if (res.statusCode >= 200 && res.statusCode < 300) {
             this._logger?.log(`Success: request ${method} ${route}`, {
-                level: `DEBUG`, system: `Rest`
+                internal: true, level: `DEBUG`, system: `Rest`
             });
             return res.body;
         } else if (res.statusCode === 429) {
             this._logger?.log(`429 Ratelimited: request ${method} ${route}`, {
-                level: `ERROR`, system: `Rest`
+                internal: true, level: `ERROR`, system: `Rest`
             });
             return this._make(method, route, routeHash, options);
         } else if (res.statusCode >= 400 && res.statusCode < 500 ) {
             this._logger?.log(`4xx Error: request ${method} ${route}`, {
-                level: `ERROR`, system: `Rest`
+                internal: true, level: `ERROR`, system: `Rest`
             });
             throw new Error(res.body);
         } else if (res.statusCode >= 500 && res.statusCode < 600) {
             this._logger?.log(`5xx Error: request ${method} ${route}`, {
-                level: `DEBUG`, system: `Rest`
+                internal: true, level: `DEBUG`, system: `Rest`
             });
             if (attempt === (options.code500retries ?? this.manager.options.code500retries) - 1) {
                 this._logger?.log(`5xx Error: rejected request ${method} ${route} after ${this.manager.options.code500retries} attempts`, {
-                    level: `ERROR`, system: `Rest`
+                    internal: true, level: `ERROR`, system: `Rest`
                 });
                 throw new Error(res.body);
             } else return this._make(method, route, routeHash, options, attempt + 1);

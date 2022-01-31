@@ -28,6 +28,12 @@ export type LoggerLevel = `DEBUG` | `INFO` | `WARN` | `ERROR`;
  */
 export interface LoggerMessageOptions extends Partial<LoggerOptions> {
     /**
+     * If the message is imitted internally from distype.
+     * @default false
+     * @internal
+     */
+    internal?: boolean
+    /**
      * @default `INFO`
      */
     level?: LoggerLevel
@@ -68,11 +74,14 @@ export class Logger extends TypedEmitter<LoggerEvents> {
      */
     public log (msg: string, options?: LoggerMessageOptions): void {
         const completeOptions: Required<LoggerMessageOptions> = {
+            internal: false,
             level: `INFO`,
             system: `General`,
             ...this.options,
             ...options
         };
+
+        if (completeOptions.internal && completeOptions.disableInternal) return;
 
         const reset = NodeConstants.LOG_FORMATS[`RESET`];
         const formats = this._convertFormats(completeOptions.format);

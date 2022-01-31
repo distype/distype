@@ -142,7 +142,7 @@ export class Rest extends RestRequests {
         this.globalLeft = options.ratelimits.globalPerSecond;
 
         this._logger?.log(`Initialized rest manager`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
     }
 
@@ -167,7 +167,7 @@ export class Rest extends RestRequests {
      */
     public async request(method: RestMethod, route: RestRouteLike, options: RestRequestOptions & RestRequestData = {}): Promise<any> {
         this._logger?.log(`Starting request ${method} ${route}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
 
         const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
@@ -189,7 +189,7 @@ export class Rest extends RestRequests {
     public sweepBuckets (): void {
         const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
         this._logger?.log(`Sweeped ${sweeped} buckets`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
     }
 
@@ -204,7 +204,7 @@ export class Rest extends RestRequests {
         const bucket = new RestBucket(this, bucketId, bucketHash, majorParameter, this._logger ?? false);
         this.buckets.set(bucketId, bucket);
         this._logger?.log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
         return bucket;
     }

@@ -75,7 +75,7 @@ export class Client {
         this.gateway = new Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
 
         this.logger?.log(`Initialized client`, {
-            level: `DEBUG`, system: `Client`
+            internal: true, level: `DEBUG`, system: `Client`
         });
     }
 }

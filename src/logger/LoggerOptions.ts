@@ -5,6 +5,10 @@ import { LoggerFormats, LoggerLevel } from './Logger';
  */
 export interface LoggerOptions {
     /**
+     * Disable internal distype logging.
+     */
+    disableInternal: boolean
+    /**
      * The logger's enabled output.
      */
     enabledOutput: {

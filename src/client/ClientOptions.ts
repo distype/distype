@@ -147,6 +147,11 @@ export interface ClientOptions {
      */
     logger?: {
         /**
+         * Disable internal distype logging.
+         * @default false
+         */
+        disableInternal?: boolean
+        /**
          * The logger's enabled output.
          */
         enabledOutput?: {
@@ -275,6 +280,7 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
             wsOptions: options.gateway?.wsOptions ?? DefaultOptions.GATEWAY.wsOptions
         },
         logger: options.logger === false ? false : {
+            disableInternal: options.logger?.disableInternal ?? DefaultOptions.LOGGER.disableInternal,
             enabledOutput: options.logger?.enabledOutput ?? DefaultOptions.LOGGER.enabledOutput,
             format: options.logger?.format ?? DefaultOptions.LOGGER.format,
             showTime: options.logger?.showTime ?? DefaultOptions.LOGGER.showTime
