@@ -19,12 +19,13 @@ const url_1 = require("url");
 class RestBucket {
     /**
      * Create a rest bucket.
+     * @param token The bot's token.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
-    constructor(manager, id, bucketHash, majorParameter, logger) {
+    constructor(token, manager, id, bucketHash, majorParameter, logger) {
         /**
          * The number of allowed requests per a ratelimit interval.
          */
@@ -57,6 +58,12 @@ class RestBucket {
         this.majorParameter = majorParameter;
         if (logger)
             this._logger = logger;
+        Object.defineProperty(this, `_token`, {
+            configurable: false,
+            enumerable: false,
+            value: token,
+            writable: false
+        });
         this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
             internal: true, level: `DEBUG`, system: `Rest`
         });
@@ -128,8 +135,7 @@ class RestBucket {
             ...this.manager.options.headers,
             ...options.headers,
             ...(usingFormData ? options.body.getHeaders() : undefined),
-            // @ts-expect-error Property '_token' is private and only accessible within class 'Rest'.
-            'Authorization': `Bot ${this.manager._token}`,
+            'Authorization': `Bot ${this._token}`,
             'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`
         };
         if (!usingFormData && options.body)

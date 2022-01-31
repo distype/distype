@@ -114,7 +114,7 @@ class Rest extends RestRequests_1.RestRequests {
      * @returns The created bucket.
      */
     _createBucket(bucketId, bucketHash, majorParameter) {
-        const bucket = new RestBucket_1.RestBucket(this, bucketId, bucketHash, majorParameter, this._logger ?? false);
+        const bucket = new RestBucket_1.RestBucket(this._token, this, bucketId, bucketHash, majorParameter, this._logger ?? false);
         this.buckets.set(bucketId, bucket);
         this._logger?.log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
             internal: true, level: `DEBUG`, system: `Rest`

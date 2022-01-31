@@ -44,13 +44,18 @@ export declare class RestBucket {
      */
     private _queue;
     /**
+     * The bot's token.
+     */
+    private readonly _token;
+    /**
      * Create a rest bucket.
+     * @param token The bot's token.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
-    constructor(manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, logger: Logger | false);
+    constructor(token: string, manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, logger: Logger | false);
     /**
      * If the bucket is currently making a request.
      */
