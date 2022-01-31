@@ -398,6 +398,16 @@ class RestRequests {
             body, ...options
         });
     }
+    /**
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#create-dm)
+     */
+    async createDM(body, options) {
+        return await this.request(`POST`, `/users/@me/channels`, {
+            body, ...options
+        });
+    }
     // --------------------
     /**
      * @param options Request options.

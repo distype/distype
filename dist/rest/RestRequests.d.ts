@@ -1,7 +1,7 @@
 import { RestRequestData, RestMethod } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 import * as DiscordTypes from 'discord-api-types/v9';
-import { Snowflake } from 'discord-api-types/v9';
+import { RESTPostAPICurrentUserCreateDMChannelResult, Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
 /**
  * A class containing methods for all routes for the Discord API.
@@ -289,6 +289,12 @@ export declare abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
      */
     modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<void>;
+    /**
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#create-dm)
+     */
+    createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<RESTPostAPICurrentUserCreateDMChannelResult>;
     /**
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway)
