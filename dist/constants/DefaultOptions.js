@@ -22,6 +22,7 @@ exports.DefaultOptions = {
         wsOptions: undefined
     },
     LOGGER: {
+        disableInternal: false,
         enabledOutput: {},
         format: {},
         showTime: true

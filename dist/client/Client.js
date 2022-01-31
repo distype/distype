@@ -40,7 +40,7 @@ class Client {
         // @ts-expect-error Property 'options' is used before being assigned.
         this.gateway = new Gateway_1.Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
         this.logger?.log(`Initialized client`, {
-            level: `DEBUG`, system: `Client`
+            internal: true, level: `DEBUG`, system: `Client`
         });
     }
 }

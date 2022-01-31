@@ -18,6 +18,7 @@ export declare const DefaultOptions: {
         readonly wsOptions: undefined;
     };
     readonly LOGGER: {
+        readonly disableInternal: false;
         readonly enabledOutput: {};
         readonly format: {};
         readonly showTime: true;

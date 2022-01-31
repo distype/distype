@@ -25,6 +25,12 @@ export declare type LoggerLevel = `DEBUG` | `INFO` | `WARN` | `ERROR`;
  */
 export interface LoggerMessageOptions extends Partial<LoggerOptions> {
     /**
+     * If the message is imitted internally from distype.
+     * @default false
+     * @internal
+     */
+    internal?: boolean;
+    /**
      * @default `INFO`
      */
     level?: LoggerLevel;

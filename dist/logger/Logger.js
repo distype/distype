@@ -24,11 +24,14 @@ class Logger extends TypedEmitter_1.TypedEmitter {
      */
     log(msg, options) {
         const completeOptions = {
+            internal: false,
             level: `INFO`,
             system: `General`,
             ...this.options,
             ...options
         };
+        if (completeOptions.internal && completeOptions.disableInternal)
+            return;
         const reset = NodeConstants_1.NodeConstants.LOG_FORMATS[`RESET`];
         const formats = this._convertFormats(completeOptions.format);
         if ((completeOptions.enabledOutput.log ?? [`INFO`, `WARN`, `ERROR`]).includes(completeOptions.level))

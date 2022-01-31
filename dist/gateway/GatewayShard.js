@@ -75,7 +75,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             send: () => {
                 if (this._heartbeat.waiting) {
                     this._logger?.log(`Not receiving heartbeat ACKs; restarting`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     void this.restart();
                 }
@@ -86,10 +86,10 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     }, true).then(() => {
                         this._heartbeat.waiting = true;
                         this._logger?.log(`Sent heartbeat`, {
-                            level: `DEBUG`, system: `Gateway`
+                            internal: true, level: `DEBUG`, system: `Gateway`
                         });
                     }).catch((error) => this._logger?.log(`Failed to send heartbeat: ${error.name} | ${error.message}`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     }));
                 }
             },
@@ -150,7 +150,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         if (logger)
             this._logger = logger;
         this._logger?.log(`Initialized gateway shard ${id}`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
     }
     /**
@@ -162,26 +162,26 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         if (this.state !== GatewayShardState.DISCONNECTED) {
             const error = new Error(`Cannot spawn when the shard isn't in a disconnected state`);
             this._logger?.log(`Failed to spawn shard: ${error.message}`, {
-                level: `ERROR`, system: `Gateway`
+                internal: true, level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
         this._logger?.log(`Starting spawning attempts`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
             this._logger?.log(`Starting shard spawn attempt`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             this._clearTimers();
             this._enterState(GatewayShardState.CONNECTING);
             const attempt = await this._initConnection(false).catch((error) => error).catch((error) => error);
             this._logger?.log(`Spawning attempt ${attempt instanceof Error ? `rejected` : `resolved`}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (!(attempt instanceof Error)) {
                 this._logger?.log(`Spawning attempts resolved with success; shard is ready`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 return attempt;
             }
@@ -190,7 +190,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         }
         const error = new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
         this._logger?.log(error.message, {
-            level: `ERROR`, system: `Gateway`
+            internal: true, level: `ERROR`, system: `Gateway`
         });
         throw error;
     }
@@ -202,16 +202,16 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) {
             const error = new Error(`Cannot resume when the shard isn't in a disconnected or connected state`);
             this._logger?.log(`Failed to spawn shard: ${error.message}`, {
-                level: `ERROR`, system: `Gateway`
+                internal: true, level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
         this._logger?.log(`Starting resume attempts`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         for (;;) {
             this._logger?.log(`Starting shard resume attempt`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (this._ws)
                 this.kill(1012, `Restarting shard`);
@@ -220,11 +220,11 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             this._enterState(GatewayShardState.RESUMING);
             const attempt = await this._initConnection(true).catch((error) => error);
             this._logger?.log(`Resume attempt ${attempt instanceof Error ? `rejected` : `resolved`}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (!(attempt instanceof Error)) {
                 this._logger?.log(`Resume attempts resolved with success; shard is ready`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 return attempt;
             }
@@ -239,13 +239,13 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      */
     kill(code = 1000, reason = `Manual kill`) {
         this._logger?.log(`Killing shard with code ${code} for reason ${reason}`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         if (this._pendingStartReject) {
             this._pendingStartReject(new Error(`Shard killed before connection was initiated`));
             this._pendingStartReject = null;
             this._logger?.log(`Stopped connection attempt`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
         }
         this._clearTimers();
@@ -254,7 +254,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             this._ws?.close(code);
         this._ws = null;
         this._logger?.log(`Killed shard with code ${code} for reason ${reason}`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         this._enterState(GatewayShardState.DISCONNECTED);
     }
@@ -271,7 +271,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     payload, reject, resolve
                 });
                 this._logger?.log(`Pushed payload "${payload}" to the send queue`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
             }
             else
@@ -291,7 +291,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             this._heartbeat.interval = null;
         }
         this._logger?.log(`Cleared timers`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
     }
     /**
@@ -304,7 +304,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this.state = GatewayShardState.DISCONNECTED;
                 this.emit(`STATE_DISCONNECTED`, null);
                 this._logger?.log(`Entered "DISCONNECTED" state`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 break;
             }
@@ -312,7 +312,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this.state = GatewayShardState.CONNECTING;
                 this.emit(`STATE_CONNECTING`, null);
                 this._logger?.log(`Entered "CONNECTING" state`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 break;
             }
@@ -320,7 +320,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this.state = GatewayShardState.RESUMING;
                 this.emit(`STATE_RESUMING`, null);
                 this._logger?.log(`Entered "RESUMING" state`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 break;
             }
@@ -328,7 +328,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this.state = GatewayShardState.CONNECTED;
                 this.emit(`STATE_CONNECTED`, null);
                 this._logger?.log(`Entered "CONNECTED" state`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 break;
             }
@@ -339,13 +339,13 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      */
     async _flushQueue() {
         this._logger?.log(`Flushing queue`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         for (const send of this._spawnSendQueue) {
             await this._send(send.payload).then(send.resolve).catch(send.reject);
         }
         this._logger?.log(`Flushed queue`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
     }
     /**
@@ -357,12 +357,12 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      */
     async _initConnection(resume) {
         this._logger?.log(`Initiating WebSocket connection`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         if (this.state !== GatewayShardState.CONNECTING && this.state !== GatewayShardState.RESUMING) {
             const error = new Error(`Cannot initiate a connection when the shard isn't in a connecting or resuming state`);
             this._logger?.log(`Failed to connect shard: ${error.message}`, {
-                level: `ERROR`, system: `Gateway`
+                internal: true, level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
@@ -370,14 +370,14 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             if (this._pendingStartReject) {
                 this._pendingStartReject(new Error(`Shard initiated connection attempt before connection was initiated`));
                 this._logger?.log(`Stopped connection attempt`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
             }
             this._pendingStartReject = reject;
             this._connectionTimeout = setTimeout(() => {
                 const error = new Error(`Timed out while connecting shard`);
                 this._logger?.log(`Failed to connect shard: ${error.message}`, {
-                    level: `ERROR`, system: `Gateway`
+                    internal: true, level: `ERROR`, system: `Gateway`
                 });
                 this._ws?.removeAllListeners();
                 this._ws = null;
@@ -387,11 +387,11 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             }, this.options.spawnTimeout);
             this._ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
             this._logger?.log(`Created WebSocket`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             this._ws.once(`error`, (error) => {
                 this._logger?.log(`Failed to connect shard: ${error.message}`, {
-                    level: `ERROR`, system: `Gateway`
+                    internal: true, level: `ERROR`, system: `Gateway`
                 });
                 this._ws?.removeAllListeners();
                 this._ws = null;
@@ -401,7 +401,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             });
             this._ws.once(`open`, () => {
                 this._logger?.log(`WebSocket open`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 this._clearTimers();
                 this._ws.removeAllListeners();
@@ -409,15 +409,15 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this._ws.on(`error`, this._onError.bind(this));
                 this._ws.on(`message`, this._onMessage.bind(this));
                 this._logger?.log(`WebSocket events bound`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 this._logger?.log(`WebSocket connection initiated successfully`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
                 if (!resume) {
                     this.once(`READY`, (data) => {
                         this._logger?.log(`Successfully spawned shard`, {
-                            level: `DEBUG`, system: `Gateway`
+                            internal: true, level: `DEBUG`, system: `Gateway`
                         });
                         this._pendingStartReject = null;
                         resolve(data);
@@ -426,7 +426,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 else {
                     this.once(`RESUMED`, (data) => {
                         this._logger?.log(`Successfully resumed shard`, {
-                            level: `DEBUG`, system: `Gateway`
+                            internal: true, level: `DEBUG`, system: `Gateway`
                         });
                         this._pendingStartReject = null;
                         resolve(data);
@@ -445,24 +445,24 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             if (!this._ws || this._ws.readyState !== ws_1.WebSocket.OPEN) {
                 const error = new Error(`The shard's socket must be defined and open to send a payload`);
                 this._logger?.log(`Failed to send payload "${payload}": ${error.message}`, {
-                    level: `ERROR`, system: `Gateway`
+                    internal: true, level: `ERROR`, system: `Gateway`
                 });
                 return reject(error);
             }
             this._logger?.log(`Sending payload "${payload}"`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             this._ws.send(payload, (error) => {
                 if (error) {
                     this._logger?.log(`Failed to send payload "${payload}": ${error.message}`, {
-                        level: `ERROR`, system: `Gateway`
+                        internal: true, level: `ERROR`, system: `Gateway`
                     });
                     reject(error);
                 }
                 else {
                     this.emit(`SENT`, payload);
                     this._logger?.log(`Successfully sent payload "${payload}"`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     resolve();
                 }
@@ -475,7 +475,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      */
     _onClose(code, reason) {
         this._logger?.log(`WebSocket close: ${code} | ${reason.toString(`utf-8`)}`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         this._clearTimers();
         this._enterState(GatewayShardState.DISCONNECTED);
@@ -487,7 +487,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      */
     _onError(error) {
         this._logger?.log(`WebSocket error: ${error.name} | ${error.message}`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
     }
     /**
@@ -497,7 +497,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     _onMessage(data) {
         try {
             this._logger?.log(`WebSocket got message`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (Array.isArray(data))
                 data = Buffer.concat(data);
@@ -505,25 +505,25 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 data = Buffer.from(data);
             const payload = JSON.parse(data.toString());
             this._logger?.log(`WebSocket parsed message`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (payload.s && this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.RESUMING) {
                 this.lastSequence = payload.s;
                 this._logger?.log(`Updated last sequence number: ${this.lastSequence}`, {
-                    level: `DEBUG`, system: `Gateway`
+                    internal: true, level: `DEBUG`, system: `Gateway`
                 });
             }
             switch (payload.op) {
                 case (0 /* Dispatch */): {
                     this._logger?.log(`Got dispatch "${payload.t}"`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     if (payload.t === `READY`) {
                         this._enterState(GatewayShardState.CONNECTED);
                         this.sessionId = payload.d.session_id;
                         this.emit(`READY`, payload);
                         this._logger?.log(`READY`, {
-                            level: `DEBUG`, system: `Gateway`
+                            internal: true, level: `DEBUG`, system: `Gateway`
                         });
                         void this._flushQueue();
                     }
@@ -531,7 +531,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                         this._enterState(GatewayShardState.CONNECTED);
                         this.emit(`RESUMED`, payload);
                         this._logger?.log(`RESUMED`, {
-                            level: `DEBUG`, system: `Gateway`
+                            internal: true, level: `DEBUG`, system: `Gateway`
                         });
                         void this._flushQueue();
                     }
@@ -540,21 +540,21 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 }
                 case (1 /* Heartbeat */): {
                     this._logger?.log(`Got heartbeat request`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     this._heartbeat.send();
                     break;
                 }
                 case (7 /* Reconnect */): {
                     this._logger?.log(`Got reconnect request`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     void this.restart();
                     break;
                 }
                 case (9 /* InvalidSession */): {
                     this._logger?.log(`Got invalid session`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     if (payload.d)
                         void this.restart();
@@ -566,7 +566,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 }
                 case (10 /* Hello */): {
                     this._logger?.log(`Got hello`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     this._heartbeat.waiting = false;
                     this._heartbeat.send();
@@ -589,7 +589,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                 token: this._token
                             }
                         }, true).catch((error) => this._logger?.log(`Failed to send identify: ${error.name} | ${error.message}`, {
-                            level: `DEBUG`, system: `Gateway`
+                            internal: true, level: `DEBUG`, system: `Gateway`
                         }));
                     }
                     else if (this.state === GatewayShardState.RESUMING) {
@@ -602,7 +602,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                     seq: this.lastSequence
                                 }
                             }, true).catch((error) => this._logger?.log(`Failed to send resume: ${error.name} | ${error.message}`, {
-                                level: `DEBUG`, system: `Gateway`
+                                internal: true, level: `DEBUG`, system: `Gateway`
                             }));
                         }
                         else {
@@ -614,7 +614,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 }
                 case (11 /* HeartbeatAck */): {
                     this._logger?.log(`Got heartbeat ACK`, {
-                        level: `DEBUG`, system: `Gateway`
+                        internal: true, level: `DEBUG`, system: `Gateway`
                     });
                     this._heartbeat.waiting = false;
                     break;
@@ -623,7 +623,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         }
         catch (error) {
             this._logger?.log(`Error in GatewayShard._onMessage(): ${error.name} | ${error.message}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
         }
     }

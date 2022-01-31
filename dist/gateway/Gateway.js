@@ -83,7 +83,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             this.emit(data.t, data);
         });
         this._logger?.log(`Initialized gateway manager`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
     }
     /**
@@ -98,11 +98,11 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
      */
     async connect() {
         this._logger?.log(`Starting connection process`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         this._storedGetGatewayBot = await this._rest.getGatewayBot();
         this._logger?.log(`Got bot gateway information`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
@@ -111,21 +111,21 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         if (this.options.sharding.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
             const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
             this._logger?.log(`Unable to connect shards: ${error.message}`, {
-                level: `ERROR`, system: `Gateway`
+                internal: true, level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
         const buckets = new collection_1.default();
         for (let i = 0; i < this.options.sharding.shards; i++) {
             this._logger?.log(`Creating shard ${i}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             const shard = new GatewayShard_1.GatewayShard(this._token, i, this.options.sharding.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
                 v: `${this.options.version}`, encoding: `json`
             }).toString()}`, this._storedGetGatewayBot.url).toString(), this._logger ?? false, this.options);
             this.shards.set(i, shard);
             this._logger?.log(`Shard ${shard.id} created and pushed to Gateway#shards`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             shard.on(`*`, (data) => this.emit(`*`, data));
             shard.on(`SENT`, (payload) => this.emit(`SENT`, payload));
@@ -134,7 +134,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard));
             shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard));
             this._logger?.log(`Bound shard ${shard.id} events`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             const bucketId = shard.id % this._storedGetGatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId))
@@ -142,25 +142,25 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             else
                 buckets.set(bucketId, new collection_1.default()).get(bucketId).set(shard.id, shard);
             this._logger?.log(`Pushed shard ${shard.id} to bucket ${bucketId}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
         }
         const results = [];
         for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
             this._logger?.log(`Starting spawn process for shard ratelimit key ${i}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
             this._logger?.log(`Finished spawn process for shard ratelimit key ${i}`, {
-                level: `DEBUG`, system: `Gateway`
+                internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (i !== buckets.size - 1)
                 await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
         this.emit(`SHARDS_READY`, null);
         this._logger?.log(`Finished connection process`, {
-            level: `DEBUG`, system: `Gateway`
+            internal: true, level: `DEBUG`, system: `Gateway`
         });
         this._logger?.log(`${results.filter((result) => result.status === `fulfilled`).length} / ${this.options.sharding.shards} shards spawned`, { system: `Gateway` });
         this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, { system: `Gateway` });

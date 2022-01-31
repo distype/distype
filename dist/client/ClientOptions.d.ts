@@ -143,6 +143,11 @@ export interface ClientOptions {
      */
     logger?: {
         /**
+         * Disable internal distype logging.
+         * @default false
+         */
+        disableInternal?: boolean;
+        /**
          * The logger's enabled output.
          */
         enabledOutput?: {

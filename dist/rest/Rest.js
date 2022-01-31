@@ -69,7 +69,7 @@ class Rest extends RestRequests_1.RestRequests {
             this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
         this.globalLeft = options.ratelimits.globalPerSecond;
         this._logger?.log(`Initialized rest manager`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
     }
     /**
@@ -92,7 +92,7 @@ class Rest extends RestRequests_1.RestRequests {
      */
     async request(method, route, options = {}) {
         this._logger?.log(`Starting request ${method} ${route}`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
         const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
         const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
@@ -109,7 +109,7 @@ class Rest extends RestRequests_1.RestRequests {
     sweepBuckets() {
         const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
         this._logger?.log(`Sweeped ${sweeped} buckets`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
     }
     /**
@@ -123,7 +123,7 @@ class Rest extends RestRequests_1.RestRequests {
         const bucket = new RestBucket_1.RestBucket(this, bucketId, bucketHash, majorParameter, this._logger ?? false);
         this.buckets.set(bucketId, bucket);
         this._logger?.log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
-            level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest`
         });
         return bucket;
     }

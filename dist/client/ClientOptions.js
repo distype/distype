@@ -38,6 +38,7 @@ const optionsFactory = (options) => {
             wsOptions: options.gateway?.wsOptions ?? DefaultOptions_1.DefaultOptions.GATEWAY.wsOptions
         },
         logger: options.logger === false ? false : {
+            disableInternal: options.logger?.disableInternal ?? DefaultOptions_1.DefaultOptions.LOGGER.disableInternal,
             enabledOutput: options.logger?.enabledOutput ?? DefaultOptions_1.DefaultOptions.LOGGER.enabledOutput,
             format: options.logger?.format ?? DefaultOptions_1.DefaultOptions.LOGGER.format,
             showTime: options.logger?.showTime ?? DefaultOptions_1.DefaultOptions.LOGGER.showTime
