@@ -10,12 +10,7 @@ const TypedEmitter_1 = require("../utils/TypedEmitter");
 class Logger extends TypedEmitter_1.TypedEmitter {
     constructor(options) {
         super();
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options),
-            writable: false
-        });
+        this.options = options;
     }
     /**
      * Log a message.

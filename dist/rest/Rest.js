@@ -50,21 +50,15 @@ class Rest extends RestRequests_1.RestRequests {
             throw new TypeError(`A bot token must be specified`);
         if (!(logger instanceof Logger_1.Logger) && logger !== false)
             throw new TypeError(`A logger or false must be specified`);
+        if (logger)
+            this._logger = logger;
+        this.options = options;
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options),
-            writable: false
-        });
-        if (logger)
-            this._logger = logger;
-        // @ts-expect-error Property 'options' is used before being assigned.
         if (this.options.ratelimits.sweepInterval)
             this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
         this.globalLeft = options.ratelimits.globalPerSecond;

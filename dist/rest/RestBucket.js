@@ -51,25 +51,10 @@ class RestBucket {
             throw new TypeError(`A major parameter must be specified`);
         if (!(logger instanceof Logger_1.Logger) && logger !== false)
             throw new TypeError(`A logger or false must be specified`);
-        Object.defineProperty(this, `bucketHash`, {
-            configurable: false,
-            enumerable: true,
-            value: bucketHash,
-            writable: false
-        });
-        Object.defineProperty(this, `id`, {
-            configurable: false,
-            enumerable: true,
-            value: id,
-            writable: false
-        });
-        Object.defineProperty(this, `majorParameter`, {
-            configurable: false,
-            enumerable: true,
-            value: majorParameter,
-            writable: false
-        });
         this.manager = manager;
+        this.id = id;
+        this.bucketHash = bucketHash;
+        this.majorParameter = majorParameter;
         if (logger)
             this._logger = logger;
         this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {

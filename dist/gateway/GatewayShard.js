@@ -117,40 +117,19 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             throw new TypeError(`A shard url must be specified`);
         if (!(logger instanceof Logger_1.Logger) && logger !== false)
             throw new TypeError(`A logger or false must be specified`);
+        this.id = id;
+        this.numShards = numShards;
+        this.url = url;
+        if (logger)
+            this._logger = logger;
+        this.options = options;
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        Object.defineProperty(this, `id`, {
-            configurable: false,
-            enumerable: true,
-            value: id,
-            writable: false
-        });
-        Object.defineProperty(this, `numShards`, {
-            configurable: false,
-            enumerable: true,
-            value: numShards,
-            writable: false
-        });
-        Object.defineProperty(this, `url`, {
-            configurable: false,
-            enumerable: true,
-            value: url,
-            writable: false
-        });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options),
-            writable: false
-        });
-        if (logger)
-            this._logger = logger;
         this._logger?.log(`Initialized gateway shard ${id}`, {
-            // @ts-expect-error Property 'id' is used before being assigned.
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
     }

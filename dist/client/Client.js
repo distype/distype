@@ -18,26 +18,17 @@ class Client {
     constructor(token, options = {}) {
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
+        this.options = (0, ClientOptions_1.optionsFactory)(options);
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze((0, ClientOptions_1.optionsFactory)(options)),
-            writable: false
-        });
-        // @ts-expect-error Property 'options' is used before being assigned.
-        if (options.logger !== false)
+        if (this.options.logger !== false)
             this.logger = new Logger_1.Logger(this.options.logger);
-        // @ts-expect-error Property 'options' is used before being assigned.
         this.cache = new Cache_1.Cache(this.logger ?? false, this.options.cache);
-        // @ts-expect-error Property 'options' is used before being assigned.
         this.rest = new Rest_1.Rest(token, this.logger ?? false, this.options.rest);
-        // @ts-expect-error Property 'options' is used before being assigned.
         this.gateway = new Gateway_1.Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
         this.logger?.log(`Initialized client`, {
             internal: true, level: `DEBUG`, system: `Client`

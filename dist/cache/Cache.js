@@ -22,19 +22,13 @@ class Cache {
     constructor(logger, options) {
         if (!(logger instanceof Logger_1.Logger) && logger !== false)
             throw new TypeError(`A logger or false must be specified`);
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options),
-            writable: false
-        });
-        // @ts-expect-error Property 'options' is used before being assigned.
+        if (logger)
+            this._logger = logger;
+        this.options = options;
         Object.keys(this.options.cacheControl).forEach((key) => {
             if (this.options.cacheControl[key] instanceof Array)
                 this[key] = new collection_1.default();
         });
-        if (logger)
-            this._logger = logger;
         this._logger?.log(`Initialized cache manager`, {
             internal: true, level: `DEBUG`, system: `Cache`
         });

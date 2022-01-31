@@ -56,23 +56,18 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             throw new TypeError(`A logger or false must be specified`);
         if (!(rest instanceof Rest_1.Rest))
             throw new TypeError(`A rest manager must be specified`);
+        if (cache)
+            this._cache = cache;
+        if (logger)
+            this._logger = logger;
+        this._rest = rest;
+        this.options = options;
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options),
-            writable: false
-        });
-        if (cache)
-            this._cache = cache;
-        if (logger)
-            this._logger = logger;
-        this._rest = rest;
         this.on(`*`, (data) => {
             if (this._cache)
                 this._cache.options.cacheEventHandler(this._cache, data);
