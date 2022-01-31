@@ -15,8 +15,12 @@ import { Snowflake } from 'discord-api-types/v9';
 export interface GatewayEvents {
     /**
      * When all {@link GatewayShard shards} are spawned and ready.
+     * Data is success and fail tallies for shard spawns.
      */
-    SHARDS_READY: null;
+    SHARDS_READY: {
+        success: number;
+        failed: number;
+    };
     /**
      * When a payload is sent. Data is the sent payload.
      */
