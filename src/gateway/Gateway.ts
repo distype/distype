@@ -288,7 +288,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this._logger?.log(`Finished connection process`, {
             internal: true, level: `DEBUG`, system: `Gateway`
         });
-        this._logger?.log(`${success} / ${success + failed} shards spawned`, { system: `Gateway` });
+        this._logger?.log(`${success}/${success + failed} shards spawned`, { system: `Gateway` });
         if (failed > 0) this._logger?.log(`${failed} shards failed to spawn`, {
             level: `WARN`, system: `Gateway`
         });
