@@ -156,7 +156,7 @@ class RestBucket {
             options.body.pipe(req);
         const res = await req.then(async (r) => ({
             ...r,
-            body: await r.body.json(),
+            body: r.statusCode !== 204 ? await r.body.json() : undefined,
             limit: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.LIMIT] ?? Infinity),
             remaining: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.REMAINING] ?? 1),
             reset: Number(r.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.RESET] ?? Date.now()) * 1000,
