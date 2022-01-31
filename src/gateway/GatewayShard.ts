@@ -143,8 +143,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                         this._logger?.log(`Sent heartbeat`, {
                             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                         });
-                    }).catch((error) => this._logger?.log(`Failed to send heartbeat: ${(error as Error).name} | ${(error as Error).message}`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    }).catch((error) => this._logger?.log(`Failed to send heartbeat: ${(error as Error).message}`, {
+                        internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
                     }));
                 }
             },
@@ -583,7 +583,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @internal
      */
     private _onClose(code: number, reason: Buffer): void {
-        this._logger?.log(`WebSocket close: ${code} | ${reason.toString(`utf-8`)}`, {
+        this._logger?.log(`WebSocket close: ${code}, ${reason.toString(`utf-8`)}`, {
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         this._clearTimers();
@@ -596,8 +596,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @internal
      */
     private _onError(error: Error): void {
-        this._logger?.log(`WebSocket error: ${error.name} | ${error.message}`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._logger?.log(`WebSocket error: ${error.message}`, {
+            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
         });
     }
 
@@ -709,8 +709,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                                 shard: [this.id, this.numShards],
                                 token: this._token
                             }
-                        }, true).catch((error) => this._logger?.log(`Failed to send identify: ${(error as Error).name} | ${(error as Error).message}`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        }, true).catch((error) => this._logger?.log(`Failed to send identify: ${(error as Error).message}`, {
+                            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
                         }));
                     } else if (this.state === GatewayShardState.RESUMING) {
                         if (this.sessionId && typeof this.lastSequence === `number`) {
@@ -721,8 +721,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                                     session_id: this.sessionId,
                                     seq: this.lastSequence
                                 }
-                            }, true).catch((error) => this._logger?.log(`Failed to send resume: ${(error as Error).name} | ${(error as Error).message}`, {
-                                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                            }, true).catch((error) => this._logger?.log(`Failed to send resume: ${(error as Error).message}`, {
+                                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
                             }));
                         } else {
                             void this.kill(1012, `Respawning shard - no session ID or last sequence`);
@@ -743,8 +743,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 }
             }
         } catch (error) {
-            this._logger?.log(`Error in GatewayShard._onMessage(): ${(error as Error).name} | ${(error as Error).message}`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._logger?.log(`Error in GatewayShard._onMessage(): ${(error as Error).message}`, {
+                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
             });
         }
     }
