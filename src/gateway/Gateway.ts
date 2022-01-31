@@ -20,8 +20,12 @@ import { URL, URLSearchParams } from 'url';
 export interface GatewayEvents {
     /**
      * When all {@link GatewayShard shards} are spawned and ready.
+     * Data is success and fail tallies for shard spawns.
      */
-    SHARDS_READY: null
+    SHARDS_READY: {
+        success: number
+        failed: number
+    }
 
     /**
      * When a payload is sent. Data is the sent payload.
@@ -281,12 +285,21 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             if (i !== buckets.size - 1) await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
 
-        this.emit(`SHARDS_READY`, null);
+        const success = results.filter((result) => result.status === `fulfilled`).length;
+        const failed = this.options.sharding.shards - success;
+        this.emit(`SHARDS_READY`, {
+            success, failed
+        });
+
         this._logger?.log(`Finished connection process`, {
             internal: true, level: `DEBUG`, system: `Gateway`
         });
-        this._logger?.log(`${results.filter((result) => result.status === `fulfilled`).length} / ${this.options.sharding.shards} shards spawned`, { system: `Gateway` });
+        this._logger?.log(`${success} / ${success + failed} shards spawned`, { system: `Gateway` });
+        if (failed > 0) this._logger?.log(`${failed} shards failed to spawn`, {
+            level: `WARN`, system: `Gateway`
+        });
         this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, { system: `Gateway` });
+
         return results;
     }
 
