@@ -234,20 +234,24 @@ export class RestBucket {
             return res.body;
         } else if (res.statusCode === 429) {
             this._logger?.log(`429 Ratelimited: request ${method} ${route}`, {
-                level: `DEBUG`, system: `Rest`
+                level: `ERROR`, system: `Rest`
             });
             return this._make(method, route, routeHash, options);
         } else if (res.statusCode >= 400 && res.statusCode < 500 ) {
             this._logger?.log(`4xx Error: request ${method} ${route}`, {
-                level: `DEBUG`, system: `Rest`
+                level: `ERROR`, system: `Rest`
             });
             throw new Error(res.body);
         } else if (res.statusCode >= 500 && res.statusCode < 600) {
             this._logger?.log(`5xx Error: request ${method} ${route}`, {
                 level: `DEBUG`, system: `Rest`
             });
-            if (attempt === (options.code500retries ?? this.manager.options.code500retries) - 1) throw new Error(res.body);
-            else return this._make(method, route, routeHash, options, attempt + 1);
+            if (attempt === (options.code500retries ?? this.manager.options.code500retries) - 1) {
+                this._logger?.log(`5xx Error: rejected request ${method} ${route} after ${this.manager.options.code500retries} attempts`, {
+                    level: `ERROR`, system: `Rest`
+                });
+                throw new Error(res.body);
+            } else return this._make(method, route, routeHash, options, attempt + 1);
         }
     }
 
