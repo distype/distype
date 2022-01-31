@@ -46,7 +46,7 @@ export interface LoggerMessageOptions extends Partial<LoggerOptions> {
 /**
  * A system that emitted a log.
  */
-export type LoggerSystem = `General` | `Client` | `Cache` | `Gateway` | `Rest` | string;
+export type LoggerSystem = `General` | `Client` | `Cache` | `Gateway` | `Gateway Shard ${number}` | `Rest` | string;
 
 /**
  * The logger.
