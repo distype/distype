@@ -53,18 +53,12 @@ export type LoggerSystem = `General` | `Client` | `Cache` | `Gateway` | `Gateway
  * Used to simplify detailed logging.
  */
 export class Logger extends TypedEmitter<LoggerEvents> {
-    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: LoggerOptions;
 
     constructor(options: LoggerOptions) {
         super();
 
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options) as Logger[`options`],
-            writable: false
-        });
+        this.options = options;
     }
 
     /**

@@ -96,23 +96,19 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * The shard's ID.
      */
-    // @ts-expect-error Property 'id' has no initializer and is not definitely assigned in the constructor.
     public readonly id: number;
     /**
      * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      */
-    // @ts-expect-error Property 'numShards' has no initializer and is not definitely assigned in the constructor.
     public readonly numShards: number;
     /**
      * The URL being used to connect to the gateway.
      */
-    // @ts-expect-error Property 'url' has no initializer and is not definitely assigned in the constructor.
     public readonly url: string;
     /**
      * {@link GatewayShardOptions Options} for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
-    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: GatewayShardOptions;
 
     /**
@@ -195,41 +191,20 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         if (typeof url !== `string`) throw new TypeError(`A shard url must be specified`);
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
+        this.id = id;
+        this.numShards = numShards;
+        this.url = url;
+        if (logger) this._logger = logger;
+        this.options = options;
+
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as GatewayShard[`_token`],
             writable: false
         });
-        Object.defineProperty(this, `id`, {
-            configurable: false,
-            enumerable: true,
-            value: id as GatewayShard[`id`],
-            writable: false
-        });
-        Object.defineProperty(this, `numShards`, {
-            configurable: false,
-            enumerable: true,
-            value: numShards as GatewayShard[`numShards`],
-            writable: false
-        });
-        Object.defineProperty(this, `url`, {
-            configurable: false,
-            enumerable: true,
-            value: url as GatewayShard[`url`],
-            writable: false
-        });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options) as GatewayShard[`options`],
-            writable: false
-        });
-
-        if (logger) this._logger = logger;
 
         this._logger?.log(`Initialized gateway shard ${id}`, {
-            // @ts-expect-error Property 'id' is used before being assigned.
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
     }

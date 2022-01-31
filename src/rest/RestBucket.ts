@@ -35,17 +35,14 @@ export class RestBucket {
     /**
      * The bucket's unique {@link RestBucketHashLike hash}.
      */
-    // @ts-expect-error Property 'bucketHash' has no initializer and is not definitely assigned in the constructor.
     public readonly bucketHash: RestBucketHashLike;
     /**
      * The bucket's {@link RestBucketIdLike ID}.
      */
-    // @ts-expect-error Property 'id' has no initializer and is not definitely assigned in the constructor.
     public readonly id: RestBucketIdLike;
     /**
      * The {@link RestMajorParameterLike major parameter} associated with the bucket.
      */
-    // @ts-expect-error Property 'majorParameter' has no initializer and is not definitely assigned in the constructor.
     public readonly majorParameter: RestMajorParameterLike;
 
     /**
@@ -74,26 +71,10 @@ export class RestBucket {
         if (typeof majorParameter !== `string`) throw new TypeError(`A major parameter must be specified`);
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
-        Object.defineProperty(this, `bucketHash`, {
-            configurable: false,
-            enumerable: true,
-            value: bucketHash as RestBucket[`bucketHash`],
-            writable: false
-        });
-        Object.defineProperty(this, `id`, {
-            configurable: false,
-            enumerable: true,
-            value: id as RestBucket[`id`],
-            writable: false
-        });
-        Object.defineProperty(this, `majorParameter`, {
-            configurable: false,
-            enumerable: true,
-            value: majorParameter as RestBucket[`majorParameter`],
-            writable: false
-        });
-
         this.manager = manager;
+        this.id = id;
+        this.bucketHash = bucketHash;
+        this.majorParameter = majorParameter;
         if (logger) this._logger = logger;
 
         this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {

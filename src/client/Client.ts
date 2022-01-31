@@ -30,7 +30,6 @@ export class Client {
      * {@link ClientOptions Options} for the client.
      * Note that these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
-    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: {
         cache: Cache[`options`]
         gateway: Gateway[`options`]
@@ -52,26 +51,18 @@ export class Client {
     constructor(token: string, options: ClientOptions = {}) {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
 
+        this.options = optionsFactory(options);
+
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as Client[`_token`],
             writable: false
         });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(optionsFactory(options)) as Client[`options`],
-            writable: false
-        });
 
-        // @ts-expect-error Property 'options' is used before being assigned.
-        if (options.logger !== false) this.logger = new Logger(this.options.logger);
-        // @ts-expect-error Property 'options' is used before being assigned.
+        if (this.options.logger !== false) this.logger = new Logger(this.options.logger);
         this.cache = new Cache(this.logger ?? false, this.options.cache);
-        // @ts-expect-error Property 'options' is used before being assigned.
         this.rest = new Rest(token, this.logger ?? false, this.options.rest);
-        // @ts-expect-error Property 'options' is used before being assigned.
         this.gateway = new Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
 
         this.logger?.log(`Initialized client`, {

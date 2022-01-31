@@ -129,7 +129,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * {@link GatewayOptions Options} for the gateway manager.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
-    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: GatewayOptions;
 
     /**
@@ -175,22 +174,17 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
         if (!(rest instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
 
+        if (cache) this._cache = cache;
+        if (logger) this._logger = logger;
+        this._rest = rest;
+        this.options = options;
+
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as Gateway[`_token`],
             writable: false
         });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options) as Gateway[`options`],
-            writable: false
-        });
-
-        if (cache) this._cache = cache;
-        if (logger) this._logger = logger;
-        this._rest = rest;
 
         this.on(`*`, (data) => {
             if (this._cache) this._cache.options.cacheEventHandler(this._cache, data);

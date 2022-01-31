@@ -95,7 +95,6 @@ export class Rest extends RestRequests {
     /**
      * {@link RestOptions Options} for the rest manager.
      */
-    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: RestOptions;
 
     /**
@@ -121,22 +120,16 @@ export class Rest extends RestRequests {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
+        if (logger) this._logger = logger;
+        this.options = options;
+
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as Rest[`_token`],
             writable: false
         });
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options) as Rest[`options`],
-            writable: false
-        });
 
-        if (logger) this._logger = logger;
-
-        // @ts-expect-error Property 'options' is used before being assigned.
         if (this.options.ratelimits.sweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
 
         this.globalLeft = options.ratelimits.globalPerSecond;

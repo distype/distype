@@ -57,7 +57,6 @@ export class Cache {
      * {@link CacheOptions Options} for the cache manager.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
-    // @ts-expect-error Property 'options' has no initializer and is not definitely assigned in the constructor.
     public readonly options: CacheOptions;
 
     /**
@@ -73,19 +72,12 @@ export class Cache {
     constructor(logger: Logger | false, options: CacheOptions) {
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
-        Object.defineProperty(this, `options`, {
-            configurable: false,
-            enumerable: true,
-            value: Object.freeze(options),
-            writable: false
-        });
+        if (logger) this._logger = logger;
+        this.options = options;
 
-        // @ts-expect-error Property 'options' is used before being assigned.
         (Object.keys(this.options.cacheControl) as Array<keyof Cache[`options`][`cacheControl`]>).forEach((key) => {
             if (this.options.cacheControl[key] instanceof Array) this[key] = new Collection<any, any>();
         });
-
-        if (logger) this._logger = logger;
 
         this._logger?.log(`Initialized cache manager`, {
             internal: true, level: `DEBUG`, system: `Cache`
