@@ -2,7 +2,7 @@ import { RestRequestData, RestMethod } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v9';
-import { Snowflake } from 'discord-api-types/v9';
+import { RESTPostAPICurrentUserCreateDMChannelResult, Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
 
 /**
@@ -438,6 +438,17 @@ export abstract class RestRequests {
      */
     public async modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<void> {
         return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/@me`, {
+            body, ...options
+        });
+    }
+
+    /**
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#create-dm)
+     */
+    public async createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
+        return await this.request(`POST`, `/users/@me/channels`, {
             body, ...options
         });
     }
