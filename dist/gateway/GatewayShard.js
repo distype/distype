@@ -88,8 +88,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                         this._logger?.log(`Sent heartbeat`, {
                             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                         });
-                    }).catch((error) => this._logger?.log(`Failed to send heartbeat: ${error.name} | ${error.message}`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    }).catch((error) => this._logger?.log(`Failed to send heartbeat: ${error.message}`, {
+                        internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
                     }));
                 }
             },
@@ -475,7 +475,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * @internal
      */
     _onClose(code, reason) {
-        this._logger?.log(`WebSocket close: ${code} | ${reason.toString(`utf-8`)}`, {
+        this._logger?.log(`WebSocket close: ${code}, ${reason.toString(`utf-8`)}`, {
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         this._clearTimers();
@@ -487,8 +487,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * @internal
      */
     _onError(error) {
-        this._logger?.log(`WebSocket error: ${error.name} | ${error.message}`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._logger?.log(`WebSocket error: ${error.message}`, {
+            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
         });
     }
     /**
@@ -589,8 +589,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                 shard: [this.id, this.numShards],
                                 token: this._token
                             }
-                        }, true).catch((error) => this._logger?.log(`Failed to send identify: ${error.name} | ${error.message}`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        }, true).catch((error) => this._logger?.log(`Failed to send identify: ${error.message}`, {
+                            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
                         }));
                     }
                     else if (this.state === GatewayShardState.RESUMING) {
@@ -602,8 +602,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                     session_id: this.sessionId,
                                     seq: this.lastSequence
                                 }
-                            }, true).catch((error) => this._logger?.log(`Failed to send resume: ${error.name} | ${error.message}`, {
-                                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                            }, true).catch((error) => this._logger?.log(`Failed to send resume: ${error.message}`, {
+                                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
                             }));
                         }
                         else {
@@ -623,8 +623,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             }
         }
         catch (error) {
-            this._logger?.log(`Error in GatewayShard._onMessage(): ${error.name} | ${error.message}`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._logger?.log(`Error in GatewayShard._onMessage(): ${error.message}`, {
+                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
             });
         }
     }
