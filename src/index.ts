@@ -10,7 +10,7 @@ export * from './client/scaling/ClientWorker';
 
 export * from './constants/DiscordConstants';
 export * from './constants/DistypeConstants';
-export * from './constants/NodeConstants';
+export * from './constants/LoggerRawFormats';
 
 export * from './gateway/Gateway';
 export * from './gateway/GatewayOptions';
