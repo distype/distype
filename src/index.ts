@@ -19,6 +19,8 @@ export * from './gateway/GatewayShard';
 export * from './logger/Logger';
 export * from './logger/LoggerOptions';
 
+export * from './message/MessageEmbed';
+
 export * from './rest/Rest';
 export * from './rest/RestBucket';
 export * from './rest/RestOptions';
