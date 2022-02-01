@@ -19,6 +19,22 @@ export declare const DiscordConstants: {
      */
     readonly DISCORD_EPOCH: 1420070400000;
     /**
+     * Limits for embed fields.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
+     */
+    readonly EMBED_LIMITS: {
+        readonly TITLE: 256;
+        readonly DESCRIPTION: 4096;
+        readonly FIELDS: 25;
+        readonly FIELD: {
+            readonly NAME: 256;
+            readonly VALUE: 1024;
+        };
+        readonly FOOTER_TEXT: 2048;
+        readonly AUTHOR_NAME: 256;
+        readonly MAX_TOTAL_IN_MESSAGE: 6000;
+    };
+    /**
      * Gateway ratelimits.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
      */

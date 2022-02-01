@@ -1,5 +1,5 @@
 import { LoggerOptions } from './LoggerOptions';
-import { NodeConstants } from '../constants/NodeConstants';
+import { LoggerRawFormats } from '../constants/LoggerRawFormats';
 import { TypedEmitter } from '../utils/TypedEmitter';
 /**
  * Log events.
@@ -11,7 +11,7 @@ export declare type LoggerEvents = Record<LoggerLevel, {
 /**
  * A single logging format.
  */
-export declare type LoggerFormat = keyof typeof NodeConstants[`LOG_FORMATS`];
+export declare type LoggerFormat = keyof typeof LoggerRawFormats;
 /**
  * A single or multiple logging formats.
  */

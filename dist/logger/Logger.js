@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Logger = void 0;
-const NodeConstants_1 = require("../constants/NodeConstants");
+const LoggerRawFormats_1 = require("../constants/LoggerRawFormats");
 const TypedEmitter_1 = require("../utils/TypedEmitter");
 /**
  * The logger.
@@ -31,7 +31,7 @@ class Logger extends TypedEmitter_1.TypedEmitter {
         };
         if (completeOptions.internal && completeOptions.disableInternal)
             return;
-        const reset = NodeConstants_1.NodeConstants.LOG_FORMATS[`RESET`];
+        const reset = LoggerRawFormats_1.LoggerRawFormats.RESET;
         const formats = this._convertFormats(completeOptions.format);
         if ((completeOptions.enabledOutput.log ?? [`INFO`, `WARN`, `ERROR`]).includes(completeOptions.level))
             console.log([
@@ -69,7 +69,7 @@ class Logger extends TypedEmitter_1.TypedEmitter {
      * @param formats The formats to combine.
      */
     _combineFormats(formats) {
-        return typeof formats === `string` ? NodeConstants_1.NodeConstants.LOG_FORMATS[formats] : formats.reduce((p, c) => `${p}${NodeConstants_1.NodeConstants.LOG_FORMATS[c]}`, ``);
+        return typeof formats === `string` ? LoggerRawFormats_1.LoggerRawFormats[formats] : formats.reduce((p, c) => `${p}${LoggerRawFormats_1.LoggerRawFormats[c]}`, ``);
     }
     /**
      * Creates a timestamp.

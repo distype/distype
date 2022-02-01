@@ -22,6 +22,22 @@ exports.DiscordConstants = {
      */
     DISCORD_EPOCH: 1420070400000,
     /**
+     * Limits for embed fields.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
+     */
+    EMBED_LIMITS: {
+        TITLE: 256,
+        DESCRIPTION: 4096,
+        FIELDS: 25,
+        FIELD: {
+            NAME: 256,
+            VALUE: 1024
+        },
+        FOOTER_TEXT: 2048,
+        AUTHOR_NAME: 256,
+        MAX_TOTAL_IN_MESSAGE: 6000
+    },
+    /**
      * Gateway ratelimits.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
      */
