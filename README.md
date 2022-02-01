@@ -43,8 +43,6 @@ import { Client } from 'distype';
 
 const client = new Client(YOUR_BOT_TOKEN);
 
-client.gateway.on('SHARDS_READY', () => console.log('Distype is ready!'));
-
 client.gateway.connect();
 ```
 
