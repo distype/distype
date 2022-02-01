@@ -135,7 +135,7 @@ export class MessageEmbed {
      * Get the raw embed.
      * Note that the returned embed is immutable.
      */
-    public get raw (): APIEmbed {
+    public getRaw (): APIEmbed {
         this._checkTotal();
         return { ...this._raw };
     }
@@ -143,7 +143,7 @@ export class MessageEmbed {
     /**
      * The number of characters in the embed that have properties in [Discord's maximum embed lengths](https://discord.com/developers/docs/resources/channel#embed-limits) list.
      */
-    public get size (): number {
+    public getSize (): number {
         return [this._raw.title, this._raw.description, this._raw.footer?.text, this._raw.author?.name, ...[this._raw.fields?.reduce((p, c) => `${p}${c.name}${c.value}`, ``) ?? []]].map((v) => v?.length ?? 0).reduce((p, c) => p + c, 0);
     }
 
@@ -152,7 +152,7 @@ export class MessageEmbed {
      * Throws an error of the limit is surpassed, else nothing happens.
      */
     private _checkTotal(): void {
-        const surpassed = this.size > DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
+        const surpassed = this.getSize() > DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
         if (surpassed) throw new Error(`Embed surpassed maximum total size of ${DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE}`);
     }
 }
