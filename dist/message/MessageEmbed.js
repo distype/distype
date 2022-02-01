@@ -126,16 +126,22 @@ class MessageEmbed {
      * Get the raw embed.
      * Note that the returned embed is immutable.
      */
-    get raw() {
+    getRaw() {
         this._checkTotal();
         return { ...this._raw };
+    }
+    /**
+     * The number of characters in the embed that have properties in [Discord's maximum embed lengths](https://discord.com/developers/docs/resources/channel#embed-limits) list.
+     */
+    getSize() {
+        return [this._raw.title, this._raw.description, this._raw.footer?.text, this._raw.author?.name, ...[this._raw.fields?.reduce((p, c) => `${p}${c.name}${c.value}`, ``) ?? []]].map((v) => v?.length ?? 0).reduce((p, c) => p + c, 0);
     }
     /**
      * Check if all properties of the embed surpass the max total characters allowed in a message.
      * Throws an error of the limit is surpassed, else nothing happens.
      */
     _checkTotal() {
-        const surpassed = [this._raw.title, this._raw.description, this._raw.footer?.text, this._raw.author?.name, ...[this._raw.fields?.reduce((p, c) => `${p}${c.name}${c.value}`, ``) ?? []]].map((v) => v?.length ?? 0).reduce((p, c) => p + c, 0) > DiscordConstants_1.DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
+        const surpassed = this.getSize() > DiscordConstants_1.DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
         if (surpassed)
             throw new Error(`Embed surpassed maximum total size of ${DiscordConstants_1.DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE}`);
     }

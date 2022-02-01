@@ -77,7 +77,11 @@ export declare class MessageEmbed {
      * Get the raw embed.
      * Note that the returned embed is immutable.
      */
-    get raw(): APIEmbed;
+    getRaw(): APIEmbed;
+    /**
+     * The number of characters in the embed that have properties in [Discord's maximum embed lengths](https://discord.com/developers/docs/resources/channel#embed-limits) list.
+     */
+    getSize(): number;
     /**
      * Check if all properties of the embed surpass the max total characters allowed in a message.
      * Throws an error of the limit is surpassed, else nothing happens.
