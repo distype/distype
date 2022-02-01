@@ -1,4 +1,4 @@
-export const NodeConstants = { LOG_FORMATS: {
+export const LoggerRawFormats = {
     RESET: `\x1b[0m`,
     BRIGHT: `\x1b[1m`,
     DIM: `\x1b[2m`,
@@ -24,4 +24,4 @@ export const NodeConstants = { LOG_FORMATS: {
     BG_MAGENTA: `\x1b[45m`,
     BG_CYAN: `\x1b[46m`,
     BG_WHITE: `\x1b[47m`
-} } as const;
+} as const;

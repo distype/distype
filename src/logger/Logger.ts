@@ -1,6 +1,6 @@
 import { LoggerOptions } from './LoggerOptions';
 
-import { NodeConstants } from '../constants/NodeConstants';
+import { LoggerRawFormats } from '../constants/LoggerRawFormats';
 import { TypedEmitter } from '../utils/TypedEmitter';
 
 /**
@@ -11,7 +11,7 @@ export type LoggerEvents = Record<LoggerLevel, { msg: string, system: LoggerSyst
 /**
  * A single logging format.
  */
-export type LoggerFormat = keyof typeof NodeConstants[`LOG_FORMATS`];
+export type LoggerFormat = keyof typeof LoggerRawFormats;
 
 /**
  * A single or multiple logging formats.
@@ -84,7 +84,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
 
         if (completeOptions.internal && completeOptions.disableInternal) return;
 
-        const reset = NodeConstants.LOG_FORMATS[`RESET`];
+        const reset = LoggerRawFormats.RESET;
         const formats = this._convertFormats(completeOptions.format);
 
         if ((completeOptions.enabledOutput.log ?? [`INFO`, `WARN`, `ERROR`]).includes(completeOptions.level)) console.log([
@@ -131,7 +131,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
      * @param formats The formats to combine.
      */
     private _combineFormats (formats: LoggerFormats): string {
-        return typeof formats === `string` ? NodeConstants.LOG_FORMATS[formats] : formats.reduce((p, c) => `${p}${NodeConstants.LOG_FORMATS[c]}`, ``);
+        return typeof formats === `string` ? LoggerRawFormats[formats] : formats.reduce((p, c) => `${p}${LoggerRawFormats[c]}`, ``);
     }
 
     /**
