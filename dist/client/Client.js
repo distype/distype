@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = void 0;
 const ClientOptions_1 = require("./ClientOptions");
 const Cache_1 = require("../cache/Cache");
+const DistypeConstants_1 = require("../constants/DistypeConstants");
 const Gateway_1 = require("../gateway/Gateway");
 const Logger_1 = require("../logger/Logger");
 const Rest_1 = require("../rest/Rest");
@@ -16,6 +17,10 @@ class Client {
      * @param options {@link ClientOptions Client options}.
      */
     constructor(token, options = {}) {
+        /**
+         * The version of [Distype](https://github.com/distype/distype) being used.
+         */
+        this.DISTYPE_VERSION = DistypeConstants_1.DistypeConstants.VERSION;
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
         this.options = (0, ClientOptions_1.optionsFactory)(options);

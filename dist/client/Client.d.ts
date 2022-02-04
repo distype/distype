@@ -24,6 +24,10 @@ export declare class Client {
      */
     rest: Rest;
     /**
+     * The version of [Distype](https://github.com/distype/distype) being used.
+     */
+    readonly DISTYPE_VERSION: string;
+    /**
      * {@link ClientOptions Options} for the client.
      * Note that these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
      */
