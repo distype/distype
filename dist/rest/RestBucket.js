@@ -193,23 +193,24 @@ class RestBucket {
             return this._make(method, route, routeHash, options);
         }
         else if (res.statusCode >= 400 && res.statusCode < 500) {
-            this._logger?.log(`4xx Error: request ${method} ${route}`, {
+            this._logger?.log(`${res.statusCode} Error: rejected request ${method} ${route}`, {
                 internal: true, level: `ERROR`, system: `Rest`
             });
-            throw new Error(res.body);
+            throw new Error(`${res.statusCode} Error: rejected request ${method} ${route} => ${JSON.stringify(res.body)}`);
         }
         else if (res.statusCode >= 500 && res.statusCode < 600) {
-            this._logger?.log(`5xx Error: request ${method} ${route}`, {
-                internal: true, level: `DEBUG`, system: `Rest`
-            });
-            if (attempt === (options.code500retries ?? this.manager.options.code500retries) - 1) {
-                this._logger?.log(`5xx Error: rejected request ${method} ${route} after ${this.manager.options.code500retries} attempts`, {
+            if (attempt >= (options.code500retries ?? this.manager.options.code500retries)) {
+                this._logger?.log(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts`, {
                     internal: true, level: `ERROR`, system: `Rest`
                 });
-                throw new Error(res.body);
+                throw new Error(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts => ${JSON.stringify(res.body)}`);
             }
-            else
+            else {
+                this._logger?.log(`${res.statusCode} Error: request ${method} ${route} => retrying ${(options.code500retries ?? this.manager.options.code500retries) - attempt} more times...`, {
+                    internal: true, level: `DEBUG`, system: `Rest`
+                });
                 return this._make(method, route, routeHash, options, attempt + 1);
+            }
         }
     }
     /**
