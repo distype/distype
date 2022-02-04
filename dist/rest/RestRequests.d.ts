@@ -1,7 +1,7 @@
 import { RestRequestData, RestMethod } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 import * as DiscordTypes from 'discord-api-types/v9';
-import { RESTPostAPICurrentUserCreateDMChannelResult, Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
 /**
  * A class containing methods for all routes for the Discord API.
@@ -200,7 +200,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log)
      */
-    getGuildAuditLog(guildId: Snowflake, query?: DiscordTypes.RESTGetAPIAuditLogQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult>;
+    getGuildAuditLog(guildId: Snowflake, query: DiscordTypes.RESTGetAPIAuditLogQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult>;
     /**
      * @param channelId The channel ID.
      * @param options Request options.
@@ -228,7 +228,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-messages)
      */
-    getChannelMessages(channelId: Snowflake, query?: DiscordTypes.RESTGetAPIChannelMessagesQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessagesResult>;
+    getChannelMessages(channelId: Snowflake, query: DiscordTypes.RESTGetAPIChannelMessagesQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessagesResult>;
     /**
      * @param channelId The channel ID.
      * @param messageId The message ID.
@@ -267,6 +267,78 @@ export declare abstract class RestRequests {
      */
     deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction>;
     /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-user-reaction)
+     */
+    deleteUserReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageUserReactionResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-reactions)
+     */
+    getReactions(channelId: Snowflake, messageId: Snowflake, emoji: string, query: DiscordTypes.RESTGetAPIChannelMessageReactionUsersQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessageReactionUsersResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions)
+     */
+    deleteAllReactions(channelId: Snowflake, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelAllMessageReactionsResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions-for-emoji)
+     */
+    deleteAllReactionsForEmoji(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageReactionResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-message)
+     */
+    editMessage(channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-message)
+     */
+    deleteMessage(channelId: Snowflake, messageId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#bulk-delete-messages)
+     */
+    bulkDeleteMessages(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param overwriteId The overwrite ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-channel-permissions)
+     */
+    editChannelPermissions(channelId: Snowflake, overwriteId: Snowflake, body: DiscordTypes.RESTPutAPIChannelPermissionJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelPermissionResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-invites)
+     */
+    getChannelInvites(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelInvitesResult>;
+    /**
      * @param guildId The guild ID.
      * @param options Request options.
      */
@@ -294,7 +366,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#create-dm)
      */
-    createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<RESTPostAPICurrentUserCreateDMChannelResult>;
+    createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPICurrentUserCreateDMChannelResult>;
     /**
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway)

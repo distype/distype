@@ -269,7 +269,7 @@ class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log)
      */
-    async getGuildAuditLog(guildId, query = {}, options) {
+    async getGuildAuditLog(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/audit-logs`, {
             query, ...options
         });
@@ -311,7 +311,7 @@ class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-messages)
      */
-    async getChannelMessages(channelId, query = {}, options) {
+    async getChannelMessages(channelId, query, options) {
         return await this.request(`GET`, `/channels/${channelId}/messages`, {
             query, ...options
         });
@@ -366,6 +366,107 @@ class RestRequests {
         return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options);
     }
     /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-user-reaction)
+     */
+    async deleteUserReaction(channelId, messageId, emoji, userId, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-reactions)
+     */
+    async getReactions(channelId, messageId, emoji, query, options) {
+        return await this.request(`GET`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions)
+     */
+    async deleteAllReactions(channelId, messageId, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions-for-emoji)
+     */
+    async deleteAllReactionsForEmoji(channelId, messageId, emoji, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-message)
+     */
+    async editMessage(channelId, messageId, body, options) {
+        return await this.request(`PATCH`, `/channels/${channelId}/messages/${messageId}`, {
+            body, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-message)
+     */
+    async deleteMessage(channelId, messageId, reason, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#bulk-delete-messages)
+     */
+    async bulkDeleteMessages(channelId, body, reason, options) {
+        return await this.request(`POST`, `/channels/${channelId}/messages/bulk-delete`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param overwriteId The overwrite ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-channel-permissions)
+     */
+    async editChannelPermissions(channelId, overwriteId, body, reason, options) {
+        return await this.request(`PUT`, `/channels/${channelId}/permissions/${overwriteId}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-invites)
+     */
+    async getChannelInvites(channelId, options) {
+        return await this.request(`GET`, `/channels/${channelId}/invites`, options);
+    }
+    // ------------------------------------
+    /**
      * @param guildId The guild ID.
      * @param options Request options.
      */
@@ -408,7 +509,6 @@ class RestRequests {
             body, ...options
         });
     }
-    // --------------------
     /**
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway)
