@@ -2,7 +2,7 @@ import { RestRequestData, RestMethod } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v9';
-import { RESTPostAPICurrentUserCreateDMChannelResult, Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
 
 /**
@@ -241,7 +241,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
     public async deleteOriginalInteractionResponse(interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
-        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options) as Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult>;
+        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options) as never;
     }
 
     /**
@@ -290,7 +290,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
     public async deleteFollowupMessage(interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
-        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options) as Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult>;
+        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options) as never;
     }
 
     /**
@@ -299,7 +299,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log)
      */
-    public async getGuildAuditLog(guildId: Snowflake, query: DiscordTypes.RESTGetAPIAuditLogQuery = {}, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult> {
+    public async getGuildAuditLog(guildId: Snowflake, query: DiscordTypes.RESTGetAPIAuditLogQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult> {
         return await this.request(`GET`, `/guilds/${guildId}/audit-logs`, {
             query, ...options
         });
@@ -345,7 +345,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-messages)
      */
-    public async getChannelMessages(channelId: Snowflake, query: DiscordTypes.RESTGetAPIChannelMessagesQuery = {}, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessagesResult> {
+    public async getChannelMessages(channelId: Snowflake, query: DiscordTypes.RESTGetAPIChannelMessagesQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessagesResult> {
         return await this.request(`GET`, `/channels/${channelId}/messages`, {
             query, ...options
         });
@@ -391,7 +391,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-reaction)
      */
     public async createReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelMessageReactionResult> {
-        return await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as Promise<DiscordTypes.RESTPutAPIChannelMessageReactionResult>;
+        return await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as never;
     }
 
     /**
@@ -402,8 +402,119 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-own-reaction)
      */
     public async deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction> {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction>;
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as never;
     }
+
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-user-reaction)
+     */
+    public async deleteUserReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageUserReactionResult> {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`, options) as never;
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-reactions)
+     */
+    public async getReactions(channelId: Snowflake, messageId: Snowflake, emoji: string, query: DiscordTypes.RESTGetAPIChannelMessageReactionUsersQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelMessageReactionUsersResult> {
+        return await this.request(`GET`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, {
+            query, ...options
+        });
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions)
+     */
+    public async deleteAllReactions(channelId: Snowflake, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelAllMessageReactionsResult> {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions`, options) as never;
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param emoji The emoji's identifier.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions-for-emoji)
+     */
+    public async deleteAllReactionsForEmoji(channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageReactionResult> {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, options) as never;
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-message)
+     */
+    public async editMessage(channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult> {
+        return await this.request(`PATCH`, `/channels/${channelId}/messages/${messageId}`, {
+            body, ...options
+        });
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-message)
+     */
+    public async deleteMessage(channelId: Snowflake, messageId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageResult> {
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}`, {
+            reason, ...options
+        }) as never;
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#bulk-delete-messages)
+     */
+    public async bulkDeleteMessages(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteResult> {
+        return await this.request(`POST`, `/channels/${channelId}/messages/bulk-delete`, {
+            body, reason, ...options
+        }) as never;
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param overwriteId The overwrite ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-channel-permissions)
+     */
+    public async editChannelPermissions(channelId: Snowflake, overwriteId: Snowflake, body: DiscordTypes.RESTPutAPIChannelPermissionJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelPermissionResult> {
+        return await this.request(`PUT`, `/channels/${channelId}/permissions/${overwriteId}`, {
+            body, reason, ...options
+        }) as never;
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-channel-invites)
+     */
+    public async getChannelInvites(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelInvitesResult> {
+        return await this.request(`GET`, `/channels/${channelId}/invites`, options);
+    }
+
+    // ------------------------------------
 
     /**
      * @param guildId The guild ID.
@@ -447,13 +558,11 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#create-dm)
      */
-    public async createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<RESTPostAPICurrentUserCreateDMChannelResult> {
+    public async createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPICurrentUserCreateDMChannelResult> {
         return await this.request(`POST`, `/users/@me/channels`, {
             body, ...options
         });
     }
-
-    // --------------------
 
     /**
      * @param options Request options.
