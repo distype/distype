@@ -203,7 +203,7 @@ class RestBucket {
                 this._logger?.log(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts`, {
                     internal: true, level: `ERROR`, system: `Rest`
                 });
-                throw new Error(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts => ${JSON.stringify(res.body)}`);
+                throw new Error(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts => Response body: ${JSON.stringify(res.body)}`);
             }
             else {
                 this._logger?.log(`${res.statusCode} Error: request ${method} ${route} => retrying ${(options.code500retries ?? this.manager.options.code500retries) - attempt} more times...`, {
@@ -211,6 +211,9 @@ class RestBucket {
                 });
                 return this._make(method, route, routeHash, options, attempt + 1);
             }
+        }
+        else {
+            throw new Error(`Got unknown status code ${res.statusCode} => Response body: ${JSON.stringify(res.body)}`);
         }
     }
     /**
