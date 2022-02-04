@@ -1,6 +1,7 @@
 import { ClientOptions, optionsFactory } from './ClientOptions';
 
 import { Cache } from '../cache/Cache';
+import { DistypeConstants } from '../constants/DistypeConstants';
 import { Gateway } from '../gateway/Gateway';
 import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
@@ -26,6 +27,10 @@ export class Client {
      */
     public rest: Rest;
 
+    /**
+     * The version of [Distype](https://github.com/distype/distype) being used.
+     */
+    public readonly DISTYPE_VERSION: string = DistypeConstants.VERSION;
     /**
      * {@link ClientOptions Options} for the client.
      * Note that these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
