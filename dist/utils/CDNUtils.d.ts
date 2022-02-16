@@ -71,7 +71,7 @@ export declare class CDNUtils {
      * @param discrimModulo The [user's discriminator](https://discord.com/developers/docs/resources/user#user-object) modulo `5`.
      * @param options Image options.
      */
-    static defaultUserAvatar(discrimModulo: 0 | 1 | 2 | 3 | 4, options?: Omit<CDNImageOptions<`png`>, `size`>): string;
+    static defaultUserAvatar(discrimModulo: number, options?: Omit<CDNImageOptions<`png`>, `size`>): string;
     /**
      * A user's avatar.
      * @param id The user's ID.
