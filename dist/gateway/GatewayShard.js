@@ -1,8 +1,28 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
 const Logger_1 = require("../logger/Logger");
 const TypedEmitter_1 = require("../utils/TypedEmitter");
+const DiscordTypes = __importStar(require("discord-api-types/v9"));
 const ws_1 = require("ws");
 /**
  * {@link GatewayShard Gateway shard} states.
@@ -81,7 +101,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 }
                 else {
                     this.send({
-                        op: 1 /* Heartbeat */,
+                        op: DiscordTypes.GatewayOpcodes.Heartbeat,
                         d: this.lastSequence
                     }, true).then(() => {
                         this._heartbeat.waiting = true;
@@ -494,7 +514,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 });
             }
             switch (payload.op) {
-                case (0 /* Dispatch */): {
+                case (DiscordTypes.GatewayOpcodes.Dispatch): {
                     this._logger?.log(`Got dispatch "${payload.t}"`, {
                         internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
@@ -518,21 +538,21 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     this.emit(`*`, payload);
                     break;
                 }
-                case (1 /* Heartbeat */): {
+                case (DiscordTypes.GatewayOpcodes.Heartbeat): {
                     this._logger?.log(`Got heartbeat request`, {
                         internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     this._heartbeat.send();
                     break;
                 }
-                case (7 /* Reconnect */): {
+                case (DiscordTypes.GatewayOpcodes.Reconnect): {
                     this._logger?.log(`Got reconnect request`, {
                         internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     void this.restart();
                     break;
                 }
-                case (9 /* InvalidSession */): {
+                case (DiscordTypes.GatewayOpcodes.InvalidSession): {
                     this._logger?.log(`Got invalid session`, {
                         internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
@@ -544,7 +564,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     }
                     break;
                 }
-                case (10 /* Hello */): {
+                case (DiscordTypes.GatewayOpcodes.Hello): {
                     this._logger?.log(`Got hello`, {
                         internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
@@ -592,7 +612,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     }
                     break;
                 }
-                case (11 /* HeartbeatAck */): {
+                case (DiscordTypes.GatewayOpcodes.HeartbeatAck): {
                     this._logger?.log(`Got heartbeat ACK`, {
                         internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });

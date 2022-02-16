@@ -72,9 +72,11 @@ class Rest extends RestRequests_1.RestRequests {
      * Note that response codes aren't included if they were never received.
      */
     get responseCodeRatio() {
-        const total = Object.values(this.responseCodeTally).reduce((p, c) => p += c);
+        const total = Object.values(this.responseCodeTally).reduce((p, c) => p + c);
         const ratio = {};
-        Object.keys(this.responseCodeTally).forEach((key) => ratio[key] = (this.responseCodeTally[key] / total) * 100);
+        Object.keys(this.responseCodeTally).forEach((key) => {
+            ratio[key] = (this.responseCodeTally[key] / total) * 100;
+        });
         return ratio;
     }
     /**

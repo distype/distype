@@ -40,7 +40,9 @@ class PermissionsUtils {
         const overwrites = channel.permission_overwrites ?? [];
         let perms = BigInt(guild.roles?.find((role) => role.id === guild.id)?.permissions ?? 0);
         perms = this.applyOverwrites(perms, overwrites, guild.id);
-        member.roles?.forEach((role) => perms = this.applyOverwrites(perms, overwrites, role));
+        member.roles?.forEach((role) => {
+            perms = this.applyOverwrites(perms, overwrites, role);
+        });
         perms = this.applyOverwrites(perms, overwrites, member.user.id);
         return timedOut ? this.timeout(perms) : perms;
     }
@@ -61,7 +63,9 @@ class PermissionsUtils {
         if (member.user.id === guild.owner_id)
             return this.allPermissions;
         let perms = BigInt(guild.roles?.find((role) => role.id === guild.id)?.permissions ?? 0);
-        member.roles?.forEach((role) => perms = this.combine(perms, BigInt(guild.roles?.find((r) => r.id = role)?.permissions ?? 0)));
+        member.roles?.forEach((role) => {
+            perms = this.combine(perms, BigInt(guild.roles?.find((r) => r.id === role)?.permissions ?? 0));
+        });
         if (this.hasPerm(perms, `ADMINISTRATOR`))
             return this.allPermissions;
         return timedOut ? this.timeout(perms) : perms;

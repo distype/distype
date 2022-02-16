@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cacheEventHandler = void 0;
 const collection_1 = __importDefault(require("@discordjs/collection"));
+const discord_api_types_1 = require("discord-api-types");
 /**
  * The built in cache event handler function.
  * @param cache The {@link Cache cache} to update.
@@ -29,7 +30,7 @@ const cacheEventHandler = (cache, data) => {
         case `CHANNEL_CREATE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, false, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== discord_api_types_1.ChannelType.GroupDM && data.d.type !== discord_api_types_1.ChannelType.DM && data.d.guild_id)
                 updateGuild(cache, false, {
                     id: data.d.guild_id,
                     channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
@@ -44,7 +45,7 @@ const cacheEventHandler = (cache, data) => {
         case `CHANNEL_DELETE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, true, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== discord_api_types_1.ChannelType.GroupDM && data.d.type !== discord_api_types_1.ChannelType.DM && data.d.guild_id)
                 cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
@@ -59,7 +60,7 @@ const cacheEventHandler = (cache, data) => {
         case `THREAD_CREATE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, false, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== discord_api_types_1.ChannelType.GroupDM && data.d.type !== discord_api_types_1.ChannelType.DM && data.d.guild_id)
                 updateGuild(cache, false, {
                     id: data.d.guild_id,
                     channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
@@ -74,7 +75,7 @@ const cacheEventHandler = (cache, data) => {
         case `THREAD_DELETE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, true, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== discord_api_types_1.ChannelType.GroupDM && data.d.type !== discord_api_types_1.ChannelType.DM && data.d.guild_id)
                 cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
@@ -349,7 +350,9 @@ const updateChannel = (cache, remove, data) => {
         cache.channels.set(data.id, { id: data.id });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && (key === `guild_id` || cache.options.cacheControl.channels?.includes(key)))
-        .forEach((key) => cache.channels.get(data.id)[key] = data[key]);
+        .forEach((key) => {
+        cache.channels.get(data.id)[key] = data[key];
+    });
 };
 /**
  * Update a guild.
@@ -364,7 +367,9 @@ const updateGuild = (cache, remove, data) => {
         cache.guilds.set(data.id, { id: data.id });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.guilds?.includes(key))
-        .forEach((key) => cache.guilds.get(data.id)[key] = data[key]);
+        .forEach((key) => {
+        cache.guilds.get(data.id)[key] = data[key];
+    });
 };
 /**
  * Update a member.
@@ -387,7 +392,9 @@ const updateMember = (cache, remove, data) => {
         });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.members?.includes(key))
-        .forEach((key) => cache.members.get(data.guild_id).get(data.user_id)[key] = data[key]);
+        .forEach((key) => {
+        cache.members.get(data.guild_id).get(data.user_id)[key] = data[key];
+    });
 };
 /**
  * Update a presence.
@@ -410,7 +417,9 @@ const updatePresence = (cache, remove, data) => {
         });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.presences?.includes(key))
-        .forEach((key) => cache.presences.get(data.guild_id).get(data.user_id)[key] = data[key]);
+        .forEach((key) => {
+        cache.presences.get(data.guild_id).get(data.user_id)[key] = data[key];
+    });
 };
 /**
  * Update a role.
@@ -425,7 +434,9 @@ const updateRole = (cache, remove, data) => {
         cache.roles.set(data.id, { id: data.id });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && (key === `guild_id` || cache.options.cacheControl.roles?.includes(key)))
-        .forEach((key) => cache.roles.get(data.id)[key] = data[key]);
+        .forEach((key) => {
+        cache.roles.get(data.id)[key] = data[key];
+    });
 };
 /**
  * Update a user.
@@ -440,7 +451,9 @@ const updateUser = (cache, remove, data) => {
         cache.users.set(data.id, { id: data.id });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.users?.includes(key))
-        .forEach((key) => cache.users.get(data.id)[key] = data[key]);
+        .forEach((key) => {
+        cache.users.get(data.id)[key] = data[key];
+    });
 };
 /**
  * Update a voice state.
@@ -463,5 +476,7 @@ const updateVoiceState = (cache, remove, data) => {
         });
     Object.keys(data)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.voiceStates?.includes(key))
-        .forEach((key) => cache.voiceStates.get(data.guild_id).get(data.user_id)[key] = data[key]);
+        .forEach((key) => {
+        cache.voiceStates.get(data.guild_id).get(data.user_id)[key] = data[key];
+    });
 };

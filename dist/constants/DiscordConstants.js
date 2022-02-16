@@ -67,22 +67,22 @@ exports.DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
     INTENTS: {
-        GUILDS: 1 /* Guilds */,
-        GUILD_MEMBERS: 2 /* GuildMembers */,
-        GUILD_BANS: 4 /* GuildBans */,
-        GUILD_EMOJIS_AND_STICKERS: 8 /* GuildEmojisAndStickers */,
-        GUILD_INTEGRATIONS: 16 /* GuildIntegrations */,
-        GUILD_WEBHOOKS: 32 /* GuildWebhooks */,
-        GUILD_INVITES: 64 /* GuildInvites */,
-        GUILD_VOICE_STATES: 128 /* GuildVoiceStates */,
-        GUILD_PRESENCES: 256 /* GuildPresences */,
-        GUILD_MESSAGES: 512 /* GuildMessages */,
-        GUILD_MESSAGE_REACTIONS: 1024 /* GuildMessageReactions */,
-        GUILD_MESSAGE_TYPING: 2048 /* GuildMessageTyping */,
-        DIRECT_MESSAGES: 4096 /* DirectMessages */,
-        DIRECT_MESSAGE_REACTIONS: 8192 /* DirectMessageReactions */,
-        DIRECT_MESSAGE_TYPING: 16384 /* DirectMessageTyping */,
-        GUILD_SCHEDULED_EVENTS: 65536 /* GuildScheduledEvents */
+        GUILDS: v9_1.GatewayIntentBits.Guilds,
+        GUILD_MEMBERS: v9_1.GatewayIntentBits.GuildMembers,
+        GUILD_BANS: v9_1.GatewayIntentBits.GuildBans,
+        GUILD_EMOJIS_AND_STICKERS: v9_1.GatewayIntentBits.GuildEmojisAndStickers,
+        GUILD_INTEGRATIONS: v9_1.GatewayIntentBits.GuildIntegrations,
+        GUILD_WEBHOOKS: v9_1.GatewayIntentBits.GuildWebhooks,
+        GUILD_INVITES: v9_1.GatewayIntentBits.GuildInvites,
+        GUILD_VOICE_STATES: v9_1.GatewayIntentBits.GuildVoiceStates,
+        GUILD_PRESENCES: v9_1.GatewayIntentBits.GuildPresences,
+        GUILD_MESSAGES: v9_1.GatewayIntentBits.GuildMessages,
+        GUILD_MESSAGE_REACTIONS: v9_1.GatewayIntentBits.GuildMessageReactions,
+        GUILD_MESSAGE_TYPING: v9_1.GatewayIntentBits.GuildMessageTyping,
+        DIRECT_MESSAGES: v9_1.GatewayIntentBits.DirectMessages,
+        DIRECT_MESSAGE_REACTIONS: v9_1.GatewayIntentBits.DirectMessageReactions,
+        DIRECT_MESSAGE_TYPING: v9_1.GatewayIntentBits.DirectMessageTyping,
+        GUILD_SCHEDULED_EVENTS: v9_1.GatewayIntentBits.GuildScheduledEvents
     },
     /**
      * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
@@ -153,8 +153,8 @@ exports.DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
     PRIVILEGED_INTENTS: {
-        GUILD_MEMBERS: 2 /* GuildMembers */,
-        GUILD_PRESENCES: 256 /* GuildPresences */
+        GUILD_MEMBERS: v9_1.GatewayIntentBits.GuildMembers,
+        GUILD_PRESENCES: v9_1.GatewayIntentBits.GuildPresences
     },
     /**
      * Rest rate limit headers.
