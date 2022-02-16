@@ -226,7 +226,7 @@ export class Rest extends RestRequests {
         if (!usingFormData && options.body) headers[`Content-Type`] = `application/json`;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const url = new URL(`${this.options.customBaseURL ?? `${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
+        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new URLSearchParams(options.query).toString();
 
         const req = request(url, {

@@ -245,6 +245,11 @@ export interface ClientOptions {
             sweepInterval: number | false
         }
         /**
+         * The amount of time in milliseconds to wait before considering a request timed out.
+         * Defaults to [undici's](https://undici.nodejs.org) `bodyTimeout` from [DispatchOptions](https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-dispatchoptions).
+         */
+        timeout?: number
+        /**
          * The Discord API version to use.
          * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
          * @default 9
