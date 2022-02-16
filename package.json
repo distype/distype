@@ -1,6 +1,6 @@
 {
   "name": "distype",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "A light yet robust Discord library written in TypeScript, catered towards developers looking for a final, no compromises solution for creating Discord bots.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
