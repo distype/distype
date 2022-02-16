@@ -219,7 +219,7 @@ export class CDNUtils {
         hash?: string,
         size?: (typeof DiscordConstants)[`IMAGE_SIZES`][number]
     }): string {
-        const url = new URL(`${DiscordConstants.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
+        const url = new URL(`${DiscordConstants.CDN_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
         if (options.size) url.searchParams.set(`size`, `${options.size}`);
         return url.toString();
     }
