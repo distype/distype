@@ -62,8 +62,8 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-global-application-command)
      */
-    public async deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<void> {
-        return await this.request(`DELETE`, `/applications/${applicationId}/commands/${commandId}`, options);
+    public async deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<never> {
+        return await this.request(`DELETE`, `/applications/${applicationId}/commands/${commandId}`, options) as never;
     }
 
     /**
@@ -133,8 +133,8 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-guild-application-command)
      */
-    public async deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<void> {
-        return await this.request(`DELETE`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, options);
+    public async deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<never> {
+        return await this.request(`DELETE`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, options) as never;
     }
 
     /**
@@ -205,10 +205,10 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
-    public async createInteractionResponse(interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<void> {
+    public async createInteractionResponse(interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<never> {
         return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}/callback`, {
             body, ...options
-        });
+        }) as never;
     }
 
     /**
@@ -547,10 +547,10 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
      */
-    public async modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<void> {
+    public async modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<never> {
         return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/@me`, {
             body, ...options
-        });
+        }) as never;
     }
 
     /**
