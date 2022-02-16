@@ -100,7 +100,7 @@ export class CDNUtils {
      * @param discrimModulo The [user's discriminator](https://discord.com/developers/docs/resources/user#user-object) modulo `5`.
      * @param options Image options.
      */
-    public static defaultUserAvatar (discrimModulo: 0 | 1 | 2 | 3 | 4, options: Omit<CDNImageOptions<`png`>, `size`> = {}): string {
+    public static defaultUserAvatar (discrimModulo: number, options: Omit<CDNImageOptions<`png`>, `size`> = {}): string {
         return this._make(`/embed/avatars/${discrimModulo}`, options);
     }
 
