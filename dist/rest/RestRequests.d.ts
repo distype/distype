@@ -43,7 +43,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-global-application-command)
      */
-    deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<void>;
+    deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<never>;
     /**
      * @param applicationId The application ID.
      * @param body Request body.
@@ -90,7 +90,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-guild-application-command)
      */
-    deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<void>;
+    deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, options?: RestRequestOptions): Promise<never>;
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
@@ -138,7 +138,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
-    createInteractionResponse(interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<void>;
+    createInteractionResponse(interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<never>;
     /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
@@ -360,7 +360,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
      */
-    modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<void>;
+    modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<never>;
     /**
      * @param body Request body.
      * @param options Request options.
