@@ -1,13 +1,7 @@
-import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
-import { RestRequestOptions } from './RestOptions';
+import { Rest, RestBucketHashLike, RestBucketIdLike, RestInternalRequestOptions, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { DistypeConstants } from '../constants/DistypeConstants';
 import { Logger } from '../logger/Logger';
-
-import FormData from 'form-data';
-import { request } from 'undici';
-import { URL, URLSearchParams } from 'url';
 
 /**
  * A {@link Rest rest} bucket.
@@ -78,6 +72,8 @@ export class RestBucket {
         if (typeof majorParameter !== `string`) throw new TypeError(`A major parameter must be specified`);
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
+        if (!manager.options.ratelimits) throw new Error(`The provided rest manager does not have ratelimits enabled`);
+
         this.manager = manager;
         this.id = id;
         this.bucketHash = bucketHash;
@@ -92,7 +88,7 @@ export class RestBucket {
         });
 
         this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+            internal: true, level: `DEBUG`, system: `Rest Bucket`
         });
     }
 
@@ -109,7 +105,7 @@ export class RestBucket {
     public get ratelimited (): { local: boolean, global: boolean } {
         return {
             local: this.requestsLeft <= 0 && Date.now() < this.resetAt,
-            global: this.manager.globalLeft <= 0 && Date.now() < this.manager.globalResetAt
+            global: this.manager.globalLeft! <= 0 && Date.now() < this.manager.globalResetAt!
         };
     }
 
@@ -121,9 +117,9 @@ export class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData): Promise<any> {
-        this._logger?.log(`Waiting for queue: request ${method} ${route}`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+    public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions): Promise<any> {
+        this._logger?.log(`${method} ${route} waiting for queue`, {
+            internal: true, level: `DEBUG`, system: `Rest Bucket`
         });
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
@@ -134,7 +130,7 @@ export class RestBucket {
      */
     private async _awaitRatelimit (): Promise<void> {
         if (!Object.values(this.ratelimited).some((r) => r)) return;
-        const timeout = (this.ratelimited.global ? this.manager.globalResetAt : this.resetAt) + this.manager.options.ratelimits.pause - Date.now();
+        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + (this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.pause : 0) - Date.now();
         await new Promise((resolve) => setTimeout(resolve, timeout));
         return await this._awaitRatelimit();
     }
@@ -148,109 +144,45 @@ export class RestBucket {
      * @param attempt The current attempt value.
      * @returns Response data.
      */
-    private async _make (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData, attempt = 0): Promise<any> {
-        this._logger?.log(`Waiting for ratelimit: request ${method} ${route}`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+    private async _make (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions, attempt = 0): Promise<any> {
+        this._logger?.log(`${method} ${route} waiting for ratelimit`, {
+            internal: true, level: `DEBUG`, system: `Rest Bucket`
         });
         await this._awaitRatelimit();
 
-        this._logger?.log(`Making request ${method} ${route}`, {
-            internal: true, level: `DEBUG`, system: `Rest`
-        });
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
-            this.manager.globalLeft = this.manager.options.ratelimits.globalPerSecond;
+            this.manager.globalLeft = this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.globalPerSecond : null;
         }
-        this.manager.globalLeft--;
+        this.manager.globalLeft!--;
 
-        const usingFormData: boolean = options.body instanceof FormData;
+        const res = await this.manager.make(method, route, options);
 
-        const headers: Record<string, string> = {
-            ...this.manager.options.headers,
-            ...options.headers,
-            ...(usingFormData ? options.body!.getHeaders() : undefined),
-            'Authorization': `Bot ${this._token}`,
-            'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`
-        };
+        const limit = Number(res.headers[DiscordConstants.RATE_LIMIT_HEADERS.LIMIT] ?? Infinity);
+        const remaining = Number(res.headers[DiscordConstants.RATE_LIMIT_HEADERS.REMAINING] ?? 1);
+        const resetAfter = Number(res.headers[DiscordConstants.RATE_LIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000;
+        const bucket = res.headers[DiscordConstants.RATE_LIMIT_HEADERS.BUCKET] as string | undefined;
+        const global = res.headers[DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL] === `true`;
+        const globalRetryAfter = Number(res.headers[DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
 
-        if (!usingFormData && options.body) headers[`Content-Type`] = `application/json`;
-        if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
-
-        const url = new URL(`${DiscordConstants.BASE_URL}/v${options.version ?? this.manager.options.version}${route}`);
-        url.search = new URLSearchParams(options.query).toString();
-
-        const req = request(url, {
-            ...this.manager.options,
-            ...options,
-            method,
-            headers,
-            body: usingFormData ? undefined : JSON.stringify(options.body),
-            bodyTimeout: options.timeout ?? this.manager.options.timeout
-        });
-
-        if (usingFormData) options.body!.pipe(req);
-
-        const res = await req.then(async (r) => ({
-            ...r,
-            body: r.statusCode !== 204 ? await r.body.json() : undefined,
-            limit: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.LIMIT] ?? Infinity),
-            remaining: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.REMAINING] ?? 1),
-            reset: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.RESET] ?? Date.now()) * 1000,
-            resetAfter: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000,
-            bucket: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.BUCKET] as string | undefined,
-            global: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL] === `true`,
-            globalRetryAfter: Number(r.headers[DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000,
-            scope: r.headers[DiscordConstants.RATE_LIMIT_HEADERS.SCOPE] as `global` | `shared` | `user` | undefined
-        }));
-
-        this._logger?.log(`Made request ${method} ${route}`, {
-            internal: true, level: `DEBUG`, system: `Rest`
-        });
-
-        if (res.globalRetryAfter > 0 && res.global) {
+        if (globalRetryAfter > 0 && global) {
             this.manager.globalLeft = 0;
-            this.manager.globalResetAt = res.globalRetryAfter + Date.now();
+            this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
 
-        if (res.bucket && res.bucket !== this.bucketHash) {
-            this.manager.routeHashCache.set(routeHash, res.bucket);
+        if (bucket && bucket !== this.bucketHash) {
+            this.manager.routeHashCache!.set(routeHash, bucket);
         }
 
-        this.requestsLeft = res.remaining;
-        this.resetAt = res.resetAfter + Date.now();
-        this.allowedRequestsPerRatelimit = res.limit;
+        this.requestsLeft = remaining;
+        this.resetAt = resetAfter + Date.now();
+        this.allowedRequestsPerRatelimit = limit;
 
-        this.manager.responseCodeTally[res.statusCode] = (this.manager.responseCodeTally[res.statusCode] ?? 0) + 1;
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-            this._logger?.log(`Success: request ${method} ${route}`, {
-                internal: true, level: `DEBUG`, system: `Rest`
-            });
-            return res.body;
-        } else if (res.statusCode === 429) {
-            this._logger?.log(`429 Ratelimited: request ${method} ${route}`, {
-                internal: true, level: `ERROR`, system: `Rest`
-            });
-            return this._make(method, route, routeHash, options);
-        } else if (res.statusCode >= 400 && res.statusCode < 500) {
-            this._logger?.log(`${res.statusCode} Error: rejected request ${method} ${route}`, {
-                internal: true, level: `ERROR`, system: `Rest`
-            });
-            throw new Error(`${res.statusCode} Error: rejected request ${method} ${route} => ${JSON.stringify(res.body)}`);
-        } else if (res.statusCode >= 500 && res.statusCode < 600) {
-            if (attempt >= (options.code500retries ?? this.manager.options.code500retries)) {
-                this._logger?.log(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts`, {
-                    internal: true, level: `ERROR`, system: `Rest`
-                });
-                throw new Error(`${res.statusCode} Error: rejected request ${method} ${route} after ${this.manager.options.code500retries + 1} attempts => Response body: ${JSON.stringify(res.body)}`);
-            } else {
-                this._logger?.log(`${res.statusCode} Error: request ${method} ${route} => retrying ${(options.code500retries ?? this.manager.options.code500retries) - attempt} more times...`, {
-                    internal: true, level: `DEBUG`, system: `Rest`
-                });
-                return this._make(method, route, routeHash, options, attempt + 1);
-            }
-        } else {
-            throw new Error(`Got unknown status code ${res.statusCode} => Response body: ${JSON.stringify(res.body)}`);
-        }
+        if (res.statusCode === 429) return this._make(method, route, routeHash, options);
+        else if (res.statusCode >= 500 && res.statusCode < 600) {
+            if (attempt >= (options.code500retries ?? this.manager.options.code500retries)) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
+            else return this._make(method, route, routeHash, options, attempt + 1);
+        } else return res.body;
     }
 
     /**
