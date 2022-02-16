@@ -45,6 +45,28 @@ export interface ClientOptions {
      */
     gateway?: {
         /**
+         * A custom socket URL to connect to.
+         * Useful if you use a proxy to connect to the Discord gateway.
+         * If `customGatewayBotEndpoint` is defined, its response's `url` parameter is overwritten by this.
+         * Note that [gateway URL query parameters](https://discord.com/developers/docs/topics/gateway#connecting-gateway-url-query-string-params) will still be sent.
+         */
+        customGatewaySocketURL?: string
+        /**
+         * A custom URL to use as a substitute for `GET` `/gateway/bot`.
+         * Useful if you use a proxy to connect to the Discord gateway, and it handles bot instances / sharding.
+         * This should be the full URL, not just a route (Example: `https://api.example.com/gateway`, not `/gateway`).
+         * It is expected that making a request to this URL returns the [same response that Discord normally would](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
+         * If the response returns your system's socket URL as the `url` parameter, there is no need to specify `customGatewaySocketURL`.
+         * Additionally, if you use a custom base URL for the rest manager that returns custom information when `GET` `/gateway/bot` is called, this can be left undefined.
+         */
+        customGetGatewayBotURL?: string
+        /**
+         * If the ratelimit on buckets (used for shard spawning) should be disabled.
+         * **Only disable spawning ratelimits if you are using a seperate application to manage ratelimits** (`customGatewaySocketURL` and/or `customGatewayBotEndpoint` can be used to do so).
+         * Note that shards are still spawned in the order that they would with ratelimiting enabled, just without a pause between bucket spawn calls.
+         */
+        disableBucketRatelimits?: boolean
+        /**
          * Gateway intents.
          * A numerical value is simply passed to the identify payload.
          * An array of intent names will only enable the specified intents.
@@ -278,6 +300,9 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
             cacheEventHandler: options.cache?.cacheEventHandler ?? DefaultOptions.CACHE.cacheEventHandler
         },
         gateway: {
+            customGatewaySocketURL: options.gateway?.customGatewaySocketURL,
+            customGetGatewayBotURL: options.gateway?.customGetGatewayBotURL,
+            disableBucketRatelimits: options.gateway?.disableBucketRatelimits,
             intents,
             largeGuildThreshold: options.gateway?.largeGuildThreshold ?? DefaultOptions.GATEWAY.largeGuildThreshold,
             presence: options.gateway?.presence ?? DefaultOptions.GATEWAY.presence,
