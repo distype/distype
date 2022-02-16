@@ -141,7 +141,7 @@ class Rest extends RestRequests_1.RestRequests {
             headers[`Content-Type`] = `application/json`;
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const url = new url_1.URL(`${this.options.customBaseURL ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
+        const url = new url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new url_1.URLSearchParams(options.query).toString();
         const req = (0, undici_1.request)(url, {
             ...this.options,

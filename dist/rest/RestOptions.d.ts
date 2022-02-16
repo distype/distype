@@ -5,13 +5,6 @@ import { request } from 'undici';
 export interface RestOptions extends RestRequestOptions {
     code500retries: number;
     /**
-     * A custom base URL to make requests to.
-     * Useful for making requests through, for example, a proxy / multi-application ratelimiter.
-     * Example: `https://api.example.com/discord`
-     * Make sure this URL does **not** end with a `/`.
-     */
-    customBaseURL?: string;
-    /**
      * Ratelimit options.
      * If `false`, internal ratelimits are disabled. **Only disable ratelimits if you are using a seperate application to manage ratelimits** (`customBaseURL` can be used to do so).
      */
@@ -43,6 +36,13 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
      * The amount of times to retry a request if it returns code `500`.
      */
     code500retries?: number;
+    /**
+     * A custom base URL to make requests to.
+     * Useful for making requests through, for example, a proxy / multi-application ratelimiter.
+     * Example: `https://api.example.com/discord`
+     * Make sure this URL does **not** end with a `/`.
+     */
+    customBaseURL?: string;
     /**
      * The amount of time in milliseconds to wait before considering a request timed out.
      * Defaults to [undici's](https://undici.nodejs.org) `bodyTimeout` from [DispatchOptions](https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-dispatchoptions).

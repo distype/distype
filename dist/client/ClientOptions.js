@@ -27,6 +27,9 @@ const optionsFactory = (options) => {
             cacheEventHandler: options.cache?.cacheEventHandler ?? DefaultOptions_1.DefaultOptions.CACHE.cacheEventHandler
         },
         gateway: {
+            customGatewaySocketURL: options.gateway?.customGatewaySocketURL,
+            customGetGatewayBotURL: options.gateway?.customGetGatewayBotURL,
+            disableBucketRatelimits: options.gateway?.disableBucketRatelimits,
             intents,
             largeGuildThreshold: options.gateway?.largeGuildThreshold ?? DefaultOptions_1.DefaultOptions.GATEWAY.largeGuildThreshold,
             presence: options.gateway?.presence ?? DefaultOptions_1.DefaultOptions.GATEWAY.presence,

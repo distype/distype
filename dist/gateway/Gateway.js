@@ -95,7 +95,13 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this._logger?.log(`Starting connection process`, {
             internal: true, level: `DEBUG`, system: `Gateway`
         });
-        this._storedGetGatewayBot = await this._rest.getGatewayBot();
+        const customGetGatewayBotURL = this.options.customGetGatewayBotURL ? new url_1.URL(this.options.customGetGatewayBotURL) : undefined;
+        this._storedGetGatewayBot = customGetGatewayBotURL ? await this._rest.request(`GET`, customGetGatewayBotURL.pathname, {
+            customBaseURL: customGetGatewayBotURL.origin,
+            query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries())
+        }) : await this._rest.getGatewayBot();
+        if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`))
+            throw new Error(`Invalid gateway bot response`);
         this._logger?.log(`Got bot gateway information`, {
             internal: true, level: `DEBUG`, system: `Gateway`
         });
@@ -117,7 +123,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             });
             const shard = new GatewayShard_1.GatewayShard(this._token, i, this.options.sharding.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
                 v: `${this.options.version}`, encoding: `json`
-            }).toString()}`, this._storedGetGatewayBot.url).toString(), this._logger ?? false, this.options);
+            }).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this._logger ?? false, this.options);
             this.shards.set(i, shard);
             this._logger?.log(`Shard ${shard.id} created and pushed to Gateway#shards`, {
                 internal: true, level: `DEBUG`, system: `Gateway`
@@ -150,7 +156,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
             this._logger?.log(`Finished spawn process for shard ratelimit key ${i}`, {
                 internal: true, level: `DEBUG`, system: `Gateway`
             });
-            if (i !== buckets.size - 1)
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
                 await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.SHARD_SPAWN_COOLDOWN));
         }
         const success = results.filter((result) => result.status === `fulfilled`).length;
