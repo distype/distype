@@ -62,7 +62,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
      * Create a logger.
      * @param options {@link LoggerOptions Logger options}.
      */
-    constructor(options: LoggerOptions) {
+    constructor (options: LoggerOptions) {
         super();
 
         this.options = options;
@@ -115,7 +115,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         return {
             divider: this._combineFormats(formats.divider ?? `DIM`),
             timestamp: this._combineFormats(formats.timestamp ?? `WHITE`),
-            levels: typeof formats.levels ===`string` ? Object.fromEntries([`DEBUG`, `INFO`, `WARN`, `ERROR`].map((l) => [l, this._combineFormats(formats.levels as LoggerFormat)])) as Record<LoggerLevel, string> : {
+            levels: typeof formats.levels === `string` ? Object.fromEntries([`DEBUG`, `INFO`, `WARN`, `ERROR`].map((l) => [l, this._combineFormats(formats.levels as LoggerFormat)])) as Record<LoggerLevel, string> : {
                 DEBUG: this._combineFormats(([(formats.levels as Record<`DEBUG`, LoggerFormats> | undefined)?.DEBUG ?? `WHITE`, levelsAll].flat())),
                 INFO: this._combineFormats(([(formats.levels as Record<`INFO`, LoggerFormats> | undefined)?.INFO ?? `CYAN`, levelsAll].flat())),
                 WARN: this._combineFormats(([(formats.levels as Record<`WARN`, LoggerFormats> | undefined)?.WARN ?? `YELLOW`, levelsAll].flat())),

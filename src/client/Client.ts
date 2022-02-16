@@ -53,7 +53,7 @@ export class Client {
      * @param token The bot's token.
      * @param options {@link ClientOptions Client options}.
      */
-    constructor(token: string, options: ClientOptions = {}) {
+    constructor (token: string, options: ClientOptions = {}) {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
 
         this.options = optionsFactory(options);

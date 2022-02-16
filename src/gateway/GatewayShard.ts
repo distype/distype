@@ -182,7 +182,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param logger The {@link Logger logger} for the gateway shard to use. If `false` is specified, no logger will be used.
      * @param options {@link GatewayShardOptions Gateway shard options}.
      */
-    constructor(token: string, id: number, numShards: number, url: string, logger: Logger | false, options: GatewayShardOptions) {
+    constructor (token: string, id: number, numShards: number, url: string, logger: Logger | false, options: GatewayShardOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -214,7 +214,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
      * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
-    public async spawn(): Promise<DiscordTypes.GatewayReadyDispatch> {
+    public async spawn (): Promise<DiscordTypes.GatewayReadyDispatch> {
         if (this.state !== GatewayShardState.DISCONNECTED) {
             const error = new Error(`Cannot spawn when the shard isn't in a disconnected state`);
             this._logger?.log(`Failed to spawn shard: ${error.message}`, {
@@ -258,7 +258,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Restart / resume the shard.
      * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
-    public async restart(): Promise<DiscordTypes.GatewayResumedDispatch> {
+    public async restart (): Promise<DiscordTypes.GatewayResumedDispatch> {
         if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) {
             const error = new Error(`Cannot resume when the shard isn't in a disconnected or connected state`);
             this._logger?.log(`Failed to spawn shard: ${error.message}`, {
@@ -291,7 +291,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 return attempt;
             } else await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
         }
-
     }
 
     /**
@@ -299,7 +298,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code).
      * @param reason The reason the shard is being killed.
      */
-    public kill(code = 1000, reason = `Manual kill`): void {
+    public kill (code = 1000, reason = `Manual kill`): void {
         this._logger?.log(`Killing shard with code ${code} for reason ${reason}`, {
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
@@ -328,7 +327,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param data The data to send.
      * @param force If the payload should bypass the send queue and always be sent immediately. Note that the queue is only used to cache `GatewayShard#send()` calls before the shard is in a {@link GatewayShardState CONNECTED} state, so this option will have no effect when the shard is spawned. The queue is flushed after the shard receives the [ready event](https://discord.com/developers/docs/topics/gateway#ready). This option is primarily used internally, for dispatches such as a heartbeat or identify.
      */
-    public async send(data: DiscordTypes.GatewaySendPayload, force = false): Promise<void> {
+    public async send (data: DiscordTypes.GatewaySendPayload, force = false): Promise<void> {
         return await new Promise((resolve, reject) => {
             const payload = JSON.stringify(data);
 
@@ -346,7 +345,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Clears timers on the shard.
      */
-    private _clearTimers(): void {
+    private _clearTimers (): void {
         if (this._connectionTimeout) {
             clearTimeout(this._connectionTimeout);
             this._connectionTimeout = null;
@@ -364,7 +363,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Set the shard's {@link GatewayShardState state}.
      * @param state The {@link GatewayShardState state} to set the shard to.
      */
-    private _enterState(state: GatewayShardState): void {
+    private _enterState (state: GatewayShardState): void {
         switch (state) {
             case (GatewayShardState.DISCONNECTED): {
                 this.state = GatewayShardState.DISCONNECTED;
@@ -407,7 +406,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Flushes the send queue.
      */
-    private async _flushQueue(): Promise<void> {
+    private async _flushQueue (): Promise<void> {
         this._logger?.log(`Flushing queue`, {
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
@@ -426,7 +425,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Expects the shard to be in a {@link GatewayShardState CONNECTING} or {@link GatewayShardState RESUMING} state.
      * @param resume If the shard is being resumed.
      */
-    private async _initConnection<T extends boolean>(resume: T): Promise<T extends true ? DiscordTypes.GatewayResumedDispatch : DiscordTypes.GatewayReadyDispatch> {
+    private async _initConnection<T extends boolean> (resume: T): Promise<T extends true ? DiscordTypes.GatewayResumedDispatch : DiscordTypes.GatewayReadyDispatch> {
         this._logger?.log(`Initiating WebSocket connection`, {
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
@@ -513,7 +512,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                         resolve(data as any);
                     });
                 }
-
             });
         });
     }
@@ -523,7 +521,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param payload The payload to send.
      * @internal
      */
-    private async _send(payload: string): Promise<void> {
+    private async _send (payload: string): Promise<void> {
         return await new Promise((resolve, reject) => {
             if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
                 const error = new Error(`The shard's socket must be defined and open to send a payload`);
@@ -557,7 +555,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Listener used for `GatewayShard#_ws#on('close')`
      * @internal
      */
-    private _onClose(code: number, reason: Buffer): void {
+    private _onClose (code: number, reason: Buffer): void {
         this._logger?.log(`WebSocket close: ${code}, ${reason.toString(`utf-8`)}`, {
             internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
@@ -570,7 +568,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Listener used for `GatewayShard#_ws#on('error')`
      * @internal
      */
-    private _onError(error: Error): void {
+    private _onError (error: Error): void {
         this._logger?.log(`WebSocket error: ${error.message}`, {
             internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
         });
@@ -580,7 +578,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Listener used for `GatewayShard#_ws#on('message')`
      * @internal
      */
-    private _onMessage(data: RawData): void {
+    private _onMessage (data: RawData): void {
         try {
             this._logger?.log(`WebSocket got message`, {
                 internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
@@ -703,7 +701,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                             void this.kill(1012, `Respawning shard - no session ID or last sequence`);
                             void this.spawn();
                         }
-
                     }
 
                     break;

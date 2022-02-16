@@ -4,6 +4,7 @@ import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 import { GatewayEvents } from '../gateway/Gateway';
 
 import Collection from '@discordjs/collection';
+import { ChannelType } from 'discord-api-types';
 
 /**
  * The built in cache event handler function.
@@ -26,7 +27,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
         }
         case `CHANNEL_CREATE`: {
             if (enabled.includes(`channels`)) updateChannel(cache, false, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id) updateGuild(cache, false, {
+            if (enabled.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) updateGuild(cache, false, {
                 id: data.d.guild_id,
                 channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
             });
@@ -38,7 +39,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
         }
         case `CHANNEL_DELETE`: {
             if (enabled.includes(`channels`)) updateChannel(cache, true, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id) cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
+            if (enabled.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
         case `CHANNEL_PINS_UPDATE`: {
@@ -50,7 +51,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
         }
         case `THREAD_CREATE`: {
             if (enabled.includes(`channels`)) updateChannel(cache, false, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id) updateGuild(cache, false, {
+            if (enabled.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) updateGuild(cache, false, {
                 id: data.d.guild_id,
                 channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
             });
@@ -62,7 +63,7 @@ export const cacheEventHandler = (cache: Cache, data: GatewayEvents[`*`]): void 
         }
         case `THREAD_DELETE`: {
             if (enabled.includes(`channels`)) updateChannel(cache, true, data.d);
-            if (enabled.includes(`guilds`) && data.d.guild_id) cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
+            if (enabled.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
         case `THREAD_LIST_SYNC`:
@@ -295,7 +296,9 @@ const updateChannel = (cache: Cache, remove: boolean, data: CachedChannel): void
 
     (Object.keys(data) as Array<keyof CachedChannel>)
         .filter((key) => data[key] !== undefined && (key === `guild_id` || cache.options.cacheControl.channels?.includes(key as any)))
-        .forEach((key) => (cache.channels!.get(data.id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.channels!.get(data.id)![key] as any) = data[key];
+        });
 };
 
 /**
@@ -311,7 +314,9 @@ const updateGuild = (cache: Cache, remove: boolean, data: CachedGuild): void => 
 
     (Object.keys(data) as Array<keyof CachedGuild>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.guilds?.includes(key as any))
-        .forEach((key) => (cache.guilds!.get(data.id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.guilds!.get(data.id)![key] as any) = data[key];
+        });
 };
 
 /**
@@ -334,7 +339,9 @@ const updateMember = (cache: Cache, remove: boolean, data: CachedMember): void =
 
     (Object.keys(data) as Array<keyof CachedMember>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.members?.includes(key as any))
-        .forEach((key) => (cache.members!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.members!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key];
+        });
 };
 
 /**
@@ -357,7 +364,9 @@ const updatePresence = (cache: Cache, remove: boolean, data: CachedPresence): vo
 
     (Object.keys(data) as Array<keyof CachedPresence>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.presences?.includes(key as any))
-        .forEach((key) => (cache.presences!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.presences!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key];
+        });
 };
 
 /**
@@ -373,7 +382,9 @@ const updateRole = (cache: Cache, remove: boolean, data: CachedRole): void => {
 
     (Object.keys(data) as Array<keyof CachedRole>)
         .filter((key) => data[key] !== undefined && (key === `guild_id` || cache.options.cacheControl.roles?.includes(key as any)))
-        .forEach((key) => (cache.roles!.get(data.id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.roles!.get(data.id)![key] as any) = data[key];
+        });
 };
 
 /**
@@ -389,7 +400,9 @@ const updateUser = (cache: Cache, remove: boolean, data: CachedUser): void => {
 
     (Object.keys(data) as Array<keyof CachedUser>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.users?.includes(key as any))
-        .forEach((key) => (cache.users!.get(data.id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.users!.get(data.id)![key] as any) = data[key];
+        });
 };
 
 /**
@@ -412,5 +425,7 @@ const updateVoiceState = (cache: Cache, remove: boolean, data: CachedVoiceState)
 
     (Object.keys(data) as Array<keyof CachedVoiceState>)
         .filter((key) => data[key] !== undefined && cache.options.cacheControl.voiceStates?.includes(key as any))
-        .forEach((key) => (cache.voiceStates!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key]);
+        .forEach((key) => {
+            (cache.voiceStates!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key];
+        });
 };

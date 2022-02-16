@@ -69,7 +69,7 @@ export class Cache {
      * @param logger The {@link Logger logger} for the cache manager to use. If `false` is specified, no logger will be used.
      * @param options {@link CacheOptions Cache options}.
      */
-    constructor(logger: Logger | false, options: CacheOptions) {
+    constructor (logger: Logger | false, options: CacheOptions) {
         if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
 
         if (logger) this._logger = logger;

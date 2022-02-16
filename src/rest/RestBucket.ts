@@ -148,7 +148,7 @@ export class RestBucket {
      * @param attempt The current attempt value.
      * @returns Response data.
      */
-    private async _make(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData, attempt = 0): Promise<any> {
+    private async _make (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData, attempt = 0): Promise<any> {
         this._logger?.log(`Waiting for ratelimit: request ${method} ${route}`, {
             internal: true, level: `DEBUG`, system: `Rest`
         });
@@ -231,7 +231,7 @@ export class RestBucket {
                 internal: true, level: `ERROR`, system: `Rest`
             });
             return this._make(method, route, routeHash, options);
-        } else if (res.statusCode >= 400 && res.statusCode < 500 ) {
+        } else if (res.statusCode >= 400 && res.statusCode < 500) {
             this._logger?.log(`${res.statusCode} Error: rejected request ${method} ${route}`, {
                 internal: true, level: `ERROR`, system: `Rest`
             });

@@ -114,7 +114,7 @@ export class Rest extends RestRequests {
      * @param logger The {@link Logger logger} for the rest manager to use. If `false` is specified, no logger will be used.
      * @param options {@link RestOptions Rest options}.
      */
-    constructor(token: string, logger: Logger | false, options: RestOptions) {
+    constructor (token: string, logger: Logger | false, options: RestOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -145,9 +145,11 @@ export class Rest extends RestRequests {
      * Note that response codes aren't included if they were never received.
      */
     public get responseCodeRatio (): Record<string, number> {
-        const total = Object.values(this.responseCodeTally).reduce((p, c) => p += c);
+        const total = Object.values(this.responseCodeTally).reduce((p, c) => p + c);
         const ratio: Record<string, number> = {};
-        Object.keys(this.responseCodeTally).forEach((key) => ratio[key] = (this.responseCodeTally[key] / total) * 100);
+        Object.keys(this.responseCodeTally).forEach((key) => {
+            ratio[key] = (this.responseCodeTally[key] / total) * 100;
+        });
         return ratio;
     }
 
@@ -158,7 +160,7 @@ export class Rest extends RestRequests {
      * @param options Request options.
      * @returns Response data.
      */
-    public async request(method: RestMethod, route: RestRouteLike, options: RestRequestOptions & RestRequestData = {}): Promise<any> {
+    public async request (method: RestMethod, route: RestRouteLike, options: RestRequestOptions & RestRequestData = {}): Promise<any> {
         this._logger?.log(`Starting request ${method} ${route}`, {
             internal: true, level: `DEBUG`, system: `Rest`
         });

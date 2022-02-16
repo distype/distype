@@ -166,7 +166,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
      * @param options {@link GatewayOptions Gateway options}.
      */
-    constructor(token: string, cache: Cache | false, logger: Logger | false, rest: Rest, options: GatewayOptions) {
+    constructor (token: string, cache: Cache | false, logger: Logger | false, rest: Rest, options: GatewayOptions) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -211,7 +211,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * Connect to the gateway.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
-    public async connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
+    public async connect (): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
         this._logger?.log(`Starting connection process`, {
             internal: true, level: `DEBUG`, system: `Gateway`
         });
@@ -304,7 +304,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns The guild's shard, or a shard ID if the shard is not in this manager.
      * @see [Discord API Reference]
      */
-    public guildShard <T extends boolean>(guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
+    public guildShard <T extends boolean> (guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
         if (!this.shards.size || (typeof this.options.sharding.totalBotShards !== `number` && !this._storedGetGatewayBot?.shards)) throw new Error(`Shards are not available.`);
         const shardId = Number((BigInt(guildId) >> 22n) % BigInt(typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot!.shards));
         const shard = this.shards.get(shardId);

@@ -151,7 +151,7 @@ export class MessageEmbed {
      * Check if all properties of the embed surpass the max total characters allowed in a message.
      * Throws an error of the limit is surpassed, else nothing happens.
      */
-    private _checkTotal(): void {
+    private _checkTotal (): void {
         const surpassed = this.getSize() > DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
         if (surpassed) throw new Error(`Embed surpassed maximum total size of ${DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE}`);
     }
