@@ -215,6 +215,10 @@ export interface ClientOptions {
          */
         code500retries?: number;
         /**
+         * A custom base URL to make requests to.
+         */
+        customBaseURL?: string;
+        /**
          * Ratelimit options.
          */
         ratelimits?: {

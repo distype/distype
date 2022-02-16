@@ -5,7 +5,15 @@ import { request } from 'undici';
 export interface RestOptions extends RestRequestOptions {
     code500retries: number;
     /**
+     * A custom base URL to make requests to.
+     * Useful for making requests through, for example, a proxy / multi-application ratelimiter.
+     * Example: `https://api.example.com/discord`
+     * Make sure this URL does **not** end with a `/`.
+     */
+    customBaseURL?: string;
+    /**
      * Ratelimit options.
+     * If `false`, internal ratelimits are disabled. **Only disable ratelimits if you are using a seperate application to manage ratelimits** (`customBaseURL` can be used to do so).
      */
     ratelimits: {
         /**
@@ -22,7 +30,7 @@ export interface RestOptions extends RestRequestOptions {
          * False disables sweeping buckets automatically.
          */
         sweepInterval: number | false;
-    };
+    } | false;
     version: number;
 }
 /**

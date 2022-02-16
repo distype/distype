@@ -6,6 +6,7 @@ import { Logger } from '../logger/Logger';
 import Collection from '@discordjs/collection';
 import { Snowflake } from 'discord-api-types/v9';
 import FormData from 'form-data';
+import { Dispatcher } from 'undici';
 /**
  * {@link Rest} request methods.
  */
@@ -18,6 +19,18 @@ export declare type RestBucketHashLike = `${string}` | `global;${RestRouteHashLi
  * A {@link RestBucket rest bucket} ID.
  */
 export declare type RestBucketIdLike = `${RestBucketHashLike}(${RestMajorParameterLike})`;
+/**
+ * Internal request options.
+ * @internal
+ */
+export declare type RestInternalRequestOptions = RestRequestOptions & RestRequestData;
+/**
+ * Internal request response.
+ * @internal
+ */
+export declare type RestInternalRestResponse = Dispatcher.ResponseData & {
+    body: any;
+};
 /**
  * A major {@link Rest rest} ratelimit parameter.
  */
@@ -57,7 +70,7 @@ export declare class Rest extends RestRequests {
      * Rate limit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketIdLike ID}.
      */
-    buckets: Collection<RestBucketIdLike, RestBucket>;
+    buckets: Collection<RestBucketIdLike, RestBucket> | null;
     /**
      * The interval used for sweeping inactive {@link RestBucket buckets}.
      */
@@ -65,11 +78,11 @@ export declare class Rest extends RestRequests {
     /**
      * The amount of requests left in the global ratelimit bucket.
      */
-    globalLeft: number;
+    globalLeft: number | null;
     /**
      * A unix millisecond timestamp at which the global ratelimit resets.
      */
-    globalResetAt: number;
+    globalResetAt: number | null;
     /**
      * A tally of the number of responses that returned a specific response code.
      * Note that response codes aren't included if they were never received.
@@ -79,7 +92,7 @@ export declare class Rest extends RestRequests {
      * Cached route rate limit bucket hashes.
      * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
      */
-    routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike>;
+    routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike> | null;
     /**
      * {@link RestOptions Options} for the rest manager.
      */
@@ -110,9 +123,19 @@ export declare class Rest extends RestRequests {
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
-     * @returns Response data.
+     * @returns Response body.
      */
-    request(method: RestMethod, route: RestRouteLike, options?: RestRequestOptions & RestRequestData): Promise<any>;
+    request(method: RestMethod, route: RestRouteLike, options?: RestInternalRequestOptions): Promise<any>;
+    /**
+     * The internal rest make method.
+     * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if ratelimits are turned off.
+     * @param method The request's {@link RestMethod method}.
+     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param options Request options.
+     * @returns The full undici response.
+     * @internal
+     */
+    make(method: RestMethod, route: RestRouteLike, options: RestInternalRequestOptions): Promise<RestInternalRestResponse>;
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
@@ -125,4 +148,8 @@ export declare class Rest extends RestRequests {
      * @returns The created bucket.
      */
     private _createBucket;
+    /**
+     * Handles response codes.
+     */
+    private _handleResponseCodes;
 }

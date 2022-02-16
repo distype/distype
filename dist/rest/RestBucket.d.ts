@@ -1,5 +1,4 @@
-import { Rest, RestBucketHashLike, RestBucketIdLike, RestRequestData, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
-import { RestRequestOptions } from './RestOptions';
+import { Rest, RestBucketHashLike, RestBucketIdLike, RestInternalRequestOptions, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 import { Logger } from '../logger/Logger';
 /**
  * A {@link Rest rest} bucket.
@@ -75,7 +74,7 @@ export declare class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    request(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestRequestOptions & RestRequestData): Promise<any>;
+    request(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions): Promise<any>;
     /**
      * Waits for the bucket to no longer be rate limited.
      */
