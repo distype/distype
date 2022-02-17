@@ -197,5 +197,14 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @param presence Presence data.
      * @param shard A shard or shards to set the presence on. A number will set the presence on a single shard with a matching ID, a number array will set the presence on all shards matching am ID in the array, and `all` will set the presence on all shards.
      */
-    updatePresence(presence: DiscordTypes.GatewayPresenceUpdateData, shard?: number | number[] | `all`): Promise<void>;
+    updatePresence(presence: {
+        since: number | null;
+        activities: Array<{
+            name: string;
+            type: number;
+            url?: string | null;
+        }>;
+        status: `online` | `dnd` | `idle` | `invisible` | `offline`;
+        afk: boolean;
+    } | DiscordTypes.GatewayPresenceUpdateData, shard?: number | number[] | `all`): Promise<void>;
 }
