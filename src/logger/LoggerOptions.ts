@@ -50,6 +50,11 @@ export interface LoggerOptions {
          */
         levels?: Record<LoggerLevel | `ALL`, LoggerFormats> | LoggerFormats
         /**
+         * The format for the thread.
+         * @default [`BRIGHT`, `WHITE`]
+         */
+        thread?: LoggerFormats
+        /**
          * The format for the system.
          * @default [`BRIGHT`, `WHITE`]
          */
@@ -64,4 +69,8 @@ export interface LoggerOptions {
      * If the timestamp should be included in the `console.log()` message.
      */
     showTime: boolean
+    /**
+     * The thread the logger is initiated on. Should be a worker ID, `master`, or `false` if {@link ClientWorker workers} and a {@link ClientMaster master} aren't being used.
+     */
+    thread: number | `master` | false
 }

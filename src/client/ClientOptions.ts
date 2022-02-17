@@ -123,12 +123,10 @@ export interface ClientOptions {
              *
              * For example, with the following configuration, the last 2 of the total 4 shards would be spawned.
              * ```ts
-             * const gatewayOptions: GatewayOptions = {
-             *   sharding: {
-             *     totalBotShards: 4,
-             *     shards: 2,
-             *     offset: 2
-             *   }
+             * sharding: {
+             *   totalBotShards: 4,
+             *   shards: 2,
+             *   offset: 2
              * }
              * ```
              * This option should only be manually defined if you are using a custom scaling solution externally from the library and hosting multiple instances of your bot, to prevent unexpected behavior.
@@ -282,11 +280,12 @@ export interface ClientOptions {
 
 /**
  * Converts specified client options into complete client options.
+ * @param thread The client's thread. Should be a worker ID, `master`, or `false` if {@link ClientWorker workers} and a {@link ClientMaster master} aren't being used.
  * @param options Provided options.
  * @returns Complete options.
  * @internal
  */
-export const optionsFactory = (options: ClientOptions): Client[`options`] => {
+export const optionsFactory = (thread: number | `master` | false, options: ClientOptions): Client[`options`] => {
     let intents: number;
     if (typeof options.gateway?.intents === `number`) intents = options.gateway?.intents;
     else if (typeof options.gateway?.intents === `bigint`) intents = Number(options.gateway?.intents);
@@ -318,13 +317,15 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
                 disableInternal: true,
                 enabledOutput: DefaultOptions.LOGGER.enabledOutput,
                 format: DefaultOptions.LOGGER.format,
-                showTime: DefaultOptions.LOGGER.showTime
+                showTime: DefaultOptions.LOGGER.showTime,
+                thread
             }
             : {
                 disableInternal: options.logger?.disableInternal ?? DefaultOptions.LOGGER.disableInternal,
                 enabledOutput: options.logger?.enabledOutput ?? DefaultOptions.LOGGER.enabledOutput,
                 format: options.logger?.format ?? DefaultOptions.LOGGER.format,
-                showTime: options.logger?.showTime ?? DefaultOptions.LOGGER.showTime
+                showTime: options.logger?.showTime ?? DefaultOptions.LOGGER.showTime,
+                thread
             },
         rest: {
             ...options.rest,

@@ -56,7 +56,7 @@ export class Client {
     constructor (token: string, options: ClientOptions = {}) {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
 
-        this.options = optionsFactory(options);
+        this.options = optionsFactory(false, options);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
@@ -70,7 +70,7 @@ export class Client {
         this.rest = new Rest(token, this.logger ?? false, this.options.rest);
         this.gateway = new Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
 
-        this.logger?.log(`Initialized client`, {
+        this.logger.log(`Initialized client`, {
             internal: true, level: `DEBUG`, system: `Client`
         });
     }

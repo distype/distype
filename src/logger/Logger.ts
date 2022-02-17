@@ -34,10 +34,12 @@ export interface LoggerMessageOptions extends Partial<LoggerOptions> {
      */
     internal?: boolean
     /**
+     * The level to log at.
      * @default `INFO`
      */
     level?: LoggerLevel
     /**
+     * The system creating the log.
      * @default `General`
      */
     system?: LoggerSystem
@@ -88,11 +90,12 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         const formats = this._convertFormats(completeOptions.format);
 
         if ((completeOptions.enabledOutput.log ?? [`INFO`, `WARN`, `ERROR`]).includes(completeOptions.level)) console.log([
-            completeOptions.showTime ? `${formats.timestamp}${this._timestamp()}` : ``,
+            completeOptions.showTime ? `${formats.timestamp}${this._timestamp()}` : undefined,
             `${formats.levels[completeOptions.level]}${completeOptions.level}`,
+            completeOptions.thread === false ? undefined : `${formats.thread}${completeOptions.thread}`,
             `${formats.system}${completeOptions.system}`,
             `${formats.message}${msg}${reset}`
-        ].join(` ${reset}${formats.divider}|${reset} `));
+        ].filter((str) => str !== undefined).join(` ${reset}${formats.divider}|${reset} `));
 
         if ((completeOptions.enabledOutput.events ?? [`DEBUG`, `INFO`, `WARN`, `ERROR`]).includes(completeOptions.level)) this.emit(completeOptions.level, {
             msg, system: completeOptions.system
@@ -107,6 +110,7 @@ export class Logger extends TypedEmitter<LoggerEvents> {
         divider: string
         timestamp: string
         levels: Record<LoggerLevel, string>
+        thread: string
         system: string
         message: string
     } {
@@ -121,8 +125,9 @@ export class Logger extends TypedEmitter<LoggerEvents> {
                 WARN: this._combineFormats(([(formats.levels as Record<`WARN`, LoggerFormats> | undefined)?.WARN ?? `YELLOW`, levelsAll].flat())),
                 ERROR: this._combineFormats(([(formats.levels as Record<`ERROR`, LoggerFormats> | undefined)?.ERROR ?? `RED`, levelsAll].flat()))
             },
-            message: this._combineFormats(formats.message ?? `WHITE`),
-            system: this._combineFormats(formats.system ?? [`BRIGHT`, `WHITE`])
+            thread: this._combineFormats(formats.thread ?? [`BRIGHT`, `WHITE`]),
+            system: this._combineFormats(formats.system ?? [`BRIGHT`, `WHITE`]),
+            message: this._combineFormats(formats.message ?? `WHITE`)
         };
     }
 
