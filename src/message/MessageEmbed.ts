@@ -34,7 +34,7 @@ export class MessageEmbed {
      * @param title The title to use.
      */
     public setTitle (title: string): this {
-        if (title.length > DiscordConstants.EMBED_LIMITS.TITLE) throw new Error(`Specified title is longer than maximum length ${DiscordConstants.EMBED_LIMITS.TITLE}`);
+        if (title.length > DiscordConstants.MESSAGE_EMBED_LIMITS.TITLE) throw new Error(`Specified title is longer than maximum length ${DiscordConstants.MESSAGE_EMBED_LIMITS.TITLE}`);
         this._raw.title = title;
         return this;
     }
@@ -44,7 +44,7 @@ export class MessageEmbed {
      * @param description The description to use.
      */
     public setDescription (description: string): this {
-        if (description.length > DiscordConstants.EMBED_LIMITS.DESCRIPTION) throw new Error(`Specified description is longer than maximum length ${DiscordConstants.EMBED_LIMITS.DESCRIPTION}`);
+        if (description.length > DiscordConstants.MESSAGE_EMBED_LIMITS.DESCRIPTION) throw new Error(`Specified description is longer than maximum length ${DiscordConstants.MESSAGE_EMBED_LIMITS.DESCRIPTION}`);
         this._raw.description = description;
         return this;
     }
@@ -82,7 +82,7 @@ export class MessageEmbed {
      */
     public setFooter (footer: string | APIEmbedFooter): this {
         const embedFooter: APIEmbedFooter = typeof footer === `string` ? { text: footer } : footer;
-        if (embedFooter.text.length > DiscordConstants.EMBED_LIMITS.FOOTER_TEXT) throw new Error(`Specified footer text is longer than maximum length ${DiscordConstants.EMBED_LIMITS.FOOTER_TEXT}`);
+        if (embedFooter.text.length > DiscordConstants.MESSAGE_EMBED_LIMITS.FOOTER_TEXT) throw new Error(`Specified footer text is longer than maximum length ${DiscordConstants.MESSAGE_EMBED_LIMITS.FOOTER_TEXT}`);
         this._raw.footer = embedFooter;
         return this;
     }
@@ -111,7 +111,7 @@ export class MessageEmbed {
      */
     public setAuthor (author: string | APIEmbedAuthor): this {
         const embedAuthor = typeof author === `string` ? { name: author } : author;
-        if (embedAuthor.name.length > DiscordConstants.EMBED_LIMITS.AUTHOR_NAME) throw new Error(`Specified author name is longer than maximum length ${DiscordConstants.EMBED_LIMITS.AUTHOR_NAME}`);
+        if (embedAuthor.name.length > DiscordConstants.MESSAGE_EMBED_LIMITS.AUTHOR_NAME) throw new Error(`Specified author name is longer than maximum length ${DiscordConstants.MESSAGE_EMBED_LIMITS.AUTHOR_NAME}`);
         this._raw.author = embedAuthor;
         return this;
     }
@@ -122,10 +122,10 @@ export class MessageEmbed {
      * @param fields The fields to use.
      */
     public setFields (...fields: APIEmbedField[]): this {
-        if (fields.length > DiscordConstants.EMBED_LIMITS.FIELDS) throw new Error(`Specified fields surpass maximum ${DiscordConstants.EMBED_LIMITS.FIELDS} total fields`);
+        if (fields.length > DiscordConstants.MESSAGE_EMBED_LIMITS.FIELDS) throw new Error(`Specified fields surpass maximum ${DiscordConstants.MESSAGE_EMBED_LIMITS.FIELDS} total fields`);
         fields.forEach((field, i) => {
-            if (field.name.length > DiscordConstants.EMBED_LIMITS.FIELD.NAME) throw new Error(`Specified field ${i} name is longer than maximum length ${DiscordConstants.EMBED_LIMITS.FIELD.VALUE}`);
-            if (field.value.length > DiscordConstants.EMBED_LIMITS.FIELD.VALUE) throw new Error(`Specified field ${i} value is longer than maximum length ${DiscordConstants.EMBED_LIMITS.FIELD.NAME}`);
+            if (field.name.length > DiscordConstants.MESSAGE_EMBED_LIMITS.FIELD.NAME) throw new Error(`Specified field ${i} name is longer than maximum length ${DiscordConstants.MESSAGE_EMBED_LIMITS.FIELD.VALUE}`);
+            if (field.value.length > DiscordConstants.MESSAGE_EMBED_LIMITS.FIELD.VALUE) throw new Error(`Specified field ${i} value is longer than maximum length ${DiscordConstants.MESSAGE_EMBED_LIMITS.FIELD.NAME}`);
         });
         this._raw.fields = fields;
         return this;
@@ -152,7 +152,7 @@ export class MessageEmbed {
      * Throws an error of the limit is surpassed, else nothing happens.
      */
     private _checkTotal (): void {
-        const surpassed = this.getSize() > DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
-        if (surpassed) throw new Error(`Embed surpassed maximum total size of ${DiscordConstants.EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE}`);
+        const surpassed = this.getSize() > DiscordConstants.MESSAGE_EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE;
+        if (surpassed) throw new Error(`Embed surpassed maximum total size of ${DiscordConstants.MESSAGE_EMBED_LIMITS.MAX_TOTAL_IN_MESSAGE}`);
     }
 }

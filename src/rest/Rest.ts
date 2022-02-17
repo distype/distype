@@ -80,7 +80,7 @@ export type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}`;
  */
 export class Rest extends RestRequests {
     /**
-     * Rate limit {@link RestBucket buckets}.
+     * Ratelimit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketIdLike ID}.
      */
     public buckets: Collection<RestBucketIdLike, RestBucket> | null = null;
@@ -102,7 +102,7 @@ export class Rest extends RestRequests {
      */
     public responseCodeTally: Record<string, number> = {};
     /**
-     * Cached route rate limit bucket hashes.
+     * Cached route ratelimit bucket hashes.
      * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
      */
     public routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike> | null = null;
@@ -186,7 +186,7 @@ export class Rest extends RestRequests {
 
         if (this.options.ratelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
 
             const routeHash: RestRouteHashLike = `${method};${rawHash}${oldMessage}`;
             const bucketHash: RestBucketHashLike = this.routeHashCache!.get(routeHash) ?? `global;${routeHash}`;
@@ -255,7 +255,7 @@ export class Rest extends RestRequests {
     }
 
     /**
-     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     public sweepBuckets (): void {
         if (this.buckets) {

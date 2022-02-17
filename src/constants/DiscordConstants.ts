@@ -20,51 +20,11 @@ export const DiscordConstants = {
      */
     DISCORD_EPOCH: 1420070400000,
     /**
-     * Limits for embed fields.
-     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
-     */
-    EMBED_LIMITS: {
-        TITLE: 256,
-        DESCRIPTION: 4096,
-        FIELDS: 25,
-        FIELD: {
-            NAME: 256,
-            VALUE: 1024
-        },
-        FOOTER_TEXT: 2048,
-        AUTHOR_NAME: 256,
-        MAX_TOTAL_IN_MESSAGE: 6000
-    },
-    /**
-     * Gateway ratelimits.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
-     */
-    GATEWAY_RATELIMIT: {
-        /**
-         * The number of commands allowed to be sent every `RESET_AFTER` milliseconds.
-         */
-        LIMIT: 120,
-        /**
-         * The amount of time that `LIMIT` is specified for.
-         */
-        RESET_AFTER: 60000
-    },
-    /**
-     * Allowed image formats.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
-     */
-    IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`],
-    /**
-     * Allowed image sizes.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
-     */
-    IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
-    /**
      * Gateway intents.
      * Includes privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
-    INTENTS: {
+    GATEWAY_INTENTS: {
         GUILDS: GatewayIntentBits.Guilds,
         GUILD_MEMBERS: GatewayIntentBits.GuildMembers,
         GUILD_BANS: GatewayIntentBits.GuildBans,
@@ -86,12 +46,61 @@ export const DiscordConstants = {
     /**
      * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
      */
-    MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH: 32,
+    GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH: 32,
     /**
-     * The amount of milliseconds after a message is created where it causes issues with rate limiting.
-     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
+     * Privileged gateway intents.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
-    OLD_MESSAGE_THRESHOLD: 1209600000,
+    GATEWAY_PRIVILEGED_INTENTS: {
+        GUILD_MEMBERS: GatewayIntentBits.GuildMembers,
+        GUILD_PRESENCES: GatewayIntentBits.GuildPresences,
+        MESSAGE_CONTENT: GatewayIntentBits.MessageContent
+    },
+    /**
+     * Gateway ratelimits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
+     */
+    GATEWAY_RATELIMITS: {
+        /**
+         * The number of commands allowed to be sent every `RESET_AFTER` milliseconds.
+         */
+        LIMIT: 120,
+        /**
+         * The amount of time that `LIMIT` is specified for.
+         */
+        RESET_AFTER: 60000
+    },
+    /**
+     * The cooldown between spawning shards from the same bucket.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
+    GATEWAY_SHARD_SPAWN_COOLDOWN: 5000,
+    /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`],
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
+    /**
+     * Limits for message embed fields.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
+     */
+    MESSAGE_EMBED_LIMITS: {
+        TITLE: 256,
+        DESCRIPTION: 4096,
+        FIELDS: 25,
+        FIELD: {
+            NAME: 256,
+            VALUE: 1024
+        },
+        FOOTER_TEXT: 2048,
+        AUTHOR_NAME: 256,
+        MAX_TOTAL_IN_MESSAGE: 6000
+    },
     /**
      * Bitwise permission flags.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
@@ -148,19 +157,16 @@ export const DiscordConstants = {
         READ_MESSAGE_HISTORY: PermissionFlagsBits.ReadMessageHistory
     },
     /**
-     * Privileged gateway intents.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
+     * The amount of milliseconds after a message is created where it causes issues with ratelimiting.
+     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
      */
-    PRIVILEGED_INTENTS: {
-        GUILD_MEMBERS: GatewayIntentBits.GuildMembers,
-        GUILD_PRESENCES: GatewayIntentBits.GuildPresences,
-        MESSAGE_CONTENT: GatewayIntentBits.MessageContent
-    },
+    REST_OLD_MESSAGE_THRESHOLD: 1209600000,
     /**
-     * Rest rate limit headers.
+     * Rest ratelimit headers.
+     * Headers are lowercased to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
-    RATE_LIMIT_HEADERS: {
+    REST_RATELIMIT_HEADERS: {
         LIMIT: `x-ratelimit-limit`,
         REMAINING: `x-ratelimit-remaining`,
         RESET: `x-ratelimit-reset`,
@@ -169,10 +175,5 @@ export const DiscordConstants = {
         GLOBAL: `x-ratelimit-global`,
         GLOBAL_RETRY_AFTER: `retry-after`,
         SCOPE: `x-ratelimit-scope`
-    },
-    /**
-     * The cooldown between spawning shards from the same bucket.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
-     */
-    SHARD_SPAWN_COOLDOWN: 5000
+    }
 } as const;

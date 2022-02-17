@@ -75,7 +75,7 @@ export interface ClientOptions {
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
          * @default `nonPrivileged`
          */
-        intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`
+        intents?: number | bigint | Array<keyof typeof DiscordConstants.GATEWAY_INTENTS> | `all` | `nonPrivileged`
         /**
          * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
          * Must be between `50` and `250`.
@@ -290,9 +290,9 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
     let intents: number;
     if (typeof options.gateway?.intents === `number`) intents = options.gateway?.intents;
     else if (typeof options.gateway?.intents === `bigint`) intents = Number(options.gateway?.intents);
-    else if (options.gateway?.intents instanceof Array) intents = options.gateway?.intents.reduce((p, c) => p | DiscordConstants.INTENTS[c], 0);
-    else if (options.gateway?.intents === `all`) intents = Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0);
-    else intents = Object.values(DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.INTENTS).reduce((p, c) => p | c, 0 as number));
+    else if (options.gateway?.intents instanceof Array) intents = options.gateway?.intents.reduce((p, c) => p | DiscordConstants.GATEWAY_INTENTS[c], 0);
+    else if (options.gateway?.intents === `all`) intents = Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
+    else intents = Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0 as number));
 
     return {
         cache: {
