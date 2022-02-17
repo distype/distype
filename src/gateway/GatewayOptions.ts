@@ -45,6 +45,15 @@ export interface GatewayOptions extends GatewayShardOptions {
         shards?: number
         /**
          * The number of shards to offset spawning by.
+         *
+         * For example, with the following configuration, the last 2 of the total 4 shards would be spawned.
+         * ```ts
+         * sharding: {
+         *   totalBotShards: 4,
+         *   shards: 2,
+         *   offset: 2
+         * }
+         * ```
          */
         offset?: number
     }
