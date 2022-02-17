@@ -5,7 +5,7 @@
 export declare const DefaultOptions: {
     readonly CACHE: {
         readonly cacheControl: {};
-        readonly cacheEventHandler: (cache: import("..").Cache, data: import("discord-api-types").GatewayDispatchPayload) => void;
+        readonly cacheEventHandler: (cache: import("..").Cache, data: import("discord-api-types/v9").GatewayDispatchPayload) => void;
     };
     readonly GATEWAY: {
         readonly largeGuildThreshold: undefined;
