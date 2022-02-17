@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cacheEventHandler = void 0;
 const collection_1 = __importDefault(require("@discordjs/collection"));
-const v9_1 = require("discord-api-types/v9");
+const v10_1 = require("discord-api-types/v10");
 /**
  * The built in cache event handler function.
  * @param cache The {@link Cache cache} to update.
@@ -30,7 +30,7 @@ const cacheEventHandler = (cache, data) => {
         case `CHANNEL_CREATE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, false, data.d);
-            if (enabled.includes(`guilds`) && data.d.type !== v9_1.ChannelType.GroupDM && data.d.type !== v9_1.ChannelType.DM && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
                 updateGuild(cache, false, {
                     id: data.d.guild_id,
                     channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
@@ -45,7 +45,7 @@ const cacheEventHandler = (cache, data) => {
         case `CHANNEL_DELETE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, true, data.d);
-            if (enabled.includes(`guilds`) && data.d.type !== v9_1.ChannelType.GroupDM && data.d.type !== v9_1.ChannelType.DM && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
                 cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }
@@ -60,7 +60,7 @@ const cacheEventHandler = (cache, data) => {
         case `THREAD_CREATE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, false, data.d);
-            if (enabled.includes(`guilds`) && data.d.type !== v9_1.ChannelType.GroupDM && data.d.type !== v9_1.ChannelType.DM && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
                 updateGuild(cache, false, {
                     id: data.d.guild_id,
                     channels: [data.d.id, ...(cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
@@ -75,7 +75,7 @@ const cacheEventHandler = (cache, data) => {
         case `THREAD_DELETE`: {
             if (enabled.includes(`channels`))
                 updateChannel(cache, true, data.d);
-            if (enabled.includes(`guilds`) && data.d.type !== v9_1.ChannelType.GroupDM && data.d.type !== v9_1.ChannelType.DM && data.d.guild_id)
+            if (enabled.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
                 cache.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
             break;
         }

@@ -1,5 +1,5 @@
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v10';
 /**
  * Image options.
  */

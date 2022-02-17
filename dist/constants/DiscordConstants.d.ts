@@ -1,4 +1,4 @@
-import { GatewayIntentBits } from 'discord-api-types/v9';
+import { GatewayIntentBits } from 'discord-api-types/v10';
 /**
  * Discord API constants.
  */
@@ -79,6 +79,7 @@ export declare const DiscordConstants: {
         readonly DIRECT_MESSAGES: GatewayIntentBits.DirectMessages;
         readonly DIRECT_MESSAGE_REACTIONS: GatewayIntentBits.DirectMessageReactions;
         readonly DIRECT_MESSAGE_TYPING: GatewayIntentBits.DirectMessageTyping;
+        readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
         readonly GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents;
     };
     /**
@@ -152,6 +153,7 @@ export declare const DiscordConstants: {
     readonly PRIVILEGED_INTENTS: {
         readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
         readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
+        readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
     };
     /**
      * Rest rate limit headers.

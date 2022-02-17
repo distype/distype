@@ -5,7 +5,7 @@
 export declare const DefaultOptions: {
     readonly CACHE: {
         readonly cacheControl: {};
-        readonly cacheEventHandler: (cache: import("..").Cache, data: import("discord-api-types/v9").GatewayDispatchPayload) => void;
+        readonly cacheEventHandler: (cache: import("..").Cache, data: import("discord-api-types/v10").GatewayDispatchPayload) => void;
     };
     readonly GATEWAY: {
         readonly largeGuildThreshold: undefined;
@@ -14,7 +14,7 @@ export declare const DefaultOptions: {
         readonly spawnAttemptDelay: 2500;
         readonly spawnMaxAttempts: 10;
         readonly spawnTimeout: 30000;
-        readonly version: 9;
+        readonly version: 10;
         readonly wsOptions: undefined;
     };
     readonly LOGGER: {
@@ -30,6 +30,6 @@ export declare const DefaultOptions: {
             readonly pause: 10;
             readonly sweepInterval: 300000;
         };
-        readonly version: 9;
+        readonly version: 10;
     };
 };

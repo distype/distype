@@ -22,7 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
 const Logger_1 = require("../logger/Logger");
 const TypedEmitter_1 = require("../utils/TypedEmitter");
-const DiscordTypes = __importStar(require("discord-api-types/v9"));
+const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const ws_1 = require("ws");
 /**
  * {@link GatewayShard Gateway shard} states.

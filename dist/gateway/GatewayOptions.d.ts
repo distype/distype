@@ -1,4 +1,4 @@
-import * as DiscordTypes from 'discord-api-types/v9';
+import * as DiscordTypes from 'discord-api-types/v10';
 import { ClientOptions as WsClientOptions } from 'ws';
 /**
  * {@link Gateway} options.

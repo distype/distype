@@ -4,7 +4,7 @@ import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import { Logger } from '../logger/Logger';
 import Collection from '@discordjs/collection';
-import { Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v10';
 import FormData from 'form-data';
 import { Dispatcher } from 'undici';
 /**

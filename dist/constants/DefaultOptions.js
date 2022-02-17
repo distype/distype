@@ -18,7 +18,7 @@ exports.DefaultOptions = {
         spawnAttemptDelay: 2500,
         spawnMaxAttempts: 10,
         spawnTimeout: 30000,
-        version: 9,
+        version: 10,
         wsOptions: undefined
     },
     LOGGER: {
@@ -34,6 +34,6 @@ exports.DefaultOptions = {
             pause: 10,
             sweepInterval: 300000
         },
-        version: 9
+        version: 10
     }
 };

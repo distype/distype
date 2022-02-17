@@ -3,7 +3,7 @@ import { cacheEventHandler } from '../cache/CacheEventHandler';
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { LoggerFormats, LoggerLevel } from '../logger/Logger';
-import * as DiscordTypes from 'discord-api-types/v9';
+import * as DiscordTypes from 'discord-api-types/v10';
 import { request } from 'undici';
 import { ClientOptions as WsClientOptions } from 'ws';
 /**
@@ -155,7 +155,7 @@ export interface ClientOptions {
         /**
          * The Gateway version to use.
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
-         * @default 9
+         * @default 10
          */
         version?: number;
     };
@@ -270,7 +270,7 @@ export interface ClientOptions {
         /**
          * The Discord API version to use.
          * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
-         * @default 9
+         * @default 10
          */
         version?: number;
     };

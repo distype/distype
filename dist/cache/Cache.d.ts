@@ -2,7 +2,7 @@ import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 import { CacheOptions } from './CacheOptions';
 import { Logger } from '../logger/Logger';
 import Collection from '@discordjs/collection';
-import { Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v10';
 /**
  * The cache manager.
  * Contains cached data, and {@link cacheEventHandler handles dispatched gateway events} to keep the cache up to date.
