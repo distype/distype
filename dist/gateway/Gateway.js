@@ -108,7 +108,9 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
         this.options.sharding.offset = this.options.sharding.offset ?? 0;
-        this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, { system: `Gateway` });
+        this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, {
+            internal: true, system: `Gateway`
+        });
         if (this.options.sharding.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
             const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
             this._logger?.log(`Unable to connect shards: ${error.message}`, {
@@ -170,9 +172,11 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
         this._logger?.log(`${success}/${success + failed} shards spawned`, { system: `Gateway` });
         if (failed > 0)
             this._logger?.log(`${failed} shards failed to spawn`, {
-                level: `WARN`, system: `Gateway`
+                internal: true, level: `WARN`, system: `Gateway`
             });
-        this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, { system: `Gateway` });
+        this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, {
+            internal: true, system: `Gateway`
+        });
         return results;
     }
     /**
