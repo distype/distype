@@ -94,7 +94,7 @@ class RestBucket {
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
     /**
-     * Waits for the bucket to no longer be rate limited.
+     * Waits for the bucket to no longer be ratelimited.
      */
     async _awaitRatelimit() {
         if (!Object.values(this.ratelimited).some((r) => r))
@@ -123,12 +123,12 @@ class RestBucket {
         }
         this.manager.globalLeft--;
         const res = await this.manager.make(method, route, options);
-        const limit = Number(res.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.LIMIT] ?? Infinity);
-        const remaining = Number(res.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.REMAINING] ?? 1);
-        const resetAfter = Number(res.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000;
-        const bucket = res.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.BUCKET];
-        const global = res.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL] === `true`;
-        const globalRetryAfter = Number(res.headers[DiscordConstants_1.DiscordConstants.RATE_LIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
+        const limit = Number(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.LIMIT] ?? Infinity);
+        const remaining = Number(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.REMAINING] ?? 1);
+        const resetAfter = Number(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000;
+        const bucket = res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.BUCKET];
+        const global = res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL] === `true`;
+        const globalRetryAfter = Number(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
         if (globalRetryAfter > 0 && global) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();

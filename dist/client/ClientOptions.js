@@ -16,11 +16,11 @@ const optionsFactory = (options) => {
     else if (typeof options.gateway?.intents === `bigint`)
         intents = Number(options.gateway?.intents);
     else if (options.gateway?.intents instanceof Array)
-        intents = options.gateway?.intents.reduce((p, c) => p | DiscordConstants_1.DiscordConstants.INTENTS[c], 0);
+        intents = options.gateway?.intents.reduce((p, c) => p | DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS[c], 0);
     else if (options.gateway?.intents === `all`)
-        intents = Object.values(DiscordConstants_1.DiscordConstants.INTENTS).reduce((p, c) => p | c, 0);
+        intents = Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
     else
-        intents = Object.values(DiscordConstants_1.DiscordConstants.PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants_1.DiscordConstants.INTENTS).reduce((p, c) => p | c, 0));
+        intents = Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0));
     return {
         cache: {
             cacheControl: options.cache?.cacheControl ?? DefaultOptions_1.DefaultOptions.CACHE.cacheControl,

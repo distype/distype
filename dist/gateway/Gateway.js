@@ -159,7 +159,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
                 internal: true, level: `DEBUG`, system: `Gateway`
             });
             if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
-                await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.SHARD_SPAWN_COOLDOWN));
+                await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants_1.DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN));
         }
         const success = results.filter((result) => result.status === `fulfilled`).length;
         const failed = this.options.sharding.shards - success;
@@ -205,10 +205,10 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
     getGuildMembers(guildId, options = {}) {
         if (options.query && options.user_ids)
             throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH)
-            throw new Error(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH)
+            throw new Error(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`);
         const shard = this.guildShard(guildId, true);
-        const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants_1.DiscordConstants.MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
+        const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
         this._requestGuildMembersNonceIncrement++;
         const members = new collection_1.default();
         const presences = new collection_1.default();
@@ -236,7 +236,7 @@ class Gateway extends TypedEmitter_1.TypedEmitter {
                     guild_id: guildId,
                     query: !options.query && !options.user_ids ? `` : options.query,
                     limit: options.limit ?? 0,
-                    presences: (this.options.intents & DiscordConstants_1.DiscordConstants.INTENTS.GUILD_PRESENCES) !== 0,
+                    presences: (this.options.intents & DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
                     nonce
                 }

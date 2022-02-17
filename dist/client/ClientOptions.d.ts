@@ -71,7 +71,7 @@ export interface ClientOptions {
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
          * @default `nonPrivileged`
          */
-        intents?: number | bigint | Array<keyof typeof DiscordConstants.INTENTS> | `all` | `nonPrivileged`;
+        intents?: number | bigint | Array<keyof typeof DiscordConstants.GATEWAY_INTENTS> | `all` | `nonPrivileged`;
         /**
          * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
          * Must be between `50` and `250`.

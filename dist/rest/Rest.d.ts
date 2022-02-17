@@ -67,7 +67,7 @@ export declare type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}
  */
 export declare class Rest extends RestRequests {
     /**
-     * Rate limit {@link RestBucket buckets}.
+     * Ratelimit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketIdLike ID}.
      */
     buckets: Collection<RestBucketIdLike, RestBucket> | null;
@@ -89,7 +89,7 @@ export declare class Rest extends RestRequests {
      */
     responseCodeTally: Record<string, number>;
     /**
-     * Cached route rate limit bucket hashes.
+     * Cached route ratelimit bucket hashes.
      * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
      */
     routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike> | null;
@@ -137,7 +137,7 @@ export declare class Rest extends RestRequests {
      */
     make(method: RestMethod, route: RestRouteLike, options: RestInternalRequestOptions): Promise<RestInternalRestResponse>;
     /**
-     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     sweepBuckets(): void;
     /**

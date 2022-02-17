@@ -76,7 +76,7 @@ export declare class RestBucket {
      */
     request(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions): Promise<any>;
     /**
-     * Waits for the bucket to no longer be rate limited.
+     * Waits for the bucket to no longer be ratelimited.
      */
     private _awaitRatelimit;
     /**

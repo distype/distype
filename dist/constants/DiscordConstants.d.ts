@@ -19,51 +19,11 @@ export declare const DiscordConstants: {
      */
     readonly DISCORD_EPOCH: 1420070400000;
     /**
-     * Limits for embed fields.
-     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
-     */
-    readonly EMBED_LIMITS: {
-        readonly TITLE: 256;
-        readonly DESCRIPTION: 4096;
-        readonly FIELDS: 25;
-        readonly FIELD: {
-            readonly NAME: 256;
-            readonly VALUE: 1024;
-        };
-        readonly FOOTER_TEXT: 2048;
-        readonly AUTHOR_NAME: 256;
-        readonly MAX_TOTAL_IN_MESSAGE: 6000;
-    };
-    /**
-     * Gateway ratelimits.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
-     */
-    readonly GATEWAY_RATELIMIT: {
-        /**
-         * The number of commands allowed to be sent every `RESET_AFTER` milliseconds.
-         */
-        readonly LIMIT: 120;
-        /**
-         * The amount of time that `LIMIT` is specified for.
-         */
-        readonly RESET_AFTER: 60000;
-    };
-    /**
-     * Allowed image formats.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
-     */
-    readonly IMAGE_FORMATS: readonly ["gif", "jpeg", "jpg", "json", "png", "webp"];
-    /**
-     * Allowed image sizes.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
-     */
-    readonly IMAGE_SIZES: readonly [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
-    /**
      * Gateway intents.
      * Includes privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
-    readonly INTENTS: {
+    readonly GATEWAY_INTENTS: {
         readonly GUILDS: GatewayIntentBits.Guilds;
         readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
         readonly GUILD_BANS: GatewayIntentBits.GuildBans;
@@ -85,12 +45,61 @@ export declare const DiscordConstants: {
     /**
      * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
      */
-    readonly MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH: 32;
+    readonly GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH: 32;
     /**
-     * The amount of milliseconds after a message is created where it causes issues with rate limiting.
-     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
+     * Privileged gateway intents.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
-    readonly OLD_MESSAGE_THRESHOLD: 1209600000;
+    readonly GATEWAY_PRIVILEGED_INTENTS: {
+        readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
+        readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
+        readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
+    };
+    /**
+     * Gateway ratelimits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
+     */
+    readonly GATEWAY_RATELIMITS: {
+        /**
+         * The number of commands allowed to be sent every `RESET_AFTER` milliseconds.
+         */
+        readonly LIMIT: 120;
+        /**
+         * The amount of time that `LIMIT` is specified for.
+         */
+        readonly RESET_AFTER: 60000;
+    };
+    /**
+     * The cooldown between spawning shards from the same bucket.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
+    readonly GATEWAY_SHARD_SPAWN_COOLDOWN: 5000;
+    /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    readonly IMAGE_FORMATS: readonly ["gif", "jpeg", "jpg", "json", "png", "webp"];
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    readonly IMAGE_SIZES: readonly [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+    /**
+     * Limits for message embed fields.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
+     */
+    readonly MESSAGE_EMBED_LIMITS: {
+        readonly TITLE: 256;
+        readonly DESCRIPTION: 4096;
+        readonly FIELDS: 25;
+        readonly FIELD: {
+            readonly NAME: 256;
+            readonly VALUE: 1024;
+        };
+        readonly FOOTER_TEXT: 2048;
+        readonly AUTHOR_NAME: 256;
+        readonly MAX_TOTAL_IN_MESSAGE: 6000;
+    };
     /**
      * Bitwise permission flags.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
@@ -147,19 +156,16 @@ export declare const DiscordConstants: {
         readonly READ_MESSAGE_HISTORY: bigint;
     };
     /**
-     * Privileged gateway intents.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
+     * The amount of milliseconds after a message is created where it causes issues with ratelimiting.
+     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
      */
-    readonly PRIVILEGED_INTENTS: {
-        readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
-        readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
-        readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
-    };
+    readonly REST_OLD_MESSAGE_THRESHOLD: 1209600000;
     /**
-     * Rest rate limit headers.
+     * Rest ratelimit headers.
+     * Headers are lowercased to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
-    readonly RATE_LIMIT_HEADERS: {
+    readonly REST_RATELIMIT_HEADERS: {
         readonly LIMIT: "x-ratelimit-limit";
         readonly REMAINING: "x-ratelimit-remaining";
         readonly RESET: "x-ratelimit-reset";
@@ -169,9 +175,4 @@ export declare const DiscordConstants: {
         readonly GLOBAL_RETRY_AFTER: "retry-after";
         readonly SCOPE: "x-ratelimit-scope";
     };
-    /**
-     * The cooldown between spawning shards from the same bucket.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
-     */
-    readonly SHARD_SPAWN_COOLDOWN: 5000;
 };

@@ -28,7 +28,7 @@ class Rest extends RestRequests_1.RestRequests {
     constructor(token, logger, options) {
         super();
         /**
-         * Rate limit {@link RestBucket buckets}.
+         * Ratelimit {@link RestBucket buckets}.
          * Each bucket's key is it's {@link RestBucketIdLike ID}.
          */
         this.buckets = null;
@@ -50,7 +50,7 @@ class Rest extends RestRequests_1.RestRequests {
          */
         this.responseCodeTally = {};
         /**
-         * Cached route rate limit bucket hashes.
+         * Cached route ratelimit bucket hashes.
          * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
          */
         this.routeHashCache = null;
@@ -105,7 +105,7 @@ class Rest extends RestRequests_1.RestRequests {
         });
         if (this.options.ratelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
             const routeHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash = this.routeHashCache.get(routeHash) ?? `global;${routeHash}`;
             const majorParameter = /^\/(?:channels|guilds|webhooks)\/(\d{16,19})/.exec(route)?.[1] ?? `global`;
@@ -164,7 +164,7 @@ class Rest extends RestRequests_1.RestRequests {
         return res;
     }
     /**
-     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     sweepBuckets() {
         if (this.buckets) {
