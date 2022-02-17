@@ -165,7 +165,7 @@ export interface ClientOptions {
     }
     /**
      * Options for the logger.
-     * Specifying `false` will disable the logger.
+     * Specifying `false` is a shorthand for `{ disableInternal: true }`
      */
     logger?: {
         /**
@@ -313,12 +313,19 @@ export const optionsFactory = (options: ClientOptions): Client[`options`] => {
             version: options.gateway?.version ?? DefaultOptions.GATEWAY.version,
             wsOptions: options.gateway?.wsOptions ?? DefaultOptions.GATEWAY.wsOptions
         },
-        logger: options.logger === false ? false : {
-            disableInternal: options.logger?.disableInternal ?? DefaultOptions.LOGGER.disableInternal,
-            enabledOutput: options.logger?.enabledOutput ?? DefaultOptions.LOGGER.enabledOutput,
-            format: options.logger?.format ?? DefaultOptions.LOGGER.format,
-            showTime: options.logger?.showTime ?? DefaultOptions.LOGGER.showTime
-        },
+        logger: options.logger === false
+            ? {
+                disableInternal: true,
+                enabledOutput: DefaultOptions.LOGGER.enabledOutput,
+                format: DefaultOptions.LOGGER.format,
+                showTime: DefaultOptions.LOGGER.showTime
+            }
+            : {
+                disableInternal: options.logger?.disableInternal ?? DefaultOptions.LOGGER.disableInternal,
+                enabledOutput: options.logger?.enabledOutput ?? DefaultOptions.LOGGER.enabledOutput,
+                format: options.logger?.format ?? DefaultOptions.LOGGER.format,
+                showTime: options.logger?.showTime ?? DefaultOptions.LOGGER.showTime
+            },
         rest: {
             ...options.rest,
             code500retries: options.rest?.code500retries ?? DefaultOptions.REST.code500retries,

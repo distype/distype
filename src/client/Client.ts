@@ -21,7 +21,7 @@ export class Client {
     /**
      * The client's logger.
      */
-    public logger?: Logger;
+    public logger: Logger;
     /**
      * The client's {@link Rest rest manager}.
      */
@@ -38,7 +38,7 @@ export class Client {
     public readonly options: {
         cache: Cache[`options`]
         gateway: Gateway[`options`]
-        logger: Logger[`options`] | false
+        logger: Logger[`options`]
         rest: Rest[`options`]
     };
 
@@ -65,7 +65,7 @@ export class Client {
             writable: false
         });
 
-        if (this.options.logger !== false) this.logger = new Logger(this.options.logger);
+        this.logger = new Logger(this.options.logger);
         this.cache = new Cache(this.logger ?? false, this.options.cache);
         this.rest = new Rest(token, this.logger ?? false, this.options.rest);
         this.gateway = new Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
