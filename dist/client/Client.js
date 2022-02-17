@@ -23,7 +23,7 @@ class Client {
         this.DISTYPE_VERSION = DistypeConstants_1.DistypeConstants.VERSION;
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
-        this.options = (0, ClientOptions_1.optionsFactory)(options);
+        this.options = (0, ClientOptions_1.optionsFactory)(false, options);
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
@@ -34,7 +34,7 @@ class Client {
         this.cache = new Cache_1.Cache(this.logger ?? false, this.options.cache);
         this.rest = new Rest_1.Rest(token, this.logger ?? false, this.options.rest);
         this.gateway = new Gateway_1.Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);
-        this.logger?.log(`Initialized client`, {
+        this.logger.log(`Initialized client`, {
             internal: true, level: `DEBUG`, system: `Client`
         });
     }

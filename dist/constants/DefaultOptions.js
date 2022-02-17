@@ -25,7 +25,8 @@ exports.DefaultOptions = {
         disableInternal: false,
         enabledOutput: {},
         format: {},
-        showTime: true
+        showTime: true,
+        thread: false
     },
     REST: {
         code500retries: 2,

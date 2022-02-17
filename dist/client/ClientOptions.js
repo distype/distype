@@ -5,11 +5,12 @@ const DefaultOptions_1 = require("../constants/DefaultOptions");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 /**
  * Converts specified client options into complete client options.
+ * @param thread The client's thread. Should be a worker ID, `master`, or `false` if {@link ClientWorker workers} and a {@link ClientMaster master} aren't being used.
  * @param options Provided options.
  * @returns Complete options.
  * @internal
  */
-const optionsFactory = (options) => {
+const optionsFactory = (thread, options) => {
     let intents;
     if (typeof options.gateway?.intents === `number`)
         intents = options.gateway?.intents;
@@ -45,13 +46,15 @@ const optionsFactory = (options) => {
                 disableInternal: true,
                 enabledOutput: DefaultOptions_1.DefaultOptions.LOGGER.enabledOutput,
                 format: DefaultOptions_1.DefaultOptions.LOGGER.format,
-                showTime: DefaultOptions_1.DefaultOptions.LOGGER.showTime
+                showTime: DefaultOptions_1.DefaultOptions.LOGGER.showTime,
+                thread
             }
             : {
                 disableInternal: options.logger?.disableInternal ?? DefaultOptions_1.DefaultOptions.LOGGER.disableInternal,
                 enabledOutput: options.logger?.enabledOutput ?? DefaultOptions_1.DefaultOptions.LOGGER.enabledOutput,
                 format: options.logger?.format ?? DefaultOptions_1.DefaultOptions.LOGGER.format,
-                showTime: options.logger?.showTime ?? DefaultOptions_1.DefaultOptions.LOGGER.showTime
+                showTime: options.logger?.showTime ?? DefaultOptions_1.DefaultOptions.LOGGER.showTime,
+                thread
             },
         rest: {
             ...options.rest,

@@ -31,10 +31,12 @@ export interface LoggerMessageOptions extends Partial<LoggerOptions> {
      */
     internal?: boolean;
     /**
+     * The level to log at.
      * @default `INFO`
      */
     level?: LoggerLevel;
     /**
+     * The system creating the log.
      * @default `General`
      */
     system?: LoggerSystem;

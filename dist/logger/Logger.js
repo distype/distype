@@ -35,11 +35,12 @@ class Logger extends TypedEmitter_1.TypedEmitter {
         const formats = this._convertFormats(completeOptions.format);
         if ((completeOptions.enabledOutput.log ?? [`INFO`, `WARN`, `ERROR`]).includes(completeOptions.level))
             console.log([
-                completeOptions.showTime ? `${formats.timestamp}${this._timestamp()}` : ``,
+                completeOptions.showTime ? `${formats.timestamp}${this._timestamp()}` : undefined,
                 `${formats.levels[completeOptions.level]}${completeOptions.level}`,
+                completeOptions.thread === false ? undefined : `${formats.thread}${completeOptions.thread}`,
                 `${formats.system}${completeOptions.system}`,
                 `${formats.message}${msg}${reset}`
-            ].join(` ${reset}${formats.divider}|${reset} `));
+            ].filter((str) => str !== undefined).join(` ${reset}${formats.divider}|${reset} `));
         if ((completeOptions.enabledOutput.events ?? [`DEBUG`, `INFO`, `WARN`, `ERROR`]).includes(completeOptions.level))
             this.emit(completeOptions.level, {
                 msg, system: completeOptions.system
@@ -60,8 +61,9 @@ class Logger extends TypedEmitter_1.TypedEmitter {
                 WARN: this._combineFormats(([formats.levels?.WARN ?? `YELLOW`, levelsAll].flat())),
                 ERROR: this._combineFormats(([formats.levels?.ERROR ?? `RED`, levelsAll].flat()))
             },
-            message: this._combineFormats(formats.message ?? `WHITE`),
-            system: this._combineFormats(formats.system ?? [`BRIGHT`, `WHITE`])
+            thread: this._combineFormats(formats.thread ?? [`BRIGHT`, `WHITE`]),
+            system: this._combineFormats(formats.system ?? [`BRIGHT`, `WHITE`]),
+            message: this._combineFormats(formats.message ?? `WHITE`)
         };
     }
     /**

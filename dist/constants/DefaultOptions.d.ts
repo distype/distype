@@ -22,6 +22,7 @@ export declare const DefaultOptions: {
         readonly enabledOutput: {};
         readonly format: {};
         readonly showTime: true;
+        readonly thread: false;
     };
     readonly REST: {
         readonly code500retries: 2;
