@@ -161,7 +161,7 @@ export interface ClientOptions {
     };
     /**
      * Options for the logger.
-     * Specifying `false` will disable the logger.
+     * Specifying `false` is a shorthand for `{ disableInternal: true }`
      */
     logger?: {
         /**

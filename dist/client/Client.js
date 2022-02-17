@@ -30,8 +30,7 @@ class Client {
             value: token,
             writable: false
         });
-        if (this.options.logger !== false)
-            this.logger = new Logger_1.Logger(this.options.logger);
+        this.logger = new Logger_1.Logger(this.options.logger);
         this.cache = new Cache_1.Cache(this.logger ?? false, this.options.cache);
         this.rest = new Rest_1.Rest(token, this.logger ?? false, this.options.rest);
         this.gateway = new Gateway_1.Gateway(token, this.cache, this.logger ?? false, this.rest, this.options.gateway);

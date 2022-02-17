@@ -18,7 +18,7 @@ export declare class Client {
     /**
      * The client's logger.
      */
-    logger?: Logger;
+    logger: Logger;
     /**
      * The client's {@link Rest rest manager}.
      */
@@ -34,7 +34,7 @@ export declare class Client {
     readonly options: {
         cache: Cache[`options`];
         gateway: Gateway[`options`];
-        logger: Logger[`options`] | false;
+        logger: Logger[`options`];
         rest: Rest[`options`];
     };
     /**
