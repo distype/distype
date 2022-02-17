@@ -364,7 +364,7 @@ export class Rest extends RestRequests {
         }
 
         this._logger?.log(`${method} ${route} returned ${message}`, {
-            internal: true, level, system: `REST`
+            internal: true, level, system: `Rest`
         });
         if (shouldThrow) throw new Error(`${message} on ${method} ${route}`);
     }
