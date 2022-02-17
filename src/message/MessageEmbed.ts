@@ -1,6 +1,6 @@
 import { DiscordConstants } from '../constants/DiscordConstants';
 
-import { APIEmbed, APIEmbedAuthor, APIEmbedField, APIEmbedFooter, APIEmbedImage, APIEmbedThumbnail } from 'discord-api-types/v9';
+import { APIEmbed, APIEmbedAuthor, APIEmbedField, APIEmbedFooter, APIEmbedImage, APIEmbedThumbnail } from 'discord-api-types/v10';
 
 /**
  * A message embed; specifically, a rich embed.

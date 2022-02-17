@@ -1,4 +1,4 @@
-import { GatewayIntentBits, PermissionFlagsBits } from 'discord-api-types/v9';
+import { GatewayIntentBits, PermissionFlagsBits } from 'discord-api-types/v10';
 
 /**
  * Discord API constants.
@@ -80,6 +80,7 @@ export const DiscordConstants = {
         DIRECT_MESSAGES: GatewayIntentBits.DirectMessages,
         DIRECT_MESSAGE_REACTIONS: GatewayIntentBits.DirectMessageReactions,
         DIRECT_MESSAGE_TYPING: GatewayIntentBits.DirectMessageTyping,
+        MESSAGE_CONTENT: GatewayIntentBits.MessageContent,
         GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents
     },
     /**
@@ -152,7 +153,8 @@ export const DiscordConstants = {
      */
     PRIVILEGED_INTENTS: {
         GUILD_MEMBERS: GatewayIntentBits.GuildMembers,
-        GUILD_PRESENCES: GatewayIntentBits.GuildPresences
+        GUILD_PRESENCES: GatewayIntentBits.GuildPresences,
+        MESSAGE_CONTENT: GatewayIntentBits.MessageContent
     },
     /**
      * Rest rate limit headers.

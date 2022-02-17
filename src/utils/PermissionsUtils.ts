@@ -1,6 +1,6 @@
 import { DiscordConstants } from '../constants/DiscordConstants';
 
-import { APIOverwrite, Snowflake } from 'discord-api-types/v9';
+import { APIOverwrite, Snowflake } from 'discord-api-types/v10';
 
 /**
  * Properties of an `APIChannel` that are relevant to permissions.

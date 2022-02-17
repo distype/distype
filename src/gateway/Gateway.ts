@@ -8,8 +8,8 @@ import { Rest } from '../rest/Rest';
 import { TypedEmitter } from '../utils/TypedEmitter';
 
 import Collection from '@discordjs/collection';
-import * as DiscordTypes from 'discord-api-types/v9';
-import { Snowflake } from 'discord-api-types/v9';
+import * as DiscordTypes from 'discord-api-types/v10';
+import { Snowflake } from 'discord-api-types/v10';
 import { URL, URLSearchParams } from 'url';
 
 /**

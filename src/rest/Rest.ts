@@ -8,7 +8,7 @@ import { Logger, LoggerLevel } from '../logger/Logger';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
 import Collection from '@discordjs/collection';
-import { Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v10';
 import FormData from 'form-data';
 import { Dispatcher, request } from 'undici';
 import { URL, URLSearchParams } from 'url';

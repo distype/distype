@@ -3,7 +3,7 @@ import { GatewayShardOptions } from './GatewayOptions';
 import { Logger } from '../logger/Logger';
 import { TypedEmitter } from '../utils/TypedEmitter';
 
-import * as DiscordTypes from 'discord-api-types/v9';
+import * as DiscordTypes from 'discord-api-types/v10';
 import { RawData, WebSocket } from 'ws';
 
 /**

@@ -1,7 +1,7 @@
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { RestRouteLike } from '../rest/Rest';
 
-import { Snowflake } from 'discord-api-types/v9';
+import { Snowflake } from 'discord-api-types/v10';
 import { URL } from 'url';
 
 /**

@@ -4,7 +4,7 @@ import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 import { GatewayEvents } from '../gateway/Gateway';
 
 import Collection from '@discordjs/collection';
-import { ChannelType } from 'discord-api-types/v9';
+import { ChannelType } from 'discord-api-types/v10';
 
 /**
  * The built in cache event handler function.

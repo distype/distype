@@ -53,7 +53,7 @@ const client = new Client(YOUR_BOT_TOKEN);
 client.gateway.connect();
 ```
 
-> Note that Discord API typings are for API version `9`, and are from [discord-api-types](https://www.npmjs.com/package/discord-api-types). However, API version `10` will soon become the default.
+> Note that Discord API typings are for API version `10`, and are from [discord-api-types](https://www.npmjs.com/package/discord-api-types). While you can still specify different API versions to be used, it is not recommended.
 
 ## HTTP and WebSocket client used
 
