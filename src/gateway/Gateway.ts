@@ -221,6 +221,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             customBaseURL: customGetGatewayBotURL.origin,
             query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries())
         }) : await this._rest.getGatewayBot();
+
         if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new Error(`Invalid gateway bot response`);
 
         this._logger?.log(`Got bot gateway information`, {
@@ -243,33 +244,34 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             throw error;
         }
 
-        const buckets: Collection<number, Collection<number, GatewayShard>> = new Collection();
+        const buckets: Collection<number, Collection<number, GatewayShard | null>> = new Collection();
         for (let i = 0; i < this.options.sharding.shards; i++) {
-            this._logger?.log(`Creating shard ${i}`, {
-                internal: true, level: `DEBUG`, system: `Gateway`
-            });
-            const shard = new GatewayShard(this._token, i, this.options.sharding.totalBotShards, new URL(`?${new URLSearchParams({
-                v: `${this.options.version}`, encoding: `json`
-            } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this._logger ?? false, this.options);
-            this.shards.set(i, shard);
-            this._logger?.log(`Shard ${shard.id} created and pushed to Gateway#shards`, {
-                internal: true, level: `DEBUG`, system: `Gateway`
-            });
+            let shard: GatewayShard | null = null;
+            if (i >= this.options.sharding.offset) {
+                this._logger?.log(`Creating shard ${i}`, {
+                    internal: true, level: `DEBUG`, system: `Gateway`
+                });
 
-            shard.on(`*`, (data) => this.emit(`*`, data as any));
-            shard.on(`SENT`, (payload) => this.emit(`SENT`, payload));
-            shard.on(`STATE_DISCONNECTED`, () => this.emit(`SHARD_STATE_DISCONNECTED`, shard));
-            shard.on(`STATE_CONNECTING`, () => this.emit(`SHARD_STATE_CONNECTING`, shard));
-            shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard));
-            shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard));
-            this._logger?.log(`Bound shard ${shard.id} events`, {
-                internal: true, level: `DEBUG`, system: `Gateway`
-            });
+                shard = new GatewayShard(this._token, i, this.options.sharding.totalBotShards, new URL(`?${new URLSearchParams({
+                    v: `${this.options.version}`, encoding: `json`
+                } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this._logger ?? false, this.options);
+                this.shards.set(i, shard);
 
-            const bucketId = shard.id % this._storedGetGatewayBot.session_start_limit.max_concurrency;
-            if (buckets.has(bucketId)) buckets.get(bucketId)?.set(shard.id, shard);
-            else buckets.set(bucketId, new Collection()).get(bucketId)!.set(shard.id, shard);
-            this._logger?.log(`Pushed shard ${shard.id} to bucket ${bucketId}`, {
+                shard.on(`*`, (data) => this.emit(`*`, data as any));
+                shard.on(`SENT`, (payload) => this.emit(`SENT`, payload));
+                shard.on(`STATE_DISCONNECTED`, () => this.emit(`SHARD_STATE_DISCONNECTED`, shard!));
+                shard.on(`STATE_CONNECTING`, () => this.emit(`SHARD_STATE_CONNECTING`, shard!));
+                shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard!));
+                shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard!));
+                this._logger?.log(`Created shard ${shard.id} and bound events`, {
+                    internal: true, level: `DEBUG`, system: `Gateway`
+                });
+            }
+
+            const bucketId = i % this._storedGetGatewayBot.session_start_limit.max_concurrency;
+            if (buckets.has(bucketId)) buckets.get(bucketId)?.set(i, shard);
+            else buckets.set(bucketId, new Collection()).get(bucketId)!.set(i, shard);
+            if (shard !== null) this._logger?.log(`Pushed shard ${i} to bucket ${bucketId}`, {
                 internal: true, level: `DEBUG`, system: `Gateway`
             });
         }
