@@ -157,6 +157,10 @@ export const DiscordConstants = {
         READ_MESSAGE_HISTORY: PermissionFlagsBits.ReadMessageHistory
     },
     /**
+     * The ending key where an error array is defined on a rest error.
+     */
+    REST_ERROR_KEY: `_errors`,
+    /**
      * The amount of milliseconds after a message is created where it causes issues with ratelimiting.
      * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
      */

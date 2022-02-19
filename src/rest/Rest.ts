@@ -6,6 +6,7 @@ import { DiscordConstants } from '../constants/DiscordConstants';
 import { DistypeConstants } from '../constants/DistypeConstants';
 import { Logger, LoggerLevel } from '../logger/Logger';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
+import { UtilityFunctions } from '../utils/UtilityFunctions';
 
 import Collection from '@discordjs/collection';
 import { Snowflake } from 'discord-api-types/v10';
@@ -363,9 +364,34 @@ export class Rest extends RestRequests {
             }
         }
 
-        this._logger?.log(`${method} ${route} returned ${message}`, {
+        const errors = this._parseErrors(res.body);
+        this._logger?.log(`${method} ${route} returned ${message}${errors ? ` ${errors}` : ``}`, {
             internal: true, level, system: `Rest`
         });
-        if (shouldThrow) throw new Error(`${message} on ${method} ${route}`);
+        if (shouldThrow) throw new Error(`${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
+    }
+
+    /**
+     * Parses errors from a response.
+     * @param body The body in the response.
+     * @returns A parsed error string, or `null` if no errors were found.
+     */
+    private _parseErrors (body: any): string | null {
+        const errors: string[] = [];
+        if (body.message) errors.push(body.message);
+        if (body.errors) {
+            const flattened = UtilityFunctions.flattenObject(body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+            errors.concat(
+                Object.keys(flattened)
+                    .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
+                    .map((key) => flattened[key].map((error) =>
+                        `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${error.message ?? `Unknown Message`}`
+                            .trimEnd()
+                            .replace(/\.$/, ``)
+                    ))
+                    .flat()
+            );
+        }
+        return errors.length ? errors.join(`, `) : null;
     }
 }
