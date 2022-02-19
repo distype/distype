@@ -161,7 +161,7 @@ class Rest extends RestRequests_1.RestRequests {
             })) : undefined
         }));
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
-        this._handleResponseCodes(method, route, res);
+        this._handleResponseCodes(method, route, res, this.options.friendlyErrors ?? options.friendlyErrors);
         return res;
     }
     /**
@@ -195,7 +195,7 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Handles response codes.
      */
-    _handleResponseCodes(method, route, res) {
+    _handleResponseCodes(method, route, res, friendlyErrors) {
         let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
         let level = `WARN`;
         let shouldThrow = false;
@@ -275,7 +275,7 @@ class Rest extends RestRequests_1.RestRequests {
             internal: true, level, system: `Rest`
         });
         if (shouldThrow)
-            throw new Error(`${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
+            throw new Error(friendlyErrors ? `${res.body.message ?? `Unknown rest error`}` : `${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
     }
     /**
      * Parses errors from a response.
