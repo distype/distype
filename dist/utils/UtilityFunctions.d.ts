@@ -5,6 +5,14 @@ import { Snowflake } from 'discord-api-types/v10';
  */
 export declare class UtilityFunctions {
     /**
+     * Flattens an object.
+     * @param obj The object to flatten.
+     * @param stopAtKey A key to stop flattening at.
+     * @param separator The seperator to use between keys.
+     * @returns A flattened object.
+     */
+    static flattenObject(obj: Record<string, any>, stopAtKey?: string, separator?: string): Record<string, any>;
+    /**
      * Get a guild's shard ID.
      * @param guildId The guild's ID.
      * @param numShards The `numShards` value sent in the identify payload.

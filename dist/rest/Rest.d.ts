@@ -152,4 +152,10 @@ export declare class Rest extends RestRequests {
      * Handles response codes.
      */
     private _handleResponseCodes;
+    /**
+     * Parses errors from a response.
+     * @param body The body in the response.
+     * @returns A parsed error string, or `null` if no errors were found.
+     */
+    private _parseErrors;
 }

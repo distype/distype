@@ -10,6 +10,7 @@ const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
 const Logger_1 = require("../logger/Logger");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
+const UtilityFunctions_1 = require("../utils/UtilityFunctions");
 const collection_1 = __importDefault(require("@discordjs/collection"));
 const form_data_1 = __importDefault(require("form-data"));
 const undici_1 = require("undici");
@@ -269,11 +270,32 @@ class Rest extends RestRequests_1.RestRequests {
                 break;
             }
         }
-        this._logger?.log(`${method} ${route} returned ${message}`, {
+        const errors = this._parseErrors(res.body);
+        this._logger?.log(`${method} ${route} returned ${message}${errors ? ` ${errors}` : ``}`, {
             internal: true, level, system: `Rest`
         });
         if (shouldThrow)
-            throw new Error(`${message} on ${method} ${route}`);
+            throw new Error(`${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
+    }
+    /**
+     * Parses errors from a response.
+     * @param body The body in the response.
+     * @returns A parsed error string, or `null` if no errors were found.
+     */
+    _parseErrors(body) {
+        const errors = [];
+        if (body.message)
+            errors.push(body.message);
+        if (body.errors) {
+            const flattened = UtilityFunctions_1.UtilityFunctions.flattenObject(body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
+            errors.concat(Object.keys(flattened)
+                .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
+                .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${error.message ?? `Unknown Message`}`
+                .trimEnd()
+                .replace(/\.$/, ``)))
+                .flat());
+        }
+        return errors.length ? errors.join(`, `) : null;
     }
 }
 exports.Rest = Rest;

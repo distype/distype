@@ -7,6 +7,26 @@ exports.UtilityFunctions = void 0;
  */
 class UtilityFunctions {
     /**
+     * Flattens an object.
+     * @param obj The object to flatten.
+     * @param stopAtKey A key to stop flattening at.
+     * @param separator The seperator to use between keys.
+     * @returns A flattened object.
+     */
+    static flattenObject(obj, stopAtKey, separator = `.`) {
+        const flatten = (obj, map = {}, parent) => {
+            for (const [k, v] of Object.entries(obj)) {
+                const property = parent ? `${parent}${separator}${k}` : k;
+                if (k !== stopAtKey && v && typeof v === `object`)
+                    flatten(v, map, property);
+                else
+                    map[property] = v;
+            }
+            return map;
+        };
+        return flatten(obj);
+    }
+    /**
      * Get a guild's shard ID.
      * @param guildId The guild's ID.
      * @param numShards The `numShards` value sent in the identify payload.
