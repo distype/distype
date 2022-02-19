@@ -22,6 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
 const Logger_1 = require("../logger/Logger");
 const TypedEmitter_1 = require("../utils/TypedEmitter");
+const UtilityFunctions_1 = require("../utils/UtilityFunctions");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const ws_1 = require("ws");
 /**
@@ -186,7 +187,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 return attempt;
             }
             else if (i !== this.options.spawnMaxAttempts - 1)
-                await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
+                await UtilityFunctions_1.UtilityFunctions.wait(this.options.spawnAttemptDelay);
         }
         const error = new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
         this._logger?.log(error.message, {
@@ -229,7 +230,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 return attempt;
             }
             else
-                await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
+                await UtilityFunctions_1.UtilityFunctions.wait(this.options.spawnAttemptDelay);
         }
     }
     /**

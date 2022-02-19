@@ -118,7 +118,7 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     user: DiscordTypes.APIUser | null;
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
+     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     readonly options: GatewayOptions;
     /**
@@ -160,9 +160,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     get shardsReady(): boolean;
     /**
      * Connect to the gateway.
+     * @param gatewayBot A pre-fetched `GET` `/gateway/bot`. Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
-    connect(): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>>;
+    connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>>;
     /**
      * Get a guild's shard.
      * @param guildId The guild's ID.

@@ -4,6 +4,7 @@ exports.RestBucket = void 0;
 const Rest_1 = require("./Rest");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const Logger_1 = require("../logger/Logger");
+const UtilityFunctions_1 = require("../utils/UtilityFunctions");
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
@@ -100,7 +101,7 @@ class RestBucket {
         if (!Object.values(this.ratelimited).some((r) => r))
             return;
         const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + (this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.pause : 0) - Date.now();
-        await new Promise((resolve) => setTimeout(resolve, timeout));
+        await UtilityFunctions_1.UtilityFunctions.wait(timeout);
         return await this._awaitRatelimit();
     }
     /**
