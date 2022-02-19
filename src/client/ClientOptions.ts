@@ -5,9 +5,9 @@ import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 import { DefaultOptions } from '../constants/DefaultOptions';
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { LoggerFormats, LoggerLevel } from '../logger/Logger';
+import { RestRequestOptions } from '../rest/RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v10';
-import { request } from 'undici';
 import { ClientOptions as WsClientOptions } from 'ws';
 
 /**
@@ -232,16 +232,7 @@ export interface ClientOptions {
     /**
      * Options for the rest manager.
      */
-    rest?: Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `bodyTimeout`> & {
-        /**
-         * The amount of times to retry a request if it returns code `500`.
-         * @default 2
-         */
-        code500retries?: number
-        /**
-         * A custom base URL to make requests to.
-         */
-        customBaseURL?: string
+    rest?: RestRequestOptions & {
         /**
          * Ratelimit options.
          */
@@ -264,17 +255,6 @@ export interface ClientOptions {
              */
             sweepInterval: number | false
         }
-        /**
-         * The amount of time in milliseconds to wait before considering a request timed out.
-         * Defaults to [undici's](https://undici.nodejs.org) `bodyTimeout` from [DispatchOptions](https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-dispatchoptions).
-         */
-        timeout?: number
-        /**
-         * The Discord API version to use.
-         * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
-         * @default 10
-         */
-        version?: number
     }
 }
 

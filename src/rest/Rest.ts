@@ -250,7 +250,7 @@ export class Rest extends RestRequests {
 
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
 
-        this._handleResponseCodes(method, route, res);
+        this._handleResponseCodes(method, route, res, this.options.friendlyErrors ?? options.friendlyErrors);
 
         return res;
     }
@@ -287,7 +287,7 @@ export class Rest extends RestRequests {
     /**
      * Handles response codes.
      */
-    private _handleResponseCodes (method: RestMethod, route: RestRouteLike, res: RestInternalRestResponse): void {
+    private _handleResponseCodes (method: RestMethod, route: RestRouteLike, res: RestInternalRestResponse, friendlyErrors?: boolean): void {
         let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
         let level: LoggerLevel = `WARN`;
         let shouldThrow = false;
@@ -368,7 +368,7 @@ export class Rest extends RestRequests {
         this._logger?.log(`${method} ${route} returned ${message}${errors ? ` ${errors}` : ``}`, {
             internal: true, level, system: `Rest`
         });
-        if (shouldThrow) throw new Error(`${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
+        if (shouldThrow) throw new Error(friendlyErrors ? `${res.body.message ?? `Unknown rest error`}` : `${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
     }
 
     /**
