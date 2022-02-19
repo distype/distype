@@ -6,6 +6,7 @@ import { DiscordConstants } from '../constants/DiscordConstants';
 import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
 import { TypedEmitter } from '../utils/TypedEmitter';
+import { UtilityFunctions } from '../utils/UtilityFunctions';
 
 import Collection from '@discordjs/collection';
 import * as DiscordTypes from 'discord-api-types/v10';
@@ -127,7 +128,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
+     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     public readonly options: GatewayOptions;
 
@@ -209,18 +210,24 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
     /**
      * Connect to the gateway.
+     * @param gatewayBot A pre-fetched `GET` `/gateway/bot`. Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
-    public async connect (): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
+    public async connect (gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
+        if (this.shardsReady) throw new Error(`Shards are already connected`);
+
         this._logger?.log(`Starting connection process`, {
             internal: true, level: `DEBUG`, system: `Gateway`
         });
 
-        const customGetGatewayBotURL = this.options.customGetGatewayBotURL ? new URL(this.options.customGetGatewayBotURL) : undefined;
-        this._storedGetGatewayBot = customGetGatewayBotURL ? await this._rest.request(`GET`, customGetGatewayBotURL.pathname as `/${string}`, {
-            customBaseURL: customGetGatewayBotURL.origin,
-            query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries())
-        }) : await this._rest.getGatewayBot();
+        if (gatewayBot) this._storedGetGatewayBot = gatewayBot;
+        else {
+            const customGetGatewayBotURL = this.options.customGetGatewayBotURL ? new URL(this.options.customGetGatewayBotURL) : undefined;
+            this._storedGetGatewayBot = customGetGatewayBotURL ? await this._rest.request(`GET`, customGetGatewayBotURL.pathname as `/${string}`, {
+                customBaseURL: customGetGatewayBotURL.origin,
+                query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries())
+            }) : await this._rest.getGatewayBot();
+        }
 
         if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new Error(`Invalid gateway bot response`);
 
@@ -231,6 +238,12 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
         this.options.sharding.offset = this.options.sharding.offset ?? 0;
+
+        if (
+            this.options.sharding.totalBotShards < this.options.sharding.shards
+            || this.options.sharding.totalBotShards <= this.options.sharding.offset
+            || this.options.sharding.totalBotShards < (this.options.sharding.shards + this.options.sharding.offset)
+        ) throw new Error(`Invalid shard configuration, got ${this.options.sharding.totalBotShards} total shards, with ${this.options.sharding.shards} to be spawned with an offset of ${this.options.sharding.offset}`);
 
         this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, {
             internal: true, system: `Gateway`
@@ -286,7 +299,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             this._logger?.log(`Finished spawn process for shard ratelimit key ${i}`, {
                 internal: true, level: `DEBUG`, system: `Gateway`
             });
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await new Promise((resolve) => setTimeout(() => resolve(void 0), DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN));
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await UtilityFunctions.wait(DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
         }
 
         const success = results.filter((result) => result.status === `fulfilled`).length;
@@ -318,7 +331,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      */
     public guildShard <T extends boolean> (guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
         if (!this.shards.size || (typeof this.options.sharding.totalBotShards !== `number` && !this._storedGetGatewayBot?.shards)) throw new Error(`Shards are not available.`);
-        const shardId = Number((BigInt(guildId) >> 22n) % BigInt(typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot!.shards));
+        const shardId = UtilityFunctions.guildShard(guildId, typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot!.shards);
         const shard = this.shards.get(shardId);
         if (ensure && !(shard instanceof GatewayShard)) throw new Error(`No shard with the specified guild ID found on this gateway manager`);
         return (shard ?? shardId) as any;
