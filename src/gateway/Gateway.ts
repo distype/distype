@@ -205,7 +205,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * If all shards are in a {@link GatewayShardState READY} state.
      */
     public get shardsReady (): boolean {
-        return this.shards.every((shard) => shard.state === GatewayShardState.CONNECTED);
+        return this.shards.size > 0 && this.shards.every((shard) => shard.state === GatewayShardState.CONNECTED);
     }
 
     /**
