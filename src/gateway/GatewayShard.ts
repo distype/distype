@@ -2,6 +2,7 @@ import { GatewayShardOptions } from './GatewayOptions';
 
 import { Logger } from '../logger/Logger';
 import { TypedEmitter } from '../utils/TypedEmitter';
+import { UtilityFunctions } from '../utils/UtilityFunctions';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { RawData, WebSocket } from 'ws';
@@ -107,7 +108,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     public readonly url: string;
     /**
      * {@link GatewayShardOptions Options} for the gateway shard.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
+     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     public readonly options: GatewayShardOptions;
 
@@ -244,7 +245,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 return attempt;
-            } else if (i !== this.options.spawnMaxAttempts - 1) await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
+            } else if (i !== this.options.spawnMaxAttempts - 1) await UtilityFunctions.wait(this.options.spawnAttemptDelay);
         }
 
         const error = new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
@@ -289,7 +290,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 return attempt;
-            } else await new Promise((resolve) => setTimeout(resolve, this.options.spawnAttemptDelay));
+            } else await UtilityFunctions.wait(this.options.spawnAttemptDelay);
         }
     }
 

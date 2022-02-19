@@ -2,6 +2,7 @@ import { Rest, RestBucketHashLike, RestBucketIdLike, RestInternalRequestOptions,
 
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { Logger } from '../logger/Logger';
+import { UtilityFunctions } from '../utils/UtilityFunctions';
 
 /**
  * A {@link Rest rest} bucket.
@@ -131,7 +132,7 @@ export class RestBucket {
     private async _awaitRatelimit (): Promise<void> {
         if (!Object.values(this.ratelimited).some((r) => r)) return;
         const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + (this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.pause : 0) - Date.now();
-        await new Promise((resolve) => setTimeout(resolve, timeout));
+        await UtilityFunctions.wait(timeout);
         return await this._awaitRatelimit();
     }
 
