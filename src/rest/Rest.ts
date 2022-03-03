@@ -378,8 +378,8 @@ export class Rest extends RestRequests {
      */
     private _parseErrors (body: any): string | null {
         const errors: string[] = [];
-        if (body.message) errors.push(body.message);
-        if (body.errors) {
+        if (body?.message) errors.push(body.message);
+        if (body?.errors) {
             const flattened = UtilityFunctions.flattenObject(body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
             errors.concat(
                 Object.keys(flattened)
