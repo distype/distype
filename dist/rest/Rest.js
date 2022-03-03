@@ -284,9 +284,9 @@ class Rest extends RestRequests_1.RestRequests {
      */
     _parseErrors(body) {
         const errors = [];
-        if (body.message)
+        if (body?.message)
             errors.push(body.message);
-        if (body.errors) {
+        if (body?.errors) {
             const flattened = UtilityFunctions_1.UtilityFunctions.flattenObject(body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
             errors.concat(Object.keys(flattened)
                 .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
