@@ -101,6 +101,14 @@ export declare const DiscordConstants: {
         readonly MAX_TOTAL_IN_MESSAGE: 6000;
     };
     /**
+     * Limits for creating messages.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
+     */
+    readonly MESSAGE_LIMITS: {
+        readonly CONTENT: 2000;
+        readonly MAX_DEFAULT_ATTACHMENTS_SIZE: 8388608;
+    };
+    /**
      * Bitwise permission flags.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
      */

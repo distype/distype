@@ -104,6 +104,14 @@ exports.DiscordConstants = {
         MAX_TOTAL_IN_MESSAGE: 6000
     },
     /**
+     * Limits for creating messages.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
+     */
+    MESSAGE_LIMITS: {
+        CONTENT: 2000,
+        MAX_DEFAULT_ATTACHMENTS_SIZE: 8388608
+    },
+    /**
      * Bitwise permission flags.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
      */
