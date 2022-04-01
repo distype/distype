@@ -1,8 +1,9 @@
 import { Rest, RestBucketHashLike, RestBucketIdLike, RestInternalRequestOptions, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { Logger } from '../logger/Logger';
-import { UtilityFunctions } from '../utils/UtilityFunctions';
+import { LogCallback } from '../types/Log';
+
+import { wait } from '@br88c/node-utils';
 
 /**
  * A {@link Rest rest} bucket.
@@ -41,9 +42,9 @@ export class RestBucket {
     public readonly majorParameter: RestMajorParameterLike;
 
     /**
-     * The {@link Logger logger} used by the rest bucket.
+     * The {@link LogCallback log callback} used by the rest bucket.
      */
-    private _logger?: Logger;
+    private _log: LogCallback;
     /**
      * The request queue.
      */
@@ -53,43 +54,29 @@ export class RestBucket {
     }> = [];
 
     /**
-     * The bot's token.
-     */
-    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
-    private readonly _token: string;
-
-    /**
      * Create a rest bucket.
-     * @param token The bot's token.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      */
-    constructor (token: string, manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, logger: Logger | false) {
-        if (!(manager instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
+    constructor (id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, manager: Rest, logCallback: LogCallback = (): void => {}) {
         if (typeof id !== `string`) throw new TypeError(`A bucket ID must be specified`);
         if (typeof bucketHash !== `string`) throw new TypeError(`A bucket hash must be specified`);
         if (typeof majorParameter !== `string`) throw new TypeError(`A major parameter must be specified`);
-        if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
+        if (!(manager instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
 
-        if (!manager.options.ratelimits) throw new Error(`The provided rest manager does not have ratelimits enabled`);
+        if (!manager.options.disableRatelimits) throw new Error(`The provided rest manager does not have ratelimits enabled`);
 
-        this.manager = manager;
         this.id = id;
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;
-        if (logger) this._logger = logger;
+        this.manager = manager;
 
-        Object.defineProperty(this, `_token`, {
-            configurable: false,
-            enumerable: false,
-            value: token as Rest[`_token`],
-            writable: false
-        });
-
-        this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
-            internal: true, level: `DEBUG`, system: `Rest Bucket`
+        this._log = logCallback;
+        this._log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
+            level: `DEBUG`, system: `Rest Bucket`
         });
     }
 
@@ -119,8 +106,8 @@ export class RestBucket {
      * @returns Response data.
      */
     public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions): Promise<any> {
-        this._logger?.log(`${method} ${route} waiting for queue`, {
-            internal: true, level: `DEBUG`, system: `Rest Bucket`
+        this._log(`${method} ${route} waiting for queue`, {
+            level: `DEBUG`, system: `Rest Bucket`
         });
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
@@ -131,8 +118,8 @@ export class RestBucket {
      */
     private async _awaitRatelimit (): Promise<void> {
         if (!Object.values(this.ratelimited).some((r) => r)) return;
-        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + (this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.pause : 0) - Date.now();
-        await UtilityFunctions.wait(timeout);
+        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + this.manager.options.ratelimitPause - Date.now();
+        await wait(timeout);
         return await this._awaitRatelimit();
     }
 
@@ -146,14 +133,14 @@ export class RestBucket {
      * @returns Response data.
      */
     private async _make (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions, attempt = 0): Promise<any> {
-        this._logger?.log(`${method} ${route} waiting for ratelimit`, {
-            internal: true, level: `DEBUG`, system: `Rest Bucket`
+        this._log(`${method} ${route} waiting for ratelimit`, {
+            level: `DEBUG`, system: `Rest Bucket`
         });
         await this._awaitRatelimit();
 
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
-            this.manager.globalLeft = this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.globalPerSecond : null;
+            this.manager.globalLeft = this.manager.options.ratelimitGlobal;
         }
         this.manager.globalLeft!--;
 
@@ -181,7 +168,7 @@ export class RestBucket {
 
         if (res.statusCode === 429) return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {
-            if (attempt >= (options.code500retries ?? this.manager.options.code500retries)) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
+            if (attempt >= this.manager.options.code500retries) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
             else return this._make(method, route, routeHash, options, attempt + 1);
         } else return res.body;
     }

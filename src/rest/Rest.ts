@@ -4,15 +4,15 @@ import { RestRequests } from './RestRequests';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { DistypeConstants } from '../constants/DistypeConstants';
-import { Logger, LoggerLevel } from '../logger/Logger';
+import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
-import { UtilityFunctions } from '../utils/UtilityFunctions';
 
-import Collection from '@discordjs/collection';
+import { ExtendedMap, flattenObject, LoggerLevel } from '@br88c/node-utils';
 import { Snowflake } from 'discord-api-types/v10';
-import FormData from 'form-data';
+import { Readable } from 'stream';
 import { Dispatcher, request } from 'undici';
 import { URL, URLSearchParams } from 'url';
+import { isUint8Array } from 'util/types';
 
 /**
  * {@link Rest} request methods.
@@ -49,12 +49,13 @@ export type RestMajorParameterLike = `global` | Snowflake;
 /**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
+ * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implmenet the correct headers in your request.
  */
 export interface RestRequestData {
     /**
      * The request body.
      */
-    body?: Record<string, any> | FormData
+    body?: Record<string, any> | RestRequestDataBodyStream
     /**
      * The request query.
      */
@@ -64,6 +65,11 @@ export interface RestRequestData {
      */
     reason?: string
 }
+
+/**
+ * A streamable body. Used for uploads.
+ */
+export type RestRequestDataBodyStream = Readable | Buffer | Uint8Array;
 
 /**
  * A {@link Rest rest} route.
@@ -84,7 +90,7 @@ export class Rest extends RestRequests {
      * Ratelimit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketIdLike ID}.
      */
-    public buckets: Collection<RestBucketIdLike, RestBucket> | null = null;
+    public buckets: ExtendedMap<RestBucketIdLike, RestBucket> | null = null;
     /**
      * The interval used for sweeping inactive {@link RestBucket buckets}.
      */
@@ -106,17 +112,17 @@ export class Rest extends RestRequests {
      * Cached route ratelimit bucket hashes.
      * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
      */
-    public routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike> | null = null;
+    public routeHashCache: ExtendedMap<RestRouteHashLike, RestBucketHashLike> | null = null;
 
     /**
      * {@link RestOptions Options} for the rest manager.
      */
-    public readonly options: RestOptions;
+    public readonly options: Required<RestOptions> & RestRequestOptions;
 
     /**
-     * The {@link Logger logger} used by the rest manager.
+     * The {@link LogCallback log callback} used by the gateway manager.
      */
-    private _logger?: Logger;
+    private _log: LogCallback;
 
     /**
      * The bot's token.
@@ -127,17 +133,13 @@ export class Rest extends RestRequests {
     /**
      * Create a rest manager.
      * @param token The bot's token.
-     * @param logger The {@link Logger logger} for the rest manager to use. If `false` is specified, no logger will be used.
      * @param options {@link RestOptions Rest options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      */
-    constructor (token: string, logger: Logger | false, options: RestOptions) {
+    constructor (token: string, options: RestOptions & RestRequestOptions = {}, logCallback: LogCallback = (): void => {}) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
-        if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
-
-        if (logger) this._logger = logger;
-        this.options = options;
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
@@ -146,16 +148,27 @@ export class Rest extends RestRequests {
             writable: false
         });
 
-        if (this.options.ratelimits) {
-            this.buckets = new Collection();
-            this.globalLeft = this.options.ratelimits.globalPerSecond;
+        this.options = {
+            ...options,
+            bucketSweepInterval: options.bucketSweepInterval ?? 300000,
+            code500retries: options.code500retries ?? 3,
+            disableRatelimits: options.disableRatelimits ?? false,
+            ratelimitGlobal: options.ratelimitGlobal ?? 50,
+            ratelimitPause: options.ratelimitPause ?? 10,
+            version: options.version ?? 10
+        };
+
+        if (!this.options.disableRatelimits) {
+            this.buckets = new ExtendedMap();
+            this.globalLeft = this.options.ratelimitGlobal;
             this.globalResetAt = -1;
-            this.routeHashCache = new Collection();
-            if (this.options.ratelimits.sweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.ratelimits.sweepInterval);
+            this.routeHashCache = new ExtendedMap();
+            if (this.options.bucketSweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval);
         }
 
-        this._logger?.log(`Initialized rest manager`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+        this._log = logCallback;
+        this._log(`Initialized rest manager`, {
+            level: `DEBUG`, system: `Rest`
         });
     }
 
@@ -181,11 +194,11 @@ export class Rest extends RestRequests {
      * @returns Response body.
      */
     public async request (method: RestMethod, route: RestRouteLike, options: RestInternalRequestOptions = {}): Promise<any> {
-        this._logger?.log(`${method} ${route} started`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+        this._log(`${method} ${route} started`, {
+            level: `DEBUG`, system: `Rest`
         });
 
-        if (this.options.ratelimits) {
+        if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
             const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
 
@@ -210,24 +223,21 @@ export class Rest extends RestRequests {
      * @internal
      */
     public async make (method: RestMethod, route: RestRouteLike, options: RestInternalRequestOptions): Promise<RestInternalRestResponse> {
-        this._logger?.log(`${method} ${route} being made`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+        this._log(`${method} ${route} being made`, {
+            level: `DEBUG`, system: `Rest`
         });
 
-        const usingFormData: boolean = options.body instanceof FormData;
-
         const headers: Record<string, string> = {
-            ...this.options.headers,
-            ...options.headers,
-            ...(usingFormData ? options.body!.getHeaders() : undefined),
             'Authorization': `Bot ${this._token}`,
-            'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`
+            'Content-Type': `application/json`,
+            'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`,
+            ...this._convertUndiciHeaders(this.options.headers),
+            ...this._convertUndiciHeaders(options.headers)
         };
 
-        if (!usingFormData && options.body) headers[`Content-Type`] = `application/json`;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
+        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
         url.search = new URLSearchParams(options.query).toString();
 
         const req = request(url, {
@@ -235,16 +245,14 @@ export class Rest extends RestRequests {
             ...options,
             method,
             headers,
-            body: usingFormData ? undefined : JSON.stringify(options.body),
+            body: options.body instanceof Readable || isUint8Array(options.body) || Buffer.isBuffer(options.body) ? options.body : JSON.stringify(options.body),
             bodyTimeout: options.timeout ?? this.options.timeout
         });
 
-        if (usingFormData) options.body!.pipe(req);
-
         const res = await req.then(async (r) => ({
             ...r,
-            body: r.statusCode !== 204 ? await r.body.json().catch(() => this._logger?.log(`${method} ${route} unable to parse response body, returning undefined`, {
-                internal: true, level: `WARN`, system: `Rest`
+            body: r.statusCode !== 204 ? await r.body.json().catch(() => this._log(`${method} ${route} unable to parse response body, returning undefined`, {
+                level: `WARN`, system: `Rest`
             })) : undefined
         }));
 
@@ -261,10 +269,19 @@ export class Rest extends RestRequests {
     public sweepBuckets (): void {
         if (this.buckets) {
             const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
-            this._logger?.log(`Sweeped ${sweeped} buckets`, {
-                internal: true, level: `DEBUG`, system: `Rest`
+            this._log(`Sweeped ${sweeped.size} buckets`, {
+                level: `DEBUG`, system: `Rest`
             });
         }
+    }
+
+    /**
+     * Converts specified headers with undici typings to a `Record<string, string>`.
+     * @param headers The headers to convert.
+     * @returns The formatted headers.
+     */
+    private _convertUndiciHeaders (headers: RestInternalRequestOptions[`headers`]): Record<string, string> {
+        return Array.isArray(headers) ? Object.fromEntries(headers.map((header) => header.split(`:`).map((v) => v.trim()))) : { ...headers };
     }
 
     /**
@@ -276,10 +293,10 @@ export class Rest extends RestRequests {
      */
     private _createBucket (bucketId: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike): RestBucket {
         if (!this.buckets) throw new Error(`Buckets are not defined on this rest manager. Maybe ratelimits are disabled?`);
-        const bucket = new RestBucket(this._token, this, bucketId, bucketHash, majorParameter, this._logger ?? false);
+        const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this, this._log);
         this.buckets.set(bucketId, bucket);
-        this._logger?.log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
-            internal: true, level: `DEBUG`, system: `Rest`
+        this._log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
+            level: `DEBUG`, system: `Rest`
         });
         return bucket;
     }
@@ -344,29 +361,29 @@ export class Rest extends RestRequests {
             }
             case 429: {
                 message = `Status code 429 (TOO MANY REQUESTS)`;
-                level = this.options.ratelimits ? `DEBUG` : `ERROR`;
-                shouldThrow = !this.options.ratelimits;
+                level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
+                shouldThrow = this.options.disableRatelimits;
                 break;
             }
             case 502: {
                 message = `Status code 502 (GATEWAY UNAVAILABLE)`;
-                level = this.options.ratelimits ? `DEBUG` : `ERROR`;
-                shouldThrow = !this.options.ratelimits;
+                level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
+                shouldThrow = this.options.disableRatelimits;
                 break;
             }
             default: {
                 if (res.statusCode >= 500 && res.statusCode < 600) {
                     message = `Status code ${res.statusCode} (SERVER ERROR)`;
-                    level = this.options.ratelimits ? `DEBUG` : `ERROR`;
-                    shouldThrow = !this.options.ratelimits;
+                    level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
+                    shouldThrow = this.options.disableRatelimits;
                 }
                 break;
             }
         }
 
         const errors = this._parseErrors(res.body);
-        this._logger?.log(`${method} ${route} returned ${message}${errors ? ` ${errors}` : ``}`, {
-            internal: true, level, system: `Rest`
+        this._log(`${method} ${route} returned ${message}${errors ? ` ${errors}` : ``}`, {
+            level, system: `Rest`
         });
         if (shouldThrow) throw new Error(friendlyErrors ? `${res.body.message ?? `Unknown rest error`}` : `${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
     }
@@ -380,7 +397,7 @@ export class Rest extends RestRequests {
         const errors: string[] = [];
         if (body?.message) errors.push(body.message);
         if (body?.errors) {
-            const flattened = UtilityFunctions.flattenObject(body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+            const flattened = flattenObject(body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
             errors.concat(
                 Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)

@@ -3,12 +3,10 @@ import { GatewayShard, GatewayShardState } from './GatewayShard';
 
 import { Cache } from '../cache/Cache';
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
-import { TypedEmitter } from '../utils/TypedEmitter';
-import { UtilityFunctions } from '../utils/UtilityFunctions';
+import { LogCallback } from '../types/Log';
 
-import Collection from '@discordjs/collection';
+import { ExtendedMap, TypedEmitter, wait } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 import { URL, URLSearchParams } from 'url';
@@ -112,15 +110,15 @@ export interface GatewayEvents {
  * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
  *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
- * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the {@link cacheEventHandler}.
+ * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the cache event handler.
  * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * {@link GatewayShard Gateway shards}.
-     * Modifying this collection externally may result in unexpected behavior.
+     * Modifying this map externally may result in unexpected behavior.
      */
-    public shards: Collection<number, GatewayShard> = new Collection();
+    public shards: ExtendedMap<number, GatewayShard> = new ExtendedMap();
     /**
      * The latest self user received from the gateway.
      */
@@ -128,18 +126,18 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
+     * Note that any options not specified are set to a default value.
      */
-    public readonly options: GatewayOptions;
+    public readonly options: Required<GatewayOptions> & { intents: number };
 
     /**
      * The {@link Cache cache manager} to update from incoming events.
      */
     private _cache?: Cache;
     /**
-     * The {@link Logger logger} used by the gateway manager.
+     * The {@link LogCallback log callback} used by the gateway manager.
      */
-    private _logger?: Logger;
+    private _log: LogCallback;
     /**
      * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
      */
@@ -148,6 +146,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
     private _rest: Rest;
+    /**
+     * Stored calculated sharding options.
+     */
+    private _storedCalculatedShards: Required<Gateway[`options`][`sharding`]> & { totalBotShards: number } | null = null;
     /**
      * Stored response from `Rest#getGatewayBot()`.
      */
@@ -162,23 +164,17 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
-     * @param cache The {@link Cache cache manager} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a {@link cacheEventHandler}.
-     * @param logger The {@link Logger logger} for the gateway manager to use. If `false` is specified, no logger will be used.
      * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
+     * @param cache The {@link Cache cache} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a cache event handler.
      * @param options {@link GatewayOptions Gateway options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway manager.
      */
-    constructor (token: string, cache: Cache | false, logger: Logger | false, rest: Rest, options: GatewayOptions) {
+    constructor (token: string, rest: Rest, cache: Cache | false, options: GatewayOptions = {}, logCallback: LogCallback = (): void => {}) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
-        if (!(cache instanceof Cache) && cache !== false) throw new TypeError(`A cache manager or false must be specified`);
-        if (!(logger instanceof Logger) && logger !== false) throw new TypeError(`A logger or false must be specified`);
         if (!(rest instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
-
-        if (cache) this._cache = cache;
-        if (logger) this._logger = logger;
-        this._rest = rest;
-        this.options = options;
+        if (!(cache instanceof Cache) && cache !== false) throw new TypeError(`A cache manager or false must be specified`);
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
@@ -187,8 +183,26 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             writable: false
         });
 
+        this._rest = rest;
+        if (cache) this._cache = cache;
+
+        this.options = {
+            customGatewaySocketURL: options.customGatewaySocketURL ?? null,
+            customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
+            disableBucketRatelimits: options.disableBucketRatelimits ?? false,
+            intents: this._intentsFactory(options.intents),
+            largeGuildThreshold: options.largeGuildThreshold ?? 50,
+            presence: options.presence ?? null,
+            sharding: options.sharding ?? {},
+            spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
+            spawnMaxAttempts: options.spawnMaxAttempts ?? 10,
+            spawnTimeout: options.spawnTimeout ?? 30000,
+            version: options.version ?? 10,
+            wsOptions: options.wsOptions ?? {}
+        };
+
         this.on(`*`, (data) => {
-            if (this._cache) this._cache.options.cacheEventHandler(this._cache, data);
+            if (this._cache) this._cache.handleEvent(data);
 
             if (data.t === `READY`) this.user = data.d.user;
             if (data.t === `USER_UPDATE` && data.d.id === this.user?.id) this.user = data.d;
@@ -196,8 +210,9 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             this.emit(data.t, data as any);
         });
 
-        this._logger?.log(`Initialized gateway manager`, {
-            internal: true, level: `DEBUG`, system: `Gateway`
+        this._log = logCallback;
+        this._log(`Initialized gateway manager`, {
+            level: `DEBUG`, system: `Gateway`
         });
     }
 
@@ -216,8 +231,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     public async connect (gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>> {
         if (this.shardsReady) throw new Error(`Shards are already connected`);
 
-        this._logger?.log(`Starting connection process`, {
-            internal: true, level: `DEBUG`, system: `Gateway`
+        this._log(`Starting connection process`, {
+            level: `DEBUG`, system: `Gateway`
         });
 
         if (gatewayBot) this._storedGetGatewayBot = gatewayBot;
@@ -231,43 +246,46 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
         if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new Error(`Invalid gateway bot response`);
 
-        this._logger?.log(`Got bot gateway information`, {
-            internal: true, level: `DEBUG`, system: `Gateway`
+        this._log(`Got bot gateway information`, {
+            level: `DEBUG`, system: `Gateway`
         });
 
-        this.options.sharding.totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
-        this.options.sharding.shards = this.options.sharding.shards ?? this.options.sharding.totalBotShards;
-        this.options.sharding.offset = this.options.sharding.offset ?? 0;
+        const totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
+        this._storedCalculatedShards = {
+            totalBotShards,
+            shards: this.options.sharding.shards ?? totalBotShards,
+            offset: this.options.sharding.offset ?? 0
+        };
 
         if (
-            this.options.sharding.totalBotShards < this.options.sharding.shards
-            || this.options.sharding.totalBotShards <= this.options.sharding.offset
-            || this.options.sharding.totalBotShards < (this.options.sharding.shards + this.options.sharding.offset)
-        ) throw new Error(`Invalid shard configuration, got ${this.options.sharding.totalBotShards} total shards, with ${this.options.sharding.shards} to be spawned with an offset of ${this.options.sharding.offset}`);
+            this._storedCalculatedShards.totalBotShards < this._storedCalculatedShards.shards
+            || this._storedCalculatedShards.totalBotShards <= this._storedCalculatedShards.offset
+            || this._storedCalculatedShards.totalBotShards < (this._storedCalculatedShards.shards + this._storedCalculatedShards.offset)
+        ) throw new Error(`Invalid shard configuration, got ${this._storedCalculatedShards.totalBotShards} total shards, with ${this._storedCalculatedShards.shards} to be spawned with an offset of ${this._storedCalculatedShards.offset}`);
 
-        this._logger?.log(`Spawning ${this.options.sharding.shards} shards`, {
-            internal: true, system: `Gateway`
-        });
-
-        if (this.options.sharding.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
-            const error = new Error(`Session start limit reached; tried to spawn ${this.options.sharding.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
-            this._logger?.log(`Unable to connect shards: ${error.message}`, {
-                internal: true, level: `ERROR`, system: `Gateway`
+        if (this._storedCalculatedShards.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
+            const error = new Error(`Session start limit reached; tried to spawn ${this._storedCalculatedShards.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`);
+            this._log(`Unable to connect shards: ${error.message}`, {
+                level: `ERROR`, system: `Gateway`
             });
             throw error;
         }
 
-        const buckets: Collection<number, Collection<number, GatewayShard | null>> = new Collection();
-        for (let i = 0; i < this.options.sharding.shards; i++) {
+        this._log(`Spawning ${this._storedCalculatedShards.shards} shards`, {
+            level: `INFO`, system: `Gateway`
+        });
+
+        const buckets: ExtendedMap<number, ExtendedMap<number, GatewayShard | null>> = new ExtendedMap();
+        for (let i = 0; i < this._storedCalculatedShards.shards; i++) {
             let shard: GatewayShard | null = null;
-            if (i >= this.options.sharding.offset) {
-                this._logger?.log(`Creating shard ${i}`, {
-                    internal: true, level: `DEBUG`, system: `Gateway`
+            if (i >= this._storedCalculatedShards.offset) {
+                this._log(`Creating shard ${i}`, {
+                    level: `DEBUG`, system: `Gateway`
                 });
 
-                shard = new GatewayShard(this._token, i, this.options.sharding.totalBotShards, new URL(`?${new URLSearchParams({
+                shard = new GatewayShard(this._token, i, this._storedCalculatedShards.totalBotShards, new URL(`?${new URLSearchParams({
                     v: `${this.options.version}`, encoding: `json`
-                } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this._logger ?? false, this.options);
+                } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log);
                 this.shards.set(i, shard);
 
                 shard.on(`*`, (data) => this.emit(`*`, data as any));
@@ -276,47 +294,49 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                 shard.on(`STATE_CONNECTING`, () => this.emit(`SHARD_STATE_CONNECTING`, shard!));
                 shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard!));
                 shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard!));
-                this._logger?.log(`Created shard ${shard.id} and bound events`, {
-                    internal: true, level: `DEBUG`, system: `Gateway`
+                this._log(`Created shard ${shard.id} and bound events`, {
+                    level: `DEBUG`, system: `Gateway`
                 });
             }
 
             const bucketId = i % this._storedGetGatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId)) buckets.get(bucketId)?.set(i, shard);
-            else buckets.set(bucketId, new Collection()).get(bucketId)!.set(i, shard);
-            if (shard !== null) this._logger?.log(`Pushed shard ${i} to bucket ${bucketId}`, {
-                internal: true, level: `DEBUG`, system: `Gateway`
+            else buckets.set(bucketId, new ExtendedMap()).get(bucketId)!.set(i, shard);
+            if (shard !== null) this._log(`Pushed shard ${i} to bucket ${bucketId}`, {
+                level: `DEBUG`, system: `Gateway`
             });
         }
 
         const results: Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>> = [];
         for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
-            this._logger?.log(`Starting spawn process for shard ratelimit key ${i}`, {
-                internal: true, level: `DEBUG`, system: `Gateway`
+            this._log(`Starting spawn process for shard ratelimit key ${i}`, {
+                level: `DEBUG`, system: `Gateway`
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
-            this._logger?.log(`Finished spawn process for shard ratelimit key ${i}`, {
-                internal: true, level: `DEBUG`, system: `Gateway`
+            this._log(`Finished spawn process for shard ratelimit key ${i}`, {
+                level: `DEBUG`, system: `Gateway`
             });
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await UtilityFunctions.wait(DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
         }
 
         const success = results.filter((result) => result.status === `fulfilled`).length;
-        const failed = this.options.sharding.shards - success;
+        const failed = this._storedCalculatedShards.shards - success;
         this.emit(`SHARDS_READY`, {
             success, failed
         });
 
-        this._logger?.log(`Finished connection process`, {
-            internal: true, level: `DEBUG`, system: `Gateway`
+        this._log(`Finished connection process`, {
+            level: `DEBUG`, system: `Gateway`
         });
-        this._logger?.log(`${success}/${success + failed} shards spawned`, { system: `Gateway` });
-        if (failed > 0) this._logger?.log(`${failed} shards failed to spawn`, {
-            internal: true, level: `WARN`, system: `Gateway`
+        this._log(`${success}/${success + failed} shards spawned`, {
+            level: `INFO`, system: `Gateway`
         });
-        this._logger?.log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, {
-            internal: true, system: `Gateway`
+        if (failed > 0) this._log(`${failed} shards failed to spawn`, {
+            level: `WARN`, system: `Gateway`
+        });
+        this._log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, {
+            level: `INFO`, system: `Gateway`
         });
 
         return results;
@@ -330,8 +350,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @see [Discord API Reference]
      */
     public guildShard <T extends boolean> (guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
-        if (!this.shards.size || (typeof this.options.sharding.totalBotShards !== `number` && !this._storedGetGatewayBot?.shards)) throw new Error(`Shards are not available.`);
-        const shardId = UtilityFunctions.guildShard(guildId, typeof this.options.sharding.totalBotShards === `number` ? this.options.sharding.totalBotShards : this._storedGetGatewayBot!.shards);
+        if (!this.shards.size || (!this._storedCalculatedShards?.totalBotShards && !this._storedGetGatewayBot?.shards)) throw new Error(`Shards are not available.`);
+        const shardId = this._guildShard(guildId, this._storedCalculatedShards?.totalBotShards ?? this._storedGetGatewayBot!.shards);
         const shard = this.shards.get(shardId);
         if (ensure && !(shard instanceof GatewayShard)) throw new Error(`No shard with the specified guild ID found on this gateway manager`);
         return (shard ?? shardId) as any;
@@ -345,8 +365,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
     public getGuildMembers (guildId: Snowflake, options: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersData, `guild_id` | `presences`>> = {}): Promise<{
-        members: Collection<Snowflake, DiscordTypes.APIGuildMember>
-        presences?: Collection<Snowflake, DiscordTypes.GatewayPresenceUpdate>
+        members: ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>
+        presences?: ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>
         notFound?: Snowflake[]
     }> {
         if (options.query && options.user_ids) throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
@@ -357,8 +377,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
         this._requestGuildMembersNonceIncrement++;
 
-        const members = new Collection<Snowflake, DiscordTypes.APIGuildMember>();
-        const presences = new Collection<Snowflake, DiscordTypes.GatewayPresenceUpdate>();
+        const members = new ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>();
+        const presences = new ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>();
         const notFound: Snowflake[] = [];
 
         return new Promise((resolve, reject) => {
@@ -434,5 +454,28 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             op: 3,
             d: presence as any
         })));
+    }
+
+    /**
+     * Get a guild's shard ID.
+     * @param guildId The guild's ID.
+     * @param numShards The `numShards` value sent in the identify payload.
+     * @returns A shard ID.
+     */
+    private _guildShard (guildId: Snowflake, numShards: number): number {
+        return Number((BigInt(guildId) >> 22n) % BigInt(numShards));
+    }
+
+    /**
+     * Creates intents flags from intents specified in the constructor.
+     * @param specified The specified intents.
+     * @returns Intents flags.
+     */
+    private _intentsFactory (specified?: GatewayOptions[`intents`]): number {
+        if (typeof specified === `number`) return specified;
+        else if (typeof specified === `bigint`) return Number(specified);
+        else if (specified instanceof Array) return specified.reduce((p, c) => p | DiscordConstants.GATEWAY_INTENTS[c], 0);
+        else if (specified === `all`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
+        else return Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0 as number));
     }
 }

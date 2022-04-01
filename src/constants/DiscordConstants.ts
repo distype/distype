@@ -153,7 +153,7 @@ export const DiscordConstants = {
         CREATE_PRIVATE_THREADS: PermissionFlagsBits.CreatePrivateThreads,
         USE_EXTERNAL_STICKERS: PermissionFlagsBits.UseExternalStickers,
         SEND_MESSAGES_IN_THREADS: PermissionFlagsBits.SendMessagesInThreads,
-        START_EMBEDDED_ACTIVITIES: PermissionFlagsBits.StartEmbeddedActivities,
+        USE_EMBEDDED_ACTIVITIES: PermissionFlagsBits.UseEmbeddedActivities,
         MODERATE_MEMBERS: PermissionFlagsBits.ModerateMembers
     },
     /**

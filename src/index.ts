@@ -1,5 +1,4 @@
 export * from './cache/Cache';
-export * from './cache/CacheEventHandler';
 export * from './cache/CacheObjects';
 export * from './cache/CacheOptions';
 
@@ -10,16 +9,10 @@ export * from './client/scaling/ClientWorker';
 
 export * from './constants/DiscordConstants';
 export * from './constants/DistypeConstants';
-export * from './constants/LoggerRawFormats';
 
 export * from './gateway/Gateway';
 export * from './gateway/GatewayOptions';
 export * from './gateway/GatewayShard';
-
-export * from './logger/Logger';
-export * from './logger/LoggerOptions';
-
-export * from './message/MessageEmbed';
 
 export * from './rest/Rest';
 export * from './rest/RestBucket';
