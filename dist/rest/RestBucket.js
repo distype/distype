@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestBucket = void 0;
 const Rest_1 = require("./Rest");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
-const Logger_1 = require("../logger/Logger");
-const UtilityFunctions_1 = require("../utils/UtilityFunctions");
+const node_utils_1 = require("@br88c/node-utils");
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
@@ -13,13 +12,13 @@ const UtilityFunctions_1 = require("../utils/UtilityFunctions");
 class RestBucket {
     /**
      * Create a rest bucket.
-     * @param token The bot's token.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      */
-    constructor(token, manager, id, bucketHash, majorParameter, logger) {
+    constructor(id, bucketHash, majorParameter, manager, logCallback = () => { }) {
         /**
          * The number of allowed requests per a ratelimit interval.
          */
@@ -36,32 +35,23 @@ class RestBucket {
          * The request queue.
          */
         this._queue = [];
-        if (!(manager instanceof Rest_1.Rest))
-            throw new TypeError(`A rest manager must be specified`);
         if (typeof id !== `string`)
             throw new TypeError(`A bucket ID must be specified`);
         if (typeof bucketHash !== `string`)
             throw new TypeError(`A bucket hash must be specified`);
         if (typeof majorParameter !== `string`)
             throw new TypeError(`A major parameter must be specified`);
-        if (!(logger instanceof Logger_1.Logger) && logger !== false)
-            throw new TypeError(`A logger or false must be specified`);
-        if (!manager.options.ratelimits)
+        if (!(manager instanceof Rest_1.Rest))
+            throw new TypeError(`A rest manager must be specified`);
+        if (!manager.options.disableRatelimits)
             throw new Error(`The provided rest manager does not have ratelimits enabled`);
-        this.manager = manager;
         this.id = id;
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;
-        if (logger)
-            this._logger = logger;
-        Object.defineProperty(this, `_token`, {
-            configurable: false,
-            enumerable: false,
-            value: token,
-            writable: false
-        });
-        this._logger?.log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
-            internal: true, level: `DEBUG`, system: `Rest Bucket`
+        this.manager = manager;
+        this._log = logCallback;
+        this._log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
+            level: `DEBUG`, system: `Rest Bucket`
         });
     }
     /**
@@ -88,8 +78,8 @@ class RestBucket {
      * @returns Response data.
      */
     async request(method, route, routeHash, options) {
-        this._logger?.log(`${method} ${route} waiting for queue`, {
-            internal: true, level: `DEBUG`, system: `Rest Bucket`
+        this._log(`${method} ${route} waiting for queue`, {
+            level: `DEBUG`, system: `Rest Bucket`
         });
         await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
@@ -100,8 +90,8 @@ class RestBucket {
     async _awaitRatelimit() {
         if (!Object.values(this.ratelimited).some((r) => r))
             return;
-        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + (this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.pause : 0) - Date.now();
-        await UtilityFunctions_1.UtilityFunctions.wait(timeout);
+        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + this.manager.options.ratelimitPause - Date.now();
+        await (0, node_utils_1.wait)(timeout);
         return await this._awaitRatelimit();
     }
     /**
@@ -114,13 +104,13 @@ class RestBucket {
      * @returns Response data.
      */
     async _make(method, route, routeHash, options, attempt = 0) {
-        this._logger?.log(`${method} ${route} waiting for ratelimit`, {
-            internal: true, level: `DEBUG`, system: `Rest Bucket`
+        this._log(`${method} ${route} waiting for ratelimit`, {
+            level: `DEBUG`, system: `Rest Bucket`
         });
         await this._awaitRatelimit();
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
-            this.manager.globalLeft = this.manager.options.ratelimits !== false ? this.manager.options.ratelimits.globalPerSecond : null;
+            this.manager.globalLeft = this.manager.options.ratelimitGlobal;
         }
         this.manager.globalLeft--;
         const res = await this.manager.make(method, route, options);
@@ -143,7 +133,7 @@ class RestBucket {
         if (res.statusCode === 429)
             return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {
-            if (attempt >= (options.code500retries ?? this.manager.options.code500retries))
+            if (attempt >= this.manager.options.code500retries)
                 throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
             else
                 return this._make(method, route, routeHash, options, attempt + 1);

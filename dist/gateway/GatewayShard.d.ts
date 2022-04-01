@@ -1,6 +1,6 @@
-import { GatewayShardOptions } from './GatewayOptions';
-import { Logger } from '../logger/Logger';
-import { TypedEmitter } from '../utils/TypedEmitter';
+import { Gateway } from './Gateway';
+import { LogCallback } from '../types/Log';
+import { TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * {@link GatewayShard Gateway shard} events.
@@ -102,19 +102,23 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * {@link GatewayShardOptions Options} for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
-    readonly options: GatewayShardOptions;
+    readonly options: Gateway[`options`];
     /**
      * A timeout used when connecting or resuming the shard.
      */
     private _connectionTimeout;
     /**
-     * [Heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating) properties.
+     * [Heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating) interval.
      */
-    private _heartbeat;
+    private _heartbeatInterval;
     /**
-     * The {@link Logger logger} used by the gateway shard.
+     * If the shard is waiting for a [heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating).
      */
-    private _logger?;
+    private _heartbeatWaiting;
+    /**
+     * The {@link LogCallback log callback} used by the shard.
+     */
+    private _log;
     /**
      * The pending reject callback for the promise starting the shard.
      */
@@ -140,7 +144,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param logger The {@link Logger logger} for the gateway shard to use. If `false` is specified, no logger will be used.
      * @param options {@link GatewayShardOptions Gateway shard options}.
      */
-    constructor(token: string, id: number, numShards: number, url: string, logger: Logger | false, options: GatewayShardOptions);
+    constructor(token: string, id: number, numShards: number, url: string, options: Gateway[`options`], logCallback?: LogCallback);
     /**
      * Connect to the gateway.
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
@@ -191,6 +195,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @internal
      */
     private _send;
+    /**
+     * Sends a [heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating).
+     */
+    private _sendHeartbeat;
     /**
      * Listener used for `GatewayShard#_ws#on('close')`
      * @internal

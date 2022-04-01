@@ -1,7 +1,8 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
-import { Logger } from '../logger/Logger';
-import Collection from '@discordjs/collection';
+import { GatewayEvents } from '../gateway/Gateway';
+import { LogCallback } from '../types/Log';
+import { ExtendedMap } from '@br88c/node-utils';
 import { Snowflake } from 'discord-api-types/v10';
 /**
  * The cache manager.
@@ -13,55 +14,107 @@ import { Snowflake } from 'discord-api-types/v10';
 export declare class Cache {
     /**
      * {@link CachedChannel Cached channels}.
-     * A channel's key in the collection is its ID.
+     * A channel's key in the map is its ID.
      */
-    channels?: Collection<Snowflake, CachedChannel>;
+    channels?: ExtendedMap<Snowflake, CachedChannel>;
     /**
      * {@link CachedGuild Cached guilds}.
-     * A guild's key in the collection is its ID.
+     * A guild's key in the map is its ID.
      */
-    guilds?: Collection<Snowflake, CachedGuild>;
+    guilds?: ExtendedMap<Snowflake, CachedGuild>;
     /**
      * {@link CachedMember Cached members}.
-     * Each key of the parent cache is a guild ID, with its children being a collection of members in that guild.
-     * A member's key in its collection is its user ID.
+     * Each key of the parent cache is a guild ID, with its children being a map of members in that guild.
+     * A member's key in its map is its user ID.
      */
-    members?: Collection<Snowflake, Collection<Snowflake, CachedMember>>;
+    members?: ExtendedMap<Snowflake, ExtendedMap<Snowflake, CachedMember>>;
     /**
      * {@link CachedPresence Cached presences}.
-     * Each key of the parent cache is a guild ID, with its children being a collection of presences in that guild.
-     * A presence's key in its collection is its user's ID.
+     * Each key of the parent cache is a guild ID, with its children being a map of presences in that guild.
+     * A presence's key in its map is its user's ID.
      */
-    presences?: Collection<Snowflake, Collection<Snowflake, CachedPresence>>;
+    presences?: ExtendedMap<Snowflake, ExtendedMap<Snowflake, CachedPresence>>;
     /**
      * {@link CachedRole Cached roles}.
-     * A role's key in the collection is its ID.
+     * A role's key in the map is its ID.
      */
-    roles?: Collection<Snowflake, CachedRole>;
+    roles?: ExtendedMap<Snowflake, CachedRole>;
     /**
      * {@link CachedUser Cached users}.
-     * A user's key in the collection is its ID.
+     * A user's key in the map is its ID.
      */
-    users?: Collection<Snowflake, CachedUser>;
+    users?: ExtendedMap<Snowflake, CachedUser>;
     /**
      * {@link CachedVoiceState Cached voice states}.
-     * Each key of the parent cache is a guild ID, with its children being a collection of voice states in that guild.
-     * A voice state's key in its collection is its user's ID.
+     * Each key of the parent cache is a guild ID, with its children being a map of voice states in that guild.
+     * A voice state's key in its map is its user's ID.
      */
-    voiceStates?: Collection<Snowflake, Collection<Snowflake, CachedVoiceState>>;
+    voiceStates?: ExtendedMap<Snowflake, ExtendedMap<Snowflake, CachedVoiceState>>;
     /**
      * {@link CacheOptions Options} for the cache manager.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
+     * Note that any options not specified are set to a default value.
      */
-    readonly options: CacheOptions;
+    readonly options: Required<CacheOptions>;
     /**
-     * The {@link Logger logger} used by the cache manager.
+     * The {@link LogCallback log callback} used by the cache manager.
      */
-    private _logger?;
+    private _log;
+    /**
+     * The keys of enabled caches.
+     */
+    private readonly _enabledKeys;
     /**
      * Create a cache manager.
-     * @param logger The {@link Logger logger} for the cache manager to use. If `false` is specified, no logger will be used.
      * @param options {@link CacheOptions Cache options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the cache manager.
      */
-    constructor(logger: Logger | false, options: CacheOptions);
+    constructor(options?: CacheOptions, logCallback?: LogCallback);
+    /**
+     * Handles data from a gateway event.
+     * @param data The gateway data to handle.
+     * @internal
+     */
+    handleEvent(data: GatewayEvents[`*`]): void;
+    /**
+     * Update a channel.
+     * @param remove If the channel should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updateChannel;
+    /**
+     * Update a guild.
+     * @param remove If the guild should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updateGuild;
+    /**
+     * Update a member.
+     * @param remove If the member should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updateMember;
+    /**
+     * Update a presence.
+     * @param remove If the presence should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updatePresence;
+    /**
+     * Update a role.
+     * @param remove If the role should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updateRole;
+    /**
+     * Update a user.
+     * @param remove If the user should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updateUser;
+    /**
+     * Update a voice state.
+     * @param remove If the voice state should be removed from the cache.
+     * @param data Data to update with.
+     */
+    private _updateVoiceState;
 }

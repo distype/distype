@@ -1,5 +1,5 @@
 import { Rest, RestBucketHashLike, RestBucketIdLike, RestInternalRequestOptions, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
-import { Logger } from '../logger/Logger';
+import { LogCallback } from '../types/Log';
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
@@ -35,26 +35,22 @@ export declare class RestBucket {
      */
     readonly majorParameter: RestMajorParameterLike;
     /**
-     * The {@link Logger logger} used by the rest bucket.
+     * The {@link LogCallback log callback} used by the rest bucket.
      */
-    private _logger?;
+    private _log;
     /**
      * The request queue.
      */
     private _queue;
     /**
-     * The bot's token.
-     */
-    private readonly _token;
-    /**
      * Create a rest bucket.
-     * @param token The bot's token.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      */
-    constructor(token: string, manager: Rest, id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, logger: Logger | false);
+    constructor(id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, manager: Rest, logCallback?: LogCallback);
     /**
      * If the bucket is currently making a request.
      */

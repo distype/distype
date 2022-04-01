@@ -155,7 +155,7 @@ exports.DiscordConstants = {
         CREATE_PRIVATE_THREADS: v10_1.PermissionFlagsBits.CreatePrivateThreads,
         USE_EXTERNAL_STICKERS: v10_1.PermissionFlagsBits.UseExternalStickers,
         SEND_MESSAGES_IN_THREADS: v10_1.PermissionFlagsBits.SendMessagesInThreads,
-        START_EMBEDDED_ACTIVITIES: v10_1.PermissionFlagsBits.StartEmbeddedActivities,
+        USE_EMBEDDED_ACTIVITIES: v10_1.PermissionFlagsBits.UseEmbeddedActivities,
         MODERATE_MEMBERS: v10_1.PermissionFlagsBits.ModerateMembers
     },
     /**

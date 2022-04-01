@@ -24,9 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
-const Logger_1 = require("../logger/Logger");
-const TypedEmitter_1 = require("../utils/TypedEmitter");
-const UtilityFunctions_1 = require("../utils/UtilityFunctions");
+const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const ws_1 = require("ws");
 /**
@@ -64,7 +62,7 @@ var GatewayShardState;
  * A gateway shard.
  * Handles the low level ws communication with Discord.
  */
-class GatewayShard extends TypedEmitter_1.TypedEmitter {
+class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * Create a gateway shard.
      * @param token The bot's token.
@@ -74,7 +72,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * @param logger The {@link Logger logger} for the gateway shard to use. If `false` is specified, no logger will be used.
      * @param options {@link GatewayShardOptions Gateway shard options}.
      */
-    constructor(token, id, numShards, url, logger, options) {
+    constructor(token, id, numShards, url, options, logCallback = () => { }) {
         super();
         /**
          * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
@@ -93,33 +91,13 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
          */
         this._connectionTimeout = null;
         /**
-         * [Heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating) properties.
+         * [Heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating) interval.
          */
-        this._heartbeat = {
-            interval: null,
-            send: () => {
-                if (this._heartbeat.waiting) {
-                    this._logger?.log(`Not receiving heartbeat ACKs; restarting`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
-                    });
-                    void this.restart();
-                }
-                else {
-                    this.send({
-                        op: DiscordTypes.GatewayOpcodes.Heartbeat,
-                        d: this.lastSequence
-                    }, true).then(() => {
-                        this._heartbeat.waiting = true;
-                        this._logger?.log(`Sent heartbeat`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
-                        });
-                    }).catch((error) => this._logger?.log(`Failed to send heartbeat: ${error.message}`, {
-                        internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
-                    }));
-                }
-            },
-            waiting: false
-        };
+        this._heartbeatInterval = null;
+        /**
+         * If the shard is waiting for a [heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating).
+         */
+        this._heartbeatWaiting = false;
         /**
          * The pending reject callback for the promise starting the shard.
          */
@@ -140,22 +118,19 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             throw new TypeError(`numShards must be specified`);
         if (typeof url !== `string`)
             throw new TypeError(`A shard url must be specified`);
-        if (!(logger instanceof Logger_1.Logger) && logger !== false)
-            throw new TypeError(`A logger or false must be specified`);
-        this.id = id;
-        this.numShards = numShards;
-        this.url = url;
-        if (logger)
-            this._logger = logger;
-        this.options = options;
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token,
             writable: false
         });
-        this._logger?.log(`Initialized gateway shard ${id}`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this.id = id;
+        this.numShards = numShards;
+        this.url = url;
+        this.options = options;
+        this._log = logCallback;
+        this._log(`Initialized gateway shard ${id}`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
     }
     /**
@@ -166,36 +141,36 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     async spawn() {
         if (this.state !== GatewayShardState.DISCONNECTED) {
             const error = new Error(`Cannot spawn when the shard isn't in a disconnected state`);
-            this._logger?.log(`Failed to spawn shard: ${error.message}`, {
-                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+            this._log(`Failed to spawn shard: ${error.message}`, {
+                level: `ERROR`, system: `Gateway Shard ${this.id}`
             });
             throw error;
         }
-        this._logger?.log(`Starting spawning attempts`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Starting spawning attempts`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
-            this._logger?.log(`Starting shard spawn attempt`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Starting shard spawn attempt`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             this._clearTimers();
             this._enterState(GatewayShardState.CONNECTING);
             const attempt = await this._initConnection(false).catch((error) => error).catch((error) => error);
-            this._logger?.log(`Spawning attempt ${attempt instanceof Error ? `rejected` : `resolved`}`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Spawning attempt ${attempt instanceof Error ? `rejected` : `resolved`}`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             if (!(attempt instanceof Error)) {
-                this._logger?.log(`Spawning attempts resolved with success; shard is ready`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Spawning attempts resolved with success; shard is ready`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 return attempt;
             }
             else if (i !== this.options.spawnMaxAttempts - 1)
-                await UtilityFunctions_1.UtilityFunctions.wait(this.options.spawnAttemptDelay);
+                await (0, node_utils_1.wait)(this.options.spawnAttemptDelay);
         }
         const error = new Error(`Unable to spawn shard after ${this.options.spawnMaxAttempts} attempts`);
-        this._logger?.log(error.message, {
-            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+        this._log(error.message, {
+            level: `ERROR`, system: `Gateway Shard ${this.id}`
         });
         throw error;
     }
@@ -206,17 +181,17 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
     async restart() {
         if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.CONNECTED) {
             const error = new Error(`Cannot resume when the shard isn't in a disconnected or connected state`);
-            this._logger?.log(`Failed to spawn shard: ${error.message}`, {
-                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+            this._log(`Failed to spawn shard: ${error.message}`, {
+                level: `ERROR`, system: `Gateway Shard ${this.id}`
             });
             throw error;
         }
-        this._logger?.log(`Starting resume attempts`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Starting resume attempts`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         for (;;) {
-            this._logger?.log(`Starting shard resume attempt`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Starting shard resume attempt`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             if (this._ws)
                 this.kill(1012, `Restarting shard`);
@@ -224,17 +199,17 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this._clearTimers();
             this._enterState(GatewayShardState.RESUMING);
             const attempt = await this._initConnection(true).catch((error) => error);
-            this._logger?.log(`Resume attempt ${attempt instanceof Error ? `rejected` : `resolved`}`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Resume attempt ${attempt instanceof Error ? `rejected` : `resolved`}`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             if (!(attempt instanceof Error)) {
-                this._logger?.log(`Resume attempts resolved with success; shard is ready`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Resume attempts resolved with success; shard is ready`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 return attempt;
             }
             else
-                await UtilityFunctions_1.UtilityFunctions.wait(this.options.spawnAttemptDelay);
+                await (0, node_utils_1.wait)(this.options.spawnAttemptDelay);
         }
     }
     /**
@@ -243,14 +218,14 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * @param reason The reason the shard is being killed.
      */
     kill(code = 1000, reason = `Manual kill`) {
-        this._logger?.log(`Killing shard with code ${code} for reason ${reason}`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Killing shard with code ${code} for reason ${reason}`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         if (this._pendingStartReject) {
             this._pendingStartReject(new Error(`Shard killed before connection was initiated`));
             this._pendingStartReject = null;
-            this._logger?.log(`Stopped connection attempt`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Stopped connection attempt`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
         }
         this._clearTimers();
@@ -258,8 +233,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         if (this._ws?.readyState === ws_1.WebSocket.OPEN)
             this._ws?.close(code);
         this._ws = null;
-        this._logger?.log(`Killed shard with code ${code} for reason ${reason}`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Killed shard with code ${code} for reason ${reason}`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         this._enterState(GatewayShardState.DISCONNECTED);
     }
@@ -275,8 +250,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 this._spawnSendQueue.push({
                     payload, reject, resolve
                 });
-                this._logger?.log(`Pushed payload "${payload}" to the send queue`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Pushed payload "${payload}" to the send queue`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
             }
             else
@@ -291,12 +266,12 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             clearTimeout(this._connectionTimeout);
             this._connectionTimeout = null;
         }
-        if (this._heartbeat.interval) {
-            clearInterval(this._heartbeat.interval);
-            this._heartbeat.interval = null;
+        if (this._heartbeatInterval) {
+            clearInterval(this._heartbeatInterval);
+            this._heartbeatInterval = null;
         }
-        this._logger?.log(`Cleared timers`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Cleared timers`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
     }
     /**
@@ -308,32 +283,32 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
             case (GatewayShardState.DISCONNECTED): {
                 this.state = GatewayShardState.DISCONNECTED;
                 this.emit(`STATE_DISCONNECTED`, null);
-                this._logger?.log(`Entered "DISCONNECTED" state`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Entered "DISCONNECTED" state`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 break;
             }
             case (GatewayShardState.CONNECTING): {
                 this.state = GatewayShardState.CONNECTING;
                 this.emit(`STATE_CONNECTING`, null);
-                this._logger?.log(`Entered "CONNECTING" state`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Entered "CONNECTING" state`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 break;
             }
             case (GatewayShardState.RESUMING): {
                 this.state = GatewayShardState.RESUMING;
                 this.emit(`STATE_RESUMING`, null);
-                this._logger?.log(`Entered "RESUMING" state`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Entered "RESUMING" state`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 break;
             }
             case (GatewayShardState.CONNECTED): {
                 this.state = GatewayShardState.CONNECTED;
                 this.emit(`STATE_CONNECTED`, null);
-                this._logger?.log(`Entered "CONNECTED" state`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Entered "CONNECTED" state`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 break;
             }
@@ -343,14 +318,14 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * Flushes the send queue.
      */
     async _flushQueue() {
-        this._logger?.log(`Flushing queue`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Flushing queue`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         for (const send of this._spawnSendQueue) {
             await this._send(send.payload).then(send.resolve).catch(send.reject);
         }
-        this._logger?.log(`Flushed queue`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Flushed queue`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
     }
     /**
@@ -361,28 +336,28 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * @param resume If the shard is being resumed.
      */
     async _initConnection(resume) {
-        this._logger?.log(`Initiating WebSocket connection`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`Initiating WebSocket connection`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         if (this.state !== GatewayShardState.CONNECTING && this.state !== GatewayShardState.RESUMING) {
             const error = new Error(`Cannot initiate a connection when the shard isn't in a connecting or resuming state`);
-            this._logger?.log(`Failed to connect shard: ${error.message}`, {
-                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+            this._log(`Failed to connect shard: ${error.message}`, {
+                level: `ERROR`, system: `Gateway Shard ${this.id}`
             });
             throw error;
         }
         return await new Promise((resolve, reject) => {
             if (this._pendingStartReject) {
                 this._pendingStartReject(new Error(`Shard initiated connection attempt before connection was initiated`));
-                this._logger?.log(`Stopped connection attempt`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Stopped connection attempt`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
             }
             this._pendingStartReject = reject;
             this._connectionTimeout = setTimeout(() => {
                 const error = new Error(`Timed out while connecting shard`);
-                this._logger?.log(`Failed to connect shard: ${error.message}`, {
-                    internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+                this._log(`Failed to connect shard: ${error.message}`, {
+                    level: `ERROR`, system: `Gateway Shard ${this.id}`
                 });
                 this._ws?.removeAllListeners();
                 this._ws = null;
@@ -391,12 +366,12 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 reject(error);
             }, this.options.spawnTimeout);
             this._ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
-            this._logger?.log(`Created WebSocket`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Created WebSocket`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             this._ws.once(`error`, (error) => {
-                this._logger?.log(`Failed to connect shard: ${error.message}`, {
-                    internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+                this._log(`Failed to connect shard: ${error.message}`, {
+                    level: `ERROR`, system: `Gateway Shard ${this.id}`
                 });
                 this._ws?.removeAllListeners();
                 this._ws = null;
@@ -405,24 +380,24 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 reject(error);
             });
             this._ws.once(`open`, () => {
-                this._logger?.log(`WebSocket open`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`WebSocket open`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 this._clearTimers();
                 this._ws.removeAllListeners();
                 this._ws.on(`close`, this._onClose.bind(this));
                 this._ws.on(`error`, this._onError.bind(this));
                 this._ws.on(`message`, this._onMessage.bind(this));
-                this._logger?.log(`WebSocket events bound`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`WebSocket events bound`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
-                this._logger?.log(`WebSocket connection initiated successfully`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`WebSocket connection initiated successfully`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
                 if (!resume) {
                     this.once(`READY`, (data) => {
-                        this._logger?.log(`Successfully spawned shard`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        this._log(`Successfully spawned shard`, {
+                            level: `DEBUG`, system: `Gateway Shard ${this.id}`
                         });
                         this._pendingStartReject = null;
                         resolve(data);
@@ -430,8 +405,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                 }
                 else {
                     this.once(`RESUMED`, (data) => {
-                        this._logger?.log(`Successfully resumed shard`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        this._log(`Successfully resumed shard`, {
+                            level: `DEBUG`, system: `Gateway Shard ${this.id}`
                         });
                         this._pendingStartReject = null;
                         resolve(data);
@@ -449,25 +424,25 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         return await new Promise((resolve, reject) => {
             if (!this._ws || this._ws.readyState !== ws_1.WebSocket.OPEN) {
                 const error = new Error(`The shard's socket must be defined and open to send a payload`);
-                this._logger?.log(`Failed to send payload "${payload}": ${error.message}`, {
-                    internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+                this._log(`Failed to send payload "${payload}": ${error.message}`, {
+                    level: `ERROR`, system: `Gateway Shard ${this.id}`
                 });
                 return reject(error);
             }
-            this._logger?.log(`Sending payload "${payload}"`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`Sending payload "${payload}"`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             this._ws.send(payload, (error) => {
                 if (error) {
-                    this._logger?.log(`Failed to send payload "${payload}": ${error.message}`, {
-                        internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+                    this._log(`Failed to send payload "${payload}": ${error.message}`, {
+                        level: `ERROR`, system: `Gateway Shard ${this.id}`
                     });
                     reject(error);
                 }
                 else {
                     this.emit(`SENT`, payload);
-                    this._logger?.log(`Successfully sent payload "${payload}"`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Successfully sent payload "${payload}"`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     resolve();
                 }
@@ -475,12 +450,36 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
         });
     }
     /**
+     * Sends a [heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating).
+     */
+    _sendHeartbeat() {
+        if (this._heartbeatWaiting) {
+            this._log(`Not receiving heartbeat ACKs; restarting`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            });
+            void this.restart();
+        }
+        else {
+            this.send({
+                op: DiscordTypes.GatewayOpcodes.Heartbeat,
+                d: this.lastSequence
+            }, true).then(() => {
+                this._heartbeatWaiting = true;
+                this._log(`Sent heartbeat`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                });
+            }).catch((error) => this._log(`Failed to send heartbeat: ${error.message}`, {
+                level: `ERROR`, system: `Gateway Shard ${this.id}`
+            }));
+        }
+    }
+    /**
      * Listener used for `GatewayShard#_ws#on('close')`
      * @internal
      */
     _onClose(code, reason) {
-        this._logger?.log(`WebSocket close: ${code}, ${reason.toString(`utf-8`)}`, {
-            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+        this._log(`WebSocket close: ${code}, ${reason.toString(`utf-8`)}`, {
+            level: `DEBUG`, system: `Gateway Shard ${this.id}`
         });
         this._clearTimers();
         this._enterState(GatewayShardState.DISCONNECTED);
@@ -491,8 +490,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      * @internal
      */
     _onError(error) {
-        this._logger?.log(`WebSocket error: ${error.message}`, {
-            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+        this._log(`WebSocket error: ${error.message}`, {
+            level: `ERROR`, system: `Gateway Shard ${this.id}`
         });
     }
     /**
@@ -501,42 +500,42 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
      */
     _onMessage(data) {
         try {
-            this._logger?.log(`WebSocket got message`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`WebSocket got message`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             if (Array.isArray(data))
                 data = Buffer.concat(data);
             else if (data instanceof ArrayBuffer)
                 data = Buffer.from(data);
             const payload = JSON.parse(data.toString());
-            this._logger?.log(`WebSocket parsed message`, {
-                internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            this._log(`WebSocket parsed message`, {
+                level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
             if (payload.s && this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.RESUMING) {
                 this.lastSequence = payload.s;
-                this._logger?.log(`Updated last sequence number: ${this.lastSequence}`, {
-                    internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                this._log(`Updated last sequence number: ${this.lastSequence}`, {
+                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
             }
             switch (payload.op) {
                 case (DiscordTypes.GatewayOpcodes.Dispatch): {
-                    this._logger?.log(`Got dispatch "${payload.t}"`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Got dispatch "${payload.t}"`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     if (payload.t === `READY`) {
                         this._enterState(GatewayShardState.CONNECTED);
                         this.sessionId = payload.d.session_id;
                         this.emit(`READY`, payload);
-                        this._logger?.log(`READY`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        this._log(`READY`, {
+                            level: `DEBUG`, system: `Gateway Shard ${this.id}`
                         });
                         void this._flushQueue();
                     }
                     if (payload.t === `RESUMED`) {
                         this._enterState(GatewayShardState.CONNECTED);
                         this.emit(`RESUMED`, payload);
-                        this._logger?.log(`RESUMED`, {
-                            internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        this._log(`RESUMED`, {
+                            level: `DEBUG`, system: `Gateway Shard ${this.id}`
                         });
                         void this._flushQueue();
                     }
@@ -544,22 +543,22 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     break;
                 }
                 case (DiscordTypes.GatewayOpcodes.Heartbeat): {
-                    this._logger?.log(`Got heartbeat request`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Got heartbeat request`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
-                    this._heartbeat.send();
+                    this._sendHeartbeat();
                     break;
                 }
                 case (DiscordTypes.GatewayOpcodes.Reconnect): {
-                    this._logger?.log(`Got reconnect request`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Got reconnect request`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     void this.restart();
                     break;
                 }
                 case (DiscordTypes.GatewayOpcodes.InvalidSession): {
-                    this._logger?.log(`Got invalid session`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Got invalid session`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     if (payload.d)
                         void this.restart();
@@ -570,13 +569,13 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     break;
                 }
                 case (DiscordTypes.GatewayOpcodes.Hello): {
-                    this._logger?.log(`Got hello`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Got hello`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
-                    this._heartbeat.waiting = false;
-                    this._heartbeat.send();
+                    this._heartbeatWaiting = false;
+                    this._sendHeartbeat();
                     this._clearTimers();
-                    this._heartbeat.interval = setInterval(() => this._heartbeat.send(), payload.d.heartbeat_interval);
+                    this._heartbeatInterval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval);
                     if (this.state === GatewayShardState.CONNECTING) {
                         this.send({
                             op: 2,
@@ -584,7 +583,7 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                 compress: false,
                                 intents: this.options.intents,
                                 large_threshold: this.options.largeGuildThreshold,
-                                presence: this.options.presence,
+                                presence: this.options.presence ?? undefined,
                                 properties: {
                                     $browser: `distype`,
                                     $device: `distype`,
@@ -593,8 +592,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                 shard: [this.id, this.numShards],
                                 token: this._token
                             }
-                        }, true).catch((error) => this._logger?.log(`Failed to send identify: ${error.message}`, {
-                            internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+                        }, true).catch((error) => this._log(`Failed to send identify: ${error.message}`, {
+                            level: `ERROR`, system: `Gateway Shard ${this.id}`
                         }));
                     }
                     else if (this.state === GatewayShardState.RESUMING) {
@@ -606,8 +605,8 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                                     session_id: this.sessionId,
                                     seq: this.lastSequence
                                 }
-                            }, true).catch((error) => this._logger?.log(`Failed to send resume: ${error.message}`, {
-                                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+                            }, true).catch((error) => this._log(`Failed to send resume: ${error.message}`, {
+                                level: `ERROR`, system: `Gateway Shard ${this.id}`
                             }));
                         }
                         else {
@@ -618,17 +617,17 @@ class GatewayShard extends TypedEmitter_1.TypedEmitter {
                     break;
                 }
                 case (DiscordTypes.GatewayOpcodes.HeartbeatAck): {
-                    this._logger?.log(`Got heartbeat ACK`, {
-                        internal: true, level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    this._log(`Got heartbeat ACK`, {
+                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
-                    this._heartbeat.waiting = false;
+                    this._heartbeatWaiting = false;
                     break;
                 }
             }
         }
         catch (error) {
-            this._logger?.log(`Error in GatewayShard._onMessage(): ${error.message}`, {
-                internal: true, level: `ERROR`, system: `Gateway Shard ${this.id}`
+            this._log(`Error in GatewayShard._onMessage(): ${error.message}`, {
+                level: `ERROR`, system: `Gateway Shard ${this.id}`
             });
         }
     }

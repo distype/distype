@@ -2,10 +2,10 @@
 import { RestBucket } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
-import { Logger } from '../logger/Logger';
-import Collection from '@discordjs/collection';
+import { LogCallback } from '../types/Log';
+import { ExtendedMap } from '@br88c/node-utils';
 import { Snowflake } from 'discord-api-types/v10';
-import FormData from 'form-data';
+import { Readable } from 'stream';
 import { Dispatcher } from 'undici';
 /**
  * {@link Rest} request methods.
@@ -38,12 +38,13 @@ export declare type RestMajorParameterLike = `global` | Snowflake;
 /**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
+ * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implmenet the correct headers in your request.
  */
 export interface RestRequestData {
     /**
      * The request body.
      */
-    body?: Record<string, any> | FormData;
+    body?: Record<string, any> | RestRequestDataBodyStream;
     /**
      * The request query.
      */
@@ -53,6 +54,10 @@ export interface RestRequestData {
      */
     reason?: string;
 }
+/**
+ * A streamable body. Used for uploads.
+ */
+export declare type RestRequestDataBodyStream = Readable | Buffer | Uint8Array;
 /**
  * A {@link Rest rest} route.
  */
@@ -70,7 +75,7 @@ export declare class Rest extends RestRequests {
      * Ratelimit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketIdLike ID}.
      */
-    buckets: Collection<RestBucketIdLike, RestBucket> | null;
+    buckets: ExtendedMap<RestBucketIdLike, RestBucket> | null;
     /**
      * The interval used for sweeping inactive {@link RestBucket buckets}.
      */
@@ -92,15 +97,15 @@ export declare class Rest extends RestRequests {
      * Cached route ratelimit bucket hashes.
      * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
      */
-    routeHashCache: Collection<RestRouteHashLike, RestBucketHashLike> | null;
+    routeHashCache: ExtendedMap<RestRouteHashLike, RestBucketHashLike> | null;
     /**
      * {@link RestOptions Options} for the rest manager.
      */
-    readonly options: RestOptions;
+    readonly options: Required<RestOptions> & RestRequestOptions;
     /**
-     * The {@link Logger logger} used by the rest manager.
+     * The {@link LogCallback log callback} used by the gateway manager.
      */
-    private _logger?;
+    private _log;
     /**
      * The bot's token.
      */
@@ -108,10 +113,10 @@ export declare class Rest extends RestRequests {
     /**
      * Create a rest manager.
      * @param token The bot's token.
-     * @param logger The {@link Logger logger} for the rest manager to use. If `false` is specified, no logger will be used.
      * @param options {@link RestOptions Rest options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      */
-    constructor(token: string, logger: Logger | false, options: RestOptions);
+    constructor(token: string, options?: RestOptions & RestRequestOptions, logCallback?: LogCallback);
     /**
      * Get the ratio of response codes.
      * Each code's value is the percentage it was received (`0` to `100`).
@@ -140,6 +145,12 @@ export declare class Rest extends RestRequests {
      * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     sweepBuckets(): void;
+    /**
+     * Converts specified headers with undici typings to a `Record<string, string>`.
+     * @param headers The headers to convert.
+     * @returns The formatted headers.
+     */
+    private _convertUndiciHeaders;
     /**
      * Create a ratelimit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketIdLike ID}.

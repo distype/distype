@@ -1,10 +1,9 @@
 import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard } from './GatewayShard';
 import { Cache } from '../cache/Cache';
-import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
-import { TypedEmitter } from '../utils/TypedEmitter';
-import Collection from '@discordjs/collection';
+import { LogCallback } from '../types/Log';
+import { ExtendedMap, TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 /**
@@ -103,32 +102,34 @@ export interface GatewayEvents {
  * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
  *
  * All events are emitted with their entire payload; [Discord API Reference](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure).
- * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the {@link cacheEventHandler}.
+ * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the cache event handler.
  * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 export declare class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * {@link GatewayShard Gateway shards}.
-     * Modifying this collection externally may result in unexpected behavior.
+     * Modifying this map externally may result in unexpected behavior.
      */
-    shards: Collection<number, GatewayShard>;
+    shards: ExtendedMap<number, GatewayShard>;
     /**
      * The latest self user received from the gateway.
      */
     user: DiscordTypes.APIUser | null;
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
+     * Note that any options not specified are set to a default value.
      */
-    readonly options: GatewayOptions;
+    readonly options: Required<GatewayOptions> & {
+        intents: number;
+    };
     /**
      * The {@link Cache cache manager} to update from incoming events.
      */
     private _cache?;
     /**
-     * The {@link Logger logger} used by the gateway manager.
+     * The {@link LogCallback log callback} used by the gateway manager.
      */
-    private _logger?;
+    private _log;
     /**
      * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
      */
@@ -137,6 +138,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
     private _rest;
+    /**
+     * Stored calculated sharding options.
+     */
+    private _storedCalculatedShards;
     /**
      * Stored response from `Rest#getGatewayBot()`.
      */
@@ -148,12 +153,12 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Create a gateway manager.
      * @param token The bot's token.
-     * @param cache The {@link Cache cache manager} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a {@link cacheEventHandler}.
-     * @param logger The {@link Logger logger} for the gateway manager to use. If `false` is specified, no logger will be used.
      * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
+     * @param cache The {@link Cache cache} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a cache event handler.
      * @param options {@link GatewayOptions Gateway options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway manager.
      */
-    constructor(token: string, cache: Cache | false, logger: Logger | false, rest: Rest, options: GatewayOptions);
+    constructor(token: string, rest: Rest, cache: Cache | false, options?: GatewayOptions, logCallback?: LogCallback);
     /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */
@@ -180,8 +185,8 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
     getGuildMembers(guildId: Snowflake, options?: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersData, `guild_id` | `presences`>>): Promise<{
-        members: Collection<Snowflake, DiscordTypes.APIGuildMember>;
-        presences?: Collection<Snowflake, DiscordTypes.GatewayPresenceUpdate>;
+        members: ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>;
+        presences?: ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>;
         notFound?: Snowflake[];
     }>;
     /**
@@ -208,4 +213,17 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
         status: `online` | `dnd` | `idle` | `invisible` | `offline`;
         afk: boolean;
     } | DiscordTypes.GatewayPresenceUpdateData, shard?: number | number[] | `all`): Promise<void>;
+    /**
+     * Get a guild's shard ID.
+     * @param guildId The guild's ID.
+     * @param numShards The `numShards` value sent in the identify payload.
+     * @returns A shard ID.
+     */
+    private _guildShard;
+    /**
+     * Creates intents flags from intents specified in the constructor.
+     * @param specified The specified intents.
+     * @returns Intents flags.
+     */
+    private _intentsFactory;
 }

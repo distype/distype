@@ -152,7 +152,7 @@ export declare const DiscordConstants: {
         readonly CREATE_PRIVATE_THREADS: bigint;
         readonly USE_EXTERNAL_STICKERS: bigint;
         readonly SEND_MESSAGES_IN_THREADS: bigint;
-        readonly START_EMBEDDED_ACTIVITIES: bigint;
+        readonly USE_EMBEDDED_ACTIVITIES: bigint;
         readonly MODERATE_MEMBERS: bigint;
     };
     /**

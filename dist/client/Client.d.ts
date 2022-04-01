@@ -1,8 +1,8 @@
 import { ClientOptions } from './ClientOptions';
 import { Cache } from '../cache/Cache';
 import { Gateway } from '../gateway/Gateway';
-import { Logger } from '../logger/Logger';
 import { Rest } from '../rest/Rest';
+import { LogCallback } from '../types/Log';
 /**
  * The Discord client.
  */
@@ -16,10 +16,6 @@ export declare class Client {
      */
     gateway: Gateway;
     /**
-     * The client's logger.
-     */
-    logger: Logger;
-    /**
      * The client's {@link Rest rest manager}.
      */
     rest: Rest;
@@ -29,14 +25,17 @@ export declare class Client {
     readonly DISTYPE_VERSION: string;
     /**
      * {@link ClientOptions Options} for the client.
-     * Note that these options may differ than the options specified when creating the client due to them being passed through the {@link optionsFactory}.
+     * Note that any options not specified are set to a default value.
      */
     readonly options: {
         cache: Cache[`options`];
         gateway: Gateway[`options`];
-        logger: Logger[`options`];
         rest: Rest[`options`];
     };
+    /**
+     * The {@link LogCallback log callback} used by the client.
+     */
+    private _log;
     /**
      * The bot's token.
      */
@@ -45,6 +44,7 @@ export declare class Client {
      * Create a client.
      * @param token The bot's token.
      * @param options {@link ClientOptions Client options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the client.
      */
-    constructor(token: string, options?: ClientOptions);
+    constructor(token: string, options?: ClientOptions, logCallback?: LogCallback);
 }
