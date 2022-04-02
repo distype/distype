@@ -578,7 +578,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     });
                     this._heartbeatWaiting = false;
                     this._clearTimers();
-                    (0, node_utils_1.wait)(payload.d.heartbeat_interval).then(() => {
+                    (0, node_utils_1.wait)(payload.d.heartbeat_interval * 0.5).then(() => {
                         this._sendHeartbeat();
                         this._heartbeatInterval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval);
                     });
