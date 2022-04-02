@@ -452,9 +452,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     }
     /**
      * Sends a [heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating).
+     * @param force If the ACK check should be omitted. Only use for responding to heartbeat requests.
      */
-    _sendHeartbeat() {
-        if (this._heartbeatWaiting) {
+    _sendHeartbeat(force = false) {
+        if (this._heartbeatWaiting && !force) {
             this._log(`Not receiving heartbeat ACKs; restarting`, {
                 level: `DEBUG`, system: `Gateway Shard ${this.id}`
             });
@@ -550,7 +551,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     this._log(`Got heartbeat request`, {
                         level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
-                    this._sendHeartbeat();
+                    this._sendHeartbeat(true);
                     break;
                 }
                 case (DiscordTypes.GatewayOpcodes.Reconnect): {

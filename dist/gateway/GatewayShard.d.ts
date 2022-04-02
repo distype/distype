@@ -198,6 +198,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     private _send;
     /**
      * Sends a [heartbeat](https://discord.com/developers/docs/topics/gateway#heartbeating).
+     * @param force If the ACK check should be omitted. Only use for responding to heartbeat requests.
      */
     private _sendHeartbeat;
     /**
