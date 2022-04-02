@@ -139,6 +139,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _log: LogCallback;
     /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    private _logThisArg?: any;
+    /**
      * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
      */
     private _requestGuildMembersNonceIncrement = 0;
@@ -168,8 +172,9 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param cache The {@link Cache cache} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a cache event handler.
      * @param options {@link GatewayOptions Gateway options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (token: string, rest: Rest, cache: Cache | false, options: GatewayOptions = {}, logCallback: LogCallback = (): void => {}) {
+    constructor (token: string, rest: Rest, cache: Cache | false, options: GatewayOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -210,7 +215,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             this.emit(data.t, data as any);
         });
 
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
+        this._logThisArg = logThisArg;
         this._log(`Initialized gateway manager`, {
             level: `DEBUG`, system: `Gateway`
         });
@@ -285,7 +291,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
                 shard = new GatewayShard(this._token, i, this._storedCalculatedShards.totalBotShards, new URL(`?${new URLSearchParams({
                     v: `${this.options.version}`, encoding: `json`
-                } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log);
+                } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log, this._logThisArg);
                 this.shards.set(i, shard);
 
                 shard.on(`*`, (data) => this.emit(`*`, data as any));

@@ -123,6 +123,10 @@ export class Rest extends RestRequests {
      * The {@link LogCallback log callback} used by the gateway manager.
      */
     private _log: LogCallback;
+    /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    private _logThisArg?: any;
 
     /**
      * The bot's token.
@@ -135,8 +139,9 @@ export class Rest extends RestRequests {
      * @param token The bot's token.
      * @param options {@link RestOptions Rest options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (token: string, options: RestOptions & RestRequestOptions = {}, logCallback: LogCallback = (): void => {}) {
+    constructor (token: string, options: RestOptions & RestRequestOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         super();
 
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
@@ -166,7 +171,8 @@ export class Rest extends RestRequests {
             if (this.options.bucketSweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval);
         }
 
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
+        this._logThisArg = logThisArg;
         this._log(`Initialized rest manager`, {
             level: `DEBUG`, system: `Rest`
         });
@@ -293,7 +299,7 @@ export class Rest extends RestRequests {
      */
     private _createBucket (bucketId: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike): RestBucket {
         if (!this.buckets) throw new Error(`Buckets are not defined on this rest manager. Maybe ratelimits are disabled?`);
-        const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this, this._log);
+        const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
         this.buckets.set(bucketId, bucket);
         this._log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
             level: `DEBUG`, system: `Rest`

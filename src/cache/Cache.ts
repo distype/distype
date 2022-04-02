@@ -74,8 +74,9 @@ export class Cache {
      * Create a cache manager.
      * @param options {@link CacheOptions Cache options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the cache manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (options: CacheOptions = {}, logCallback: LogCallback = (): void => {}) {
+    constructor (options: CacheOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         this.options = {
             channels: options.channels ?? null,
             guilds: options.guilds ?? null,
@@ -91,7 +92,7 @@ export class Cache {
             this[key] = new ExtendedMap<any, any>();
         });
 
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
             level: `DEBUG`, system: `Cache`
         });

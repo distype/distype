@@ -53,8 +53,9 @@ export class Client {
      * @param token The bot's token.
      * @param options {@link ClientOptions Client options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the client.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (token: string, options: ClientOptions = {}, logCallback: LogCallback = (): void => {}) {
+    constructor (token: string, options: ClientOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
         if (typeof token !== `string`) throw new TypeError(`A bot token must be specified`);
 
         Object.defineProperty(this, `_token`, {
@@ -64,9 +65,9 @@ export class Client {
             writable: false
         });
 
-        this.cache = new Cache(options.cache, logCallback);
-        this.rest = new Rest(token, options.rest, logCallback);
-        this.gateway = new Gateway(token, this.rest, this.cache, options.gateway, logCallback);
+        this.cache = new Cache(options.cache, logCallback, logThisArg);
+        this.rest = new Rest(token, options.rest, logCallback, logThisArg);
+        this.gateway = new Gateway(token, this.rest, this.cache, options.gateway, logCallback, logThisArg);
 
         this.options = {
             cache: this.cache.options,
@@ -74,7 +75,7 @@ export class Client {
             rest: this.rest.options
         };
 
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
         this._log(`Initialized client`, {
             level: `DEBUG`, system: `Client`
         });
