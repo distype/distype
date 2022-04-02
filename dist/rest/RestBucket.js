@@ -44,7 +44,7 @@ class RestBucket {
             throw new TypeError(`A major parameter must be specified`);
         if (!(manager instanceof Rest_1.Rest))
             throw new TypeError(`A rest manager must be specified`);
-        if (!manager.options.disableRatelimits)
+        if (manager.options.disableRatelimits)
             throw new Error(`The provided rest manager does not have ratelimits enabled`);
         this.id = id;
         this.bucketHash = bucketHash;
