@@ -539,17 +539,20 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             });
             void this.restart();
         } else {
+            this._heartbeatWaiting = true;
             this.send({
                 op: DiscordTypes.GatewayOpcodes.Heartbeat,
                 d: this.lastSequence
             }, true).then(() => {
-                this._heartbeatWaiting = true;
                 this._log(`Sent heartbeat`, {
                     level: `DEBUG`, system: `Gateway Shard ${this.id}`
                 });
-            }).catch((error) => this._log(`Failed to send heartbeat: ${(error as Error).message}`, {
-                level: `ERROR`, system: `Gateway Shard ${this.id}`
-            }));
+            }).catch((error) => {
+                this._heartbeatWaiting = false;
+                this._log(`Failed to send heartbeat: ${(error as Error).message}`, {
+                    level: `ERROR`, system: `Gateway Shard ${this.id}`
+                });
+            });
         }
     }
 
@@ -664,9 +667,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     });
 
                     this._heartbeatWaiting = false;
-                    this._sendHeartbeat();
                     this._clearTimers();
-                    this._heartbeatInterval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval);
+                    wait(payload.d.heartbeat_interval).then(() => {
+                        this._sendHeartbeat();
+                        this._heartbeatInterval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval);
+                    });
 
                     if (this.state === GatewayShardState.CONNECTING) {
                         this.send({
