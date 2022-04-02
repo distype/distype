@@ -668,7 +668,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                     this._heartbeatWaiting = false;
                     this._clearTimers();
-                    wait(payload.d.heartbeat_interval).then(() => {
+                    wait(payload.d.heartbeat_interval * 0.5).then(() => {
                         this._sendHeartbeat();
                         this._heartbeatInterval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval);
                     });
