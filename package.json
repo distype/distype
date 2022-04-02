@@ -11,10 +11,11 @@
     "docs:install": "npm i --also=dev && npm run docs",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
+    "lint:install": "npm i --also=dev && npm run lint",
     "prepublishOnly": "npm run build:install",
-    "test:build": "npm run build",
-    "test:docs": "npm run docs",
-    "test:lint": "npm run lint"
+    "test:build": "npm run build:install",
+    "test:docs": "npm run docs:install",
+    "test:lint": "npm run lint:install"
   },
   "keywords": [
     "api",
