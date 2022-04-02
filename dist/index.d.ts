@@ -13,6 +13,7 @@ export * from './gateway/GatewayShard';
 export * from './rest/Rest';
 export * from './rest/RestBucket';
 export * from './rest/RestOptions';
+export * from './types/Log';
 export * from './utils/CDNUtils';
 export * from './utils/PermissionsUtils';
 export * from './utils/SnowflakeUtils';
