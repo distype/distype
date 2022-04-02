@@ -68,7 +68,7 @@ export class RestBucket {
         if (typeof majorParameter !== `string`) throw new TypeError(`A major parameter must be specified`);
         if (!(manager instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
 
-        if (!manager.options.disableRatelimits) throw new Error(`The provided rest manager does not have ratelimits enabled`);
+        if (manager.options.disableRatelimits) throw new Error(`The provided rest manager does not have ratelimits enabled`);
 
         this.id = id;
         this.bucketHash = bucketHash;
