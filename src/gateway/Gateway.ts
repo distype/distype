@@ -407,7 +407,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
             this.on(`GUILD_MEMBERS_CHUNK`, listener);
             shard.send({
-                op: 8,
+                op: DiscordTypes.GatewayOpcodes.RequestGuildMembers,
                 d: {
                     guild_id: guildId,
                     query: !options.query && !options.user_ids ? `` : options.query,
@@ -430,7 +430,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      */
     public async updateVoiceState (guildId: Snowflake, channelId: Snowflake | null, mute = false, deafen = false): Promise<void> {
         return await this.guildShard(guildId, true).send({
-            op: 4,
+            op: DiscordTypes.GatewayOpcodes.VoiceStateUpdate,
             d: {
                 guild_id: guildId,
                 channel_id: channelId,
@@ -457,7 +457,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     } | DiscordTypes.GatewayPresenceUpdateData, shard: number | number[] | `all` = `all`): Promise<void> {
         const shards = typeof shard === `number` ? [this.shards.get(shard)] : ((shard instanceof Array) ? this.shards.filter((s) => shard.some((sh) => sh === s.id)) : this.shards).map((s) => s);
         await Promise.all(shards.map((s) => s?.send({
-            op: 3,
+            op: DiscordTypes.GatewayOpcodes.PresenceUpdate,
             d: presence as any
         })));
     }
