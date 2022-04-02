@@ -63,9 +63,6 @@ jobs:
           node-version: ${{ matrix.node }}
           registry-url: https://registry.npmjs.org/
 
-      - name: Install packages
-        run: npm i --also=dev
-
       - name: Run build test
         run: npm run test:build
 
@@ -99,9 +96,6 @@ jobs:
           node-version: ${{ matrix.node }}
           registry-url: https://registry.npmjs.org/
 
-      - name: Install packages
-        run: npm i --also=dev
-
       - name: Run docs test
         run: npm run test:docs
 
@@ -134,9 +128,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           registry-url: https://registry.npmjs.org/
-
-      - name: Install packages
-        run: npm i --also=dev
 
       - name: Run lint
         run: npm run test:lint

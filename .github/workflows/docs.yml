@@ -35,11 +35,8 @@ jobs:
           node-version: ${{ matrix.node }}
           registry-url: https://registry.npmjs.org/
 
-      - name: Install packages
-        run: npm i --also=dev
-
       - name: Run docs
-        run: npm run docs
+        run: npm run docs:install
 
       - name: Push docs
         run: |
