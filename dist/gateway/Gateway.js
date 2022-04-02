@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = void 0;
 const GatewayShard_1 = require("./GatewayShard");
@@ -6,6 +29,7 @@ const Cache_1 = require("../cache/Cache");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const Rest_1 = require("../rest/Rest");
 const node_utils_1 = require("@br88c/node-utils");
+const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const url_1 = require("url");
 /**
  * The gateway manager.
@@ -259,7 +283,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             };
             this.on(`GUILD_MEMBERS_CHUNK`, listener);
             shard.send({
-                op: 8,
+                op: DiscordTypes.GatewayOpcodes.RequestGuildMembers,
                 d: {
                     guild_id: guildId,
                     query: !options.query && !options.user_ids ? `` : options.query,
@@ -281,7 +305,7 @@ class Gateway extends node_utils_1.TypedEmitter {
      */
     async updateVoiceState(guildId, channelId, mute = false, deafen = false) {
         return await this.guildShard(guildId, true).send({
-            op: 4,
+            op: DiscordTypes.GatewayOpcodes.VoiceStateUpdate,
             d: {
                 guild_id: guildId,
                 channel_id: channelId,
@@ -298,7 +322,7 @@ class Gateway extends node_utils_1.TypedEmitter {
     async updatePresence(presence, shard = `all`) {
         const shards = typeof shard === `number` ? [this.shards.get(shard)] : ((shard instanceof Array) ? this.shards.filter((s) => shard.some((sh) => sh === s.id)) : this.shards).map((s) => s);
         await Promise.all(shards.map((s) => s?.send({
-            op: 3,
+            op: DiscordTypes.GatewayOpcodes.PresenceUpdate,
             d: presence
         })));
     }

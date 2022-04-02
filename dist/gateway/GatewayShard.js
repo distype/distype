@@ -528,8 +528,8 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         level: `DEBUG`, system: `Gateway Shard ${this.id}`
                     });
                     if (payload.t === `READY`) {
-                        this._enterState(GatewayShardState.CONNECTED);
                         this.sessionId = payload.d.session_id;
+                        this._enterState(GatewayShardState.CONNECTED);
                         this.emit(`READY`, payload);
                         this._log(`READY`, {
                             level: `DEBUG`, system: `Gateway Shard ${this.id}`
@@ -585,7 +585,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     });
                     if (this.state === GatewayShardState.CONNECTING) {
                         this.send({
-                            op: 2,
+                            op: DiscordTypes.GatewayOpcodes.Identify,
                             d: {
                                 compress: false,
                                 intents: this.options.intents,
@@ -606,7 +606,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     else if (this.state === GatewayShardState.RESUMING) {
                         if (this.sessionId && typeof this.lastSequence === `number`) {
                             this.send({
-                                op: 6,
+                                op: DiscordTypes.GatewayOpcodes.Resume,
                                 d: {
                                     token: this._token,
                                     session_id: this.sessionId,
