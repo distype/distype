@@ -45,6 +45,7 @@ export declare class Client {
      * @param token The bot's token.
      * @param options {@link ClientOptions Client options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the client.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token: string, options?: ClientOptions, logCallback?: LogCallback);
+    constructor(token: string, options?: ClientOptions, logCallback?: LogCallback, logThisArg?: any);
 }

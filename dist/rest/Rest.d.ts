@@ -107,6 +107,10 @@ export declare class Rest extends RestRequests {
      */
     private _log;
     /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    private _logThisArg?;
+    /**
      * The bot's token.
      */
     private readonly _token;
@@ -115,8 +119,9 @@ export declare class Rest extends RestRequests {
      * @param token The bot's token.
      * @param options {@link RestOptions Rest options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token: string, options?: RestOptions & RestRequestOptions, logCallback?: LogCallback);
+    constructor(token: string, options?: RestOptions & RestRequestOptions, logCallback?: LogCallback, logThisArg?: any);
     /**
      * Get the ratio of response codes.
      * Each code's value is the percentage it was received (`0` to `100`).

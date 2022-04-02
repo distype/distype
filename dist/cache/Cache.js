@@ -15,8 +15,9 @@ class Cache {
      * Create a cache manager.
      * @param options {@link CacheOptions Cache options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the cache manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(options = {}, logCallback = () => { }) {
+    constructor(options = {}, logCallback = () => { }, logThisArg) {
         this.options = {
             channels: options.channels ?? null,
             guilds: options.guilds ?? null,
@@ -30,7 +31,7 @@ class Cache {
         this._enabledKeys.forEach((key) => {
             this[key] = new node_utils_1.ExtendedMap();
         });
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
             level: `DEBUG`, system: `Cache`
         });

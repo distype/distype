@@ -14,8 +14,9 @@ class Client {
      * @param token The bot's token.
      * @param options {@link ClientOptions Client options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the client.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token, options = {}, logCallback = () => { }) {
+    constructor(token, options = {}, logCallback = () => { }, logThisArg) {
         /**
          * The version of [Distype](https://github.com/distype/distype) being used.
          */
@@ -28,15 +29,15 @@ class Client {
             value: token,
             writable: false
         });
-        this.cache = new Cache_1.Cache(options.cache, logCallback);
-        this.rest = new Rest_1.Rest(token, options.rest, logCallback);
-        this.gateway = new Gateway_1.Gateway(token, this.rest, this.cache, options.gateway, logCallback);
+        this.cache = new Cache_1.Cache(options.cache, logCallback, logThisArg);
+        this.rest = new Rest_1.Rest(token, options.rest, logCallback, logThisArg);
+        this.gateway = new Gateway_1.Gateway(token, this.rest, this.cache, options.gateway, logCallback, logThisArg);
         this.options = {
             cache: this.cache.options,
             gateway: this.gateway.options,
             rest: this.rest.options
         };
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
         this._log(`Initialized client`, {
             level: `DEBUG`, system: `Client`
         });

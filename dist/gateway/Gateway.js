@@ -23,8 +23,9 @@ class Gateway extends node_utils_1.TypedEmitter {
      * @param cache The {@link Cache cache} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a cache event handler.
      * @param options {@link GatewayOptions Gateway options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token, rest, cache, options = {}, logCallback = () => { }) {
+    constructor(token, rest, cache, options = {}, logCallback = () => { }, logThisArg) {
         super();
         /**
          * {@link GatewayShard Gateway shards}.
@@ -85,7 +86,8 @@ class Gateway extends node_utils_1.TypedEmitter {
                 this.user = data.d;
             this.emit(data.t, data);
         });
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
+        this._logThisArg = logThisArg;
         this._log(`Initialized gateway manager`, {
             level: `DEBUG`, system: `Gateway`
         });
@@ -150,7 +152,7 @@ class Gateway extends node_utils_1.TypedEmitter {
                 });
                 shard = new GatewayShard_1.GatewayShard(this._token, i, this._storedCalculatedShards.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
                     v: `${this.options.version}`, encoding: `json`
-                }).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log);
+                }).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log, this._logThisArg);
                 this.shards.set(i, shard);
                 shard.on(`*`, (data) => this.emit(`*`, data));
                 shard.on(`SENT`, (payload) => this.emit(`SENT`, payload));

@@ -44,13 +44,14 @@ export declare class RestBucket {
     private _queue;
     /**
      * Create a rest bucket.
-     * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, manager: Rest, logCallback?: LogCallback);
+    constructor(id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, manager: Rest, logCallback?: LogCallback, logThisArg?: any);
     /**
      * If the bucket is currently making a request.
      */

@@ -21,8 +21,9 @@ class Rest extends RestRequests_1.RestRequests {
      * @param token The bot's token.
      * @param options {@link RestOptions Rest options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token, options = {}, logCallback = () => { }) {
+    constructor(token, options = {}, logCallback = () => { }, logThisArg) {
         super();
         /**
          * Ratelimit {@link RestBucket buckets}.
@@ -76,7 +77,8 @@ class Rest extends RestRequests_1.RestRequests {
             if (this.options.bucketSweepInterval)
                 this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval);
         }
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
+        this._logThisArg = logThisArg;
         this._log(`Initialized rest manager`, {
             level: `DEBUG`, system: `Rest`
         });
@@ -189,7 +191,7 @@ class Rest extends RestRequests_1.RestRequests {
     _createBucket(bucketId, bucketHash, majorParameter) {
         if (!this.buckets)
             throw new Error(`Buckets are not defined on this rest manager. Maybe ratelimits are disabled?`);
-        const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this, this._log);
+        const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
         this.buckets.set(bucketId, bucket);
         this._log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
             level: `DEBUG`, system: `Rest`

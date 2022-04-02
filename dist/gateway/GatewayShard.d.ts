@@ -141,10 +141,11 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param id The shard's ID.
      * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      * @param url The URL being used to connect to the gateway.
-     * @param logger The {@link Logger logger} for the gateway shard to use. If `false` is specified, no logger will be used.
      * @param options {@link GatewayShardOptions Gateway shard options}.
+     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway shard.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token: string, id: number, numShards: number, url: string, options: Gateway[`options`], logCallback?: LogCallback);
+    constructor(token: string, id: number, numShards: number, url: string, options: Gateway[`options`], logCallback?: LogCallback, logThisArg?: any);
     /**
      * Connect to the gateway.
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.

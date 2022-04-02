@@ -131,6 +131,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _log;
     /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    private _logThisArg?;
+    /**
      * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
      */
     private _requestGuildMembersNonceIncrement;
@@ -157,8 +161,9 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @param cache The {@link Cache cache} to update from incoming events. If `false` is specified, {@link GatewayEvents gateway events} will not be passed to a cache event handler.
      * @param options {@link GatewayOptions Gateway options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(token: string, rest: Rest, cache: Cache | false, options?: GatewayOptions, logCallback?: LogCallback);
+    constructor(token: string, rest: Rest, cache: Cache | false, options?: GatewayOptions, logCallback?: LogCallback, logThisArg?: any);
     /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */

@@ -67,8 +67,9 @@ export declare class Cache {
      * Create a cache manager.
      * @param options {@link CacheOptions Cache options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the cache manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(options?: CacheOptions, logCallback?: LogCallback);
+    constructor(options?: CacheOptions, logCallback?: LogCallback, logThisArg?: any);
     /**
      * Handles data from a gateway event.
      * @param data The gateway data to handle.

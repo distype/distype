@@ -12,13 +12,14 @@ const node_utils_1 = require("@br88c/node-utils");
 class RestBucket {
     /**
      * Create a rest bucket.
-     * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param id The bucket's {@link RestBucketIdLike ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
      * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
+     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(id, bucketHash, majorParameter, manager, logCallback = () => { }) {
+    constructor(id, bucketHash, majorParameter, manager, logCallback = () => { }, logThisArg) {
         /**
          * The number of allowed requests per a ratelimit interval.
          */
@@ -49,7 +50,7 @@ class RestBucket {
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;
         this.manager = manager;
-        this._log = logCallback;
+        this._log = logCallback.bind(logThisArg);
         this._log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
             level: `DEBUG`, system: `Rest Bucket`
         });
