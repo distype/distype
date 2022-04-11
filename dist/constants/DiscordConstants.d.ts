@@ -1,4 +1,4 @@
-import { GatewayIntentBits } from 'discord-api-types/v10';
+import { GatewayCloseCodes, GatewayIntentBits } from 'discord-api-types/v10';
 /**
  * Discord API constants.
  */
@@ -18,6 +18,19 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
      */
     readonly DISCORD_EPOCH: 1420070400000;
+    /**
+     * Gateway [close event codes](https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes).
+     */
+    readonly GATEWAY_CLOSE_CODES: {
+        /**
+         * Close codes that a shard should attempt to reconnect after receiving.
+         */
+        readonly RECONNECTABLE: readonly [GatewayCloseCodes.UnknownError, GatewayCloseCodes.UnknownOpcode, GatewayCloseCodes.DecodeError, GatewayCloseCodes.NotAuthenticated, GatewayCloseCodes.AlreadyAuthenticated, GatewayCloseCodes.InvalidSeq, GatewayCloseCodes.RateLimited, GatewayCloseCodes.SessionTimedOut];
+        /**
+         * Close codes that a shard should not attempt to reconnect after receiving.
+         */
+        readonly NOT_RECONNECTABLE: readonly [GatewayCloseCodes.AuthenticationFailed, GatewayCloseCodes.InvalidShard, GatewayCloseCodes.ShardingRequired, GatewayCloseCodes.InvalidAPIVersion, GatewayCloseCodes.InvalidIntents, GatewayCloseCodes.DisallowedIntents];
+    };
     /**
      * Gateway intents.
      * Includes privileged intents.

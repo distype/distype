@@ -119,8 +119,8 @@ class Gateway extends node_utils_1.TypedEmitter {
     /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */
-    get shardsReady() {
-        return this.shards.size > 0 && this.shards.every((shard) => shard.state === GatewayShard_1.GatewayShardState.CONNECTED);
+    get shardsRunning() {
+        return this.shards.size > 0 && this.shards.every((shard) => shard.state === GatewayShard_1.GatewayShardState.RUNNING);
     }
     /**
      * Connect to the gateway.
@@ -128,7 +128,7 @@ class Gateway extends node_utils_1.TypedEmitter {
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     async connect(gatewayBot) {
-        if (this.shardsReady)
+        if (this.shardsRunning)
             throw new Error(`Shards are already connected`);
         this._log(`Starting connection process`, {
             level: `DEBUG`, system: `Gateway`
@@ -171,32 +171,24 @@ class Gateway extends node_utils_1.TypedEmitter {
         for (let i = 0; i < this._storedCalculatedShards.shards; i++) {
             let shard = null;
             if (i >= this._storedCalculatedShards.offset) {
-                this._log(`Creating shard ${i}`, {
-                    level: `DEBUG`, system: `Gateway`
-                });
                 shard = new GatewayShard_1.GatewayShard(this._token, i, this._storedCalculatedShards.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
                     v: `${this.options.version}`, encoding: `json`
                 }).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log, this._logThisArg);
                 this.shards.set(i, shard);
-                shard.on(`*`, (data) => this.emit(`*`, data));
-                shard.on(`SENT`, (payload) => this.emit(`SENT`, payload));
-                shard.on(`STATE_DISCONNECTED`, () => this.emit(`SHARD_STATE_DISCONNECTED`, shard));
-                shard.on(`STATE_CONNECTING`, () => this.emit(`SHARD_STATE_CONNECTING`, shard));
-                shard.on(`STATE_RESUMING`, () => this.emit(`SHARD_STATE_RESUMING`, shard));
-                shard.on(`STATE_CONNECTED`, () => this.emit(`SHARD_STATE_CONNECTED`, shard));
-                this._log(`Created shard ${shard.id} and bound events`, {
-                    level: `DEBUG`, system: `Gateway`
-                });
+                shard.on(`RECEIVED_MESSAGE`, (message) => this.emit(`*`, message));
+                shard.on(`SENT_PAYLOAD`, (payload) => this.emit(`SENT_PAYLOAD`, payload));
+                shard.on(`IDLE`, () => this.emit(`SHARD_IDLE`, shard));
+                shard.on(`CONNECTING`, () => this.emit(`SHARD_CONNECTING`, shard));
+                shard.on(`IDENTIFYING`, () => this.emit(`SHARD_IDENTIFYING`, shard));
+                shard.on(`RESUMING`, () => this.emit(`SHARD_RESUMING`, shard));
+                shard.on(`RUNNING`, () => this.emit(`SHARD_RUNNING`, shard));
+                shard.on(`DISCONNECTED`, () => this.emit(`SHARD_DISCONNECTED`, shard));
             }
             const bucketId = i % this._storedGetGatewayBot.session_start_limit.max_concurrency;
             if (buckets.has(bucketId))
                 buckets.get(bucketId)?.set(i, shard);
             else
                 buckets.set(bucketId, new node_utils_1.ExtendedMap()).get(bucketId).set(i, shard);
-            if (shard !== null)
-                this._log(`Pushed shard ${i} to bucket ${bucketId}`, {
-                    level: `DEBUG`, system: `Gateway`
-                });
         }
         const results = [];
         for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
@@ -205,9 +197,6 @@ class Gateway extends node_utils_1.TypedEmitter {
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
-            this._log(`Finished spawn process for shard ratelimit key ${i}`, {
-                level: `DEBUG`, system: `Gateway`
-            });
             if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
                 await (0, node_utils_1.wait)(DiscordConstants_1.DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
         }

@@ -23,23 +23,31 @@ export interface GatewayEvents {
     /**
      * When a payload is sent. Data is the sent payload.
      */
-    SENT: string;
+    SENT_PAYLOAD: string;
     /**
-     * When a {@link GatewayShard shard} enters a disconnected state.
+     * When a {@link GatewayShard shard} enters an {@link GatewayShardState idle state}.
      */
-    SHARD_STATE_DISCONNECTED: GatewayShard;
+    SHARD_IDLE: GatewayShard;
     /**
-     * When a {@link GatewayShard shard} enters a connecting state.
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState connecting state}.
      */
-    SHARD_STATE_CONNECTING: GatewayShard;
+    SHARD_CONNECTING: GatewayShard;
     /**
-     * When a {@link GatewayShard shard} enters a resuming state.
+     * When a {@link GatewayShard shard} enters an {@link GatewayShardState identifying state}.
      */
-    SHARD_STATE_RESUMING: GatewayShard;
+    SHARD_IDENTIFYING: GatewayShard;
     /**
-     * When a {@link GatewayShard shard} enters a connected state.
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState resuming state}.
      */
-    SHARD_STATE_CONNECTED: GatewayShard;
+    SHARD_RESUMING: GatewayShard;
+    /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState running state}.
+     */
+    SHARD_RUNNING: GatewayShard;
+    /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
+     */
+    SHARD_DISCONNECTED: GatewayShard;
     '*': DiscordTypes.GatewayDispatchPayload;
     READY: DiscordTypes.GatewayReadyDispatch;
     RESUMED: DiscordTypes.GatewayResumedDispatch;
@@ -117,7 +125,7 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     user: DiscordTypes.APIUser | null;
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that any options not specified are set to a default value.
+     * Note that any options not specified are set to a default value.x
      */
     readonly options: Required<GatewayOptions> & {
         intents: number;
@@ -167,13 +175,13 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */
-    get shardsReady(): boolean;
+    get shardsRunning(): boolean;
     /**
      * Connect to the gateway.
      * @param gatewayBot A pre-fetched `GET` `/gateway/bot`. Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
-    connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<DiscordTypes.GatewayReadyDispatch>>>;
+    connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<void>>>;
     /**
      * Get a guild's shard.
      * @param guildId The guild's ID.

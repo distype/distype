@@ -22,6 +22,19 @@ exports.DiscordConstants = {
      */
     DISCORD_EPOCH: 1420070400000,
     /**
+     * Gateway [close event codes](https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes).
+     */
+    GATEWAY_CLOSE_CODES: {
+        /**
+         * Close codes that a shard should attempt to reconnect after receiving.
+         */
+        RECONNECTABLE: [v10_1.GatewayCloseCodes.UnknownError, v10_1.GatewayCloseCodes.UnknownOpcode, v10_1.GatewayCloseCodes.DecodeError, v10_1.GatewayCloseCodes.NotAuthenticated, v10_1.GatewayCloseCodes.AlreadyAuthenticated, v10_1.GatewayCloseCodes.InvalidSeq, v10_1.GatewayCloseCodes.RateLimited, v10_1.GatewayCloseCodes.SessionTimedOut],
+        /**
+         * Close codes that a shard should not attempt to reconnect after receiving.
+         */
+        NOT_RECONNECTABLE: [v10_1.GatewayCloseCodes.AuthenticationFailed, v10_1.GatewayCloseCodes.InvalidShard, v10_1.GatewayCloseCodes.ShardingRequired, v10_1.GatewayCloseCodes.InvalidAPIVersion, v10_1.GatewayCloseCodes.InvalidIntents, v10_1.GatewayCloseCodes.DisallowedIntents]
+    },
+    /**
      * Gateway intents.
      * Includes privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
