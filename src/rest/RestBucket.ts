@@ -91,10 +91,15 @@ export class RestBucket {
     /**
      * Get information on the bucket's current ratelimit restrictions.
      */
-    public get ratelimited (): { local: boolean, global: boolean } {
-        return {
+    public get ratelimited (): { local: boolean, global: boolean, any: boolean } {
+        const ratelimits = {
             local: this.requestsLeft <= 0 && Date.now() < this.resetAt,
             global: this.manager.globalLeft! <= 0 && Date.now() < this.manager.globalResetAt!
+        };
+
+        return {
+            ...ratelimits,
+            any: Object.values(ratelimits).some((r) => r)
         };
     }
 
@@ -107,10 +112,13 @@ export class RestBucket {
      * @returns Response data.
      */
     public async request (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions): Promise<any> {
-        this._log(`${method} ${route} waiting for queue`, {
-            level: `DEBUG`, system: `Rest Bucket`
-        });
-        await this._waitForQueue();
+        if (this._queue.length) {
+            this._log(`${method} ${route} waiting for queue`, {
+                level: `DEBUG`, system: `Rest Bucket`
+            });
+            await this._waitForQueue();
+        }
+
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
 
@@ -118,7 +126,7 @@ export class RestBucket {
      * Waits for the bucket to no longer be ratelimited.
      */
     private async _awaitRatelimit (): Promise<void> {
-        if (!Object.values(this.ratelimited).some((r) => r)) return;
+        if (!this.ratelimited.any) return;
         const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + this.manager.options.ratelimitPause - Date.now();
         await wait(timeout);
         return await this._awaitRatelimit();
@@ -134,10 +142,12 @@ export class RestBucket {
      * @returns Response data.
      */
     private async _make (method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions, attempt = 0): Promise<any> {
-        this._log(`${method} ${route} waiting for ratelimit`, {
-            level: `DEBUG`, system: `Rest Bucket`
-        });
-        await this._awaitRatelimit();
+        if (this.ratelimited.any) {
+            this._log(`${method} ${route} waiting for ratelimit`, {
+                level: `DEBUG`, system: `Rest Bucket`
+            });
+            await this._awaitRatelimit();
+        }
 
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
