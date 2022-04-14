@@ -62,6 +62,7 @@ export declare class RestBucket {
     get ratelimited(): {
         local: boolean;
         global: boolean;
+        any: boolean;
     };
     /**
      * Make a rest request with this bucket's ratelimits.

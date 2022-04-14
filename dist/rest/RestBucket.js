@@ -65,9 +65,13 @@ class RestBucket {
      * Get information on the bucket's current ratelimit restrictions.
      */
     get ratelimited() {
-        return {
+        const ratelimits = {
             local: this.requestsLeft <= 0 && Date.now() < this.resetAt,
             global: this.manager.globalLeft <= 0 && Date.now() < this.manager.globalResetAt
+        };
+        return {
+            ...ratelimits,
+            any: Object.values(ratelimits).some((r) => r)
         };
     }
     /**
@@ -79,17 +83,19 @@ class RestBucket {
      * @returns Response data.
      */
     async request(method, route, routeHash, options) {
-        this._log(`${method} ${route} waiting for queue`, {
-            level: `DEBUG`, system: `Rest Bucket`
-        });
-        await this._waitForQueue();
+        if (this._queue.length) {
+            this._log(`${method} ${route} waiting for queue`, {
+                level: `DEBUG`, system: `Rest Bucket`
+            });
+            await this._waitForQueue();
+        }
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
     /**
      * Waits for the bucket to no longer be ratelimited.
      */
     async _awaitRatelimit() {
-        if (!Object.values(this.ratelimited).some((r) => r))
+        if (!this.ratelimited.any)
             return;
         const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + this.manager.options.ratelimitPause - Date.now();
         await (0, node_utils_1.wait)(timeout);
@@ -105,10 +111,12 @@ class RestBucket {
      * @returns Response data.
      */
     async _make(method, route, routeHash, options, attempt = 0) {
-        this._log(`${method} ${route} waiting for ratelimit`, {
-            level: `DEBUG`, system: `Rest Bucket`
-        });
-        await this._awaitRatelimit();
+        if (this.ratelimited.any) {
+            this._log(`${method} ${route} waiting for ratelimit`, {
+                level: `DEBUG`, system: `Rest Bucket`
+            });
+            await this._awaitRatelimit();
+        }
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
             this.manager.globalLeft = this.manager.options.ratelimitGlobal;
