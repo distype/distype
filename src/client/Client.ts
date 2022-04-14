@@ -36,6 +36,10 @@ export class Client {
         gateway: Gateway[`options`]
         rest: Rest[`options`]
     };
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    public readonly system = `Client`;
 
     /**
      * The {@link LogCallback log callback} used by the client.
@@ -77,7 +81,7 @@ export class Client {
 
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized client`, {
-            level: `DEBUG`, system: `Client`
+            level: `DEBUG`, system: this.system
         });
     }
 }
