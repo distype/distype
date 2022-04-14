@@ -18,6 +18,10 @@ class Cache {
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(options = {}, logCallback = () => { }, logThisArg) {
+        /**
+         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+         */
+        this.system = `Cache`;
         this.options = {
             channels: options.channels ?? null,
             guilds: options.guilds ?? null,
@@ -33,7 +37,7 @@ class Cache {
         });
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
-            level: `DEBUG`, system: `Cache`
+            level: `DEBUG`, system: this.system
         });
     }
     /**
@@ -45,7 +49,7 @@ class Cache {
         if (this._enabledKeys.length === 0)
             return;
         this._log(`Caching event ${data.t}`, {
-            level: `DEBUG`, system: `Cache`
+            level: `DEBUG`, system: this.system
         });
         switch (data.t) {
             case `READY`: {

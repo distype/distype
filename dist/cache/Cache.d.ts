@@ -56,6 +56,10 @@ export declare class Cache {
      */
     readonly options: Required<CacheOptions>;
     /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    readonly system = "Cache";
+    /**
      * The {@link LogCallback log callback} used by the cache manager.
      */
     private _log;
