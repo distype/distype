@@ -59,6 +59,10 @@ export class Cache {
      * Note that any options not specified are set to a default value.
      */
     public readonly options: Required<CacheOptions>;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    public readonly system = `Cache`;
 
     /**
      * The {@link LogCallback log callback} used by the cache manager.
@@ -94,7 +98,7 @@ export class Cache {
 
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
-            level: `DEBUG`, system: `Cache`
+            level: `DEBUG`, system: this.system
         });
     }
 
@@ -107,7 +111,7 @@ export class Cache {
         if (this._enabledKeys.length === 0) return;
 
         this._log(`Caching event ${data.t}`, {
-            level: `DEBUG`, system: `Cache`
+            level: `DEBUG`, system: this.system
         });
 
         switch (data.t) {
