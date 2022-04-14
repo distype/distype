@@ -1,35 +1,33 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./cache/Cache"), exports);
-__exportStar(require("./cache/CacheObjects"), exports);
-__exportStar(require("./cache/CacheOptions"), exports);
-__exportStar(require("./client/Client"), exports);
-__exportStar(require("./client/ClientOptions"), exports);
-__exportStar(require("./client/scaling/ClientMaster"), exports);
-__exportStar(require("./client/scaling/ClientWorker"), exports);
-__exportStar(require("./constants/DiscordConstants"), exports);
-__exportStar(require("./constants/DistypeConstants"), exports);
-__exportStar(require("./gateway/Gateway"), exports);
-__exportStar(require("./gateway/GatewayOptions"), exports);
-__exportStar(require("./gateway/GatewayShard"), exports);
-__exportStar(require("./rest/Rest"), exports);
-__exportStar(require("./rest/RestBucket"), exports);
-__exportStar(require("./rest/RestOptions"), exports);
-__exportStar(require("./types/Log"), exports);
-__exportStar(require("./utils/CDNUtils"), exports);
-__exportStar(require("./utils/PermissionsUtils"), exports);
-__exportStar(require("./utils/SnowflakeUtils"), exports);
+exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeErrorType = exports.DistypeError = exports.DistypeConstants = exports.DiscordConstants = exports.ClientWorker = exports.ClientMaster = exports.Client = exports.Cache = void 0;
+var Cache_1 = require("./cache/Cache");
+Object.defineProperty(exports, "Cache", { enumerable: true, get: function () { return Cache_1.Cache; } });
+var Client_1 = require("./client/Client");
+Object.defineProperty(exports, "Client", { enumerable: true, get: function () { return Client_1.Client; } });
+var ClientMaster_1 = require("./client/scaling/ClientMaster");
+Object.defineProperty(exports, "ClientMaster", { enumerable: true, get: function () { return ClientMaster_1.ClientMaster; } });
+var ClientWorker_1 = require("./client/scaling/ClientWorker");
+Object.defineProperty(exports, "ClientWorker", { enumerable: true, get: function () { return ClientWorker_1.ClientWorker; } });
+var DiscordConstants_1 = require("./constants/DiscordConstants");
+Object.defineProperty(exports, "DiscordConstants", { enumerable: true, get: function () { return DiscordConstants_1.DiscordConstants; } });
+var DistypeConstants_1 = require("./constants/DistypeConstants");
+Object.defineProperty(exports, "DistypeConstants", { enumerable: true, get: function () { return DistypeConstants_1.DistypeConstants; } });
+var DistypeError_1 = require("./errors/DistypeError");
+Object.defineProperty(exports, "DistypeError", { enumerable: true, get: function () { return DistypeError_1.DistypeError; } });
+Object.defineProperty(exports, "DistypeErrorType", { enumerable: true, get: function () { return DistypeError_1.DistypeErrorType; } });
+var Gateway_1 = require("./gateway/Gateway");
+Object.defineProperty(exports, "Gateway", { enumerable: true, get: function () { return Gateway_1.Gateway; } });
+var GatewayShard_1 = require("./gateway/GatewayShard");
+Object.defineProperty(exports, "GatewayShard", { enumerable: true, get: function () { return GatewayShard_1.GatewayShard; } });
+Object.defineProperty(exports, "GatewayShardState", { enumerable: true, get: function () { return GatewayShard_1.GatewayShardState; } });
+var Rest_1 = require("./rest/Rest");
+Object.defineProperty(exports, "Rest", { enumerable: true, get: function () { return Rest_1.Rest; } });
+var RestBucket_1 = require("./rest/RestBucket");
+Object.defineProperty(exports, "RestBucket", { enumerable: true, get: function () { return RestBucket_1.RestBucket; } });
+var CDNUtils_1 = require("./utils/CDNUtils");
+Object.defineProperty(exports, "CDNUtils", { enumerable: true, get: function () { return CDNUtils_1.CDNUtils; } });
+var PermissionsUtils_1 = require("./utils/PermissionsUtils");
+Object.defineProperty(exports, "PermissionsUtils", { enumerable: true, get: function () { return PermissionsUtils_1.PermissionsUtils; } });
+var SnowflakeUtils_1 = require("./utils/SnowflakeUtils");
+Object.defineProperty(exports, "SnowflakeUtils", { enumerable: true, get: function () { return SnowflakeUtils_1.SnowflakeUtils; } });
