@@ -1,27 +1,74 @@
-export * from './cache/Cache';
-export * from './cache/CacheObjects';
-export * from './cache/CacheOptions';
+export { Cache } from './cache/Cache';
+export {
+    CachedChannel,
+    CachedGuild,
+    CachedMember,
+    CachedPresence,
+    CachedRole,
+    CachedUser,
+    CachedVoiceState
+} from './cache/CacheObjects';
+export { CacheOptions } from './cache/CacheOptions';
 
-export * from './client/Client';
-export * from './client/ClientOptions';
-export * from './client/scaling/ClientMaster';
-export * from './client/scaling/ClientWorker';
+export { Client } from './client/Client';
+export { ClientOptions } from './client/ClientOptions';
+export { ClientMaster } from './client/scaling/ClientMaster';
+export { ClientWorker } from './client/scaling/ClientWorker';
 
-export * from './constants/DiscordConstants';
-export * from './constants/DistypeConstants';
+export { DiscordConstants } from './constants/DiscordConstants';
+export { DistypeConstants } from './constants/DistypeConstants';
 
-export * from './gateway/Gateway';
-export * from './gateway/GatewayOptions';
-export * from './gateway/GatewayShard';
+export {
+    DistypeError,
+    DistypeErrorSystem,
+    DistypeErrorType
+} from './errors/DistypeError';
 
-export * from './rest/Rest';
-export * from './rest/RestBucket';
-export * from './rest/RestOptions';
+export {
+    Gateway,
+    GatewayEvents
+} from './gateway/Gateway';
+export { GatewayOptions } from './gateway/GatewayOptions';
+export {
+    GatewayShard,
+    GatewayShardEvents,
+    GatewayShardState
+} from './gateway/GatewayShard';
 
-export * from './types/Log';
+export {
+    Rest,
+    RestBucketHashLike,
+    RestBucketIdLike,
+    RestMajorParameterLike,
+    RestMethod,
+    RestRequestData,
+    RestRequestDataBodyStream,
+    RestRouteHashLike,
+    RestRouteLike
+} from './rest/Rest';
+export { RestBucket } from './rest/RestBucket';
+export {
+    RestOptions,
+    RestRequestOptions
+} from './rest/RestOptions';
 
-export * from './utils/CDNUtils';
-export * from './utils/PermissionsUtils';
-export * from './utils/SnowflakeUtils';
+export {
+    LogCallback,
+    LogLevel,
+    LogMessageOptions,
+    LogSystem
+} from './types/Log';
+
+export {
+    CDNImageOptions,
+    CDNUtils
+} from './utils/CDNUtils';
+export {
+    PermissionsChannel,
+    PermissionsGuild,
+    PermissionsMember,
+    PermissionsUtils
+} from './utils/PermissionsUtils';
+export { SnowflakeUtils } from './utils/SnowflakeUtils';
 
 export { Snowflake } from 'discord-api-types/v10';
