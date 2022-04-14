@@ -138,6 +138,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * Note that any options not specified are set to a default value.x
      */
     public readonly options: Required<GatewayOptions> & { intents: number };
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    public readonly system = `Gateway`;
 
     /**
      * The {@link Cache cache manager} to update from incoming events.
@@ -227,7 +231,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this._log = logCallback.bind(logThisArg);
         this._logThisArg = logThisArg;
         this._log(`Initialized gateway manager`, {
-            level: `DEBUG`, system: `Gateway`
+            level: `DEBUG`, system: this.system
         });
     }
 
@@ -244,10 +248,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     public async connect (gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<void>>> {
-        if (this.shardsRunning) throw new DistypeError(`Shards are already connected`, DistypeErrorType.GATEWAY_ALREADY_CONNECTED, `Gateway`);
+        if (this.shardsRunning) throw new DistypeError(`Shards are already connected`, DistypeErrorType.GATEWAY_ALREADY_CONNECTED, this.system);
 
         this._log(`Starting connection process`, {
-            level: `DEBUG`, system: `Gateway`
+            level: `DEBUG`, system: this.system
         });
 
         if (gatewayBot) this._storedGetGatewayBot = gatewayBot;
@@ -259,10 +263,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             }) : await this._rest.getGatewayBot();
         }
 
-        if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new DistypeError(`Invalid gateway bot response`, DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, `Gateway`);
+        if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new DistypeError(`Invalid gateway bot response`, DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, this.system);
 
         this._log(`Got bot gateway information`, {
-            level: `DEBUG`, system: `Gateway`
+            level: `DEBUG`, system: this.system
         });
 
         const totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
@@ -276,18 +280,18 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             this._storedCalculatedShards.totalBotShards < this._storedCalculatedShards.shards
             || this._storedCalculatedShards.totalBotShards <= this._storedCalculatedShards.offset
             || this._storedCalculatedShards.totalBotShards < (this._storedCalculatedShards.shards + this._storedCalculatedShards.offset)
-        ) throw new DistypeError(`Invalid shard configuration, got ${this._storedCalculatedShards.totalBotShards} total shards, with ${this._storedCalculatedShards.shards} to be spawned with an offset of ${this._storedCalculatedShards.offset}`, DistypeErrorType.GATEWAY_INVALID_SHARD_CONFIG, `Gateway`);
+        ) throw new DistypeError(`Invalid shard configuration, got ${this._storedCalculatedShards.totalBotShards} total shards, with ${this._storedCalculatedShards.shards} to be spawned with an offset of ${this._storedCalculatedShards.offset}`, DistypeErrorType.GATEWAY_INVALID_SHARD_CONFIG, this.system);
 
         if (this._storedCalculatedShards.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
-            const error = new DistypeError(`Session start limit reached; tried to spawn ${this._storedCalculatedShards.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`, DistypeErrorType.GATEWAY_SESSION_START_LIMIT_REACHED, `Gateway`);
+            const error = new DistypeError(`Session start limit reached; tried to spawn ${this._storedCalculatedShards.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`, DistypeErrorType.GATEWAY_SESSION_START_LIMIT_REACHED, this.system);
             this._log(`Unable to connect shards: ${error.message}`, {
-                level: `ERROR`, system: `Gateway`
+                level: `ERROR`, system: this.system
             });
             throw error;
         }
 
         this._log(`Spawning ${this._storedCalculatedShards.shards} shards`, {
-            level: `INFO`, system: `Gateway`
+            level: `INFO`, system: this.system
         });
 
         const buckets: ExtendedMap<number, ExtendedMap<number, GatewayShard | null>> = new ExtendedMap();
@@ -317,7 +321,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         const results: Array<PromiseSettledResult<void>> = [];
         for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
             this._log(`Starting spawn process for shard ratelimit key ${i}`, {
-                level: `DEBUG`, system: `Gateway`
+                level: `DEBUG`, system: this.system
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
@@ -331,16 +335,16 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         });
 
         this._log(`Finished connection process`, {
-            level: `DEBUG`, system: `Gateway`
+            level: `DEBUG`, system: this.system
         });
         this._log(`${success}/${success + failed} shards spawned`, {
-            level: `INFO`, system: `Gateway`
+            level: `INFO`, system: this.system
         });
         if (failed > 0) this._log(`${failed} shards failed to spawn`, {
-            level: `WARN`, system: `Gateway`
+            level: `WARN`, system: this.system
         });
         this._log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, {
-            level: `INFO`, system: `Gateway`
+            level: `INFO`, system: this.system
         });
 
         return results;
@@ -356,7 +360,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     public guildShard <T extends boolean> (guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
         const shardId = this._guildShard(guildId, this._storedCalculatedShards?.totalBotShards ?? this._storedGetGatewayBot!.shards);
         const shard = this.shards.get(shardId);
-        if (ensure && !(shard instanceof GatewayShard)) throw new DistypeError(`No shard with the specified guild ID found on this gateway manager`, DistypeErrorType.GATEWAY_NO_SHARD, `Gateway`);
+        if (ensure && !(shard instanceof GatewayShard)) throw new DistypeError(`No shard with the specified guild ID found on this gateway manager`, DistypeErrorType.GATEWAY_NO_SHARD, this.system);
         return (shard ?? shardId) as any;
     }
 
@@ -373,7 +377,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         notFound?: Snowflake[]
     }> {
         if (options.query && options.user_ids) throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH) throw new DistypeError(`nonce length is greater than the allowed ${DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`, DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, `Gateway`);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH) throw new DistypeError(`nonce length is greater than the allowed ${DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`, DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, this.system);
 
         const shard = this.guildShard(guildId, true);
 

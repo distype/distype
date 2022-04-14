@@ -118,6 +118,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     public readonly options: Gateway[`options`];
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    public readonly system: `Gateway Shard ${number}`;
 
     /**
      * The heartbeat interval timer.
@@ -198,13 +202,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         });
 
         this.id = id;
+        this.system = `Gateway Shard ${this.id}`;
         this._numShards = numShards;
         this._url = url;
         this.options = options;
 
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized gateway shard ${id}`, {
-            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            level: `DEBUG`, system: this.system
         });
     }
 
@@ -221,7 +226,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     public async spawn (): Promise<void> {
-        if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, `Gateway Shard ${this.id}`);
+        if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
 
         this._spinning = true;
         this._killed = false;
@@ -232,7 +237,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             if (attempt) {
                 this._spinning = false;
                 this._log(`Spawned after ${i + 1} attempts`, {
-                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    level: `DEBUG`, system: this.system
                 });
                 return;
             }
@@ -241,15 +246,15 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 this._enterState(GatewayShardState.IDLE);
 
                 this._log(`Spawning interruped by kill`, {
-                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    level: `DEBUG`, system: this.system
                 });
-                throw new DistypeError(`Shard spawn attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, `Gateway Shard ${this.id}`);
+                throw new DistypeError(`Shard spawn attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
         }
 
         this._spinning = false;
         this._enterState(GatewayShardState.IDLE);
-        throw new DistypeError(`Failed to spawn shard after ${this.options.spawnMaxAttempts} attempts`, DistypeErrorType.GATEWAY_SHARD_MAX_SPAWN_ATTEMPTS_REACHED, `Gateway Shard ${this.id}`);
+        throw new DistypeError(`Failed to spawn shard after ${this.options.spawnMaxAttempts} attempts`, DistypeErrorType.GATEWAY_SHARD_MAX_SPAWN_ATTEMPTS_REACHED, this.system);
     }
 
     /**
@@ -257,7 +262,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     public async restart (): Promise<void> {
-        if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, `Gateway Shard ${this.id}`);
+        if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
 
         this._spinning = true;
         this._killed = false;
@@ -267,7 +272,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             if (attempt) {
                 this._log(`Restarted after ${i} attempts`, {
-                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    level: `DEBUG`, system: this.system
                 });
                 this._spinning = false;
                 return;
@@ -277,9 +282,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 this._enterState(GatewayShardState.IDLE);
 
                 this._log(`Restarting interruped by kill`, {
-                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    level: `DEBUG`, system: this.system
                 });
-                throw new DistypeError(`Shard restart attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, `Gateway Shard ${this.id}`);
+                throw new DistypeError(`Shard restart attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
         }
     }
@@ -299,7 +304,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         this._killed = true;
 
         this._log(`Shard killed with code ${code}, reason "${reason}"`, {
-            level: `INFO`, system: `Gateway Shard ${this.id}`
+            level: `INFO`, system: this.system
         });
     }
 
@@ -329,7 +334,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _close (resuming: boolean, code: number, reason: string): void {
         this._log(`Closing... (Code ${code}, reason "${reason}")`, {
-            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            level: `DEBUG`, system: this.system
         });
 
         this._flushQueue(true);
@@ -369,7 +374,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             (this.emit as (event: string) => void)(GatewayShardState[state]);
 
             this._log(GatewayShardState[state], {
-                level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                level: `DEBUG`, system: this.system
             });
         }
     }
@@ -382,14 +387,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         do {
             const next = this._queue.shift();
             if (next) {
-                if (reject) next.reject(new DistypeError(`Send queue force flushed`, DistypeErrorType.GATEWAY_SHARD_SEND_QUEUE_FORCE_FLUSHED, `Gateway Shard ${this.id}`));
+                if (reject) next.reject(new DistypeError(`Send queue force flushed`, DistypeErrorType.GATEWAY_SHARD_SEND_QUEUE_FORCE_FLUSHED, this.system));
                 else await this._send(next.data).then(next.resolve, next.reject);
             }
         }
         while (this._queue.length);
 
         this._log(`Flushed send queue`, {
-            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            level: `DEBUG`, system: this.system
         });
     }
 
@@ -400,7 +405,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     private _heartbeat (force = false): void {
         if (this._heartbeatWaitingSince !== null && !force) {
             this._log(`Not receiving heartbeat ACKs (Zombified Connection), restarting...`, {
-                level: `WARN`, system: `Gateway Shard ${this.id}`
+                level: `WARN`, system: this.system
             });
             this._close(true, 4009, `Did not receive heartbeat ACK`);
             this._enterState(GatewayShardState.DISCONNECTED);
@@ -414,7 +419,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             }).catch((error) => {
                 this._heartbeatWaitingSince = null;
                 this._log(`Failed to send heartbeat: ${error.message}`, {
-                    level: `ERROR`, system: `Gateway Shard ${this.id}`
+                    level: `ERROR`, system: this.system
                 });
             });
         }
@@ -431,7 +436,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         }
 
         this._log(`Initiating socket... (Resuming: ${resume})`, {
-            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            level: `DEBUG`, system: this.system
         });
 
         this._enterState(GatewayShardState.CONNECTING);
@@ -440,7 +445,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             return await new Promise((resolve, reject) => {
                 this._ws = new WebSocket(this._url, this.options.wsOptions);
 
-                const closeListener = ((code: number, reason: Buffer): void => reject(new DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, `Gateway Shard ${this.id}`))).bind(this);
+                const closeListener = ((code: number, reason: Buffer): void => reject(new DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
                 this._ws.once(`close`, closeListener);
 
                 const errorListener = ((error: Error): void => reject(error)).bind(this);
@@ -448,7 +453,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                 this._ws.once(`open`, () => {
                     this._log(`Socket open`, {
-                        level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                        level: `DEBUG`, system: this.system
                     });
 
                     if (resume && this.canResume) this._enterState(GatewayShardState.RESUMING);
@@ -479,7 +484,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _reconnect (resume: boolean): void {
         this._log(`Reconnecting...`, {
-            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            level: `DEBUG`, system: this.system
         });
 
         if (resume) {
@@ -498,7 +503,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         return await new Promise((resolve, reject) => {
             if (!this._ws || this._ws.readyState !== WebSocket.OPEN) {
-                reject(new DistypeError(`Cannot send data when the socket is not in an OPEN state`, DistypeErrorType.GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET, `Gateway Shard ${this.id}`));
+                reject(new DistypeError(`Cannot send data when the socket is not in an OPEN state`, DistypeErrorType.GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET, this.system));
             } else {
                 this._ws.send(data, (error) => {
                     if (error) reject(error);
@@ -507,7 +512,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                         const op = JSON.parse(data).op;
                         this._log(`Sent payload (opcode ${op} ${DiscordTypes.GatewayOpcodes[op]})`, {
-                            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                            level: `DEBUG`, system: this.system
                         });
 
                         resolve();
@@ -535,7 +540,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         const parsedReason = `Received close code ${code} with reason "${this._parsePayload(reason)}"`;
 
         this._log(parsedReason, {
-            level: `DEBUG`, system: `Gateway Shard ${this.id}`
+            level: `DEBUG`, system: this.system
         });
 
         if (DiscordConstants.GATEWAY_CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
@@ -552,7 +557,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _wsOnError (error: Error): void {
         this._log(error.message, {
-            level: `ERROR`, system: `Gateway Shard ${this.id}`
+            level: `ERROR`, system: this.system
         });
     }
 
@@ -602,7 +607,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             case DiscordTypes.GatewayOpcodes.Hello: {
                 this._log(`Got Hello`, {
-                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    level: `DEBUG`, system: this.system
                 });
 
                 const jitterActive = Date.now();
@@ -653,7 +658,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 }
 
                 this._log(`Heartbeat ACK (Ping at ${this.ping}ms)`, {
-                    level: `DEBUG`, system: `Gateway Shard ${this.id}`
+                    level: `DEBUG`, system: this.system
                 });
 
                 break;
