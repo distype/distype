@@ -7,7 +7,7 @@ exports.DistypeError = exports.DistypeErrorType = void 0;
 var DistypeErrorType;
 (function (DistypeErrorType) {
     /**
-     * Gateway {@link GatewayShard shard}s are already running.
+     * Gateway {@link GatewayShard shards} are already running.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
     DistypeErrorType["GATEWAY_ALREADY_CONNECTED"] = "GATEWAY_ALREADY_CONNECTED";

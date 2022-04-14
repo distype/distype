@@ -33,6 +33,10 @@ export declare class Client {
         rest: Rest[`options`];
     };
     /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    readonly system = "Client";
+    /**
      * The {@link LogCallback log callback} used by the client.
      */
     private _log;

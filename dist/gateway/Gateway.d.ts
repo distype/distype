@@ -131,6 +131,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
         intents: number;
     };
     /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    readonly system = "Gateway";
+    /**
      * The {@link Cache cache manager} to update from incoming events.
      */
     private _cache?;

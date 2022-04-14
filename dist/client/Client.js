@@ -21,6 +21,10 @@ class Client {
          * The version of [Distype](https://github.com/distype/distype) being used.
          */
         this.DISTYPE_VERSION = DistypeConstants_1.DistypeConstants.VERSION;
+        /**
+         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+         */
+        this.system = `Client`;
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
         Object.defineProperty(this, `_token`, {
@@ -39,7 +43,7 @@ class Client {
         };
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized client`, {
-            level: `DEBUG`, system: `Client`
+            level: `DEBUG`, system: this.system
         });
     }
 }

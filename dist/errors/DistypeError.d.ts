@@ -7,7 +7,7 @@ export declare type DistypeErrorSystem = `General` | `Client` | `Client Master` 
  */
 export declare enum DistypeErrorType {
     /**
-     * Gateway {@link GatewayShard shard}s are already running.
+     * Gateway {@link GatewayShard shards} are already running.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
     GATEWAY_ALREADY_CONNECTED = "GATEWAY_ALREADY_CONNECTED",
