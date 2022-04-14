@@ -106,6 +106,10 @@ export class Cache {
     public handleEvent (data: GatewayEvents[`*`]): void {
         if (this._enabledKeys.length === 0) return;
 
+        this._log(`Caching event ${data.t}`, {
+            level: `DEBUG`, system: `Cache`
+        });
+
         switch (data.t) {
             case `READY`: {
                 if (this._enabledKeys.includes(`guilds`)) data.d.guilds.forEach((guild) => this._updateGuild(false, guild));

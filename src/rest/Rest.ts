@@ -301,9 +301,6 @@ export class Rest extends RestRequests {
         if (!this.buckets) throw new Error(`Buckets are not defined on this rest manager. Maybe ratelimits are disabled?`);
         const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
         this.buckets.set(bucketId, bucket);
-        this._log(`Added bucket ${bucket.id} to rest manager bucket collection`, {
-            level: `DEBUG`, system: `Rest`
-        });
         return bucket;
     }
 
