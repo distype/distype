@@ -266,7 +266,7 @@ class Gateway extends node_utils_1.TypedEmitter {
                 data.d.presences?.forEach((presence) => presences.set(presence.user.id, presence));
                 notFound.push(...(data.d.not_found ?? []));
                 if (data.d.chunk_index === (data.d.chunk_count ?? 1) - 1) {
-                    this.off(`GUILD_MEMBERS_CHUNK`, listener);
+                    this.removeListener(`GUILD_MEMBERS_CHUNK`, listener);
                     resolve({
                         members,
                         presences: presences.size > 0 ? presences : undefined,
