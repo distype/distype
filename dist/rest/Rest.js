@@ -123,7 +123,7 @@ class Rest extends RestRequests_1.RestRequests {
             return await bucket.request(method, route, routeHash, options);
         }
         else
-            return (await this.make(method, route, options));
+            return (await this.make(method, route, options)).body;
     }
     /**
      * The internal rest make method.
@@ -168,8 +168,8 @@ class Rest extends RestRequests_1.RestRequests {
         if (typeof unableToParse === `string`)
             throw new DistypeError_1.DistypeError(`Unable to parse response body: "${unableToParse}"`, DistypeError_1.DistypeErrorType.REST_UNABLE_TO_PARSE_RESPONSE_BODY, this.system);
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
-        this._handleResponseCodes(method, route, res.statusCode, res.body);
-        return res.body;
+        this._handleResponseCodes(method, route, res);
+        return res;
     }
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
@@ -207,11 +207,11 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Handles response codes.
      */
-    _handleResponseCodes(method, route, statusCode, body) {
-        let message = `Status code ${statusCode} (UNKNOWN STATUS CODE)`;
+    _handleResponseCodes(method, route, res) {
+        let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
         let level = `WARN`;
         let shouldThrow = false;
-        switch (statusCode) {
+        switch (res.statusCode) {
             case 200: {
                 message = `Status code 200 (OK)`;
                 level = `DEBUG`;
@@ -274,8 +274,8 @@ class Rest extends RestRequests_1.RestRequests {
                 break;
             }
             default: {
-                if (statusCode >= 500 && statusCode < 600) {
-                    message = `Status code ${statusCode} (SERVER ERROR)`;
+                if (res.statusCode >= 500 && res.statusCode < 600) {
+                    message = `Status code ${res.statusCode} (SERVER ERROR)`;
                     level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
                     shouldThrow = this.options.disableRatelimits;
                 }
@@ -283,10 +283,10 @@ class Rest extends RestRequests_1.RestRequests {
             }
         }
         const errors = [];
-        if (body?.message)
-            errors.push(body.message);
-        if (body?.errors) {
-            const flattened = (0, node_utils_1.flattenObject)(body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
+        if (res.body?.message)
+            errors.push(res.body.message);
+        if (res.body?.errors) {
+            const flattened = (0, node_utils_1.flattenObject)(res.body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
             errors.concat(Object.keys(flattened)
                 .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
                 .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${error.message ?? `Unknown Message`}`
@@ -294,7 +294,7 @@ class Rest extends RestRequests_1.RestRequests {
                 .replace(/\.$/, ``)))
                 .flat());
         }
-        const errorString = `${message} "${errors.length ? ` ${errors.join(`, `)}` : `${body.message ?? `Unknown Error`}`}"`;
+        const errorString = `${message} "${errors.length ? ` ${errors.join(`, `)}` : `${res.body.message ?? `Unknown Error`}`}"`;
         this._log(`${method} ${route} returned ${errorString}`, {
             level, system: this.system
         });

@@ -5,6 +5,14 @@ import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import { Readable } from 'stream';
+import { Dispatcher } from 'undici';
+/**
+ * Internal request response.
+ * @internal
+ */
+export declare type RestInternalRestResponse = Dispatcher.ResponseData & {
+    body: any;
+};
 /**
  * {@link Rest} request methods.
  */
@@ -120,7 +128,7 @@ export declare class Rest extends RestRequests {
      * @returns The full undici response.
      * @internal
      */
-    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<any>;
+    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse>;
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
