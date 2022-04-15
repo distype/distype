@@ -397,7 +397,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                 notFound.push(...(data.d.not_found as Snowflake[] ?? []));
 
                 if (data.d.chunk_index === (data.d.chunk_count ?? 1) - 1) {
-                    this.off(`GUILD_MEMBERS_CHUNK`, listener);
+                    this.removeListener(`GUILD_MEMBERS_CHUNK`, listener);
 
                     resolve({
                         members,
