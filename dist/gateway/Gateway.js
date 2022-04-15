@@ -196,7 +196,8 @@ class Gateway extends node_utils_1.TypedEmitter {
                 buckets.set(bucketId, new node_utils_1.ExtendedMap()).get(bucketId).set(i, shard);
         }
         const results = [];
-        for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
+        const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
+        for (let i = 0; i < mostShards; i++) {
             this._log(`Starting spawn process for shard ratelimit key ${i}`, {
                 level: `DEBUG`, system: this.system
             });

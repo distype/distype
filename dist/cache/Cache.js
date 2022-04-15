@@ -381,11 +381,11 @@ class Cache {
             return void this.channels.delete(data.id);
         if (!this.channels.has(data.id))
             this.channels.set(data.id, { id: data.id });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && (key === `guild_id` || this.options.channels?.includes(key)))
-            .forEach((key) => {
-            this.channels.get(data.id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.channels?.includes(key)) {
+                this.channels.get(data.id)[key] = data[key];
+            }
+        }
     }
     /**
      * Update a guild.
@@ -397,11 +397,11 @@ class Cache {
             return void this.guilds.delete(data.id);
         if (!this.guilds.has(data.id))
             this.guilds.set(data.id, { id: data.id });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && this.options.guilds?.includes(key))
-            .forEach((key) => {
-            this.guilds.get(data.id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.guilds?.includes(key)) {
+                this.guilds.get(data.id)[key] = data[key];
+            }
+        }
     }
     /**
      * Update a member.
@@ -421,11 +421,11 @@ class Cache {
             this.members.get(data.guild_id).set(data.user_id, {
                 user_id: data.user_id, guild_id: data.guild_id
             });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && this.options.members?.includes(key))
-            .forEach((key) => {
-            this.members.get(data.guild_id).get(data.user_id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.members?.includes(key)) {
+                this.members.get(data.guild_id).get(data.user_id)[key] = data[key];
+            }
+        }
     }
     /**
      * Update a presence.
@@ -445,11 +445,11 @@ class Cache {
             this.presences.get(data.guild_id).set(data.user_id, {
                 user_id: data.user_id, guild_id: data.guild_id
             });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && this.options.presences?.includes(key))
-            .forEach((key) => {
-            this.presences.get(data.guild_id).get(data.user_id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.presences?.includes(key)) {
+                this.presences.get(data.guild_id).get(data.user_id)[key] = data[key];
+            }
+        }
     }
     /**
      * Update a role.
@@ -461,11 +461,11 @@ class Cache {
             return void this.roles.delete(data.id);
         if (!this.roles.has(data.id))
             this.roles.set(data.id, { id: data.id });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && (key === `guild_id` || this.options.roles?.includes(key)))
-            .forEach((key) => {
-            this.roles.get(data.id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.roles?.includes(key)) {
+                this.roles.get(data.id)[key] = data[key];
+            }
+        }
     }
     /**
      * Update a user.
@@ -477,11 +477,11 @@ class Cache {
             return void this.users.delete(data.id);
         if (!this.users.has(data.id))
             this.users.set(data.id, { id: data.id });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && this.options.users?.includes(key))
-            .forEach((key) => {
-            this.users.get(data.id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.users?.includes(key)) {
+                this.users.get(data.id)[key] = data[key];
+            }
+        }
     }
     /**
      * Update a voice state.
@@ -501,11 +501,11 @@ class Cache {
             this.voiceStates.get(data.guild_id).set(data.user_id, {
                 user_id: data.user_id, guild_id: data.guild_id
             });
-        Object.keys(data)
-            .filter((key) => data[key] !== undefined && this.options.voiceStates?.includes(key))
-            .forEach((key) => {
-            this.voiceStates.get(data.guild_id).get(data.user_id)[key] = data[key];
-        });
+        for (const key in data) {
+            if (data[key] !== undefined && this.options.voiceStates?.includes(key)) {
+                this.voiceStates.get(data.guild_id).get(data.user_id)[key] = data[key];
+            }
+        }
     }
 }
 exports.Cache = Cache;

@@ -87,7 +87,6 @@ export interface CachedRole extends Partial<DiscordTypes.APIRole> {
     /**
      * The ID of the guild the role originates from.
      * May be undefined if only sent from certain gateway dispatches.
-     * Always included, regardless of cache control.
      */
     guild_id?: Snowflake;
 }
