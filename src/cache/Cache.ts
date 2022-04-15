@@ -1,11 +1,10 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
 
-import { GatewayEvents } from '../gateway/Gateway';
 import { LogCallback } from '../types/Log';
 
 import { ExtendedMap } from '@br88c/node-utils';
-import { ChannelType, Snowflake } from 'discord-api-types/v10';
+import { ChannelType, GatewayDispatchPayload, Snowflake } from 'discord-api-types/v10';
 
 /**
  * The cache manager.
@@ -107,7 +106,7 @@ export class Cache {
      * @param data The gateway data to handle.
      * @internal
      */
-    public handleEvent (data: GatewayEvents[`*`]): void {
+    public handleEvent (data: GatewayDispatchPayload): void {
         if (this._enabledKeys.length === 0) return;
 
         this._log(`Caching event ${data.t}`, {
@@ -124,7 +123,7 @@ export class Cache {
                 break;
             }
             case `CHANNEL_CREATE`: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d);
+                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
                     id: data.d.guild_id,
                     channels: [data.d.id, ...(this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
@@ -132,11 +131,11 @@ export class Cache {
                 break;
             }
             case `CHANNEL_UPDATE`: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d);
+                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 break;
             }
             case `CHANNEL_DELETE`: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d);
+                if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
@@ -148,7 +147,7 @@ export class Cache {
                 break;
             }
             case `THREAD_CREATE`: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d);
+                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
                     id: data.d.guild_id,
                     channels: [data.d.id, ...(this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
@@ -156,11 +155,11 @@ export class Cache {
                 break;
             }
             case `THREAD_UPDATE`: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d);
+                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 break;
             }
             case `THREAD_DELETE`: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d);
+                if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
@@ -171,7 +170,7 @@ export class Cache {
             }
             case `GUILD_CREATE`:
             case `GUILD_UPDATE`: {
-                if (this._enabledKeys.includes(`channels`)) data.d.channels?.forEach((channel) => this._updateChannel(false, channel));
+                if (this._enabledKeys.includes(`channels`)) data.d.channels?.forEach((channel) => this._updateChannel(false, channel as any));
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     ...data.d,
                     channels: data.d.channels?.map((channel) => channel.id),

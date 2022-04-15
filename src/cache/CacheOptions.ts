@@ -1,10 +1,6 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 
-/**
- * Gets keys from a union type.
- * @internal
- */
-type UnionKeys<T> = T extends T ? keyof T : never;
+import { UnionKeys } from '@br88c/node-utils';
 
 /**
  * {@link Cache} options.
