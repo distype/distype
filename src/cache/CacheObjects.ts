@@ -2,9 +2,10 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 
 /**
- * A cached channel.
+ * A utility type for typed channels.
+ * @internal
  */
-export interface CachedChannel extends Partial<Omit<DiscordTypes.APIChannel, `member`>> {
+type CachedChannelType<T> = {
     /**
      * The channel's ID.
      * Always included, regardless of cache control.
@@ -21,7 +22,12 @@ export interface CachedChannel extends Partial<Omit<DiscordTypes.APIChannel, `me
      * Note that this field will not update if you do not have the GUILD_MESSAGES / DIRECT_MESSAGES intent enabled. [Discord API Reference](https://discord.com/developers/docs/topics/gateway#channel-update)
      */
     last_message_id?: Snowflake | null
-}
+} & Partial<Omit<T, `member`>>
+
+/**
+ * A cached channel.
+ */
+export type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> | CachedChannelType<DiscordTypes.APIDMChannel> | CachedChannelType<DiscordTypes.APITextChannel> | CachedChannelType<DiscordTypes.APINewsChannel> | CachedChannelType<DiscordTypes.APIVoiceChannel> | CachedChannelType<DiscordTypes.APIGuildCategoryChannel> | CachedChannelType<DiscordTypes.APIThreadChannel> | CachedChannelType<DiscordTypes.APINewsChannel>;
 
 /**
  * A cached guild.
