@@ -1,4 +1,4 @@
-import { RestInternalRequestOptions, RestMethod, RestRequestDataBodyStream } from './Rest';
+import { RestMethod, RestRequestData, RestRequestDataBodyStream } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
@@ -7,7 +7,7 @@ import { Snowflake } from 'discord-api-types/v10';
  * @internal
  */
 export declare abstract class RestRequests {
-    abstract request(method: RestMethod, route: string, options?: RestInternalRequestOptions): Promise<any>;
+    abstract request(method: RestMethod, route: string, options?: RestRequestData): Promise<any>;
     /**
      * @param applicationId The application ID.
      * @param options Request options.

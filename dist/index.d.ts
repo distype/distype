@@ -11,8 +11,8 @@ export { DistypeError, DistypeErrorSystem, DistypeErrorType } from './errors/Dis
 export { Gateway, GatewayEvents } from './gateway/Gateway';
 export { GatewayOptions } from './gateway/GatewayOptions';
 export { GatewayShard, GatewayShardEvents, GatewayShardState } from './gateway/GatewayShard';
-export { Rest, RestBucketHashLike, RestBucketIdLike, RestMajorParameterLike, RestMethod, RestRequestData, RestRequestDataBodyStream, RestRouteHashLike, RestRouteLike } from './rest/Rest';
-export { RestBucket } from './rest/RestBucket';
+export { Rest, RestMethod, RestRequestData, RestRequestDataBodyStream, RestRoute } from './rest/Rest';
+export { RestBucket, RestBucketId, RestRouteHash } from './rest/RestBucket';
 export { RestOptions, RestRequestOptions } from './rest/RestOptions';
 export { LogCallback, LogLevel, LogMessageOptions, LogSystem } from './types/Log';
 export { CDNImageOptions, CDNUtils } from './utils/CDNUtils';

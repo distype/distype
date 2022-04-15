@@ -5,6 +5,7 @@ const RestBucket_1 = require("./RestBucket");
 const RestRequests_1 = require("./RestRequests");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
+const DistypeError_1 = require("../errors/DistypeError");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const node_utils_1 = require("@br88c/node-utils");
 const stream_1 = require("stream");
@@ -27,7 +28,7 @@ class Rest extends RestRequests_1.RestRequests {
         super();
         /**
          * Ratelimit {@link RestBucket buckets}.
-         * Each bucket's key is it's {@link RestBucketIdLike ID}.
+         * Each bucket's key is it's {@link RestBucketId ID}.
          */
         this.buckets = null;
         /**
@@ -49,9 +50,13 @@ class Rest extends RestRequests_1.RestRequests {
         this.responseCodeTally = {};
         /**
          * Cached route ratelimit bucket hashes.
-         * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
+         * Keys are {@link RestRouteHash cached route hashes}, with their values being their corresponding {@link RestBucketHash bucket hash}.
          */
         this.routeHashCache = null;
+        /**
+         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+         */
+        this.system = `Rest`;
         if (typeof token !== `string`)
             throw new TypeError(`A bot token must be specified`);
         Object.defineProperty(this, `_token`, {
@@ -80,7 +85,7 @@ class Rest extends RestRequests_1.RestRequests {
         this._log = logCallback.bind(logThisArg);
         this._logThisArg = logThisArg;
         this._log(`Initialized rest manager`, {
-            level: `DEBUG`, system: `Rest`
+            level: `DEBUG`, system: this.system
         });
     }
     /**
@@ -99,13 +104,13 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Make a rest request.
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns Response body.
      */
     async request(method, route, options = {}) {
         this._log(`${method} ${route} started`, {
-            level: `DEBUG`, system: `Rest`
+            level: `DEBUG`, system: this.system
         });
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
@@ -118,20 +123,21 @@ class Rest extends RestRequests_1.RestRequests {
             return await bucket.request(method, route, routeHash, options);
         }
         else
-            return (await this.make(method, route, options)).body;
+            return (await this.make(method, route, options));
     }
     /**
      * The internal rest make method.
      * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if ratelimits are turned off.
+     * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns The full undici response.
      * @internal
      */
     async make(method, route, options) {
         this._log(`${method} ${route} being made`, {
-            level: `DEBUG`, system: `Rest`
+            level: `DEBUG`, system: this.system
         });
         const headers = {
             'Authorization': `Bot ${this._token}`,
@@ -152,15 +158,18 @@ class Rest extends RestRequests_1.RestRequests {
             body: options.body instanceof stream_1.Readable || (0, types_1.isUint8Array)(options.body) || Buffer.isBuffer(options.body) ? options.body : JSON.stringify(options.body),
             bodyTimeout: options.timeout ?? this.options.timeout
         });
+        let unableToParse = false;
         const res = await req.then(async (r) => ({
             ...r,
-            body: r.statusCode !== 204 ? await r.body.json().catch(() => this._log(`${method} ${route} unable to parse response body, returning undefined`, {
-                level: `WARN`, system: `Rest`
-            })) : undefined
+            body: r.statusCode !== 204 ? await r.body.json().catch((error) => {
+                unableToParse = error.message ?? `Unknown reason`;
+            }) : undefined
         }));
+        if (typeof unableToParse === `string`)
+            throw new DistypeError_1.DistypeError(`Unable to parse response body: "${unableToParse}"`, DistypeError_1.DistypeErrorType.REST_UNABLE_TO_PARSE_RESPONSE_BODY, this.system);
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
-        this._handleResponseCodes(method, route, res, this.options.friendlyErrors ?? options.friendlyErrors);
-        return res;
+        this._handleResponseCodes(method, route, res.statusCode, res.body);
+        return res.body;
     }
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
@@ -169,7 +178,7 @@ class Rest extends RestRequests_1.RestRequests {
         if (this.buckets) {
             const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
             this._log(`Sweeped ${sweeped.size} buckets`, {
-                level: `DEBUG`, system: `Rest`
+                level: `DEBUG`, system: this.system
             });
         }
     }
@@ -183,14 +192,14 @@ class Rest extends RestRequests_1.RestRequests {
     }
     /**
      * Create a ratelimit {@link RestBucket bucket}.
-     * @param bucketId The bucket's {@link RestBucketIdLike ID}.
-     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
-     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param bucketId The bucket's {@link RestBucketId ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
+     * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @returns The created bucket.
      */
     _createBucket(bucketId, bucketHash, majorParameter) {
-        if (!this.buckets)
-            throw new Error(`Buckets are not defined on this rest manager. Maybe ratelimits are disabled?`);
+        if (!this.buckets || this.options.disableRatelimits)
+            throw new DistypeError_1.DistypeError(`Cannot create a bucket while ratelimits are disabled`, DistypeError_1.DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
         const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
         this.buckets.set(bucketId, bucket);
         return bucket;
@@ -198,11 +207,11 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Handles response codes.
      */
-    _handleResponseCodes(method, route, res, friendlyErrors) {
-        let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
+    _handleResponseCodes(method, route, statusCode, body) {
+        let message = `Status code ${statusCode} (UNKNOWN STATUS CODE)`;
         let level = `WARN`;
         let shouldThrow = false;
-        switch (res.statusCode) {
+        switch (statusCode) {
             case 200: {
                 message = `Status code 200 (OK)`;
                 level = `DEBUG`;
@@ -265,27 +274,14 @@ class Rest extends RestRequests_1.RestRequests {
                 break;
             }
             default: {
-                if (res.statusCode >= 500 && res.statusCode < 600) {
-                    message = `Status code ${res.statusCode} (SERVER ERROR)`;
+                if (statusCode >= 500 && statusCode < 600) {
+                    message = `Status code ${statusCode} (SERVER ERROR)`;
                     level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
                     shouldThrow = this.options.disableRatelimits;
                 }
                 break;
             }
         }
-        const errors = this._parseErrors(res.body);
-        this._log(`${method} ${route} returned ${message}${errors ? ` ${errors}` : ``}`, {
-            level, system: `Rest`
-        });
-        if (shouldThrow)
-            throw new Error(friendlyErrors ? `${res.body.message ?? `Unknown rest error`}` : `${message}${errors ? ` ${errors}` : ``} on ${method} ${route}`);
-    }
-    /**
-     * Parses errors from a response.
-     * @param body The body in the response.
-     * @returns A parsed error string, or `null` if no errors were found.
-     */
-    _parseErrors(body) {
         const errors = [];
         if (body?.message)
             errors.push(body.message);
@@ -298,7 +294,13 @@ class Rest extends RestRequests_1.RestRequests {
                 .replace(/\.$/, ``)))
                 .flat());
         }
-        return errors.length ? errors.join(`, `) : null;
+        const errorString = `${message} "${errors.length ? ` ${errors.join(`, `)}` : `${body.message ?? `Unknown Error`}`}"`;
+        this._log(`${method} ${route} returned ${errorString}`, {
+            level, system: this.system
+        });
+        if (shouldThrow) {
+            throw new DistypeError_1.DistypeError(`${errorString} on ${method} ${route}`, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
+        }
     }
 }
 exports.Rest = Rest;

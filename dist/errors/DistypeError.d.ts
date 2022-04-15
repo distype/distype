@@ -65,7 +65,22 @@ export declare enum DistypeErrorType {
      * The {@link GatewayShard shard} tried sending data to the gateway while the socket wasn't open.
      * Should be emitted by a {@link GatewayShard gateway shard}.
      */
-    GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET = "GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET"
+    GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET = "GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET",
+    /**
+     * The {@link Rest rest manager} tried to create a {@link RestBucket ratelimit bucket} while ratelimits are disabled.
+     * Should be emitted by the {@link Rest rest manager}.
+     */
+    REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS = "REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS",
+    /**
+     * There was an error making a {@link Rest rest} request.
+     * Should be emitted by the {@link Rest rest manager} or a {@link RestBucket ratelimit bucket}.
+     */
+    REST_REQUEST_ERROR = "REST_REQUEST_ERROR",
+    /**
+     * The {@link Rest rest manager} was unable to parse the response body.
+     * Should be emitted by the {@link Rest rest manager}.
+     */
+    REST_UNABLE_TO_PARSE_RESPONSE_BODY = "REST_UNABLE_TO_PARSE_RESPONSE_BODY"
 }
 /**
  * An error emitted from distype.

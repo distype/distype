@@ -1,5 +1,24 @@
-import { Rest, RestBucketHashLike, RestBucketIdLike, RestInternalRequestOptions, RestMajorParameterLike, RestMethod, RestRouteHashLike, RestRouteLike } from './Rest';
+import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
 import { LogCallback } from '../types/Log';
+import { Snowflake } from 'discord-api-types/v10';
+/**
+ * A {@link Rest rest} bucket hash.
+ * @internal
+ */
+export declare type RestBucketHash = `${string}` | `global;${RestRouteHash}`;
+/**
+ * A {@link RestBucket rest bucket} ID.
+ */
+export declare type RestBucketId = `${RestBucketHash}(${RestMajorParameter})`;
+/**
+ * A major {@link Rest rest} ratelimit parameter.
+ * @internal
+ */
+export declare type RestMajorParameter = `global` | Snowflake;
+/**
+ * A {@link RestRoute rest route} hash.
+ */
+export declare type RestRouteHash = `${RestMethod};${RestMajorParameter}`;
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
@@ -23,17 +42,21 @@ export declare class RestBucket {
      */
     resetAt: number;
     /**
-     * The bucket's unique {@link RestBucketHashLike hash}.
+     * The bucket's unique {@link RestBucketHash hash}.
      */
-    readonly bucketHash: RestBucketHashLike;
+    readonly bucketHash: RestBucketHash;
     /**
-     * The bucket's {@link RestBucketIdLike ID}.
+     * The bucket's {@link RestBucketId ID}.
      */
-    readonly id: RestBucketIdLike;
+    readonly id: RestBucketId;
     /**
-     * The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * The {@link RestMajorParameter major parameter} associated with the bucket.
      */
-    readonly majorParameter: RestMajorParameterLike;
+    readonly majorParameter: RestMajorParameter;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    readonly system = "Rest Bucket";
     /**
      * The {@link LogCallback log callback} used by the rest bucket.
      */
@@ -44,14 +67,14 @@ export declare class RestBucket {
     private _queue;
     /**
      * Create a rest bucket.
-     * @param id The bucket's {@link RestBucketIdLike ID}.
-     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
-     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param id The bucket's {@link RestBucketId ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
+     * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(id: RestBucketIdLike, bucketHash: RestBucketHashLike, majorParameter: RestMajorParameterLike, manager: Rest, logCallback?: LogCallback, logThisArg?: any);
+    constructor(id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest, logCallback?: LogCallback, logThisArg?: any);
     /**
      * If the bucket is currently making a request.
      */
@@ -67,12 +90,12 @@ export declare class RestBucket {
     /**
      * Make a rest request with this bucket's ratelimits.
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
-     * @param routeHash The request's {@link RestRouteHashLike route hash}.
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHash route hash}.
      * @param options Request options.
      * @returns Response data.
      */
-    request(method: RestMethod, route: RestRouteLike, routeHash: RestRouteHashLike, options: RestInternalRequestOptions): Promise<any>;
+    request(method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<any>;
     /**
      * Waits for the bucket to no longer be ratelimited.
      */
@@ -80,8 +103,8 @@ export declare class RestBucket {
     /**
      * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
-     * @param routeHash The request's {@link RestRouteHashLike route hash}.
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHash route hash}.
      * @param options Request options.
      * @param attempt The current attempt value.
      * @returns Response data.

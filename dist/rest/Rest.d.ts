@@ -1,46 +1,20 @@
 /// <reference types="node" />
-import { RestBucket } from './RestBucket';
+import { RestBucket, RestBucketHash, RestBucketId, RestRouteHash } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
-import { Snowflake } from 'discord-api-types/v10';
 import { Readable } from 'stream';
-import { Dispatcher } from 'undici';
 /**
  * {@link Rest} request methods.
  */
 export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 /**
- * A {@link Rest rest} bucket hash.
- */
-export declare type RestBucketHashLike = `${string}` | `global;${RestRouteHashLike}`;
-/**
- * A {@link RestBucket rest bucket} ID.
- */
-export declare type RestBucketIdLike = `${RestBucketHashLike}(${RestMajorParameterLike})`;
-/**
- * Internal request options.
- * @internal
- */
-export declare type RestInternalRequestOptions = RestRequestOptions & RestRequestData;
-/**
- * Internal request response.
- * @internal
- */
-export declare type RestInternalRestResponse = Dispatcher.ResponseData & {
-    body: any;
-};
-/**
- * A major {@link Rest rest} ratelimit parameter.
- */
-export declare type RestMajorParameterLike = `global` | Snowflake;
-/**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
  * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implmenet the correct headers in your request.
  */
-export interface RestRequestData {
+export interface RestRequestData extends RestRequestOptions {
     /**
      * The request body.
      */
@@ -61,11 +35,7 @@ export declare type RestRequestDataBodyStream = Readable | Buffer | Uint8Array;
 /**
  * A {@link Rest rest} route.
  */
-export declare type RestRouteLike = `/${string}`;
-/**
- * A {@link RestRouteLike rest route} hash.
- */
-export declare type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}`;
+export declare type RestRoute = `/${string}`;
 /**
  * The rest manager.
  * Used for making rest requests to the Discord API.
@@ -73,9 +43,9 @@ export declare type RestRouteHashLike = `${RestMethod};${RestMajorParameterLike}
 export declare class Rest extends RestRequests {
     /**
      * Ratelimit {@link RestBucket buckets}.
-     * Each bucket's key is it's {@link RestBucketIdLike ID}.
+     * Each bucket's key is it's {@link RestBucketId ID}.
      */
-    buckets: ExtendedMap<RestBucketIdLike, RestBucket> | null;
+    buckets: ExtendedMap<RestBucketId, RestBucket> | null;
     /**
      * The interval used for sweeping inactive {@link RestBucket buckets}.
      */
@@ -95,13 +65,17 @@ export declare class Rest extends RestRequests {
     responseCodeTally: Record<string, number>;
     /**
      * Cached route ratelimit bucket hashes.
-     * Keys are {@link RestRouteHashLike cached route hashes}, with their values being their corresponding {@link RestBucketHashLike bucket hash}.
+     * Keys are {@link RestRouteHash cached route hashes}, with their values being their corresponding {@link RestBucketHash bucket hash}.
      */
-    routeHashCache: ExtendedMap<RestRouteHashLike, RestBucketHashLike> | null;
+    routeHashCache: ExtendedMap<RestRouteHash, RestBucketHash> | null;
     /**
      * {@link RestOptions Options} for the rest manager.
      */
     readonly options: Required<RestOptions> & RestRequestOptions;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    readonly system = "Rest";
     /**
      * The {@link LogCallback log callback} used by the gateway manager.
      */
@@ -131,21 +105,22 @@ export declare class Rest extends RestRequests {
     /**
      * Make a rest request.
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns Response body.
      */
-    request(method: RestMethod, route: RestRouteLike, options?: RestInternalRequestOptions): Promise<any>;
+    request(method: RestMethod, route: RestRoute, options?: RestRequestData): Promise<any>;
     /**
      * The internal rest make method.
      * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if ratelimits are turned off.
+     * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns The full undici response.
      * @internal
      */
-    make(method: RestMethod, route: RestRouteLike, options: RestInternalRequestOptions): Promise<RestInternalRestResponse>;
+    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<any>;
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
@@ -158,9 +133,9 @@ export declare class Rest extends RestRequests {
     private _convertUndiciHeaders;
     /**
      * Create a ratelimit {@link RestBucket bucket}.
-     * @param bucketId The bucket's {@link RestBucketIdLike ID}.
-     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
-     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param bucketId The bucket's {@link RestBucketId ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
+     * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @returns The created bucket.
      */
     private _createBucket;
@@ -168,10 +143,4 @@ export declare class Rest extends RestRequests {
      * Handles response codes.
      */
     private _handleResponseCodes;
-    /**
-     * Parses errors from a response.
-     * @param body The body in the response.
-     * @returns A parsed error string, or `null` if no errors were found.
-     */
-    private _parseErrors;
 }

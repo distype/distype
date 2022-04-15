@@ -4,6 +4,7 @@ exports.RestBucket = void 0;
 const Rest_1 = require("./Rest");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const node_utils_1 = require("@br88c/node-utils");
+const DistypeError_1 = require("../errors/DistypeError");
 /**
  * A {@link Rest rest} bucket.
  * Used for ratelimiting requests.
@@ -12,9 +13,9 @@ const node_utils_1 = require("@br88c/node-utils");
 class RestBucket {
     /**
      * Create a rest bucket.
-     * @param id The bucket's {@link RestBucketIdLike ID}.
-     * @param bucketHash The bucket's unique {@link RestBucketHashLike hash}.
-     * @param majorParameter The {@link RestMajorParameterLike major parameter} associated with the bucket.
+     * @param id The bucket's {@link RestBucketId ID}.
+     * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
+     * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
@@ -33,6 +34,10 @@ class RestBucket {
          */
         this.resetAt = -1;
         /**
+         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+         */
+        this.system = `Rest Bucket`;
+        /**
          * The request queue.
          */
         this._queue = [];
@@ -44,15 +49,13 @@ class RestBucket {
             throw new TypeError(`A major parameter must be specified`);
         if (!(manager instanceof Rest_1.Rest))
             throw new TypeError(`A rest manager must be specified`);
-        if (manager.options.disableRatelimits)
-            throw new Error(`The provided rest manager does not have ratelimits enabled`);
         this.id = id;
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;
         this.manager = manager;
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
-            level: `DEBUG`, system: `Rest Bucket`
+            level: `DEBUG`, system: this.system
         });
     }
     /**
@@ -77,15 +80,15 @@ class RestBucket {
     /**
      * Make a rest request with this bucket's ratelimits.
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
-     * @param routeHash The request's {@link RestRouteHashLike route hash}.
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHash route hash}.
      * @param options Request options.
      * @returns Response data.
      */
     async request(method, route, routeHash, options) {
         if (this._queue.length) {
             this._log(`${method} ${route} waiting for queue`, {
-                level: `DEBUG`, system: `Rest Bucket`
+                level: `DEBUG`, system: this.system
             });
             await this._waitForQueue();
         }
@@ -104,8 +107,8 @@ class RestBucket {
     /**
      * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
      * @param method The request's {@link RestMethod method}.
-     * @param route The requests's {@link RestRouteLike route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
-     * @param routeHash The request's {@link RestRouteHashLike route hash}.
+     * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
+     * @param routeHash The request's {@link RestRouteHash route hash}.
      * @param options Request options.
      * @param attempt The current attempt value.
      * @returns Response data.
@@ -113,7 +116,7 @@ class RestBucket {
     async _make(method, route, routeHash, options, attempt = 0) {
         if (this.ratelimited.any) {
             this._log(`${method} ${route} waiting for ratelimit`, {
-                level: `DEBUG`, system: `Rest Bucket`
+                level: `DEBUG`, system: this.system
             });
             await this._awaitRatelimit();
         }
@@ -143,7 +146,7 @@ class RestBucket {
             return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {
             if (attempt >= this.manager.options.code500retries)
-                throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
+                throw new DistypeError_1.DistypeError(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
             else
                 return this._make(method, route, routeHash, options, attempt + 1);
         }
