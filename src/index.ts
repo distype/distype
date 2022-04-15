@@ -37,16 +37,16 @@ export {
 
 export {
     Rest,
-    RestBucketHashLike,
-    RestBucketIdLike,
-    RestMajorParameterLike,
     RestMethod,
     RestRequestData,
     RestRequestDataBodyStream,
-    RestRouteHashLike,
-    RestRouteLike
+    RestRoute
 } from './rest/Rest';
-export { RestBucket } from './rest/RestBucket';
+export {
+    RestBucket,
+    RestBucketId,
+    RestRouteHash
+} from './rest/RestBucket';
 export {
     RestOptions,
     RestRequestOptions

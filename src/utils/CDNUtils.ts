@@ -1,5 +1,5 @@
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { RestRouteLike } from '../rest/Rest';
+import { RestRoute } from '../rest/Rest';
 
 import { Snowflake } from 'discord-api-types/v10';
 import { URL } from 'url';
@@ -213,7 +213,7 @@ export class CDNUtils {
      * @param route The asset's route.
      * @param options Image options.
      */
-    private static _make (route: RestRouteLike, options: {
+    private static _make (route: RestRoute, options: {
         dynamic?: boolean
         format?: (typeof DiscordConstants)[`IMAGE_FORMATS`][number],
         hash?: string,

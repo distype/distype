@@ -54,11 +54,6 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
      */
     customBaseURL?: string
     /**
-     * If thrown errors should be in a more user friendly format.
-     * Useful if you report thrown errors directly to users; the full error will still be reported on the logger.
-     */
-    friendlyErrors?: boolean
-    /**
      * The amount of time in milliseconds to wait before considering a request timed out.
      * Defaults to [undici's](https://undici.nodejs.org) `bodyTimeout` from [DispatchOptions](https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-dispatchoptions).
      */
