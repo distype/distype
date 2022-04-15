@@ -381,7 +381,7 @@ export class Rest extends RestRequests {
                     .flat()
             );
         }
-        const errorString = `${message} "${errors.length ? ` ${errors.join(`, `)}` : `${res.body.message ?? `Unknown Error`}`}"`;
+        const errorString = `${message ? `${message} ` : ``}${errors.length ? ` "${errors.join(`, `)}"` : `${res.body.message ? ` "${res.body.message}"` : ``}`}`;
 
         this._log(`${method} ${route} returned ${errorString}`, {
             level, system: this.system
