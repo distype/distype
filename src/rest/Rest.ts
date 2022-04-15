@@ -10,9 +10,15 @@ import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
 import { ExtendedMap, flattenObject, LoggerLevel } from '@br88c/node-utils';
 import { Readable } from 'stream';
-import { request } from 'undici';
+import { Dispatcher, request } from 'undici';
 import { URL, URLSearchParams } from 'url';
 import { isUint8Array } from 'util/types';
+
+/**
+ * Internal request response.
+ * @internal
+ */
+export type RestInternalRestResponse = Dispatcher.ResponseData & { body: any }
 
 /**
  * {@link Rest} request methods.
@@ -188,7 +194,7 @@ export class Rest extends RestRequests {
             const bucket = this.buckets!.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
 
             return await bucket.request(method, route, routeHash, options);
-        } else return (await this.make(method, route, options));
+        } else return (await this.make(method, route, options)).body;
     }
 
     /**
@@ -201,7 +207,7 @@ export class Rest extends RestRequests {
      * @returns The full undici response.
      * @internal
      */
-    public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<any> {
+    public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse> {
         this._log(`${method} ${route} being made`, {
             level: `DEBUG`, system: this.system
         });
@@ -229,7 +235,7 @@ export class Rest extends RestRequests {
         });
 
         let unableToParse: string | boolean = false;
-        const res = await req.then(async (r) => ({
+        const res: RestInternalRestResponse = await req.then(async (r) => ({
             ...r,
             body: r.statusCode !== 204 ? await r.body.json().catch((error) => {
                 unableToParse = error.message as string ?? `Unknown reason`;
@@ -240,9 +246,9 @@ export class Rest extends RestRequests {
 
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
 
-        this._handleResponseCodes(method, route, res.statusCode, res.body);
+        this._handleResponseCodes(method, route, res);
 
-        return res.body;
+        return res;
     }
 
     /**
@@ -283,12 +289,12 @@ export class Rest extends RestRequests {
     /**
      * Handles response codes.
      */
-    private _handleResponseCodes (method: RestMethod, route: RestRoute, statusCode: number, body: any): void {
-        let message = `Status code ${statusCode} (UNKNOWN STATUS CODE)`;
+    private _handleResponseCodes (method: RestMethod, route: RestRoute, res: RestInternalRestResponse): void {
+        let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
         let level: LoggerLevel = `WARN`;
         let shouldThrow = false;
 
-        switch (statusCode) {
+        switch (res.statusCode) {
             case 200: {
                 message = `Status code 200 (OK)`;
                 level = `DEBUG`;
@@ -351,8 +357,8 @@ export class Rest extends RestRequests {
                 break;
             }
             default: {
-                if (statusCode >= 500 && statusCode < 600) {
-                    message = `Status code ${statusCode} (SERVER ERROR)`;
+                if (res.statusCode >= 500 && res.statusCode < 600) {
+                    message = `Status code ${res.statusCode} (SERVER ERROR)`;
                     level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
                     shouldThrow = this.options.disableRatelimits;
                 }
@@ -361,9 +367,9 @@ export class Rest extends RestRequests {
         }
 
         const errors: string[] = [];
-        if (body?.message) errors.push(body.message);
-        if (body?.errors) {
-            const flattened = flattenObject(body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+        if (res.body?.message) errors.push(res.body.message);
+        if (res.body?.errors) {
+            const flattened = flattenObject(res.body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
             errors.concat(
                 Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
@@ -375,7 +381,7 @@ export class Rest extends RestRequests {
                     .flat()
             );
         }
-        const errorString = `${message} "${errors.length ? ` ${errors.join(`, `)}` : `${body.message ?? `Unknown Error`}`}"`;
+        const errorString = `${message} "${errors.length ? ` ${errors.join(`, `)}` : `${res.body.message ?? `Unknown Error`}`}"`;
 
         this._log(`${method} ${route} returned ${errorString}`, {
             level, system: this.system
