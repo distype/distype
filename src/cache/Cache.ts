@@ -391,11 +391,11 @@ export class Cache {
 
         if (!this.channels!.has(data.id)) this.channels!.set(data.id, { id: data.id });
 
-        (Object.keys(data) as Array<keyof CachedChannel>)
-            .filter((key) => data[key] !== undefined && (key === `guild_id` || this.options.channels?.includes(key as any)))
-            .forEach((key) => {
-                (this.channels!.get(data.id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedChannel] !== undefined && this.options.channels?.includes(key as any)) {
+                (this.channels!.get(data.id)![key as keyof CachedChannel] as any) = data[key as keyof CachedChannel];
+            }
+        }
     }
 
     /**
@@ -408,11 +408,11 @@ export class Cache {
 
         if (!this.guilds!.has(data.id)) this.guilds!.set(data.id, { id: data.id });
 
-        (Object.keys(data) as Array<keyof CachedGuild>)
-            .filter((key) => data[key] !== undefined && this.options.guilds?.includes(key as any))
-            .forEach((key) => {
-                (this.guilds!.get(data.id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedGuild] !== undefined && this.options.guilds?.includes(key as any)) {
+                (this.guilds!.get(data.id)![key as keyof CachedGuild] as any) = data[key as keyof CachedGuild];
+            }
+        }
     }
 
     /**
@@ -432,11 +432,11 @@ export class Cache {
             user_id: data.user_id, guild_id: data.guild_id
         });
 
-        (Object.keys(data) as Array<keyof CachedMember>)
-            .filter((key) => data[key] !== undefined && this.options.members?.includes(key as any))
-            .forEach((key) => {
-                (this.members!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedMember] !== undefined && this.options.members?.includes(key as any)) {
+                (this.members!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedMember] as any) = data[key as keyof CachedMember];
+            }
+        }
     }
 
     /**
@@ -456,11 +456,11 @@ export class Cache {
             user_id: data.user_id, guild_id: data.guild_id
         });
 
-        (Object.keys(data) as Array<keyof CachedPresence>)
-            .filter((key) => data[key] !== undefined && this.options.presences?.includes(key as any))
-            .forEach((key) => {
-                (this.presences!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedPresence] !== undefined && this.options.presences?.includes(key as any)) {
+                (this.presences!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedPresence] as any) = data[key as keyof CachedPresence];
+            }
+        }
     }
 
     /**
@@ -473,11 +473,11 @@ export class Cache {
 
         if (!this.roles!.has(data.id)) this.roles!.set(data.id, { id: data.id });
 
-        (Object.keys(data) as Array<keyof CachedRole>)
-            .filter((key) => data[key] !== undefined && (key === `guild_id` || this.options.roles?.includes(key as any)))
-            .forEach((key) => {
-                (this.roles!.get(data.id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedRole] !== undefined && this.options.roles?.includes(key as any)) {
+                (this.roles!.get(data.id)![key as keyof CachedRole] as any) = data[key as keyof CachedRole];
+            }
+        }
     }
 
     /**
@@ -490,11 +490,11 @@ export class Cache {
 
         if (!this.users!.has(data.id)) this.users!.set(data.id, { id: data.id });
 
-        (Object.keys(data) as Array<keyof CachedUser>)
-            .filter((key) => data[key] !== undefined && this.options.users?.includes(key as any))
-            .forEach((key) => {
-                (this.users!.get(data.id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedUser] !== undefined && this.options.users?.includes(key as any)) {
+                (this.users!.get(data.id)![key as keyof CachedUser] as any) = data[key as keyof CachedUser];
+            }
+        }
     }
 
     /**
@@ -514,10 +514,10 @@ export class Cache {
             user_id: data.user_id, guild_id: data.guild_id
         });
 
-        (Object.keys(data) as Array<keyof CachedVoiceState>)
-            .filter((key) => data[key] !== undefined && this.options.voiceStates?.includes(key as any))
-            .forEach((key) => {
-                (this.voiceStates!.get(data.guild_id)!.get(data.user_id)![key] as any) = data[key];
-            });
+        for (const key in data) {
+            if (data[key as keyof CachedVoiceState] !== undefined && this.options.voiceStates?.includes(key as any)) {
+                (this.voiceStates!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedVoiceState] as any) = data[key as keyof CachedVoiceState];
+            }
+        }
     }
 }

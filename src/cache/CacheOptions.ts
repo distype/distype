@@ -11,7 +11,7 @@ export interface CacheOptions {
      * Defining an empty array (`[]`) will only cache the required data, `null` or `undefined` will cache no data.
      * @default null
      */
-    channels?: Array<keyof Omit<CachedChannel, `id` | `guild_id`>> | null
+    channels?: Array<keyof Omit<CachedChannel, `id`>> | null
     /**
      * Guild cache control.
      * By default, nothing is cached. Cache is enabled on a per-key basis, meaning you specify what keys of data you wish to keep cached.
@@ -43,7 +43,7 @@ export interface CacheOptions {
      * Defining an empty array (`[]`) will only cache the required data, `null` or `undefined` will cache no data.
      * @default null
      */
-    roles?: Array<keyof Omit<CachedRole, `id` | `guild_id`>> | null
+    roles?: Array<keyof Omit<CachedRole, `id`>> | null
     /**
      * User cache control.
      * By default, nothing is cached. Cache is enabled on a per-key basis, meaning you specify what keys of data you wish to keep cached.
