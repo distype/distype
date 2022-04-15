@@ -20,14 +20,11 @@ import { URL, URLSearchParams } from 'url';
 export interface GatewayEvents extends Record<string, (...args: any[]) => void> {
     /**
      * When all {@link GatewayShard shards} are spawned and ready.
-     * @param success The number of shards that spawned successfully.
-     * @param failed The number of shards that failed to spawn.
      */
     SHARDS_READY: (success: number, failed: number) => void
 
     /**
      * When a payload is sent.
-     * @param payload The sent payload.
      */
     SENT_PAYLOAD: (payload: string) => void
     /**
