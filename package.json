@@ -1,6 +1,6 @@
 {
   "name": "distype",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "A light yet robust Discord library written in TypeScript, catered towards developers looking for a final, no compromises solution for creating Discord bots.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,15 +38,15 @@
     "url": "git+https://github.com/distype/distype.git"
   },
   "dependencies": {
-    "@br88c/node-utils": "^1.0.4",  
+    "@br88c/node-utils": "^1.1.1",  
     "@types/ws": "^8.5.3",
-    "discord-api-types": "^0.31.0",
+    "discord-api-types": "^0.31.1",
     "undici": "^5.0.0",
     "ws": "^8.5.0"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.4.0",
-    "@types/node": "^16.11.26",
+    "@types/node": "^16.11.27",
     "eslint": "^8.13.0",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.3"

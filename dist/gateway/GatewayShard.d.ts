@@ -5,39 +5,39 @@ import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * {@link GatewayShard Gateway shard} events.
  */
-export interface GatewayShardEvents {
+export interface GatewayShardEvents extends Record<string, (...args: any[]) => void> {
     /**
      * When the {@link GatewayShard shard} receives a payload. Data is the parsed payload.
      */
-    RECEIVED_MESSAGE: DiscordTypes.GatewayDispatchPayload;
+    RECEIVED_MESSAGE: (payload: DiscordTypes.GatewayDispatchPayload) => void;
     /**
      * When a payload is sent. Data is the sent payload.
      */
-    SENT_PAYLOAD: string;
+    SENT_PAYLOAD: (payload: string) => void;
     /**
      * When the {@link GatewayShard shard} enters an {@link GatewayShardState idle state}.
      */
-    IDLE: never;
+    IDLE: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState connecting state}.
      */
-    CONNECTING: never;
+    CONNECTING: () => void;
     /**
      * When the {@link GatewayShard shard} enters an {@link GatewayShardState identifying state}.
      */
-    IDENTIFYING: never;
+    IDENTIFYING: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState resuming state}.
      */
-    RESUMING: never;
+    RESUMING: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState running state}.
      */
-    RUNNING: never;
+    RUNNING: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
-    DISCONNECTED: never;
+    DISCONNECTED: () => void;
 }
 /**
  * {@link GatewayShard Gateway shard} states.

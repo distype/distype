@@ -106,14 +106,14 @@ class Gateway extends node_utils_1.TypedEmitter {
             version: options.version ?? 10,
             wsOptions: options.wsOptions ?? {}
         };
-        this.on(`*`, (data) => {
+        this.on(`*`, (payload) => {
             if (this._cache)
-                this._cache.handleEvent(data);
-            if (data.t === `READY`)
-                this.user = data.d.user;
-            if (data.t === `USER_UPDATE` && data.d.id === this.user?.id)
-                this.user = data.d;
-            this.emit(data.t, data);
+                this._cache.handleEvent(payload);
+            if (payload.t === `READY`)
+                this.user = payload.d.user;
+            if (payload.t === `USER_UPDATE` && payload.d.id === this.user?.id)
+                this.user = payload.d;
+            this.emit(payload.t, payload);
         });
         this._log = logCallback.bind(logThisArg);
         this._logThisArg = logThisArg;
@@ -208,9 +208,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         }
         const success = results.filter((result) => result.status === `fulfilled`).length;
         const failed = this._storedCalculatedShards.shards - success;
-        this.emit(`SHARDS_READY`, {
-            success, failed
-        });
+        this.emit(`SHARDS_READY`, success, failed);
         this._log(`Finished connection process`, {
             level: `DEBUG`, system: this.system
         });

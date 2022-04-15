@@ -1,9 +1,8 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
-import { GatewayEvents } from '../gateway/Gateway';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
-import { Snowflake } from 'discord-api-types/v10';
+import { GatewayDispatchPayload, Snowflake } from 'discord-api-types/v10';
 /**
  * The cache manager.
  * Contains cached data, and {@link cacheEventHandler handles dispatched gateway events} to keep the cache up to date.
@@ -79,7 +78,7 @@ export declare class Cache {
      * @param data The gateway data to handle.
      * @internal
      */
-    handleEvent(data: GatewayEvents[`*`]): void;
+    handleEvent(data: GatewayDispatchPayload): void;
     /**
      * Update a channel.
      * @param remove If the channel should be removed from the cache.
