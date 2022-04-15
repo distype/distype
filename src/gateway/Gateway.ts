@@ -319,7 +319,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         }
 
         const results: Array<PromiseSettledResult<void>> = [];
-        for (let i = 0; i < Math.max(...buckets.map((bucket) => bucket.size)); i++) {
+        const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
+        for (let i = 0; i < mostShards; i++) {
             this._log(`Starting spawn process for shard ratelimit key ${i}`, {
                 level: `DEBUG`, system: this.system
             });
