@@ -294,7 +294,7 @@ class Rest extends RestRequests_1.RestRequests {
                 .replace(/\.$/, ``)))
                 .flat());
         }
-        const errorString = `${message ? `${message} ` : ``}${errors.length ? ` "${errors.join(`, `)}"` : `${res.body?.message ? ` "${res.body.message}"` : ``}`}`;
+        const errorString = [message, errors.length ? `"${errors.join(`, `)}"` : undefined].filter((e) => !!e).join(` `);
         this._log(`${method} ${route} returned ${errorString}`, {
             level, system: this.system
         });

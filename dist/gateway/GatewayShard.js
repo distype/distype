@@ -402,11 +402,18 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._log(`Reconnecting...`, {
             level: `DEBUG`, system: this.system
         });
-        if (resume) {
-            void this.restart();
+        try {
+            if (resume) {
+                void this.restart();
+            }
+            else {
+                void this.spawn();
+            }
         }
-        else {
-            void this.spawn();
+        catch (error) {
+            this._log(`Error reconnecting: ${error?.message ?? error}`, {
+                level: `ERROR`, system: this.system
+            });
         }
     }
     /**
