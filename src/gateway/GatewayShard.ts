@@ -617,7 +617,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                         this._heartbeatJitterActive = null;
                         this._heartbeat();
                         if (this._heartbeatIntervalTimer !== null) clearInterval(this._heartbeatIntervalTimer);
-                        this._heartbeatIntervalTimer = setInterval(() => this._heartbeat, payload.d.heartbeat_interval).unref();
+                        this._heartbeatIntervalTimer = setInterval(() => this._heartbeat(), payload.d.heartbeat_interval).unref();
                     }
                 });
 

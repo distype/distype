@@ -146,7 +146,7 @@ export class Rest extends RestRequests {
             this.globalLeft = this.options.ratelimitGlobal;
             this.globalResetAt = -1;
             this.routeHashCache = new ExtendedMap();
-            if (this.options.bucketSweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval);
+            if (this.options.bucketSweepInterval) this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval).unref();
         }
 
         this._log = logCallback.bind(logThisArg);
