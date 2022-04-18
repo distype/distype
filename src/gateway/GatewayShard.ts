@@ -487,10 +487,16 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             level: `DEBUG`, system: this.system
         });
 
-        if (resume) {
-            void this.restart();
-        } else {
-            void this.spawn();
+        try {
+            if (resume) {
+                void this.restart();
+            } else {
+                void this.spawn();
+            }
+        } catch (error: any) {
+            this._log(`Error reconnecting: ${error?.message ?? error}`, {
+                level: `ERROR`, system: this.system
+            });
         }
     }
 
