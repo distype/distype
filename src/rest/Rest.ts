@@ -238,7 +238,7 @@ export class Rest extends RestRequests {
         const res: RestInternalRestResponse = await req.then(async (r) => ({
             ...r,
             body: r.statusCode !== 204 ? await r.body?.json().catch((error) => {
-                unableToParse = error.message as string ?? `Unknown reason`;
+                unableToParse = (error?.message ?? error) ?? `Unknown reason`;
             }) : undefined
         }));
 
@@ -374,7 +374,7 @@ export class Rest extends RestRequests {
                 Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
                     .map((key) => flattened[key].map((error) =>
-                        `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${error.message ?? `Unknown Message`}`
+                        `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown Message`}`
                             .trimEnd()
                             .replace(/\.$/, ``)
                     ))
