@@ -161,7 +161,7 @@ class Rest extends RestRequests_1.RestRequests {
         let unableToParse = false;
         const res = await req.then(async (r) => ({
             ...r,
-            body: r.statusCode !== 204 ? await r.body.json().catch((error) => {
+            body: r.statusCode !== 204 ? await r.body?.json().catch((error) => {
                 unableToParse = error.message ?? `Unknown reason`;
             }) : undefined
         }));
@@ -294,7 +294,7 @@ class Rest extends RestRequests_1.RestRequests {
                 .replace(/\.$/, ``)))
                 .flat());
         }
-        const errorString = `${message ? `${message} ` : ``}${errors.length ? ` "${errors.join(`, `)}"` : `${res.body.message ? ` "${res.body.message}"` : ``}`}`;
+        const errorString = `${message ? `${message} ` : ``}${errors.length ? ` "${errors.join(`, `)}"` : `${res.body?.message ? ` "${res.body.message}"` : ``}`}`;
         this._log(`${method} ${route} returned ${errorString}`, {
             level, system: this.system
         });
