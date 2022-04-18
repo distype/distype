@@ -343,7 +343,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 this._heartbeatWaitingSince = Date.now();
             }).catch((error) => {
                 this._heartbeatWaitingSince = null;
-                this._log(`Failed to send heartbeat: ${error.message}`, {
+                this._log(`Failed to send heartbeat: ${error?.message ?? error}`, {
                     level: `ERROR`, system: this.system
                 });
             });
@@ -442,11 +442,18 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * @returns The parsed data.
      */
     _parsePayload(data) {
-        if (Array.isArray(data))
-            data = Buffer.concat(data);
-        else if (data instanceof ArrayBuffer)
-            data = Buffer.from(data);
-        return JSON.parse(data.toString());
+        try {
+            if (Array.isArray(data))
+                data = Buffer.concat(data);
+            else if (data instanceof ArrayBuffer)
+                data = Buffer.from(data);
+            return JSON.parse(data.toString());
+        }
+        catch (error) {
+            this._log(`Payload parsing error: ${error?.message ?? error}`, {
+                level: `WARN`, system: this.system
+            });
+        }
     }
     /**
      * When the socket emits a close event.
@@ -469,7 +476,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * When the socket emits an error event.
      */
     _wsOnError(error) {
-        this._log(error.message, {
+        this._log(error?.message ?? error, {
             level: `ERROR`, system: this.system
         });
     }

@@ -162,7 +162,7 @@ class Rest extends RestRequests_1.RestRequests {
         const res = await req.then(async (r) => ({
             ...r,
             body: r.statusCode !== 204 ? await r.body?.json().catch((error) => {
-                unableToParse = error.message ?? `Unknown reason`;
+                unableToParse = (error?.message ?? error) ?? `Unknown reason`;
             }) : undefined
         }));
         if (typeof unableToParse === `string`)
@@ -289,7 +289,7 @@ class Rest extends RestRequests_1.RestRequests {
             const flattened = (0, node_utils_1.flattenObject)(res.body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
             errors.concat(Object.keys(flattened)
                 .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
-                .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${error.message ?? `Unknown Message`}`
+                .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown Message`}`
                 .trimEnd()
                 .replace(/\.$/, ``)))
                 .flat());
