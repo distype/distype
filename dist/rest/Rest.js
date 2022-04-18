@@ -80,7 +80,7 @@ class Rest extends RestRequests_1.RestRequests {
             this.globalResetAt = -1;
             this.routeHashCache = new node_utils_1.ExtendedMap();
             if (this.options.bucketSweepInterval)
-                this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval);
+                this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval).unref();
         }
         this._log = logCallback.bind(logThisArg);
         this._logThisArg = logThisArg;

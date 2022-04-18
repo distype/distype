@@ -520,7 +520,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         this._heartbeat();
                         if (this._heartbeatIntervalTimer !== null)
                             clearInterval(this._heartbeatIntervalTimer);
-                        this._heartbeatIntervalTimer = setInterval(() => this._heartbeat, payload.d.heartbeat_interval).unref();
+                        this._heartbeatIntervalTimer = setInterval(() => this._heartbeat(), payload.d.heartbeat_interval).unref();
                     }
                 });
                 if (this.state === GatewayShardState.RESUMING && this.canResume) {
