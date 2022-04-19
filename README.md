@@ -39,8 +39,6 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 - Add gateway shard send payload ratelimiting
 - Add zlib compression support to the gateway
 - Add `ClientMaster` and `ClientWorker`
-- Refactor `Cache` to add support for compression
-- Refactor the cache handler to ensure healthier data
 
 ## Example Bot
 
