@@ -370,8 +370,8 @@ export class Rest extends RestRequests {
         if (res.body?.message) errors.push(res.body.message);
         if (res.body?.errors) {
             const flattened = flattenObject(res.body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
-            errors.concat(
-                Object.keys(flattened)
+            errors.push(
+                ...Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
                     .map((key) => flattened[key].map((error) =>
                         `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown Message`}`
