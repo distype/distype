@@ -217,7 +217,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response)
      */
     public async getOriginalInteractionResponse (interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionOriginalResponseResult> {
-        return await this.request(`GET`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options);
+        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options);
     }
 
     /**
@@ -228,7 +228,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
     public async editOriginalInteractionResponse (interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
-        return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, {
+        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, {
             body, ...options
         });
     }
@@ -240,7 +240,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
     public async deleteOriginalInteractionResponse (interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
-        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options) as never;
+        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options) as never;
     }
 
     /**
@@ -251,7 +251,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
     public async createFollowupMessage (interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
-        return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}`, {
+        return await this.request(`POST`, `/webhooks/${interactionId}/${interactionToken}`, {
             body, ...options
         });
     }
@@ -264,7 +264,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message)
      */
     public async getFollowupMessage (interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionFollowupResult> {
-        return await this.request(`GET`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options);
+        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options);
     }
 
     /**
@@ -276,7 +276,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
     public async editFollowupMessage (interactionId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
-        return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, {
+        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, {
             body, ...options
         });
     }
@@ -289,7 +289,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
     public async deleteFollowupMessage (interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
-        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options) as never;
+        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options) as never;
     }
 
     /**
