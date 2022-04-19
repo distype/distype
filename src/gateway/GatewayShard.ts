@@ -559,7 +559,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             else if (data instanceof ArrayBuffer) data = Buffer.from(data);
             return JSON.parse(data.toString());
         } catch (error: any) {
-            if (typeof data === `string`) return data;
+            if (typeof data === `string` || (typeof data.toString === `function` && typeof data.toString() === `string`)) return data;
             this._log(`Payload parsing error: ${(error?.message ?? error) ?? `Unknown reason`}`, {
                 level: `WARN`, system: this.system
             });
