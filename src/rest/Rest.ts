@@ -374,7 +374,7 @@ export class Rest extends RestRequests {
                 ...Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
                     .map((key) => flattened[key].map((error) =>
-                        `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown Message`}`
+                        `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
                             .trimEnd()
                             .replace(/\.$/, ``)
                     ))
