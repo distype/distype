@@ -186,6 +186,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             }
             if (this._killed) {
                 this._enterState(GatewayShardState.IDLE);
+                this._spinning = false;
                 this._log(`Spawning interruped by kill`, {
                     level: `DEBUG`, system: this.system
                 });
@@ -362,37 +363,34 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             level: `DEBUG`, system: this.system
         });
         this._enterState(GatewayShardState.CONNECTING);
-        try {
-            return await new Promise((resolve, reject) => {
-                this._ws = new ws_1.WebSocket(this._url, this.options.wsOptions);
-                const closeListener = ((code, reason) => reject(new DistypeError_1.DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
-                this._ws.once(`close`, closeListener);
-                const errorListener = ((error) => reject(error)).bind(this);
-                this._ws.once(`error`, errorListener);
-                this._ws.once(`open`, () => {
-                    this._log(`Socket open`, {
-                        level: `DEBUG`, system: this.system
-                    });
-                    if (resume && this.canResume)
-                        this._enterState(GatewayShardState.RESUMING);
-                    else
-                        this._enterState(GatewayShardState.IDENTIFYING);
-                    this._ws.on(`close`, this._wsOnClose.bind(this));
-                    this._ws.on(`error`, this._wsOnError.bind(this));
-                    this._ws.on(`message`, this._wsOnMessage.bind(this));
-                    node_utils_1.TypedEmitter.once(this, `RUNNING`).then(() => {
-                        this._ws.removeListener(`close`, closeListener);
-                        this._ws.removeListener(`error`, errorListener);
-                        resolve();
-                    });
+        return await new Promise((resolve, reject) => {
+            this._ws = new ws_1.WebSocket(this._url, this.options.wsOptions);
+            const closeListener = ((code, reason) => reject(new DistypeError_1.DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
+            this._ws.once(`close`, closeListener);
+            const errorListener = ((error) => reject(error)).bind(this);
+            this._ws.once(`error`, errorListener);
+            this._ws.once(`open`, () => {
+                this._log(`Socket open`, {
+                    level: `DEBUG`, system: this.system
+                });
+                if (resume && this.canResume)
+                    this._enterState(GatewayShardState.RESUMING);
+                else
+                    this._enterState(GatewayShardState.IDENTIFYING);
+                this._ws.on(`close`, this._wsOnClose.bind(this));
+                this._ws.on(`error`, this._wsOnError.bind(this));
+                this._ws.on(`message`, this._wsOnMessage.bind(this));
+                node_utils_1.TypedEmitter.once(this, `RUNNING`).then(() => {
+                    this._ws.removeListener(`close`, closeListener);
+                    this._ws.removeListener(`error`, errorListener);
+                    resolve();
                 });
             });
-        }
-        catch (error) {
+        }).catch((error) => {
             this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
             this._enterState(GatewayShardState.DISCONNECTED);
             throw error;
-        }
+        });
     }
     /**
      * Reconnect the shard.
@@ -402,17 +400,16 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._log(`Reconnecting...`, {
             level: `DEBUG`, system: this.system
         });
-        try {
-            if (resume) {
-                this.restart();
-            }
-            else {
-                this.spawn();
-            }
-        }
-        catch (error) {
-            this._log(`Error reconnecting: ${error?.message ?? error}`, {
+        if (resume) {
+            this.restart().catch((error) => this._log(`Error reconnecting (restarting): ${error?.message ?? error}`, {
                 level: `ERROR`, system: this.system
+            }));
+        }
+        else {
+            this.spawn().catch((error) => {
+                this._log(`Error reconnecting (spawning): ${error?.message ?? error}`, {
+                    level: `ERROR`, system: this.system
+                });
             });
         }
     }
