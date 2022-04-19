@@ -404,10 +404,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
         try {
             if (resume) {
-                void this.restart();
+                this.restart();
             }
             else {
-                void this.spawn();
+                this.spawn();
             }
         }
         catch (error) {
