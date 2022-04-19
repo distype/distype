@@ -195,7 +195,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response)
      */
     async getOriginalInteractionResponse(interactionId, interactionToken, options) {
-        return await this.request(`GET`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options);
+        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options);
     }
     /**
      * @param interactionId The interaction ID.
@@ -205,7 +205,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
     async editOriginalInteractionResponse(interactionId, interactionToken, body, options) {
-        return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, {
+        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, {
             body, ...options
         });
     }
@@ -216,7 +216,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
     async deleteOriginalInteractionResponse(interactionId, interactionToken, options) {
-        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/@original`, options);
+        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options);
     }
     /**
      * @param interactionId The interaction ID.
@@ -226,7 +226,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
     async createFollowupMessage(interactionId, interactionToken, body, options) {
-        return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}`, {
+        return await this.request(`POST`, `/webhooks/${interactionId}/${interactionToken}`, {
             body, ...options
         });
     }
@@ -238,7 +238,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message)
      */
     async getFollowupMessage(interactionId, interactionToken, messageId, options) {
-        return await this.request(`GET`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options);
+        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options);
     }
     /**
      * @param interactionId The interaction ID.
@@ -249,7 +249,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
     async editFollowupMessage(interactionId, interactionToken, messageId, body, options) {
-        return await this.request(`PATCH`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, {
+        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, {
             body, ...options
         });
     }
@@ -261,7 +261,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
     async deleteFollowupMessage(interactionId, interactionToken, messageId, options) {
-        return await this.request(`DELETE`, `/interactions/${interactionId}/${interactionToken}/messages/${messageId}`, options);
+        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options);
     }
     /**
      * @param guildId The guild ID.
