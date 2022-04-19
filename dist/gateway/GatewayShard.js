@@ -176,7 +176,12 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._spinning = true;
         this._killed = false;
         for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
-            const attempt = await this._initSocket(false).then(() => true, () => false);
+            const attempt = await this._initSocket(false).then(() => true).catch((error) => {
+                this._log(`Spawn attempt ${i}/${this.options.spawnMaxAttempts} failed: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                    level: `ERROR`, system: this.system
+                });
+                return false;
+            });
             if (attempt) {
                 this._spinning = false;
                 this._log(`Spawned after ${i + 1} attempts`, {
@@ -207,7 +212,12 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._spinning = true;
         this._killed = false;
         for (let i = 1;; i++) {
-            const attempt = await this._initSocket(true).then(() => true, () => false);
+            const attempt = await this._initSocket(true).then(() => true).catch((error) => {
+                this._log(`Restart attempt ${i + 1} failed: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                    level: `ERROR`, system: this.system
+                });
+                return false;
+            });
             if (attempt) {
                 this._log(`Restarted after ${i} attempts`, {
                     level: `DEBUG`, system: this.system
@@ -344,7 +354,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 this._heartbeatWaitingSince = Date.now();
             }).catch((error) => {
                 this._heartbeatWaitingSince = null;
-                this._log(`Failed to send heartbeat: ${error?.message ?? error}`, {
+                this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
                     level: `ERROR`, system: this.system
                 });
             });
@@ -363,7 +373,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             level: `DEBUG`, system: this.system
         });
         this._enterState(GatewayShardState.CONNECTING);
-        return await new Promise((resolve, reject) => {
+        const result = await new Promise((resolve, reject) => {
+            const disconnectedListener = () => reject(new DistypeError_1.DistypeError(`Socket disconnected on socket init`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system));
+            this.once(`DISCONNECTED`, disconnectedListener);
+            this.once(`IDLE`, disconnectedListener);
             this._ws = new ws_1.WebSocket(this._url, this.options.wsOptions);
             const closeListener = ((code, reason) => reject(new DistypeError_1.DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
             this._ws.once(`close`, closeListener);
@@ -381,33 +394,39 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 this._ws.on(`error`, this._wsOnError.bind(this));
                 this._ws.on(`message`, this._wsOnMessage.bind(this));
                 node_utils_1.TypedEmitter.once(this, `RUNNING`).then(() => {
+                    this.removeListener(`DISCONNECTED`, disconnectedListener);
+                    this.removeListener(`IDLE`, disconnectedListener);
                     this._ws.removeListener(`close`, closeListener);
                     this._ws.removeListener(`error`, errorListener);
-                    resolve();
+                    resolve(true);
                 });
             });
         }).catch((error) => {
             this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
             this._enterState(GatewayShardState.DISCONNECTED);
-            throw error;
+            return error;
         });
+        if (result !== true)
+            throw result;
     }
     /**
      * Reconnect the shard.
      * @param resume If the shard should be resumed.
      */
     _reconnect(resume) {
+        if (this._spinning)
+            return;
         this._log(`Reconnecting...`, {
             level: `DEBUG`, system: this.system
         });
         if (resume) {
-            this.restart().catch((error) => this._log(`Error reconnecting (restarting): ${error?.message ?? error}`, {
+            this.restart().catch((error) => this._log(`Error reconnecting (restarting): ${(error?.message ?? error) ?? `Unknown reason`}`, {
                 level: `ERROR`, system: this.system
             }));
         }
         else {
             this.spawn().catch((error) => {
-                this._log(`Error reconnecting (spawning): ${error?.message ?? error}`, {
+                this._log(`Error reconnecting (spawning): ${(error?.message ?? error) ?? `Unknown reason`}`, {
                     level: `ERROR`, system: this.system
                 });
             });
@@ -454,7 +473,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             return JSON.parse(data.toString());
         }
         catch (error) {
-            this._log(`Payload parsing error: ${error?.message ?? error}`, {
+            this._log(`Payload parsing error: ${(error?.message ?? error) ?? `Unknown reason`}`, {
                 level: `WARN`, system: this.system
             });
         }
@@ -480,7 +499,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * When the socket emits an error event.
      */
     _wsOnError(error) {
-        this._log(error?.message ?? error, {
+        this._log((error?.message ?? error) ?? `Unknown reason`, {
             level: `ERROR`, system: this.system
         });
     }
