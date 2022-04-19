@@ -86,12 +86,8 @@ class RestBucket {
      * @returns Response data.
      */
     async request(method, route, routeHash, options) {
-        if (this._queue.length) {
-            this._log(`${method} ${route} waiting for queue`, {
-                level: `DEBUG`, system: this.system
-            });
+        if (this._queue.length)
             await this._waitForQueue();
-        }
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
     /**
@@ -114,12 +110,8 @@ class RestBucket {
      * @returns Response data.
      */
     async _make(method, route, routeHash, options, attempt = 0) {
-        if (this.ratelimited.any) {
-            this._log(`${method} ${route} waiting for ratelimit`, {
-                level: `DEBUG`, system: this.system
-            });
+        if (this.ratelimited.any)
             await this._awaitRatelimit();
-        }
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
             this.manager.globalResetAt = Date.now() + 1000;
             this.manager.globalLeft = this.manager.options.ratelimitGlobal;

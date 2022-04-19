@@ -109,9 +109,6 @@ class Rest extends RestRequests_1.RestRequests {
      * @returns Response body.
      */
     async request(method, route, options = {}) {
-        this._log(`${method} ${route} started`, {
-            level: `DEBUG`, system: this.system
-        });
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
             const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
@@ -136,9 +133,6 @@ class Rest extends RestRequests_1.RestRequests {
      * @internal
      */
     async make(method, route, options) {
-        this._log(`${method} ${route} being made`, {
-            level: `DEBUG`, system: this.system
-        });
         const headers = {
             'Authorization': `Bot ${this._token}`,
             'Content-Type': `application/json`,
