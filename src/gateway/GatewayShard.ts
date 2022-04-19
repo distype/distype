@@ -315,7 +315,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         this._killed = true;
 
         this._log(`Shard killed with code ${code}, reason "${reason}"`, {
-            level: `INFO`, system: this.system
+            level: `WARN`, system: this.system
         });
     }
 
@@ -488,8 +488,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 });
             });
         }).catch((error) => {
-            this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
-            this._enterState(GatewayShardState.DISCONNECTED);
+            if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.IDLE) {
+                this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
+                this._enterState(GatewayShardState.DISCONNECTED);
+            }
             return error;
         });
 
@@ -504,19 +506,27 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         if (this._spinning) return;
 
         this._log(`Reconnecting...`, {
-            level: `DEBUG`, system: this.system
+            level: `INFO`, system: this.system
         });
 
         if (resume) {
-            this.restart().catch((error) => this._log(`Error reconnecting (restarting): ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                level: `ERROR`, system: this.system
-            }));
-        } else {
-            this.spawn().catch((error) => {
-                this._log(`Error reconnecting (spawning): ${(error?.message ?? error) ?? `Unknown reason`}`, {
+            this.restart()
+                .then(() => this._log(`Reconnected`, {
+                    level: `INFO`, system: this.system
+                }))
+                .catch((error) => this._log(`Error reconnecting (restarting): ${(error?.message ?? error) ?? `Unknown reason`}`, {
                     level: `ERROR`, system: this.system
+                }));
+        } else {
+            this.spawn()
+                .then(() => this._log(`Reconnected`, {
+                    level: `INFO`, system: this.system
+                }))
+                .catch((error) => {
+                    this._log(`Error reconnecting (spawning): ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                        level: `ERROR`, system: this.system
+                    });
                 });
-            });
         }
     }
 
@@ -570,10 +580,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * When the socket emits a close event.
      */
     private _wsOnClose (code: number, reason: Buffer): void {
-        const parsedReason = `Received close code ${code} with reason "${this._parsePayload(reason)}"`;
+        const parsedReason = this._parsePayload(reason);
 
-        this._log(parsedReason, {
-            level: `DEBUG`, system: this.system
+        this._log(`Received close code ${code} with reason "${parsedReason}"`, {
+            level: `WARN`, system: this.system
         });
 
         if (DiscordConstants.GATEWAY_CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
