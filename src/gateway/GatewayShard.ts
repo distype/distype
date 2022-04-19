@@ -233,7 +233,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
             const attempt = await this._initSocket(false).then(() => true).catch((error) => {
-                this._log(`Spawn attempt ${i}/${this.options.spawnMaxAttempts} failed: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                this._log(`Spawn attempt ${i + 1}/${this.options.spawnMaxAttempts} failed: ${(error?.message ?? error) ?? `Unknown reason`}`, {
                     level: `ERROR`, system: this.system
                 });
                 return false;
@@ -632,7 +632,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             case DiscordTypes.GatewayOpcodes.InvalidSession: {
                 this._close(!!payload.d, payload.d ? 4000 : 1000, `Got Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`);
                 this._enterState(GatewayShardState.DISCONNECTED);
-                wait(2500).then(() => this._reconnect(!!payload.d));
+                if (!this._spinning) wait(2500).then(() => this._reconnect(!!payload.d));
 
                 break;
             }
