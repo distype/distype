@@ -287,7 +287,7 @@ class Rest extends RestRequests_1.RestRequests {
             errors.push(res.body.message);
         if (res.body?.errors) {
             const flattened = (0, node_utils_1.flattenObject)(res.body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
-            errors.concat(Object.keys(flattened)
+            errors.push(...Object.keys(flattened)
                 .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
                 .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown Message`}`
                 .trimEnd()
