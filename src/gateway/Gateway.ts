@@ -261,10 +261,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
         if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new DistypeError(`Invalid gateway bot response`, DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, this.system);
 
-        this._log(`Got bot gateway information`, {
-            level: `DEBUG`, system: this.system
-        });
-
         const totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this._storedCalculatedShards = {
             totalBotShards,
@@ -279,11 +275,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         ) throw new DistypeError(`Invalid shard configuration, got ${this._storedCalculatedShards.totalBotShards} total shards, with ${this._storedCalculatedShards.shards} to be spawned with an offset of ${this._storedCalculatedShards.offset}`, DistypeErrorType.GATEWAY_INVALID_SHARD_CONFIG, this.system);
 
         if (this._storedCalculatedShards.shards > this._storedGetGatewayBot.session_start_limit.remaining) {
-            const error = new DistypeError(`Session start limit reached; tried to spawn ${this._storedCalculatedShards.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`, DistypeErrorType.GATEWAY_SESSION_START_LIMIT_REACHED, this.system);
-            this._log(`Unable to connect shards: ${error.message}`, {
-                level: `ERROR`, system: this.system
-            });
-            throw error;
+            throw new DistypeError(`Session start limit reached; tried to spawn ${this._storedCalculatedShards.shards} shards when only ${this._storedGetGatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${this._storedGetGatewayBot.session_start_limit.reset_after / 1000} seconds`, DistypeErrorType.GATEWAY_SESSION_START_LIMIT_REACHED, this.system);
         }
 
         this._log(`Spawning ${this._storedCalculatedShards.shards} shards`, {
@@ -329,9 +321,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         const failed = this._storedCalculatedShards.shards - success;
         this.emit(`SHARDS_READY`, success, failed);
 
-        this._log(`Finished connection process`, {
-            level: `DEBUG`, system: this.system
-        });
         this._log(`${success}/${success + failed} shards spawned`, {
             level: `INFO`, system: this.system
         });
