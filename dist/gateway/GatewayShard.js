@@ -248,7 +248,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._enterState(GatewayShardState.IDLE);
         this._killed = true;
         this._log(`Shard killed with code ${code}, reason "${reason}"`, {
-            level: `INFO`, system: this.system
+            level: `WARN`, system: this.system
         });
     }
     /**
@@ -402,8 +402,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 });
             });
         }).catch((error) => {
-            this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
-            this._enterState(GatewayShardState.DISCONNECTED);
+            if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.IDLE) {
+                this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
+                this._enterState(GatewayShardState.DISCONNECTED);
+            }
             return error;
         });
         if (result !== true)
@@ -417,15 +419,23 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         if (this._spinning)
             return;
         this._log(`Reconnecting...`, {
-            level: `DEBUG`, system: this.system
+            level: `INFO`, system: this.system
         });
         if (resume) {
-            this.restart().catch((error) => this._log(`Error reconnecting (restarting): ${(error?.message ?? error) ?? `Unknown reason`}`, {
+            this.restart()
+                .then(() => this._log(`Reconnected`, {
+                level: `INFO`, system: this.system
+            }))
+                .catch((error) => this._log(`Error reconnecting (restarting): ${(error?.message ?? error) ?? `Unknown reason`}`, {
                 level: `ERROR`, system: this.system
             }));
         }
         else {
-            this.spawn().catch((error) => {
+            this.spawn()
+                .then(() => this._log(`Reconnected`, {
+                level: `INFO`, system: this.system
+            }))
+                .catch((error) => {
                 this._log(`Error reconnecting (spawning): ${(error?.message ?? error) ?? `Unknown reason`}`, {
                     level: `ERROR`, system: this.system
                 });
@@ -484,9 +494,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * When the socket emits a close event.
      */
     _wsOnClose(code, reason) {
-        const parsedReason = `Received close code ${code} with reason "${this._parsePayload(reason)}"`;
-        this._log(parsedReason, {
-            level: `DEBUG`, system: this.system
+        const parsedReason = this._parsePayload(reason);
+        this._log(`Received close code ${code} with reason "${parsedReason}"`, {
+            level: `WARN`, system: this.system
         });
         if (DiscordConstants_1.DiscordConstants.GATEWAY_CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
             this.kill(1000, parsedReason);
