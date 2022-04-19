@@ -489,9 +489,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         try {
             if (resume) {
-                void this.restart();
+                this.restart();
             } else {
-                void this.spawn();
+                this.spawn();
             }
         } catch (error: any) {
             this._log(`Error reconnecting: ${error?.message ?? error}`, {
