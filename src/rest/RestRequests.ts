@@ -211,85 +211,85 @@ export abstract class RestRequests {
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response)
      */
-    public async getOriginalInteractionResponse (interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionOriginalResponseResult> {
-        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options);
+    public async getOriginalInteractionResponse (applicationId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionOriginalResponseResult> {
+        return await this.request(`GET`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options);
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
-    public async editOriginalInteractionResponse (interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
-        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, {
+    public async editOriginalInteractionResponse (applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
+        return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, {
             body, ...options
         });
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
-    public async deleteOriginalInteractionResponse (interactionId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
-        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options) as never;
+    public async deleteOriginalInteractionResponse (applicationId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
+        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options) as never;
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
-    public async createFollowupMessage (interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
-        return await this.request(`POST`, `/webhooks/${interactionId}/${interactionToken}`, {
+    public async createFollowupMessage (applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
+        return await this.request(`POST`, `/webhooks/${applicationId}/${interactionToken}`, {
             body, ...options
         });
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message)
      */
-    public async getFollowupMessage (interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionFollowupResult> {
-        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options);
+    public async getFollowupMessage (applicationId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInteractionFollowupResult> {
+        return await this.request(`GET`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options);
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
-    public async editFollowupMessage (interactionId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
-        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, {
+    public async editFollowupMessage (applicationId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
+        return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, {
             body, ...options
         });
     }
 
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
-    public async deleteFollowupMessage (interactionId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
-        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options) as never;
+    public async deleteFollowupMessage (applicationId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
+        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options) as never;
     }
 
     /**
