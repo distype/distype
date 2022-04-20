@@ -134,7 +134,7 @@ class Rest extends RestRequests_1.RestRequests {
      */
     async make(method, route, options) {
         const headers = {
-            'Authorization': `Bot ${this._token}`,
+            'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
             'Content-Type': `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`,
             ...this._convertUndiciHeaders(this.options.headers),

@@ -44,6 +44,10 @@ export interface RestOptions {
  */
 export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `bodyTimeout` | `method`> {
     /**
+     * A custom string to use as the authorization header.
+     */
+    authHeader?: string;
+    /**
      * A custom base URL to make requests to.
      * Useful for making requests through, for example, a proxy / multi-application ratelimiter.
      * Example: `https://api.example.com/discord`

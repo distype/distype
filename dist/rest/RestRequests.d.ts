@@ -1,7 +1,7 @@
 import { RestMethod, RestRequestData, RestRequestDataBodyStream } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { RESTPatchAPIGuildEmojiJSONBody, RESTPostAPIGuildEmojiJSONBody, Snowflake } from 'discord-api-types/v10';
+import { Snowflake } from 'discord-api-types/v10';
 /**
  * A class containing methods for all routes for the Discord API.
  * @internal
@@ -502,7 +502,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/emoji#create-guild-emoji)
      */
-    createGuildEmoji(guildId: Snowflake, body: RESTPostAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildEmojiResult>;
+    createGuildEmoji(guildId: Snowflake, body: DiscordTypes.RESTPostAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildEmojiResult>;
     /**
      * @param guildId The guild ID.
      * @param body Request body.
@@ -510,7 +510,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/emoji#modify-guild-emoji)
      */
-    modifyGuildEmoji(guildId: Snowflake, body: RESTPatchAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildEmojiResult>;
+    modifyGuildEmoji(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildEmojiResult>;
     /**
      * @param guildId The guild ID.
      * @param emoji The emoji's identifier.
@@ -818,11 +818,295 @@ export declare abstract class RestRequests {
      */
     modifyUserVoiceState(guildId: Snowflake, userId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateUserJSONBody, options?: RestRequestOptions): Promise<never>;
     /**
+     * @param guildId The guild ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#list-scheduled-events-for-guild)
+     */
+    listScheduledEventsForGuild(guildId: Snowflake, query: DiscordTypes.RESTGetAPIGuildScheduledEventsQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildScheduledEventsResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event)
+     */
+    createGuildScheduledEvent(guildId: Snowflake, body: DiscordTypes.RESTPostAPIGuildScheduledEventJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildScheduledEventResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event)
+     */
+    getGuildScheduledEvent(guildId: Snowflake, eventId: Snowflake, query: DiscordTypes.RESTGetAPIGuildScheduledEventQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildScheduledEventResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#modify-guild-scheduled-event)
+     */
+    modifyGuildScheduledEvent(guildId: Snowflake, eventId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildScheduledEventJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildScheduledEventResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#delete-guild-scheduled-event)
+     */
+    deleteGuildScheduledEvent(guildId: Snowflake, eventId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIGuildScheduledEventResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users)
+     */
+    getGuildScheduledEventUsers(guildId: Snowflake, eventId: Snowflake, query: DiscordTypes.RESTGetAPIGuildScheduledEventUsersQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildScheduledEventUsersResult>;
+    /**
+     * @param inviteCode The invite code.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/invite#get-invite)
+     */
+    getInvite(inviteCode: string, query: DiscordTypes.RESTGetAPIInviteQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInviteResult>;
+    /**
+     * @param inviteCode The invite code.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/invite#delete-invite)
+     */
+    deleteInvite(inviteCode: string, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInviteResult>;
+    /**
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#create-stage-instance)
+     */
+    createStageInstance(body: DiscordTypes.RESTPostAPIStageInstanceJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIStageInstanceResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#get-stage-instance)
+     */
+    getStageInstance(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIStageInstanceResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#modify-stage-instance)
+     */
+    modifyStageInstance(channelId: Snowflake, body: DiscordTypes.RESTPatchAPIStageInstanceJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIStageInstanceResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#delete-stage-instance)
+     */
+    deleteStageInstance(channelId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIStageInstanceResult>;
+    /**
+     * @param stickerId The sticker ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#get-sticker)
+     */
+    getSticker(stickerId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIStickerResult>;
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#list-nitro-sticker-packs)
+     */
+    listNitroStickerPacks(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetNitroStickerPacksResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#list-guild-stickers)
+     */
+    listGuildStickers(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildStickersResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#get-guild-sticker)
+     */
+    getGuildSticker(guildId: Snowflake, stickerId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildStickerResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#create-guild-sticker)
+     */
+    createGuildSticker(guildId: Snowflake, body: RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildStickerResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#modify-guild-sticker)
+     */
+    modifyGuildSticker(guildId: Snowflake, stickerId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildStickerJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildStickerResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#delete-guild-sticker)
+     */
+    deleteGuildSticker(guildId: Snowflake, stickerId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIGuildStickerResult>;
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user)
+     */
+    getCurrentUser(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPICurrentUserResult>;
+    /**
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-user)
+     */
+    getUser(userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIUserResult>;
+    /**
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#modify-current-user)
+     */
+    modifyCurrentUser(body: DiscordTypes.RESTPatchAPICurrentUserJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPICurrentUserResult>;
+    /**
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user-guilds)
+     */
+    getCurrentUserGuilds(query: DiscordTypes.RESTGetAPICurrentUserGuildsQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPICurrentUserGuildsResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user-guild-member)
+     */
+    getCurrentUserGuildMember(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetCurrentUserGuildMemberResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#leave-guild)
+     */
+    leaveGuild(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPICurrentUserGuildResult>;
+    /**
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#create-dm)
      */
     createDM(body: DiscordTypes.RESTPostAPICurrentUserCreateDMChannelJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPICurrentUserCreateDMChannelResult>;
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-user-connections)
+     */
+    getUserConnections(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPICurrentUserConnectionsResult>;
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/voice#list-voice-regions)
+     */
+    listVoiceRegions(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildVoiceRegionsResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#create-webhook)
+     */
+    createWebhook(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelWebhookJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelWebhookResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-channel-webhooks)
+     */
+    getChannelWebhooks(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelWebhooksResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-guild-webhooks)
+     */
+    getGuildWebhooks(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildWebhooksResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook)
+     */
+    getWebhook(webhookId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIWebhookResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook-with-token)
+     */
+    getWebhookWithToken(webhookId: Snowflake, token: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIWebhookWithTokenResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#modify-webhook)
+     */
+    modifyWebhook(webhookId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#modify-webhook-with-token)
+     */
+    modifyWebhookWithToken(webhookId: Snowflake, token: string, body: DiscordTypes.RESTPatchAPIWebhookWithTokenJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook)
+     */
+    deleteWebhook(webhookId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIWebhookResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-with-token)
+     */
+    deleteWebhookWithToken(webhookId: Snowflake, token: string, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIWebhookWithTokenResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param body Request body.
+     * @param wait If the response should wait until server confirmation.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#execute-webhook)
+     */
+    executeWebhook<T extends boolean = false>(webhookId: Snowflake, token: string, body: DiscordTypes.RESTPostAPIWebhookWithTokenJSONBody | RestRequestDataBodyStream, wait?: T, threadId?: Snowflake, options?: RestRequestOptions): Promise<T extends true ? DiscordTypes.RESTPostAPIWebhookWithTokenWaitResult : DiscordTypes.RESTPostAPIWebhookWithTokenResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook-message)
+     */
+    getWebhookMessage(webhookId: Snowflake, token: string, messageId: Snowflake, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIWebhookWithTokenMessageResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#edit-webhook-message)
+     */
+    editWebhookMessage(webhookId: Snowflake, token: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookWithTokenMessageJSONBody | RestRequestDataBodyStream, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenMessageResult>;
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-message)
+     */
+    deleteWebhookMessage(webhookId: Snowflake, token: string, messageId: Snowflake, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIWebhookWithTokenMessageResult>;
     /**
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway)
@@ -833,4 +1117,14 @@ export declare abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#get-gateway-bot)
      */
     getGatewayBot(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGatewayBotResult>;
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/oauth2#get-current-bot-application-information)
+     */
+    getCurrentBotApplicationInformation(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIOAuth2CurrentApplicationResult>;
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/oauth2#get-current-authorization-information)
+     */
+    getCurrentAuthorizationInformation(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIOAuth2CurrentAuthorizationResult>;
 }

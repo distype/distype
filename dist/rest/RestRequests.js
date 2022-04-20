@@ -1159,7 +1159,259 @@ class RestRequests {
             body, ...options
         });
     }
-    // ------------------------------------
+    /**
+     * @param guildId The guild ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#list-scheduled-events-for-guild)
+     */
+    async listScheduledEventsForGuild(guildId, query, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/scheduled-events`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event)
+     */
+    async createGuildScheduledEvent(guildId, body, reason, options) {
+        return await this.request(`POST`, `/guilds/${guildId}/scheduled-events`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event)
+     */
+    async getGuildScheduledEvent(guildId, eventId, query, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/scheduled-events/${eventId}`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#modify-guild-scheduled-event)
+     */
+    async modifyGuildScheduledEvent(guildId, eventId, body, reason, options) {
+        return await this.request(`PATCH`, `/guilds/${guildId}/scheduled-events/${eventId}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#delete-guild-scheduled-event)
+     */
+    async deleteGuildScheduledEvent(guildId, eventId, options) {
+        return await this.request(`DELETE`, `/guilds/${guildId}/scheduled-events/${eventId}`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users)
+     */
+    async getGuildScheduledEventUsers(guildId, eventId, query, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/scheduled-events/${eventId}/users`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param inviteCode The invite code.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/invite#get-invite)
+     */
+    async getInvite(inviteCode, query, options) {
+        return await this.request(`GET`, `/invites/${inviteCode}`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param inviteCode The invite code.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/invite#delete-invite)
+     */
+    async deleteInvite(inviteCode, reason, options) {
+        return await this.request(`DELETE`, `/invites/${inviteCode}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#create-stage-instance)
+     */
+    async createStageInstance(body, reason, options) {
+        return await this.request(`POST`, `/stage-instances`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#get-stage-instance)
+     */
+    async getStageInstance(channelId, options) {
+        return await this.request(`GET`, `/stage-instances/${channelId}`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#modify-stage-instance)
+     */
+    async modifyStageInstance(channelId, body, reason, options) {
+        return await this.request(`PATCH`, `/stage-instances/${channelId}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#delete-stage-instance)
+     */
+    async deleteStageInstance(channelId, reason, options) {
+        return await this.request(`DELETE`, `/stage-instances/${channelId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param stickerId The sticker ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#get-sticker)
+     */
+    async getSticker(stickerId, options) {
+        return await this.request(`GET`, `/stickers/${stickerId}`, options);
+    }
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#list-nitro-sticker-packs)
+     */
+    async listNitroStickerPacks(options) {
+        return await this.request(`GET`, `/sticker-packs`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#list-guild-stickers)
+     */
+    async listGuildStickers(guildId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/stickers`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#get-guild-sticker)
+     */
+    async getGuildSticker(guildId, stickerId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/stickers/${stickerId}`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#create-guild-sticker)
+     */
+    async createGuildSticker(guildId, body, reason, options) {
+        return await this.request(`POST`, `/guilds/${guildId}/stickers`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#modify-guild-sticker)
+     */
+    async modifyGuildSticker(guildId, stickerId, body, reason, options) {
+        return await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#delete-guild-sticker)
+     */
+    async deleteGuildSticker(guildId, stickerId, reason, options) {
+        return await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user)
+     */
+    async getCurrentUser(options) {
+        return await this.request(`GET`, `/users/@me`, options);
+    }
+    /**
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-user)
+     */
+    async getUser(userId, options) {
+        return await this.request(`GET`, `/users/${userId}`, options);
+    }
+    /**
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#modify-current-user)
+     */
+    async modifyCurrentUser(body, options) {
+        return await this.request(`PATCH`, `/users/@me`, {
+            body, ...options
+        });
+    }
+    /**
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user-guilds)
+     */
+    async getCurrentUserGuilds(query, options) {
+        return await this.request(`GET`, `/users/@me/guilds`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user-guild-member)
+     */
+    async getCurrentUserGuildMember(guildId, options) {
+        return await this.request(`GET`, `/user/@me/guilds/${guildId}/member`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#leave-guild)
+     */
+    async leaveGuild(guildId, options) {
+        return await this.request(`DELETE`, `/user/@me/guilds/${guildId}`, options);
+    }
     /**
      * @param body Request body.
      * @param options Request options.
@@ -1168,6 +1420,174 @@ class RestRequests {
     async createDM(body, options) {
         return await this.request(`POST`, `/users/@me/channels`, {
             body, ...options
+        });
+    }
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-user-connections)
+     */
+    async getUserConnections(options) {
+        return await this.request(`GET`, `/users/@me/connections`, options);
+    }
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/voice#list-voice-regions)
+     */
+    async listVoiceRegions(options) {
+        return await this.request(`GET`, ``, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#create-webhook)
+     */
+    async createWebhook(channelId, body, reason, options) {
+        return await this.request(`POST`, `/channels/${channelId}/webhooks`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-channel-webhooks)
+     */
+    async getChannelWebhooks(channelId, options) {
+        return await this.request(`GET`, `/channels/${channelId}/webhooks`, options);
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-guild-webhooks)
+     */
+    async getGuildWebhooks(guildId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/webhooks`, options);
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook)
+     */
+    async getWebhook(webhookId, options) {
+        return await this.request(`GET`, `/webhooks/${webhookId}`, options);
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook-with-token)
+     */
+    async getWebhookWithToken(webhookId, token, options) {
+        return await this.request(`GET`, `/webhooks/${webhookId}/${token}`, options);
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#modify-webhook)
+     */
+    async modifyWebhook(webhookId, body, reason, options) {
+        return await this.request(`PATCH`, `/webhooks/${webhookId}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#modify-webhook-with-token)
+     */
+    async modifyWebhookWithToken(webhookId, token, body, reason, options) {
+        return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook)
+     */
+    async deleteWebhook(webhookId, reason, options) {
+        return await this.request(`DELETE`, `/webhooks/${webhookId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-with-token)
+     */
+    async deleteWebhookWithToken(webhookId, token, reason, options) {
+        return await this.request(`DELETE`, `/webhooks/${webhookId}/${token}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param body Request body.
+     * @param wait If the response should wait until server confirmation.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#execute-webhook)
+     */
+    async executeWebhook(webhookId, token, body, wait, threadId, options) {
+        return await this.request(`POST`, `/webhooks/${webhookId}/${token}`, {
+            body,
+            query: {
+                thread_id: threadId,
+                wait
+            },
+            ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook-message)
+     */
+    async getWebhookMessage(webhookId, token, messageId, threadId, options) {
+        return await this.request(`GET`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+            query: { thread_id: threadId },
+            ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#edit-webhook-message)
+     */
+    async editWebhookMessage(webhookId, token, messageId, body, threadId, options) {
+        return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+            body,
+            query: { thread_id: threadId },
+            ...options
+        });
+    }
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-message)
+     */
+    async deleteWebhookMessage(webhookId, token, messageId, threadId, options) {
+        return await this.request(`DELETE`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+            query: { thread_id: threadId },
+            ...options
         });
     }
     /**
@@ -1183,6 +1603,20 @@ class RestRequests {
      */
     async getGatewayBot(options) {
         return await this.request(`GET`, `/gateway/bot`, options);
+    }
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/oauth2#get-current-bot-application-information)
+     */
+    async getCurrentBotApplicationInformation(options) {
+        return await this.request(`GET`, `/oauth2/applications/@me`, options);
+    }
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/oauth2#get-current-authorization-information)
+     */
+    async getCurrentAuthorizationInformation(options) {
+        return await this.request(`GET`, `/oauth2/@me`, options);
     }
 }
 exports.RestRequests = RestRequests;
