@@ -189,79 +189,79 @@ class RestRequests {
         });
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-original-interaction-response)
      */
-    async getOriginalInteractionResponse(interactionId, interactionToken, options) {
-        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options);
+    async getOriginalInteractionResponse(applicationId, interactionToken, options) {
+        return await this.request(`GET`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options);
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
-    async editOriginalInteractionResponse(interactionId, interactionToken, body, options) {
-        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, {
+    async editOriginalInteractionResponse(applicationId, interactionToken, body, options) {
+        return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, {
             body, ...options
         });
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
-    async deleteOriginalInteractionResponse(interactionId, interactionToken, options) {
-        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/@original`, options);
+    async deleteOriginalInteractionResponse(applicationId, interactionToken, options) {
+        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options);
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
-    async createFollowupMessage(interactionId, interactionToken, body, options) {
-        return await this.request(`POST`, `/webhooks/${interactionId}/${interactionToken}`, {
+    async createFollowupMessage(applicationId, interactionToken, body, options) {
+        return await this.request(`POST`, `/webhooks/${applicationId}/${interactionToken}`, {
             body, ...options
         });
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#get-followup-message)
      */
-    async getFollowupMessage(interactionId, interactionToken, messageId, options) {
-        return await this.request(`GET`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options);
+    async getFollowupMessage(applicationId, interactionToken, messageId, options) {
+        return await this.request(`GET`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options);
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
-    async editFollowupMessage(interactionId, interactionToken, messageId, body, options) {
-        return await this.request(`PATCH`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, {
+    async editFollowupMessage(applicationId, interactionToken, messageId, body, options) {
+        return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, {
             body, ...options
         });
     }
     /**
-     * @param interactionId The interaction ID.
+     * @param applicationId The application ID.
      * @param interactionToken The interaction token.
      * @param messageId The message ID.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
-    async deleteFollowupMessage(interactionId, interactionToken, messageId, options) {
-        return await this.request(`DELETE`, `/webhooks/${interactionId}/${interactionToken}/messages/${messageId}`, options);
+    async deleteFollowupMessage(applicationId, interactionToken, messageId, options) {
+        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options);
     }
     /**
      * @param guildId The guild ID.
