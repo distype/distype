@@ -465,6 +465,215 @@ class RestRequests {
     async getChannelInvites(channelId, options) {
         return await this.request(`GET`, `/channels/${channelId}/invites`, options);
     }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-channel-invite)
+     */
+    async createChannelInvite(channelId, body, reason, options) {
+        return await this.request(`POST`, `/channels/${channelId}/invites`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param overwriteId The overwrite's ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-channel-permission)
+     */
+    async deleteChannelPermission(channelId, overwriteId, reason, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/permissions/${overwriteId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#follow-news-channel)
+     */
+    async followNewsChannel(channelId, body, options) {
+        return await this.request(`POST`, `/channels/${channelId}/followers`, {
+            body, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#trigger-typing-indicator)
+     */
+    async triggerTypingIndicator(channelId, options) {
+        return await this.request(`POST`, `/channels/${channelId}/typing`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-pinned-messages)
+     */
+    async getPinnedMessages(channelId, options) {
+        return await this.request(`GET`, `/channels/${channelId}/pins`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#pin-message)
+     */
+    async pinMessage(channelId, messageId, reason, options) {
+        return await this.request(`PUT`, `/channels/${channelId}/pins/${messageId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#unpin-message)
+     */
+    async unpinMessage(channelId, messageId, reason, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/pins/${messageId}`, {
+            reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param userId The user ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#group-dm-add-recipient)
+     */
+    async groupDMAddRecipient(channelId, userId, body, options) {
+        return await this.request(`PUT`, `/channels/${channelId}/recipients/${userId}`, {
+            body, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#group-dm-remove-recipient)
+     */
+    async groupDMRemoveRecipient(channelId, userId, options) {
+        return await this.request(`DELETE`, `/channels/${channelId}/recipients/${userId}`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-from-message)
+     */
+    async startThreadFromMessage(channelId, messageId, body, reason, options) {
+        return await this.request(`POST`, `/channels/${channelId}/messages/${messageId}/threads`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-without-message)
+     */
+    async startThreadWithoutMessage(channelId, body, reason, options) {
+        return await this.request(`POST`, `/channels/${channelId}/threads`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-in-forum-channel)
+     * @todo PR in `discord-api-types` for proper return type.
+     */
+    async startThreadInForumChannel(channelId, body, reason, options) {
+        return await this.request(`POST`, `/channels/${channelId}/threads`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#join-thread)
+     */
+    async joinThread(threadId, options) {
+        return await this.request(`PUT`, `/channels/${threadId}/thread-members/@me`, options);
+    }
+    /**
+     * @param threadId The thread ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#add-thread-member)
+     */
+    async addThreadMember(threadId, userId, options) {
+        return await this.request(`PUT`, `/channels/${threadId}/thread-members/${userId}`, options);
+    }
+    /**
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#leave-thread)
+     */
+    async leaveThread(threadId, options) {
+        return await this.request(`DELETE`, `/channels/${threadId}/thread-members/@me`, options);
+    }
+    /**
+     * @param threadId The thread ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#remove-thread-member)
+     */
+    async removeThreadMember(threadId, userId, options) {
+        return await this.request(`DELETE`, `/channels/${threadId}/thread-members/${userId}`, options);
+    }
+    /**
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-thread-members)
+     */
+    async listThreadMembers(threadId, options) {
+        return await this.request(`GET`, `/channels/${threadId}/thread-members`, options);
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-public-archived-threads)
+     */
+    async listPublicArchivedThreads(channelId, query, options) {
+        return await this.request(`GET`, `/channels/${channelId}/threads/archived/public`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-private-archived-threads)
+     */
+    async listPrivateArchivedThreads(channelId, query, options) {
+        return await this.request(`GET`, `/channels/${channelId}/threads/archived/private`, {
+            query, ...options
+        });
+    }
+    /**
+     * @param channelId The channel ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-private-archived-threads)
+     */
+    async listJoinedPrivateArchivedThreads(channelId, query, options) {
+        return await this.request(`GET`, `/channels/${channelId}/users/@me/threads/archived/private`, {
+            query, ...options
+        });
+    }
     // ------------------------------------
     /**
      * @param guildId The guild ID.

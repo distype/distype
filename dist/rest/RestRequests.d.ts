@@ -338,6 +338,151 @@ export declare abstract class RestRequests {
      */
     getChannelInvites(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelInvitesResult>;
     /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-channel-invite)
+     */
+    createChannelInvite(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelInviteJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelInviteResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param overwriteId The overwrite's ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-channel-permission)
+     */
+    deleteChannelPermission(channelId: Snowflake, overwriteId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelPermissionResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#follow-news-channel)
+     */
+    followNewsChannel(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelFollowersJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelFollowersResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#trigger-typing-indicator)
+     */
+    triggerTypingIndicator(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelTypingResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#get-pinned-messages)
+     */
+    getPinnedMessages(channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelPinsResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#pin-message)
+     */
+    pinMessage(channelId: Snowflake, messageId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelPinResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#unpin-message)
+     */
+    unpinMessage(channelId: Snowflake, messageId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelPinResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param userId The user ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#group-dm-add-recipient)
+     */
+    groupDMAddRecipient(channelId: Snowflake, userId: Snowflake, body: DiscordTypes.RESTPutAPIChannelRecipientJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelRecipientResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#group-dm-remove-recipient)
+     */
+    groupDMRemoveRecipient(channelId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelRecipientResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param messageId The message ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-from-message)
+     */
+    startThreadFromMessage(channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessagesThreadsJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessagesThreadsResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-without-message)
+     */
+    startThreadWithoutMessage(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelThreadsJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelThreadsResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-in-forum-channel)
+     * @todo PR in `discord-api-types` for proper return type.
+     */
+    startThreadInForumChannel(channelId: Snowflake, body: DiscordTypes.RESTPostAPIGuildForumThreadsJSONBody | RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelThreadsResult>;
+    /**
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#join-thread)
+     */
+    joinThread(threadId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelThreadMembersResult>;
+    /**
+     * @param threadId The thread ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#add-thread-member)
+     */
+    addThreadMember(threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<never>;
+    /**
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#leave-thread)
+     */
+    leaveThread(threadId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelThreadMembersResult>;
+    /**
+     * @param threadId The thread ID.
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#remove-thread-member)
+     */
+    removeThreadMember(threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<never>;
+    /**
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-thread-members)
+     */
+    listThreadMembers(threadId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelThreadMembersResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-public-archived-threads)
+     */
+    listPublicArchivedThreads(channelId: Snowflake, query: DiscordTypes.RESTGetAPIChannelThreadsArchivedQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelUsersThreadsArchivedResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-private-archived-threads)
+     */
+    listPrivateArchivedThreads(channelId: Snowflake, query: DiscordTypes.RESTGetAPIChannelThreadsArchivedQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelUsersThreadsArchivedResult>;
+    /**
+     * @param channelId The channel ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#list-private-archived-threads)
+     */
+    listJoinedPrivateArchivedThreads(channelId: Snowflake, query: DiscordTypes.RESTGetAPIChannelThreadsArchivedQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelUsersThreadsArchivedResult>;
+    /**
      * @param guildId The guild ID.
      * @param options Request options.
      */
