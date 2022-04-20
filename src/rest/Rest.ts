@@ -205,7 +205,7 @@ export class Rest extends RestRequests {
      */
     public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse> {
         const headers: Record<string, string> = {
-            'Authorization': `Bot ${this._token}`,
+            'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
             'Content-Type': `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`,
             ...this._convertUndiciHeaders(this.options.headers),

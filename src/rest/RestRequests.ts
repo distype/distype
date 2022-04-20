@@ -2,7 +2,7 @@ import { RestMethod, RestRequestData, RestRequestDataBodyStream } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v10';
-import { RESTPatchAPIGuildEmojiJSONBody, RESTPostAPIGuildEmojiJSONBody, Snowflake } from 'discord-api-types/v10';
+import { Snowflake } from 'discord-api-types/v10';
 
 /**
  * A class containing methods for all routes for the Discord API.
@@ -768,7 +768,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/emoji#create-guild-emoji)
      */
-    public async createGuildEmoji (guildId: Snowflake, body: RESTPostAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildEmojiResult> {
+    public async createGuildEmoji (guildId: Snowflake, body: DiscordTypes.RESTPostAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildEmojiResult> {
         return await this.request(`POST`, `/guilds/${guildId}/emojis`, {
             body, reason, ...options
         });
@@ -781,7 +781,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/emoji#modify-guild-emoji)
      */
-    public async modifyGuildEmoji (guildId: Snowflake, body: RESTPatchAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildEmojiResult> {
+    public async modifyGuildEmoji (guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildEmojiJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildEmojiResult> {
         return await this.request(`PATCH`, `/guilds/${guildId}/emojis`, {
             body, reason, ...options
         });
@@ -1273,7 +1273,283 @@ export abstract class RestRequests {
         }) as never;
     }
 
-    // ------------------------------------
+    /**
+     * @param guildId The guild ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#list-scheduled-events-for-guild)
+     */
+    public async listScheduledEventsForGuild (guildId: Snowflake, query: DiscordTypes.RESTGetAPIGuildScheduledEventsQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildScheduledEventsResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/scheduled-events`, {
+            query, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#create-guild-scheduled-event)
+     */
+    public async createGuildScheduledEvent (guildId: Snowflake, body: DiscordTypes.RESTPostAPIGuildScheduledEventJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildScheduledEventResult> {
+        return await this.request(`POST`, `/guilds/${guildId}/scheduled-events`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event)
+     */
+    public async getGuildScheduledEvent (guildId: Snowflake, eventId: Snowflake, query: DiscordTypes.RESTGetAPIGuildScheduledEventQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildScheduledEventResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/scheduled-events/${eventId}`, {
+            query, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#modify-guild-scheduled-event)
+     */
+    public async modifyGuildScheduledEvent (guildId: Snowflake, eventId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildScheduledEventJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildScheduledEventResult> {
+        return await this.request(`PATCH`, `/guilds/${guildId}/scheduled-events/${eventId}`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#delete-guild-scheduled-event)
+     */
+    public async deleteGuildScheduledEvent (guildId: Snowflake, eventId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIGuildScheduledEventResult> {
+        return await this.request(`DELETE`, `/guilds/${guildId}/scheduled-events/${eventId}`, options) as DiscordTypes.RESTDeleteAPIGuildScheduledEventResult;
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param eventId The event ID.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#get-guild-scheduled-event-users)
+     */
+    public async getGuildScheduledEventUsers (guildId: Snowflake, eventId: Snowflake, query: DiscordTypes.RESTGetAPIGuildScheduledEventUsersQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildScheduledEventUsersResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/scheduled-events/${eventId}/users`, {
+            query, ...options
+        });
+    }
+
+    /**
+     * @param inviteCode The invite code.
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/invite#get-invite)
+     */
+    public async getInvite (inviteCode: string, query: DiscordTypes.RESTGetAPIInviteQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIInviteResult> {
+        return await this.request(`GET`, `/invites/${inviteCode}`, {
+            query, ...options
+        });
+    }
+
+    /**
+     * @param inviteCode The invite code.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/invite#delete-invite)
+     */
+    public async deleteInvite (inviteCode: string, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInviteResult> {
+        return await this.request(`DELETE`, `/invites/${inviteCode}`, {
+            reason, ...options
+        });
+    }
+
+    /**
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#create-stage-instance)
+     */
+    public async createStageInstance (body: DiscordTypes.RESTPostAPIStageInstanceJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIStageInstanceResult> {
+        return await this.request(`POST`, `/stage-instances`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#get-stage-instance)
+     */
+    public async getStageInstance (channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIStageInstanceResult> {
+        return await this.request(`GET`, `/stage-instances/${channelId}`, options);
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#modify-stage-instance)
+     */
+    public async modifyStageInstance (channelId: Snowflake, body: DiscordTypes.RESTPatchAPIStageInstanceJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIStageInstanceResult> {
+        return await this.request(`PATCH`, `/stage-instances/${channelId}`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#delete-stage-instance)
+     */
+    public async deleteStageInstance (channelId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIStageInstanceResult> {
+        return await this.request(`DELETE`, `/stage-instances/${channelId}`, {
+            reason, ...options
+        }) as DiscordTypes.RESTDeleteAPIStageInstanceResult;
+    }
+
+    /**
+     * @param stickerId The sticker ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#get-sticker)
+     */
+    public async getSticker (stickerId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIStickerResult> {
+        return await this.request(`GET`, `/stickers/${stickerId}`, options);
+    }
+
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#list-nitro-sticker-packs)
+     */
+    public async listNitroStickerPacks (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetNitroStickerPacksResult> {
+        return await this.request(`GET`, `/sticker-packs`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#list-guild-stickers)
+     */
+    public async listGuildStickers (guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildStickersResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/stickers`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#get-guild-sticker)
+     */
+    public async getGuildSticker (guildId: Snowflake, stickerId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildStickerResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/stickers/${stickerId}`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#create-guild-sticker)
+     */
+    public async createGuildSticker (guildId: Snowflake, body: RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildStickerResult> {
+        return await this.request(`POST`, `/guilds/${guildId}/stickers`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#modify-guild-sticker)
+     */
+    public async modifyGuildSticker (guildId: Snowflake, stickerId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildStickerJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildStickerResult> {
+        return await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param stickerId The sticker ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#delete-guild-sticker)
+     */
+    public async deleteGuildSticker (guildId: Snowflake, stickerId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIGuildStickerResult> {
+        return await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
+            reason, ...options
+        }) as DiscordTypes.RESTDeleteAPIGuildStickerResult;
+    }
+
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user)
+     */
+    public async getCurrentUser (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPICurrentUserResult> {
+        return await this.request(`GET`, `/users/@me`, options);
+    }
+
+    /**
+     * @param userId The user ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-user)
+     */
+    public async getUser (userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIUserResult> {
+        return await this.request(`GET`, `/users/${userId}`, options);
+    }
+
+    /**
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#modify-current-user)
+     */
+    public async modifyCurrentUser (body: DiscordTypes.RESTPatchAPICurrentUserJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPICurrentUserResult> {
+        return await this.request(`PATCH`, `/users/@me`, {
+            body, ...options
+        });
+    }
+
+    /**
+     * @param query Request query.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user-guilds)
+     */
+    public async getCurrentUserGuilds (query: DiscordTypes.RESTGetAPICurrentUserGuildsQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPICurrentUserGuildsResult> {
+        return await this.request(`GET`, `/users/@me/guilds`, {
+            query, ...options
+        });
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-current-user-guild-member)
+     */
+    public async getCurrentUserGuildMember (guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetCurrentUserGuildMemberResult> {
+        return await this.request(`GET`, `/user/@me/guilds/${guildId}/member`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#leave-guild)
+     */
+    public async leaveGuild (guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPICurrentUserGuildResult> {
+        return await this.request(`DELETE`, `/user/@me/guilds/${guildId}`, options) as DiscordTypes.RESTDeleteAPICurrentUserGuildResult;
+    }
 
     /**
      * @param body Request body.
@@ -1284,6 +1560,189 @@ export abstract class RestRequests {
         return await this.request(`POST`, `/users/@me/channels`, {
             body, ...options
         });
+    }
+
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#get-user-connections)
+     */
+    public async getUserConnections (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPICurrentUserConnectionsResult> {
+        return await this.request(`GET`, `/users/@me/connections`, options);
+    }
+
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/voice#list-voice-regions)
+     */
+    public async listVoiceRegions (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildVoiceRegionsResult> {
+        return await this.request(`GET`, ``, options);
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#create-webhook)
+     */
+    public async createWebhook (channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelWebhookJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelWebhookResult> {
+        return await this.request(`POST`, `/channels/${channelId}/webhooks`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param channelId The channel ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-channel-webhooks)
+     */
+    public async getChannelWebhooks (channelId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIChannelWebhooksResult> {
+        return await this.request(`GET`, `/channels/${channelId}/webhooks`, options);
+    }
+
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-guild-webhooks)
+     */
+    public async getGuildWebhooks (guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildWebhooksResult> {
+        return await this.request(`GET`, `/guilds/${guildId}/webhooks`, options);
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook)
+     */
+    public async getWebhook (webhookId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIWebhookResult> {
+        return await this.request(`GET`, `/webhooks/${webhookId}`, options);
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook-with-token)
+     */
+    public async getWebhookWithToken (webhookId: Snowflake, token: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIWebhookWithTokenResult> {
+        return await this.request(`GET`, `/webhooks/${webhookId}/${token}`, options);
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#modify-webhook)
+     */
+    public async modifyWebhook (webhookId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookResult> {
+        return await this.request(`PATCH`, `/webhooks/${webhookId}`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#modify-webhook-with-token)
+     */
+    public async modifyWebhookWithToken (webhookId: Snowflake, token: string, body: DiscordTypes.RESTPatchAPIWebhookWithTokenJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenResult> {
+        return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}`, {
+            body, reason, ...options
+        });
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook)
+     */
+    public async deleteWebhook (webhookId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIWebhookResult> {
+        return await this.request(`DELETE`, `/webhooks/${webhookId}`, {
+            reason, ...options
+        }) as DiscordTypes.RESTDeleteAPIWebhookResult;
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-with-token)
+     */
+    public async deleteWebhookWithToken (webhookId: Snowflake, token: string, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIWebhookWithTokenResult> {
+        return await this.request(`DELETE`, `/webhooks/${webhookId}/${token}`, {
+            reason, ...options
+        }) as DiscordTypes.RESTDeleteAPIWebhookWithTokenResult;
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param body Request body.
+     * @param wait If the response should wait until server confirmation.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#execute-webhook)
+     */
+    public async executeWebhook <T extends boolean = false> (webhookId: Snowflake, token: string, body: DiscordTypes.RESTPostAPIWebhookWithTokenJSONBody | RestRequestDataBodyStream, wait?: T, threadId?: Snowflake, options?: RestRequestOptions): Promise<T extends true ? DiscordTypes.RESTPostAPIWebhookWithTokenWaitResult : DiscordTypes.RESTPostAPIWebhookWithTokenResult> {
+        return await this.request(`POST`, `/webhooks/${webhookId}/${token}`, {
+            body,
+            query: {
+                thread_id: threadId,
+                wait
+            },
+            ...options
+        });
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#get-webhook-message)
+     */
+    public async getWebhookMessage (webhookId: Snowflake, token: string, messageId: Snowflake, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIWebhookWithTokenMessageResult> {
+        return await this.request(`GET`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+            query: { thread_id: threadId },
+            ...options
+        });
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#edit-webhook-message)
+     */
+    public async editWebhookMessage (webhookId: Snowflake, token: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookWithTokenMessageJSONBody | RestRequestDataBodyStream, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenMessageResult> {
+        return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+            body,
+            query: { thread_id: threadId },
+            ...options
+        });
+    }
+
+    /**
+     * @param webhookId The webhook ID.
+     * @param token The webhook's token.
+     * @param messageId The message ID.
+     * @param threadId The thread ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-message)
+     */
+    public async deleteWebhookMessage (webhookId: Snowflake, token: string, messageId: Snowflake, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIWebhookWithTokenMessageResult> {
+        return await this.request(`DELETE`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+            query: { thread_id: threadId },
+            ...options
+        }) as DiscordTypes.RESTDeleteAPIWebhookWithTokenMessageResult;
     }
 
     /**
@@ -1300,5 +1759,21 @@ export abstract class RestRequests {
      */
     public async getGatewayBot (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGatewayBotResult> {
         return await this.request(`GET`, `/gateway/bot`, options);
+    }
+
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/oauth2#get-current-bot-application-information)
+     */
+    public async getCurrentBotApplicationInformation (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIOAuth2CurrentApplicationResult> {
+        return await this.request(`GET`, `/oauth2/applications/@me`, options);
+    }
+
+    /**
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/oauth2#get-current-authorization-information)
+     */
+    public async getCurrentAuthorizationInformation (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIOAuth2CurrentAuthorizationResult> {
+        return await this.request(`GET`, `/oauth2/@me`, options);
     }
 }
