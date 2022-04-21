@@ -92,10 +92,11 @@ export class RestBucket {
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor (id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        if (typeof id !== `string`) throw new TypeError(`A bucket ID must be specified`);
-        if (typeof bucketHash !== `string`) throw new TypeError(`A bucket hash must be specified`);
-        if (typeof majorParameter !== `string`) throw new TypeError(`A major parameter must be specified`);
-        if (!(manager instanceof Rest)) throw new TypeError(`A rest manager must be specified`);
+        if (typeof id !== `string`) throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
+        if (typeof bucketHash !== `string`) throw new TypeError(`Parameter "bucketHash" (string) not provided: got ${bucketHash} (${typeof bucketHash})`);
+        if (typeof majorParameter !== `string`) throw new TypeError(`Parameter "majorParameter" (string) not provided: got ${majorParameter} (${typeof majorParameter})`);
+        if (!(manager instanceof Rest)) throw new TypeError(`Parameter "manager" (Rest) not provided: got ${manager} (${typeof manager})`);
+        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
 
         this.id = id;
         this.bucketHash = bucketHash;

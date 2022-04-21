@@ -80,6 +80,9 @@ export class Cache {
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor (options: CacheOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        if (typeof options !== `object`) throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
+
         this.options = {
             channels: options.channels ?? null,
             guilds: options.guilds ?? null,
