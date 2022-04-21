@@ -7,6 +7,25 @@ const v10_1 = require("discord-api-types/v10");
  */
 exports.DiscordConstants = {
     /**
+     * Application command limits.
+     * @see [Discord API Types](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure)
+     */
+    APPLICATION_COMMAND_LIMITS: {
+        NAME: 32,
+        DESCRIPTION: 100,
+        OPTION: {
+            CHOICES: 25,
+            DESCRIPTION: 100,
+            NAME: 32
+        },
+        OPTIONS: 25
+    },
+    /**
+     * The maximum number of choices an autocomplete response can specify.
+     * @see [Discord API Types](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-autocomplete)
+     */
+    AUTOCOMPLETE_MAX_CHOICES: 25,
+    /**
      * Discord's base API URL.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
      */
@@ -16,6 +35,48 @@ exports.DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
      */
     CDN_URL: `https://cdn.discordapp.com`,
+    /**
+     * Component limits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
+     */
+    COMPONENT_LIMITS: {
+        BUTTON: {
+            CUSTOM_ID: 100,
+            LABEL: 80
+        },
+        SELECT_MENU: {
+            CUSTOM_ID: 100,
+            MAX_VALUES: {
+                MIN: 1,
+                MAX: 25
+            },
+            MIN_VALUES: {
+                MIN: 0,
+                MAX: 25
+            },
+            OPTIONS: 25,
+            OPTION: {
+                DESCRIPTION: 100,
+                LABEL: 100,
+                VALUE: 100
+            },
+            PLACEHOLDER: 150
+        },
+        TEXT_INPUT: {
+            CUSTOM_ID: 100,
+            LABEL: 45,
+            MAX_LENGTH: {
+                MIN: 1,
+                MAX: 4000
+            },
+            MIN_LENGTH: {
+                MIN: 0,
+                MAX: 4000
+            },
+            PLACEHOLDER: 100,
+            VALUE: 4000
+        }
+    },
     /**
      * The Discord epoch as a unix millisecond timestamp.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
@@ -105,24 +166,35 @@ exports.DiscordConstants = {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
      */
     MESSAGE_EMBED_LIMITS: {
-        TITLE: 256,
+        AUTHOR_NAME: 256,
         DESCRIPTION: 4096,
-        FIELDS: 25,
         FIELD: {
             NAME: 256,
             VALUE: 1024
         },
+        FIELDS: 25,
         FOOTER_TEXT: 2048,
-        AUTHOR_NAME: 256,
-        MAX_TOTAL_IN_MESSAGE: 6000
+        MAX_TOTAL_IN_MESSAGE: 6000,
+        TITLE: 256
     },
     /**
      * Limits for creating messages.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
      */
     MESSAGE_LIMITS: {
+        ATTACHMENTS: 10,
         CONTENT: 2000,
+        EMBEDS: 10,
         MAX_DEFAULT_ATTACHMENTS_SIZE: 8388608
+    },
+    /**
+     * Limits for modals.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-modal)
+     */
+    MODAL_LIMITS: {
+        COMPONENTS: 5,
+        CUSTOM_ID: 100,
+        TITLE: 45
     },
     /**
      * Bitwise permission flags.

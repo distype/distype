@@ -4,6 +4,25 @@ import { GatewayCloseCodes, GatewayIntentBits } from 'discord-api-types/v10';
  */
 export declare const DiscordConstants: {
     /**
+     * Application command limits.
+     * @see [Discord API Types](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-structure)
+     */
+    readonly APPLICATION_COMMAND_LIMITS: {
+        readonly NAME: 32;
+        readonly DESCRIPTION: 100;
+        readonly OPTION: {
+            readonly CHOICES: 25;
+            readonly DESCRIPTION: 100;
+            readonly NAME: 32;
+        };
+        readonly OPTIONS: 25;
+    };
+    /**
+     * The maximum number of choices an autocomplete response can specify.
+     * @see [Discord API Types](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-autocomplete)
+     */
+    readonly AUTOCOMPLETE_MAX_CHOICES: 25;
+    /**
      * Discord's base API URL.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
      */
@@ -13,6 +32,48 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
      */
     readonly CDN_URL: "https://cdn.discordapp.com";
+    /**
+     * Component limits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
+     */
+    readonly COMPONENT_LIMITS: {
+        readonly BUTTON: {
+            readonly CUSTOM_ID: 100;
+            readonly LABEL: 80;
+        };
+        readonly SELECT_MENU: {
+            readonly CUSTOM_ID: 100;
+            readonly MAX_VALUES: {
+                readonly MIN: 1;
+                readonly MAX: 25;
+            };
+            readonly MIN_VALUES: {
+                readonly MIN: 0;
+                readonly MAX: 25;
+            };
+            readonly OPTIONS: 25;
+            readonly OPTION: {
+                readonly DESCRIPTION: 100;
+                readonly LABEL: 100;
+                readonly VALUE: 100;
+            };
+            readonly PLACEHOLDER: 150;
+        };
+        readonly TEXT_INPUT: {
+            readonly CUSTOM_ID: 100;
+            readonly LABEL: 45;
+            readonly MAX_LENGTH: {
+                readonly MIN: 1;
+                readonly MAX: 4000;
+            };
+            readonly MIN_LENGTH: {
+                readonly MIN: 0;
+                readonly MAX: 4000;
+            };
+            readonly PLACEHOLDER: 100;
+            readonly VALUE: 4000;
+        };
+    };
     /**
      * The Discord epoch as a unix millisecond timestamp.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
@@ -102,24 +163,35 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
      */
     readonly MESSAGE_EMBED_LIMITS: {
-        readonly TITLE: 256;
+        readonly AUTHOR_NAME: 256;
         readonly DESCRIPTION: 4096;
-        readonly FIELDS: 25;
         readonly FIELD: {
             readonly NAME: 256;
             readonly VALUE: 1024;
         };
+        readonly FIELDS: 25;
         readonly FOOTER_TEXT: 2048;
-        readonly AUTHOR_NAME: 256;
         readonly MAX_TOTAL_IN_MESSAGE: 6000;
+        readonly TITLE: 256;
     };
     /**
      * Limits for creating messages.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
      */
     readonly MESSAGE_LIMITS: {
+        readonly ATTACHMENTS: 10;
         readonly CONTENT: 2000;
+        readonly EMBEDS: 10;
         readonly MAX_DEFAULT_ATTACHMENTS_SIZE: 8388608;
+    };
+    /**
+     * Limits for modals.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-modal)
+     */
+    readonly MODAL_LIMITS: {
+        readonly COMPONENTS: 5;
+        readonly CUSTOM_ID: 100;
+        readonly TITLE: 45;
     };
     /**
      * Bitwise permission flags.
