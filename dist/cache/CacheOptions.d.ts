@@ -1,5 +1,4 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
-import { UnionKeys } from '@br88c/node-utils';
 /**
  * {@link Cache} options.
  */
@@ -11,7 +10,7 @@ export interface CacheOptions {
      * Defining an empty array (`[]`) will only cache the required data, `null` or `undefined` will cache no data.
      * @default null
      */
-    channels?: Array<Exclude<UnionKeys<CachedChannel>, `id`>> | null;
+    channels?: Array<Exclude<keyof CachedChannel, `id`>> | null;
     /**
      * Guild cache control.
      * By default, nothing is cached. Cache is enabled on a per-key basis, meaning you specify what keys of data you wish to keep cached.

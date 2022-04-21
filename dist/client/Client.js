@@ -46,5 +46,116 @@ class Client {
             level: `DEBUG`, system: this.system
         });
     }
+    /**
+     * Tries to ensure channel data.
+     * Fetches data from the {@link Cache cache}, then if data isn't found a {@link Rest rest} request is made.
+     * @param id The channel's ID.
+     * @param keys Properties to ensure.
+     */
+    async getChannelData(id, ...keys) {
+        let data = this.cache.channels?.get(id) ?? { id };
+        if (keys.some((key) => !Object.keys(data).includes(key))) {
+            data = {
+                ...data, ...await this.rest.getChannel(id)
+            };
+        }
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Tries to ensure guild data.
+     * Fetches data from the {@link Cache cache}, then if data isn't found a {@link Rest rest} request is made.
+     * @param id The guild's ID.
+     * @param keys Properties to ensure.
+     */
+    async getGuildData(id, ...keys) {
+        let data = this.cache.guilds?.get(id) ?? { id };
+        if (keys.some((key) => !Object.keys(data).includes(key))) {
+            const guild = await this.rest.getGuild(id);
+            data = {
+                ...data,
+                ...guild,
+                channels: guild.channels?.map((channel) => channel.id),
+                members: guild.members?.filter((member) => !!member.user).map((member) => member.user.id),
+                roles: guild.roles.map((role) => role.id)
+            };
+        }
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Tries to ensure member data.
+     * Fetches data from the {@link Cache cache}, then if data isn't found a {@link Rest rest} request is made.
+     * @param guildId The member's guild ID.
+     * @param userId The member's user ID.
+     * @param keys Properties to ensure.
+     */
+    async getMemberData(guildId, userId, ...keys) {
+        let data = this.cache.members?.get(guildId)?.get(userId) ?? {
+            guild_id: guildId, user_id: userId
+        };
+        if (keys.some((key) => !Object.keys(data).includes(key))) {
+            data = {
+                ...data, ...(await this.rest.getGuildMember(guildId, userId))
+            };
+        }
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Tries to ensure presence data.
+     * @param guildId The presence's guild ID.
+     * @param userId The presence's user ID.
+     * @param keys Properties to ensure.
+     */
+    getPresenceData(guildId, userId, ...keys) {
+        const data = this.cache.presences?.get(guildId)?.get(userId) ?? {
+            guild_id: guildId, user_id: userId
+        };
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Tries to ensure role data.
+     * Fetches data from the {@link Cache cache}, then if data isn't found a {@link Rest rest} request is made.
+     * @param id The role's ID.
+     * @param guildId The role's guild's ID.
+     * @param keys Properties to ensure.
+     */
+    async getRoleData(id, guildId, ...keys) {
+        let data = this.cache.roles?.get(id) ?? { id };
+        data.guild_id = guildId;
+        if (keys.some((key) => !Object.keys(data).includes(key))) {
+            const role = (await this.rest.getGuildRoles(guildId)).find((role) => role.id === id);
+            if (role)
+                data = {
+                    ...data, ...role
+                };
+        }
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Tries to ensure user data.
+     * Fetches data from the {@link Cache cache}, then if data isn't found a {@link Rest rest} request is made.
+     * @param id The user's ID.
+     * @param keys Properties to ensure.
+     */
+    async getUserData(id, ...keys) {
+        let data = this.cache.users?.get(id) ?? { id };
+        if (keys.some((key) => !Object.keys(data).includes(key))) {
+            data = {
+                ...data, ...(await this.rest.getUser(id))
+            };
+        }
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Tries to ensure presence data.
+     * @param guildId The presence's guild ID.
+     * @param userId The presence's user ID.
+     * @param keys Properties to ensure.
+     */
+    getVoiceStateData(guildId, userId, ...keys) {
+        const data = this.cache.voiceStates?.get(guildId)?.get(userId) ?? {
+            guild_id: guildId, user_id: userId
+        };
+        return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
 }
 exports.Client = Client;

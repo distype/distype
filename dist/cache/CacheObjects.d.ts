@@ -13,7 +13,6 @@ declare type CachedChannelType<T> = {
     /**
      * The ID of the guild the channel originates from.
      * May be undefined if only sent from certain gateway dispatches.
-     * Always included, regardless of cache control.
      */
     guild_id?: Snowflake;
     /**
@@ -25,7 +24,7 @@ declare type CachedChannelType<T> = {
 /**
  * A cached channel.
  */
-export declare type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> | CachedChannelType<DiscordTypes.APIDMChannel> | CachedChannelType<DiscordTypes.APITextChannel> | CachedChannelType<DiscordTypes.APINewsChannel> | CachedChannelType<DiscordTypes.APIVoiceChannel> | CachedChannelType<DiscordTypes.APIGuildCategoryChannel> | CachedChannelType<DiscordTypes.APIThreadChannel> | CachedChannelType<DiscordTypes.APINewsChannel>;
+export declare type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> & CachedChannelType<DiscordTypes.APIDMChannel> & CachedChannelType<DiscordTypes.APITextChannel> & CachedChannelType<DiscordTypes.APINewsChannel> & CachedChannelType<DiscordTypes.APIVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildCategoryChannel> & CachedChannelType<DiscordTypes.APIThreadChannel> & CachedChannelType<DiscordTypes.APINewsChannel>;
 /**
  * A cached guild.
  */
