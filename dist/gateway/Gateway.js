@@ -78,11 +78,15 @@ class Gateway extends node_utils_1.TypedEmitter {
          */
         this._storedGetGatewayBot = null;
         if (typeof token !== `string`)
-            throw new TypeError(`A bot token must be specified`);
+            throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
         if (!(rest instanceof Rest_1.Rest))
-            throw new TypeError(`A rest manager must be specified`);
+            throw new TypeError(`Parameter "rest" (Rest) not provided: got ${rest} (${typeof rest})`);
         if (!(cache instanceof Cache_1.Cache) && cache !== false)
-            throw new TypeError(`A cache manager or false must be specified`);
+            throw new TypeError(`Parameter "cache" (Cache | false) not provided: got ${cache} (${typeof cache})`);
+        if (typeof options !== `object`)
+            throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,

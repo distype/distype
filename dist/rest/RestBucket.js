@@ -42,13 +42,15 @@ class RestBucket {
          */
         this._queue = [];
         if (typeof id !== `string`)
-            throw new TypeError(`A bucket ID must be specified`);
+            throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
         if (typeof bucketHash !== `string`)
-            throw new TypeError(`A bucket hash must be specified`);
+            throw new TypeError(`Parameter "bucketHash" (string) not provided: got ${bucketHash} (${typeof bucketHash})`);
         if (typeof majorParameter !== `string`)
-            throw new TypeError(`A major parameter must be specified`);
+            throw new TypeError(`Parameter "majorParameter" (string) not provided: got ${majorParameter} (${typeof majorParameter})`);
         if (!(manager instanceof Rest_1.Rest))
-            throw new TypeError(`A rest manager must be specified`);
+            throw new TypeError(`Parameter "manager" (Rest) not provided: got ${manager} (${typeof manager})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
         this.id = id;
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;

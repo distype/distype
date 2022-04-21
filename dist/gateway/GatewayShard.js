@@ -240,10 +240,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
      */
     kill(code = 1000, reason = `Manual kill`) {
-        if (typeof code !== `number`)
-            throw new TypeError(`Parameter "code" (number) type mismatch: got ${code} (${typeof code})`);
-        if (typeof reason !== `string`)
-            throw new TypeError(`Parameter "reason" (string) type mismatch: got ${reason} (${typeof reason})`);
         this._close(false, code, reason);
         this._enterState(GatewayShardState.IDLE);
         this._killed = true;
@@ -256,8 +252,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * @param data The data to send.
      */
     async send(data) {
-        if (typeof data !== `object`)
-            throw new TypeError(`Parameter "data" (object) not provided: got ${data} (${typeof data})`);
         return await new Promise((resolve, reject) => {
             if (this.state !== GatewayShardState.RUNNING) {
                 this._queue.push({

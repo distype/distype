@@ -22,6 +22,10 @@ class Cache {
          * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
          */
         this.system = `Cache`;
+        if (typeof options !== `object`)
+            throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
         this.options = {
             channels: options.channels ?? null,
             guilds: options.guilds ?? null,
