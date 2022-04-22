@@ -168,7 +168,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * Connect to the gateway.
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
-     * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     async spawn() {
         if (this._spinning)
@@ -204,7 +203,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     }
     /**
      * Restart / resume the shard.
-     * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     async restart() {
         if (this._spinning)

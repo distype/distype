@@ -175,12 +175,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Connect to the gateway.
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
-     * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     spawn(): Promise<void>;
     /**
      * Restart / resume the shard.
-     * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     restart(): Promise<void>;
     /**
