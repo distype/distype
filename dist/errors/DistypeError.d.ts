@@ -83,7 +83,7 @@ export declare enum DistypeErrorType {
     REST_UNABLE_TO_PARSE_RESPONSE_BODY = "REST_UNABLE_TO_PARSE_RESPONSE_BODY"
 }
 /**
- * An error emitted from distype.
+ * An error emitted from Distype.
  */
 export declare class DistypeError extends Error {
     /**
@@ -95,7 +95,7 @@ export declare class DistypeError extends Error {
      */
     readonly system: DistypeErrorSystem;
     /**
-     * Create a gateway shard error.
+     * Create a Distype error.
      * @param message The error's message.
      * @param errorType The type of error that has occured.
      * @param system The system the error was emitted from.

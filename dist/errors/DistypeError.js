@@ -83,11 +83,11 @@ var DistypeErrorType;
     DistypeErrorType["REST_UNABLE_TO_PARSE_RESPONSE_BODY"] = "REST_UNABLE_TO_PARSE_RESPONSE_BODY";
 })(DistypeErrorType = exports.DistypeErrorType || (exports.DistypeErrorType = {}));
 /**
- * An error emitted from distype.
+ * An error emitted from Distype.
  */
 class DistypeError extends Error {
     /**
-     * Create a gateway shard error.
+     * Create a Distype error.
      * @param message The error's message.
      * @param errorType The type of error that has occured.
      * @param system The system the error was emitted from.
