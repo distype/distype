@@ -222,7 +222,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
     /**
      * Connect to the gateway.
-     * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
      */
     public async spawn (): Promise<void> {
         if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
