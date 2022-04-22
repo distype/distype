@@ -223,7 +223,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Connect to the gateway.
      * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
-     * @returns The [ready payload](https://discord.com/developers/docs/topics/gateway#ready).
      */
     public async spawn (): Promise<void> {
         if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
@@ -265,7 +264,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
     /**
      * Restart / resume the shard.
-     * @returns The [resumed payload](https://discord.com/developers/docs/topics/gateway#resumed).
      */
     public async restart (): Promise<void> {
         if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
