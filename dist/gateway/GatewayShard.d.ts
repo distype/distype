@@ -174,7 +174,6 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     get canResume(): boolean;
     /**
      * Connect to the gateway.
-     * The shard must be in a {@link GatewayShardState DISCONNECTED} state.
      */
     spawn(): Promise<void>;
     /**
