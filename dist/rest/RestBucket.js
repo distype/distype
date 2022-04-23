@@ -12,6 +12,46 @@ const DistypeError_1 = require("../errors/DistypeError");
  */
 class RestBucket {
     /**
+     * The number of allowed requests per a ratelimit interval.
+     */
+    allowedRequestsPerRatelimit = Infinity;
+    /**
+     * The {@link Rest rest manager} the bucket is bound to.
+     */
+    manager;
+    /**
+     * The current number of requests left.
+     */
+    requestsLeft = 1;
+    /**
+     * A unix millisecond timestamp at which the ratelimit resets.
+     */
+    resetAt = -1;
+    /**
+     * The bucket's unique {@link RestBucketHash hash}.
+     */
+    bucketHash;
+    /**
+     * The bucket's {@link RestBucketId ID}.
+     */
+    id;
+    /**
+     * The {@link RestMajorParameter major parameter} associated with the bucket.
+     */
+    majorParameter;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    system = `Rest Bucket`;
+    /**
+     * The {@link LogCallback log callback} used by the rest bucket.
+     */
+    _log;
+    /**
+     * The request queue.
+     */
+    _queue = [];
+    /**
      * Create a rest bucket.
      * @param id The bucket's {@link RestBucketId ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
@@ -21,26 +61,6 @@ class RestBucket {
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(id, bucketHash, majorParameter, manager, logCallback = () => { }, logThisArg) {
-        /**
-         * The number of allowed requests per a ratelimit interval.
-         */
-        this.allowedRequestsPerRatelimit = Infinity;
-        /**
-         * The current number of requests left.
-         */
-        this.requestsLeft = 1;
-        /**
-         * A unix millisecond timestamp at which the ratelimit resets.
-         */
-        this.resetAt = -1;
-        /**
-         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
-         */
-        this.system = `Rest Bucket`;
-        /**
-         * The request queue.
-         */
-        this._queue = [];
         if (typeof id !== `string`)
             throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
         if (typeof bucketHash !== `string`)

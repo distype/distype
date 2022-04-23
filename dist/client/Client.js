@@ -10,6 +10,40 @@ const Rest_1 = require("../rest/Rest");
  */
 class Client {
     /**
+     * The client's {@link Cache cache}.
+     */
+    cache;
+    /**
+     * The client's {@link Gateway gateway manager}.
+     */
+    gateway;
+    /**
+     * The client's {@link Rest rest manager}.
+     */
+    rest;
+    /**
+     * The version of [Distype](https://github.com/distype/distype) being used.
+     */
+    DISTYPE_VERSION = DistypeConstants_1.DistypeConstants.VERSION;
+    /**
+     * {@link ClientOptions Options} for the client.
+     * Note that any options not specified are set to a default value.
+     */
+    options;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    system = `Client`;
+    /**
+     * The {@link LogCallback log callback} used by the client.
+     */
+    _log;
+    /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
+    _token;
+    /**
      * Create a client.
      * @param token The bot's token.
      * @param options {@link ClientOptions Client options}.
@@ -17,14 +51,6 @@ class Client {
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(token, options = {}, logCallback = () => { }, logThisArg) {
-        /**
-         * The version of [Distype](https://github.com/distype/distype) being used.
-         */
-        this.DISTYPE_VERSION = DistypeConstants_1.DistypeConstants.VERSION;
-        /**
-         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
-         */
-        this.system = `Client`;
         if (typeof token !== `string`)
             throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
         if (typeof options !== `object`)

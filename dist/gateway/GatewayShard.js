@@ -76,6 +76,80 @@ var GatewayShardState;
  */
 class GatewayShard extends node_utils_1.TypedEmitter {
     /**
+     * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
+     */
+    lastSequence = null;
+    /**
+     * The shard's ping.
+     */
+    ping = 0;
+    /**
+     * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
+     */
+    sessionId = null;
+    /**
+     * The shard's {@link GatewayShardState state}.
+     */
+    state = GatewayShardState.DISCONNECTED;
+    /**
+     * The shard's ID.
+     */
+    id;
+    /**
+     * {@link GatewayShardOptions Options} for the gateway shard.
+     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
+     */
+    options;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    system;
+    /**
+     * The heartbeat interval timer.
+     */
+    _heartbeatIntervalTimer = null;
+    /**
+     * The time that the heartbeat timer has been waiting for the jitter to start for.
+     */
+    _heartbeatJitterActive = null;
+    /**
+     * The time the heartbeat has been waiting for an ACK for.
+     */
+    _heartbeatWaitingSince = null;
+    /**
+     * If the shard was killed. Set back to `false` when a new conection attempt is started.
+     */
+    _killed = false;
+    /**
+     * The {@link LogCallback log callback} used by the shard.
+     */
+    _log;
+    /**
+     * A queue of data to be sent after the socket opens.
+     */
+    _queue = [];
+    /**
+     * If the shard has an active spawn or restart loop.
+     */
+    _spinning = false;
+    /**
+     * The websocket used.
+     */
+    _ws = null;
+    /**
+     * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
+     */
+    _numShards;
+    /**
+     * The URL being used.
+     */
+    _url;
+    /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
+    _token;
+    /**
      * Create a gateway shard.
      * @param token The bot's token.
      * @param id The shard's ID.
@@ -87,50 +161,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     constructor(token, id, numShards, url, options, logCallback = () => { }, logThisArg) {
         super();
-        /**
-         * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
-         */
-        this.lastSequence = null;
-        /**
-         * The shard's ping.
-         */
-        this.ping = 0;
-        /**
-         * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
-         */
-        this.sessionId = null;
-        /**
-         * The shard's {@link GatewayShardState state}.
-         */
-        this.state = GatewayShardState.DISCONNECTED;
-        /**
-         * The heartbeat interval timer.
-         */
-        this._heartbeatIntervalTimer = null;
-        /**
-         * The time that the heartbeat timer has been waiting for the jitter to start for.
-         */
-        this._heartbeatJitterActive = null;
-        /**
-         * The time the heartbeat has been waiting for an ACK for.
-         */
-        this._heartbeatWaitingSince = null;
-        /**
-         * If the shard was killed. Set back to `false` when a new conection attempt is started.
-         */
-        this._killed = false;
-        /**
-         * A queue of data to be sent after the socket opens.
-         */
-        this._queue = [];
-        /**
-         * If the shard has an active spawn or restart loop.
-         */
-        this._spinning = false;
-        /**
-         * The websocket used.
-         */
-        this._ws = null;
         if (typeof token !== `string`)
             throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
         if (typeof id !== `number`)

@@ -12,16 +12,67 @@ const v10_1 = require("discord-api-types/v10");
  */
 class Cache {
     /**
+     * {@link CachedChannel Cached channels}.
+     * A channel's key in the map is its ID.
+     */
+    channels;
+    /**
+     * {@link CachedGuild Cached guilds}.
+     * A guild's key in the map is its ID.
+     */
+    guilds;
+    /**
+     * {@link CachedMember Cached members}.
+     * Each key of the parent cache is a guild ID, with its children being a map of members in that guild.
+     * A member's key in its map is its user ID.
+     */
+    members;
+    /**
+     * {@link CachedPresence Cached presences}.
+     * Each key of the parent cache is a guild ID, with its children being a map of presences in that guild.
+     * A presence's key in its map is its user's ID.
+     */
+    presences;
+    /**
+     * {@link CachedRole Cached roles}.
+     * A role's key in the map is its ID.
+     */
+    roles;
+    /**
+     * {@link CachedUser Cached users}.
+     * A user's key in the map is its ID.
+     */
+    users;
+    /**
+     * {@link CachedVoiceState Cached voice states}.
+     * Each key of the parent cache is a guild ID, with its children being a map of voice states in that guild.
+     * A voice state's key in its map is its user's ID.
+     */
+    voiceStates;
+    /**
+     * {@link CacheOptions Options} for the cache manager.
+     * Note that any options not specified are set to a default value.
+     */
+    options;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    system = `Cache`;
+    /**
+     * The {@link LogCallback log callback} used by the cache manager.
+     */
+    _log;
+    /**
+     * The keys of enabled caches.
+     */
+    _enabledKeys;
+    /**
      * Create a cache manager.
      * @param options {@link CacheOptions Cache options}.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the cache manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor(options = {}, logCallback = () => { }, logThisArg) {
-        /**
-         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
-         */
-        this.system = `Cache`;
         if (typeof options !== `object`)
             throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
         if (typeof logCallback !== `function`)

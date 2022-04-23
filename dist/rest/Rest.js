@@ -18,6 +18,54 @@ const types_1 = require("util/types");
  */
 class Rest extends RestRequests_1.RestRequests {
     /**
+     * Ratelimit {@link RestBucket buckets}.
+     * Each bucket's key is it's {@link RestBucketId ID}.
+     */
+    buckets = null;
+    /**
+     * The interval used for sweeping inactive {@link RestBucket buckets}.
+     */
+    bucketSweepInterval = null;
+    /**
+     * The amount of requests left in the global ratelimit bucket.
+     */
+    globalLeft = null;
+    /**
+     * A unix millisecond timestamp at which the global ratelimit resets.
+     */
+    globalResetAt = null;
+    /**
+     * A tally of the number of responses that returned a specific response code.
+     * Note that response codes aren't included if they were never received.
+     */
+    responseCodeTally = {};
+    /**
+     * Cached route ratelimit bucket hashes.
+     * Keys are {@link RestRouteHash cached route hashes}, with their values being their corresponding {@link RestBucketHash bucket hash}.
+     */
+    routeHashCache = null;
+    /**
+     * {@link RestOptions Options} for the rest manager.
+     */
+    options;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    system = `Rest`;
+    /**
+     * The {@link LogCallback log callback} used by the gateway manager.
+     */
+    _log;
+    /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    _logThisArg;
+    /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
+    _token;
+    /**
      * Create a rest manager.
      * @param token The bot's token.
      * @param options {@link RestOptions Rest options}.
@@ -26,37 +74,6 @@ class Rest extends RestRequests_1.RestRequests {
      */
     constructor(token, options = {}, logCallback = () => { }, logThisArg) {
         super();
-        /**
-         * Ratelimit {@link RestBucket buckets}.
-         * Each bucket's key is it's {@link RestBucketId ID}.
-         */
-        this.buckets = null;
-        /**
-         * The interval used for sweeping inactive {@link RestBucket buckets}.
-         */
-        this.bucketSweepInterval = null;
-        /**
-         * The amount of requests left in the global ratelimit bucket.
-         */
-        this.globalLeft = null;
-        /**
-         * A unix millisecond timestamp at which the global ratelimit resets.
-         */
-        this.globalResetAt = null;
-        /**
-         * A tally of the number of responses that returned a specific response code.
-         * Note that response codes aren't included if they were never received.
-         */
-        this.responseCodeTally = {};
-        /**
-         * Cached route ratelimit bucket hashes.
-         * Keys are {@link RestRouteHash cached route hashes}, with their values being their corresponding {@link RestBucketHash bucket hash}.
-         */
-        this.routeHashCache = null;
-        /**
-         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
-         */
-        this.system = `Rest`;
         if (typeof token !== `string`)
             throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
         if (typeof options !== `object`)

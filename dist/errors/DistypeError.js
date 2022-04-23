@@ -87,6 +87,14 @@ var DistypeErrorType;
  */
 class DistypeError extends Error {
     /**
+     * The type of error that has occured.
+     */
+    errorType;
+    /**
+     * The system the error was emitted from.
+     */
+    system;
+    /**
      * Create a Distype error.
      * @param message The error's message.
      * @param errorType The type of error that has occured.

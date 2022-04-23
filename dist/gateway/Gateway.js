@@ -42,6 +42,57 @@ const url_1 = require("url");
  */
 class Gateway extends node_utils_1.TypedEmitter {
     /**
+     * {@link GatewayShard Gateway shards}.
+     * Modifying this map externally may result in unexpected behavior.
+     */
+    shards = new node_utils_1.ExtendedMap();
+    /**
+     * The latest self user received from the gateway.
+     */
+    user = null;
+    /**
+     * {@link GatewayOptions Options} for the gateway manager.
+     * Note that any options not specified are set to a default value.x
+     */
+    options;
+    /**
+     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     */
+    system = `Gateway`;
+    /**
+     * The {@link Cache cache manager} to update from incoming events.
+     */
+    _cache;
+    /**
+     * The {@link LogCallback log callback} used by the gateway manager.
+     */
+    _log;
+    /**
+     * A value to use as `this` in the `this#_log`.
+     */
+    _logThisArg;
+    /**
+     * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
+     */
+    _requestGuildMembersNonceIncrement = 0;
+    /**
+     * The {@link Rest rest manager} to use for fetching gateway endpoints.
+     */
+    _rest;
+    /**
+     * Stored calculated sharding options.
+     */
+    _storedCalculatedShards = null;
+    /**
+     * Stored response from `Rest#getGatewayBot()`.
+     */
+    _storedGetGatewayBot = null;
+    /**
+     * The bot's token.
+     */
+    // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
+    _token;
+    /**
      * Create a gateway manager.
      * @param token The bot's token.
      * @param rest The {@link Rest rest manager} to use for fetching gateway endpoints.
@@ -52,31 +103,6 @@ class Gateway extends node_utils_1.TypedEmitter {
      */
     constructor(token, rest, cache, options = {}, logCallback = () => { }, logThisArg) {
         super();
-        /**
-         * {@link GatewayShard Gateway shards}.
-         * Modifying this map externally may result in unexpected behavior.
-         */
-        this.shards = new node_utils_1.ExtendedMap();
-        /**
-         * The latest self user received from the gateway.
-         */
-        this.user = null;
-        /**
-         * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
-         */
-        this.system = `Gateway`;
-        /**
-         * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
-         */
-        this._requestGuildMembersNonceIncrement = 0;
-        /**
-         * Stored calculated sharding options.
-         */
-        this._storedCalculatedShards = null;
-        /**
-         * Stored response from `Rest#getGatewayBot()`.
-         */
-        this._storedGetGatewayBot = null;
         if (typeof token !== `string`)
             throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
         if (!(rest instanceof Rest_1.Rest))
