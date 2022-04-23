@@ -6,7 +6,7 @@
         <a href="https://www.npmjs.com/package/distype"><img src="https://img.shields.io/npm/v/distype.svg?color=5162F&style=for-the-badge&logo=npm"></a>
         <a href="https://github.com/distype/distype/actions/workflows/build.yml"><img src="https://img.shields.io/github/workflow/status/distype/distype/Build?style=for-the-badge&logo=github"><a>
         <a href="https://github.com/distype/distype/actions/workflows/tests.yml"><img src="https://img.shields.io/github/workflow/status/distype/distype/Tests?label=tests&style=for-the-badge&logo=github"><a>
-        <a href="https://discord.gg/hRXKcUKGHB"><img src="https://img.shields.io/discord/564877383308541964?color=5162F1&style=for-the-badge&logo=discord&logoColor=white"></a>
+        <a href="https://discord.gg/E2JsYPPJYN"><img src="https://img.shields.io/discord/773939670505619486?color=5162F1&style=for-the-badge&logo=discord&logoColor=white"></a>
     </p>
 </div>
 
