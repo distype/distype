@@ -126,7 +126,7 @@ class CDNUtils {
         return this._make(`/app-assets/${id}/${hash}`, options);
     }
     /**
-     * An acievement icon.
+     * An achievement icon.
      * @param applicationId The application's ID.
      * @param achievementId The [achievement's ID](https://discord.com/developers/docs/game-sdk/achievements#data-models-user-achievement-struct).
      * @param hash The [achievement's icon hash](https://discord.com/developers/docs/game-sdk/achievements#data-models-achievement-struct).

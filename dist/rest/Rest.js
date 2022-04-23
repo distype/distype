@@ -18,7 +18,7 @@ const types_1 = require("util/types");
  */
 class Rest extends RestRequests_1.RestRequests {
     /**
-     * Ratelimit {@link RestBucket buckets}.
+     * Rate limit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketId ID}.
      */
     buckets = null;
@@ -27,11 +27,11 @@ class Rest extends RestRequests_1.RestRequests {
      */
     bucketSweepInterval = null;
     /**
-     * The amount of requests left in the global ratelimit bucket.
+     * The amount of requests left in the global rate limit bucket.
      */
     globalLeft = null;
     /**
-     * A unix millisecond timestamp at which the global ratelimit resets.
+     * A unix millisecond timestamp at which the global rate limit resets.
      */
     globalResetAt = null;
     /**
@@ -40,7 +40,7 @@ class Rest extends RestRequests_1.RestRequests {
      */
     responseCodeTally = {};
     /**
-     * Cached route ratelimit bucket hashes.
+     * Cached route rate limit bucket hashes.
      * Keys are {@link RestRouteHash cached route hashes}, with their values being their corresponding {@link RestBucketHash bucket hash}.
      */
     routeHashCache = null;
@@ -145,7 +145,7 @@ class Rest extends RestRequests_1.RestRequests {
     }
     /**
      * The internal rest make method.
-     * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if ratelimits are turned off.
+     * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if rate limits are turned off.
      * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
@@ -187,7 +187,7 @@ class Rest extends RestRequests_1.RestRequests {
         return res;
     }
     /**
-     * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     sweepBuckets() {
         if (this.buckets) {
@@ -206,7 +206,7 @@ class Rest extends RestRequests_1.RestRequests {
         return Array.isArray(headers) ? Object.fromEntries(headers.map((header) => header.split(`:`).map((v) => v.trim()))) : { ...headers };
     }
     /**
-     * Create a ratelimit {@link RestBucket bucket}.
+     * Create a rate limit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketId ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
      * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
@@ -214,7 +214,7 @@ class Rest extends RestRequests_1.RestRequests {
      */
     _createBucket(bucketId, bucketHash, majorParameter) {
         if (!this.buckets || this.options.disableRatelimits)
-            throw new DistypeError_1.DistypeError(`Cannot create a bucket while ratelimits are disabled`, DistypeError_1.DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
+            throw new DistypeError_1.DistypeError(`Cannot create a bucket while rate limits are disabled`, DistypeError_1.DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
         const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
         this.buckets.set(bucketId, bucket);
         return bucket;

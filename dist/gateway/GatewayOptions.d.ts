@@ -24,9 +24,9 @@ export interface GatewayOptions {
      */
     customGetGatewayBotURL?: string | null;
     /**
-     * If the ratelimit on buckets (used for shard spawning) should be disabled.
-     * **Only disable spawning ratelimits if you are using a seperate application to manage ratelimits** (`customGatewaySocketURL` and/or `customGatewayBotEndpoint` can be used to do so).
-     * Note that shards are still spawned in the order that they would with ratelimiting enabled, just without a pause between bucket spawn calls.
+     * If the rate limit on buckets (used for shard spawning) should be disabled.
+     * **Only disable spawning rate limits if you are using a separate application to manage rate limits** (`customGatewaySocketURL` and/or `customGatewayBotEndpoint` can be used to do so).
+     * Note that shards are still spawned in the order that they would with rate limiting enabled, just without a pause between bucket spawn calls.
      * @default false
      */
     disableBucketRatelimits?: boolean;

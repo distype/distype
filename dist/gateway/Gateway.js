@@ -221,7 +221,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         const results = [];
         const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
         for (let i = 0; i < mostShards; i++) {
-            this._log(`Starting spawn process for shard ratelimit key ${i}`, {
+            this._log(`Starting spawn process for shard rate limit key ${i}`, {
                 level: `DEBUG`, system: this.system
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
@@ -262,7 +262,7 @@ class Gateway extends node_utils_1.TypedEmitter {
      * Get members from a guild.
      * @param guildId The ID of the guild to get members from.
      * @param options Guild member request options.
-     * @returns Received members, presences, and unfound members.
+     * @returns Received members, presences, and missing members.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
     getGuildMembers(guildId, options = {}) {

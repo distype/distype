@@ -126,7 +126,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _heartbeatWaitingSince;
     /**
-     * If the shard was killed. Set back to `false` when a new conection attempt is started.
+     * If the shard was killed. Set back to `false` when a new connection attempt is started.
      */
     private _killed;
     /**

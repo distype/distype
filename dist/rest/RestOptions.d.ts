@@ -15,18 +15,18 @@ export interface RestOptions {
      */
     code500retries?: number;
     /**
-     * If `true`, internal ratelimits are disabled. **Only disable ratelimits if you are using a seperate application to manage ratelimits (`customBaseURL` can be used to do so), or know exactly what you are doing**.
+     * If `true`, internal rate limits are disabled. **Only disable rate limits if you are using a separate application to manage rate limits (`customBaseURL` can be used to do so), or know exactly what you are doing**.
      * @default false
      */
     disableRatelimits?: boolean;
     /**
      * The amount of requests to allow to be sent per second.
-     * Note that this only applies to a single {@link ClientWorker} instance (If {@link ClientMaster} / {@link ClientWorker} are being used), meaning that you still may encounter `429` errors from global ratelimits.
+     * Note that this only applies to a single {@link ClientWorker} instance (If {@link ClientMaster} / {@link ClientWorker} are being used), meaning that you still may encounter `429` errors from global rate limits.
      * @default 50
      */
     ratelimitGlobal?: number;
     /**
-     * The amount of time in milliseconds to wait between ratelimited requests in the same bucket.
+     * The amount of time in milliseconds to wait between rate limited requests in the same bucket.
      * @default 10
      */
     ratelimitPause?: number;
@@ -49,7 +49,7 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
     authHeader?: string;
     /**
      * A custom base URL to make requests to.
-     * Useful for making requests through, for example, a proxy / multi-application ratelimiter.
+     * Useful for making requests through, for example, a proxy / multi-application rate limiter.
      * Example: `https://api.example.com/discord`
      * Make sure this URL does **not** end with a `/`.
      * Note that the rest manager will also omit the API version from the route (`.../v10/...`).

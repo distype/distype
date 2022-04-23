@@ -130,7 +130,7 @@ export declare const DiscordConstants: {
         readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
     };
     /**
-     * Gateway ratelimits.
+     * Gateway rate limits.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#rate-limiting)
      */
     readonly GATEWAY_RATELIMITS: {
@@ -253,13 +253,13 @@ export declare const DiscordConstants: {
      */
     readonly REST_ERROR_KEY: "_errors";
     /**
-     * The amount of milliseconds after a message is created where it causes issues with ratelimiting.
+     * The amount of milliseconds after a message is created where it causes issues with rate limiting.
      * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
      */
     readonly REST_OLD_MESSAGE_THRESHOLD: 1209600000;
     /**
-     * Rest ratelimit headers.
-     * Headers are lowercased to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
+     * Rest rate limit headers.
+     * Headers are lowercase to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
      */
     readonly REST_RATELIMIT_HEADERS: {

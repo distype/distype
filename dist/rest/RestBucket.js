@@ -7,12 +7,12 @@ const node_utils_1 = require("@br88c/node-utils");
 const DistypeError_1 = require("../errors/DistypeError");
 /**
  * A {@link Rest rest} bucket.
- * Used for ratelimiting requests.
+ * Used for rate limiting requests.
  * @internal
  */
 class RestBucket {
     /**
-     * The number of allowed requests per a ratelimit interval.
+     * The number of allowed requests per a rate limit interval.
      */
     allowedRequestsPerRatelimit = Infinity;
     /**
@@ -24,7 +24,7 @@ class RestBucket {
      */
     requestsLeft = 1;
     /**
-     * A unix millisecond timestamp at which the ratelimit resets.
+     * A unix millisecond timestamp at which the rate limit resets.
      */
     resetAt = -1;
     /**
@@ -87,7 +87,7 @@ class RestBucket {
         return this._queue.length > 0;
     }
     /**
-     * Get information on the bucket's current ratelimit restrictions.
+     * Get information on the bucket's current rate limit restrictions.
      */
     get ratelimited() {
         const ratelimits = {
@@ -100,7 +100,7 @@ class RestBucket {
         };
     }
     /**
-     * Make a rest request with this bucket's ratelimits.
+     * Make a rest request with this bucket's rate limits.
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param routeHash The request's {@link RestRouteHash route hash}.
@@ -113,7 +113,7 @@ class RestBucket {
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
     /**
-     * Waits for the bucket to no longer be ratelimited.
+     * Waits for the bucket to no longer be rate limited.
      */
     async _awaitRatelimit() {
         if (!this.ratelimited.any)
@@ -123,7 +123,7 @@ class RestBucket {
         return await this._awaitRatelimit();
     }
     /**
-     * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
+     * Lowest level request function that handles active rate limits, rate limit headers, and makes the request with `undici`.
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param routeHash The request's {@link RestRouteHash route hash}.

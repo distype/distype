@@ -3,7 +3,7 @@
  */
 export declare type DistypeErrorSystem = `General` | `Client` | `Client Master` | `Client Worker ${number}` | `Cache` | `Gateway` | `Gateway Shard ${number}` | `Gateway Shard Socket ${number}` | `Rest` | `Rest Bucket`;
 /**
- * The type of error that has occured.
+ * The type of error that has ocurred.
  */
 export declare enum DistypeErrorType {
     /**
@@ -67,13 +67,13 @@ export declare enum DistypeErrorType {
      */
     GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET = "GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET",
     /**
-     * The {@link Rest rest manager} tried to create a {@link RestBucket ratelimit bucket} while ratelimits are disabled.
+     * The {@link Rest rest manager} tried to create a {@link RestBucket rate limit bucket} while rate limits are disabled.
      * Should be emitted by the {@link Rest rest manager}.
      */
     REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS = "REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS",
     /**
      * There was an error making a {@link Rest rest} request.
-     * Should be emitted by the {@link Rest rest manager} or a {@link RestBucket ratelimit bucket}.
+     * Should be emitted by the {@link Rest rest manager} or a {@link RestBucket rate limit bucket}.
      */
     REST_REQUEST_ERROR = "REST_REQUEST_ERROR",
     /**
@@ -87,7 +87,7 @@ export declare enum DistypeErrorType {
  */
 export declare class DistypeError extends Error {
     /**
-     * The type of error that has occured.
+     * The type of error that has ocurred.
      */
     readonly errorType: DistypeErrorType;
     /**
@@ -97,7 +97,7 @@ export declare class DistypeError extends Error {
     /**
      * Create a Distype error.
      * @param message The error's message.
-     * @param errorType The type of error that has occured.
+     * @param errorType The type of error that has ocurred.
      * @param system The system the error was emitted from.
      */
     constructor(message: string, errorType: DistypeErrorType, system: DistypeErrorSystem);
