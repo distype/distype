@@ -20,7 +20,7 @@ export type RestBucketHash = `${string}` | `global;${RestRouteHash}`;
 export type RestBucketId = `${RestBucketHash}(${RestMajorParameter})`;
 
 /**
- * A major {@link Rest rest} ratelimit parameter.
+ * A major {@link Rest rest} rate limit parameter.
  * @internal
  */
 export type RestMajorParameter = `global` | Snowflake;
@@ -32,12 +32,12 @@ export type RestRouteHash = `${RestMethod};${RestMajorParameter}`;
 
 /**
  * A {@link Rest rest} bucket.
- * Used for ratelimiting requests.
+ * Used for rate limiting requests.
  * @internal
  */
 export class RestBucket {
     /**
-     * The number of allowed requests per a ratelimit interval.
+     * The number of allowed requests per a rate limit interval.
      */
     public allowedRequestsPerRatelimit = Infinity;
     /**
@@ -49,7 +49,7 @@ export class RestBucket {
      */
     public requestsLeft = 1;
     /**
-     * A unix millisecond timestamp at which the ratelimit resets.
+     * A unix millisecond timestamp at which the rate limit resets.
      */
     public resetAt = -1;
 
@@ -117,7 +117,7 @@ export class RestBucket {
     }
 
     /**
-     * Get information on the bucket's current ratelimit restrictions.
+     * Get information on the bucket's current rate limit restrictions.
      */
     public get ratelimited (): { local: boolean, global: boolean, any: boolean } {
         const ratelimits = {
@@ -132,7 +132,7 @@ export class RestBucket {
     }
 
     /**
-     * Make a rest request with this bucket's ratelimits.
+     * Make a rest request with this bucket's rate limits.
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param routeHash The request's {@link RestRouteHash route hash}.
@@ -146,7 +146,7 @@ export class RestBucket {
     }
 
     /**
-     * Waits for the bucket to no longer be ratelimited.
+     * Waits for the bucket to no longer be rate limited.
      */
     private async _awaitRatelimit (): Promise<void> {
         if (!this.ratelimited.any) return;
@@ -156,7 +156,7 @@ export class RestBucket {
     }
 
     /**
-     * Lowest level request function that handles active ratelimits, ratelimit headers, and makes the request with `undici`.
+     * Lowest level request function that handles active rate limits, rate limit headers, and makes the request with `undici`.
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param routeHash The request's {@link RestRouteHash route hash}.

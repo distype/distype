@@ -28,7 +28,7 @@ export type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 /**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
- * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implmenet the correct headers in your request.
+ * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implement the correct headers in your request.
  */
 export interface RestRequestData extends RestRequestOptions {
     /**
@@ -61,7 +61,7 @@ export type RestRoute = `/${string}`;
  */
 export class Rest extends RestRequests {
     /**
-     * Ratelimit {@link RestBucket buckets}.
+     * Rate limit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketId ID}.
      */
     public buckets: ExtendedMap<RestBucketId, RestBucket> | null = null;
@@ -70,11 +70,11 @@ export class Rest extends RestRequests {
      */
     public bucketSweepInterval: NodeJS.Timer | null = null;
     /**
-     * The amount of requests left in the global ratelimit bucket.
+     * The amount of requests left in the global rate limit bucket.
      */
     public globalLeft: number | null = null;
     /**
-     * A unix millisecond timestamp at which the global ratelimit resets.
+     * A unix millisecond timestamp at which the global rate limit resets.
      */
     public globalResetAt: number | null = null;
     /**
@@ -83,7 +83,7 @@ export class Rest extends RestRequests {
      */
     public responseCodeTally: Record<string, number> = {};
     /**
-     * Cached route ratelimit bucket hashes.
+     * Cached route rate limit bucket hashes.
      * Keys are {@link RestRouteHash cached route hashes}, with their values being their corresponding {@link RestBucketHash bucket hash}.
      */
     public routeHashCache: ExtendedMap<RestRouteHash, RestBucketHash> | null = null;
@@ -197,7 +197,7 @@ export class Rest extends RestRequests {
 
     /**
      * The internal rest make method.
-     * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if ratelimits are turned off.
+     * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if rate limits are turned off.
      * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
@@ -246,7 +246,7 @@ export class Rest extends RestRequests {
     }
 
     /**
-     * Cleans up inactive {@link RestBucket buckets} without active local ratelimits. Useful for manually preventing potentially fatal memory leaks in large bots.
+     * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
     public sweepBuckets (): void {
         if (this.buckets) {
@@ -267,14 +267,14 @@ export class Rest extends RestRequests {
     }
 
     /**
-     * Create a ratelimit {@link RestBucket bucket}.
+     * Create a rate limit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketId ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
      * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @returns The created bucket.
      */
     private _createBucket (bucketId: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter): RestBucket {
-        if (!this.buckets || this.options.disableRatelimits) throw new DistypeError(`Cannot create a bucket while ratelimits are disabled`, DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
+        if (!this.buckets || this.options.disableRatelimits) throw new DistypeError(`Cannot create a bucket while rate limits are disabled`, DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
         const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
         this.buckets.set(bucketId, bucket);
         return bucket;

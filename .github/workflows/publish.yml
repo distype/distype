@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish-npm:
-    name: Puplish NPM
+    name: Publish NPM
     runs-on: ubuntu-latest
 
     strategy:

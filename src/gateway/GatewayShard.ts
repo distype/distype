@@ -136,7 +136,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _heartbeatWaitingSince: number | null = null;
     /**
-     * If the shard was killed. Set back to `false` when a new conection attempt is started.
+     * If the shard was killed. Set back to `false` when a new connection attempt is started.
      */
     private _killed = false;
     /**
@@ -249,7 +249,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 this._enterState(GatewayShardState.IDLE);
 
                 this._spinning = false;
-                this._log(`Spawning interruped by kill`, {
+                this._log(`Spawning interrupted by kill`, {
                     level: `DEBUG`, system: this.system
                 });
                 throw new DistypeError(`Shard spawn attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
@@ -289,7 +289,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             if (this._killed) {
                 this._enterState(GatewayShardState.IDLE);
 
-                this._log(`Restarting interruped by kill`, {
+                this._log(`Restarting interrupted by kill`, {
                     level: `DEBUG`, system: this.system
                 });
                 throw new DistypeError(`Shard restart attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);

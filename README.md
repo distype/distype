@@ -28,10 +28,10 @@ A light yet robust Discord library written in TypeScript, catered towards develo
 - **Predictable:** Distype is as close as you can get to the Discord API, meaning that typically, what you see in Discord's documentation is also here.
 - **Lightweight:** Distype does minimal manipulation of incoming gateway events, responses to REST requests, etc. Additionally, Distype only has 5 direct dependencies.
 - **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
-- **Highly Configurable:** Distype aims to offer as much configuration as possible of internal functions, such as fully controllable cache behavior, retry and ratelimit behavior, custom rest and gateway base URLs for proxy solutions, access to low-level http and websocket options, and more.
+- **Highly Configurable:** Distype aims to offer as much configuration as possible of internal functions, such as fully controllable cache behavior, retry and rate limit behavior, custom rest and gateway base URLs for proxy solutions, access to low-level http and websocket options, and more.
 
 ## Todo
-- Add gateway shard send payload ratelimiting
+- Add gateway shard send payload rate limiting
 - Add zlib compression support to the gateway
 - Add `ClientMaster` and `ClientWorker`
 

@@ -311,7 +311,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         const results: Array<PromiseSettledResult<void>> = [];
         const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
         for (let i = 0; i < mostShards; i++) {
-            this._log(`Starting spawn process for shard ratelimit key ${i}`, {
+            this._log(`Starting spawn process for shard rate limit key ${i}`, {
                 level: `DEBUG`, system: this.system
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
@@ -354,7 +354,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * Get members from a guild.
      * @param guildId The ID of the guild to get members from.
      * @param options Guild member request options.
-     * @returns Received members, presences, and unfound members.
+     * @returns Received members, presences, and missing members.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
     public getGuildMembers (guildId: Snowflake, options: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersData, `guild_id` | `presences`>> = {}): Promise<{
