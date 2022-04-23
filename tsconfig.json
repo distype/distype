@@ -6,7 +6,7 @@
     "allowUnusedLabels": false,
     "declaration": true,
     "esModuleInterop": true,
-    "lib": ["ES2021"],
+    "lib": ["ES2022"],
     "module": "commonjs",
     "moduleResolution": "node",
     "newLine": "lf",
@@ -16,6 +16,6 @@
     "noUnusedParameters": true,
     "outDir": "dist",
     "strict": true,
-    "target": "ES2021"
+    "target": "ES2022"
   }
 }
