@@ -5,6 +5,7 @@ src/
 test/
 
 .eslintrc.json
+.gitattributes
 .gitignore
 package-lock.json
 tsconfig.json
