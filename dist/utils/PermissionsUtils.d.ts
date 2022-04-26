@@ -40,7 +40,7 @@ export declare class PermissionsUtils {
      * @param overwrites Overwrites to apply.
      * @param id Only apply overwrites with this ID.
      */
-    static applyOverwrites(perms: number | bigint, overwrites: APIOverwrite | APIOverwrite[], id?: Snowflake): bigint;
+    static applyOverwrites(perms: number | bigint, overwrites: APIOverwrite | APIOverwrite[], id: Snowflake): bigint;
     /**
      * Compute a member's permissions in a channel.
      * @param member The member to get permissions for.
