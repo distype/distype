@@ -206,12 +206,12 @@ class Client {
     async getSelfPermissions(guildId, channelId) {
         if (!this.gateway.user?.id)
             throw new Error(``);
-        const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
+        const member = await this.getMemberData(guildId, this.gateway.user.id, `roles`);
         const completeMember = {
             ...member,
             user: { id: this.gateway.user.id }
         };
-        const timedOut = typeof member.communication_disabled_until === `string`;
+        const timedOut = typeof (this.options.cache.members?.includes(`communication_disabled_until`) ? this.cache.members?.get(guildId)?.get(this.gateway.user.id)?.communication_disabled_until : (await this.rest.getGuildMember(guildId, this.gateway.user.id)).communication_disabled_until) === `string`;
         let completeGuild;
         const cachedGuild = this.cache.guilds?.get(guildId) ?? { id: guildId };
         if (typeof cachedGuild.owner_id !== `string` || !Array.isArray(cachedGuild.roles)) {
