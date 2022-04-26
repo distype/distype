@@ -30,7 +30,7 @@ export class Client {
     /**
      * The version of [Distype](https://github.com/distype/distype) being used.
      */
-    public readonly DISTYPE_VERSION: string = DistypeConstants.VERSION;
+    public readonly DISTYPE_VERSION: typeof DistypeConstants.VERSION = DistypeConstants.VERSION;
     /**
      * {@link ClientOptions Options} for the client.
      * Note that any options not specified are set to a default value.
