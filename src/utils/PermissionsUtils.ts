@@ -126,14 +126,12 @@ export class PermissionsUtils {
      * Check if a combination of permission flags includes a permission.
      * @param perms Combine permission flags to test for a permission.
      * @param perm The permission to test for.
-     * @param timedOut If the user is timed out.
      */
-    public static hasPerm (perms: number | bigint, perm: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS), timedOut = false): boolean {
+    public static hasPerm (perms: number | bigint, perm: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean {
         const permsFlags = BigInt(perms);
         const permFlag = typeof perm === `string` ? DiscordConstants.PERMISSION_FLAGS[perm] : BigInt(perm);
 
         if ((permsFlags & DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n) return true;
-        if (timedOut && (this.timeout(perms) & permFlag) !== 0n) return false;
         return (permsFlags & permFlag) !== 0n;
     }
 
