@@ -6,6 +6,7 @@ import { DistypeConstants } from '../constants/DistypeConstants';
 import { Gateway } from '../gateway/Gateway';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
+import { PermissionsGuild, PermissionsMember, PermissionsUtils } from '../utils/PermissionsUtils';
 
 import { Snowflake } from 'discord-api-types/v10';
 
@@ -213,5 +214,58 @@ export class Client {
         };
 
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {} as any);
+    }
+
+    /**
+     * Gets the bot's self permissions.
+     * For no requests to the API to be made, the following must be cached:
+     * ```ts
+     * const cacheOptions = {
+     *   channels: [`permission_overwrites`], // Only necessary if channelId is specified
+     *   guilds: [`owner_id`, `roles`],
+     *   members: [`communication_disabled_until`, `roles`],
+     *   roles: [`permissions`]
+     * }
+     * ```
+     * @param guildId The guild to get the bot's permissions in.
+     * @param channelId The channel to get the bot's permissions in.
+     * @returns The bot's permission flags.
+     */
+    public async getSelfPermissions (guildId: Snowflake, channelId?: Snowflake): Promise<bigint> {
+        if (!this.gateway.user?.id) throw new Error(``);
+
+        const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
+        const completeMember: PermissionsMember = {
+            ...member,
+            user: { id: this.gateway.user.id }
+        };
+
+        const timedOut = typeof member.communication_disabled_until === `string`;
+
+        let completeGuild: Required<PermissionsGuild>;
+        const cachedGuild = this.cache.guilds?.get(guildId) ?? { id: guildId };
+        if (typeof cachedGuild.owner_id !== `string` || !Array.isArray(cachedGuild.roles)) {
+            completeGuild = await this.rest.getGuild(guildId);
+        } else {
+            const cachedRoles = this.cache.roles?.filter((role) => cachedGuild.roles!.includes(role.id));
+            let completeRoles: Required<PermissionsGuild>[`roles`];
+            if (!cachedRoles || cachedRoles.size !== cachedGuild.roles.length || cachedRoles.some((role) => typeof role.permissions !== `string`)) {
+                completeRoles = await this.rest.getGuildRoles(guildId);
+            } else {
+                completeRoles = cachedRoles as any;
+            }
+
+            completeGuild = {
+                id: guildId,
+                owner_id: cachedGuild.owner_id!,
+                roles: completeRoles
+            };
+        }
+
+        if (channelId) {
+            return PermissionsUtils.channelPermissions(completeMember, completeGuild, await this.getChannelData(channelId, `permission_overwrites`), timedOut);
+        } else {
+            return PermissionsUtils.guildPermissions(completeMember, completeGuild, timedOut);
+        }
     }
 }
