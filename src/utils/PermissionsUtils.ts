@@ -154,4 +154,12 @@ export class PermissionsUtils {
         if (this.hasPerm(permsFlags, `ADMINISTRATOR`)) return permsFlags;
         return this.combine(...Object.values(DiscordConstants.PERMISSION_FLAGS_TIMEOUT)) & permsFlags;
     }
+
+    /**
+     * Converts permission flags to readable strings.
+     * @param perms The permissions to convert.
+     */
+    public static toReadable (perms: number | bigint): Array<keyof typeof DiscordConstants.PERMISSION_FLAGS> {
+        return (Object.keys(DiscordConstants.PERMISSION_FLAGS) as Array<keyof typeof DiscordConstants.PERMISSION_FLAGS>).filter((key) => BigInt(perms) & DiscordConstants.PERMISSION_FLAGS[key]);
+    }
 }
