@@ -78,4 +78,9 @@ export declare class PermissionsUtils {
      * @param perms The permissions to convert.
      */
     static timeout(perms: number | bigint): bigint;
+    /**
+     * Converts permission flags to readable strings.
+     * @param perms The permissions to convert.
+     */
+    static toReadable(perms: number | bigint): Array<keyof typeof DiscordConstants.PERMISSION_FLAGS>;
 }

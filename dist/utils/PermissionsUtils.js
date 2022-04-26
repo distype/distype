@@ -112,5 +112,12 @@ class PermissionsUtils {
             return permsFlags;
         return this.combine(...Object.values(DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS_TIMEOUT)) & permsFlags;
     }
+    /**
+     * Converts permission flags to readable strings.
+     * @param perms The permissions to convert.
+     */
+    static toReadable(perms) {
+        return Object.keys(DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS).filter((key) => BigInt(perms) & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[key]);
+    }
 }
 exports.PermissionsUtils = PermissionsUtils;
