@@ -3,6 +3,7 @@ import { ClientOptions } from './ClientOptions';
 import { Cache } from '../cache/Cache';
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
 import { DistypeConstants } from '../constants/DistypeConstants';
+import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 import { Gateway } from '../gateway/Gateway';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
@@ -232,7 +233,7 @@ export class Client {
      * @returns The bot's permission flags.
      */
     public async getSelfPermissions (guildId: Snowflake, channelId?: Snowflake): Promise<bigint> {
-        if (!this.gateway.user?.id) throw new Error(``);
+        if (!this.gateway.user?.id) throw new DistypeError(`Cannot get self permissions when the gateway user is not defined`, DistypeErrorType.CLIENT_GET_SELF_PERMISSIONS_GATEWAY_USER_UNDEFINED, this.system);
 
         const member = await this.getMemberData(guildId, this.gateway.user.id, `roles`);
         const completeMember: PermissionsMember = {
