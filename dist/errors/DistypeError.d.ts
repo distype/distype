@@ -7,6 +7,11 @@ export declare type DistypeErrorSystem = `General` | `Client` | `Client Master` 
  */
 export declare enum DistypeErrorType {
     /**
+     * While getting self permissions, the {@link Gateway gateway} user was not defined.
+     * Should be emitted by the {@link Client client}.
+     */
+    CLIENT_GET_SELF_PERMISSIONS_GATEWAY_USER_UNDEFINED = "CLIENT_GET_SELF_PERMISSIONS_GATEWAY_USER_UNDEFINED",
+    /**
      * Gateway {@link GatewayShard shards} are already running.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
