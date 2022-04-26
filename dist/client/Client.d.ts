@@ -1,6 +1,7 @@
 import { ClientOptions } from './ClientOptions';
 import { Cache } from '../cache/Cache';
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
+import { DistypeConstants } from '../constants/DistypeConstants';
 import { Gateway } from '../gateway/Gateway';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
@@ -24,7 +25,7 @@ export declare class Client {
     /**
      * The version of [Distype](https://github.com/distype/distype) being used.
      */
-    readonly DISTYPE_VERSION: string;
+    readonly DISTYPE_VERSION: typeof DistypeConstants.VERSION;
     /**
      * {@link ClientOptions Options} for the client.
      * Note that any options not specified are set to a default value.
@@ -105,4 +106,20 @@ export declare class Client {
      * @param keys Properties to ensure.
      */
     getVoiceStateData<T extends Array<keyof CachedVoiceState>>(guildId: Snowflake, userId: Snowflake, ...keys: T): Promise<Pick<CachedVoiceState, T[number]>>;
+    /**
+     * Gets the bot's self permissions.
+     * For no requests to the API to be made, the following must be cached:
+     * ```ts
+     * const cacheOptions = {
+     *   channels: [`permission_overwrites`], // Only necessary if channelId is specified
+     *   guilds: [`owner_id`, `roles`],
+     *   members: [`communication_disabled_until`, `roles`],
+     *   roles: [`permissions`]
+     * }
+     * ```
+     * @param guildId The guild to get the bot's permissions in.
+     * @param channelId The channel to get the bot's permissions in.
+     * @returns The bot's permission flags.
+     */
+    getSelfPermissions(guildId: Snowflake, channelId?: Snowflake): Promise<bigint>;
 }

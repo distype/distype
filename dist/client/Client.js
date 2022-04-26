@@ -5,6 +5,7 @@ const Cache_1 = require("../cache/Cache");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
 const Gateway_1 = require("../gateway/Gateway");
 const Rest_1 = require("../rest/Rest");
+const PermissionsUtils_1 = require("../utils/PermissionsUtils");
 /**
  * The Discord client.
  */
@@ -186,6 +187,57 @@ class Client {
             guild_id: guildId, user_id: userId
         };
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
+    }
+    /**
+     * Gets the bot's self permissions.
+     * For no requests to the API to be made, the following must be cached:
+     * ```ts
+     * const cacheOptions = {
+     *   channels: [`permission_overwrites`], // Only necessary if channelId is specified
+     *   guilds: [`owner_id`, `roles`],
+     *   members: [`communication_disabled_until`, `roles`],
+     *   roles: [`permissions`]
+     * }
+     * ```
+     * @param guildId The guild to get the bot's permissions in.
+     * @param channelId The channel to get the bot's permissions in.
+     * @returns The bot's permission flags.
+     */
+    async getSelfPermissions(guildId, channelId) {
+        if (!this.gateway.user?.id)
+            throw new Error(``);
+        const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
+        const completeMember = {
+            ...member,
+            user: { id: this.gateway.user.id }
+        };
+        const timedOut = typeof member.communication_disabled_until === `string`;
+        let completeGuild;
+        const cachedGuild = this.cache.guilds?.get(guildId) ?? { id: guildId };
+        if (typeof cachedGuild.owner_id !== `string` || !Array.isArray(cachedGuild.roles)) {
+            completeGuild = await this.rest.getGuild(guildId);
+        }
+        else {
+            const cachedRoles = this.cache.roles?.filter((role) => cachedGuild.roles.includes(role.id));
+            let completeRoles;
+            if (!cachedRoles || cachedRoles.size !== cachedGuild.roles.length || cachedRoles.some((role) => typeof role.permissions !== `string`)) {
+                completeRoles = await this.rest.getGuildRoles(guildId);
+            }
+            else {
+                completeRoles = cachedRoles;
+            }
+            completeGuild = {
+                id: guildId,
+                owner_id: cachedGuild.owner_id,
+                roles: completeRoles
+            };
+        }
+        if (channelId) {
+            return PermissionsUtils_1.PermissionsUtils.channelPermissions(completeMember, completeGuild, await this.getChannelData(channelId, `permission_overwrites`), timedOut);
+        }
+        else {
+            return PermissionsUtils_1.PermissionsUtils.guildPermissions(completeMember, completeGuild, timedOut);
+        }
     }
 }
 exports.Client = Client;
