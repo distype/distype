@@ -65,9 +65,8 @@ export declare class PermissionsUtils {
      * Check if a combination of permission flags includes a permission.
      * @param perms Combine permission flags to test for a permission.
      * @param perm The permission to test for.
-     * @param timedOut If the user is timed out.
      */
-    static hasPerm(perms: number | bigint, perm: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS), timedOut?: boolean): boolean;
+    static hasPerm(perms: number | bigint, perm: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean;
     /**
      * Remove permission flags.
      * @param baseFlags The base flags to subtract from.
