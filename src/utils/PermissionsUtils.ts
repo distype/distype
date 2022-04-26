@@ -48,8 +48,8 @@ export class PermissionsUtils {
      * @param overwrites Overwrites to apply.
      * @param id Only apply overwrites with this ID.
      */
-    public static applyOverwrites (perms: number | bigint, overwrites: APIOverwrite | APIOverwrite[], id?: Snowflake): bigint {
-        const filteredOverwrites = overwrites instanceof Array ? overwrites.filter((overwrite) => id ? overwrite.id === id : true) : [overwrites];
+    public static applyOverwrites (perms: number | bigint, overwrites: APIOverwrite | APIOverwrite[], id: Snowflake): bigint {
+        const filteredOverwrites = (overwrites instanceof Array ? overwrites : [overwrites]).filter((overwrite) => overwrite.id === id);
         filteredOverwrites.forEach((overwrite) => {
             perms = this.remove(perms, BigInt(overwrite.deny));
             perms = this.combine(perms, BigInt(overwrite.allow));
@@ -65,16 +65,28 @@ export class PermissionsUtils {
      * @param timedOut If the member is timed out.
      */
     public static channelPermissions (member: PermissionsMember, guild: PermissionsGuild, channel: PermissionsChannel, timedOut = false): bigint {
-        const basePerms = this.guildPermissions(member, guild, timedOut);
-        if (this.hasPerm(basePerms, `ADMINISTRATOR`)) return this.allPermissions;
+        let perms = this.guildPermissions(member, guild, timedOut);
+        if (this.hasPerm(perms, `ADMINISTRATOR`)) return this.allPermissions;
 
         const overwrites = channel.permission_overwrites ?? [];
-        let perms = BigInt(guild.roles?.find((role) => role.id === guild.id)?.permissions ?? 0);
 
+        // @everyone
         perms = this.applyOverwrites(perms, overwrites, guild.id);
-        member.roles?.forEach((role) => {
-            perms = this.applyOverwrites(perms, overwrites, role);
+
+        // Role overwrites
+        let rolesDeny = 0n;
+        let rolesAllow = 0n;
+        member.roles?.forEach((roleId) => {
+            const roleOverwrite = overwrites.find((overwrite) => overwrite.id === roleId);
+            if (roleOverwrite) {
+                rolesDeny = this.combine(perms, BigInt(roleOverwrite.deny));
+                rolesAllow = this.combine(perms, BigInt(roleOverwrite.allow));
+            }
         });
+        perms = this.remove(perms, BigInt(rolesDeny));
+        perms = this.combine(perms, BigInt(rolesAllow));
+
+        // Member overwrites
         perms = this.applyOverwrites(perms, overwrites, member.user.id);
 
         return timedOut ? this.timeout(perms) : perms;
@@ -97,7 +109,10 @@ export class PermissionsUtils {
     public static guildPermissions (member: PermissionsMember, guild: PermissionsGuild, timedOut = false): bigint {
         if (member.user.id === guild.owner_id) return this.allPermissions;
 
+        // @everyone
         let perms = BigInt(guild.roles?.find((role) => role.id === guild.id)?.permissions ?? 0);
+
+        // Role permissions
         member.roles?.forEach((role) => {
             perms = this.combine(perms, BigInt(guild.roles?.find((r) => r.id === role)?.permissions ?? 0));
         });
