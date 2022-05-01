@@ -18,9 +18,9 @@ A Discord library written in TypeScript for developers looking to interface dire
 
 ### Links
 
-- [Docs](https://distype.br88c.dev/)
-- [NPM](https://www.npmjs.com/package/distype)
-- [GitHub](https://github.com/distype/distype)
+- **[Docs](https://distype.br88c.dev/)**
+- **[NPM](https://www.npmjs.com/package/distype)**
+- **[GitHub](https://github.com/distype/distype)**
 
 ### Features
 
@@ -28,6 +28,11 @@ A Discord library written in TypeScript for developers looking to interface dire
 - **Predictable:** Distype is as close as you can get to the Discord API, meaning that typically, what you see in Discord's documentation is also here.
 - **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
 - **Highly Configurable:** Distype aims to offer as much configuration as possible of its internals, such as fully controllable cache behavior, retry and rate limit behavior, custom rest and gateway base URLs for proxy solutions, access to low-level http and websocket options, and more.
+
+### Related Packages
+
+- **[@distype/cmd](https://github.com/distype/cmd):** A command handler for Distype.
+- **[@distype/lavalink](https://github.com/distype/lavalink):** A Lavalink wrapper with native bindings to Distype.
 
 ## Todo
 - Add gateway shard send payload rate limiting
