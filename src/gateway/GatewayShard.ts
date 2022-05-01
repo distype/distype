@@ -378,11 +378,12 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     private _enterState (state: GatewayShardState): void {
         if (this.state !== state) {
             this.state = state;
-            (this.emit as (event: string) => void)(GatewayShardState[state]);
 
             this._log(GatewayShardState[state], {
                 level: `DEBUG`, system: this.system
             });
+
+            (this.emit as (event: string) => void)(GatewayShardState[state]);
         }
     }
 
@@ -540,12 +541,12 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 this._ws.send(data, (error) => {
                     if (error) reject(error);
                     else {
-                        this.emit(`SENT_PAYLOAD`, data);
-
                         const op = JSON.parse(data).op;
                         this._log(`Sent payload (opcode ${op} ${DiscordTypes.GatewayOpcodes[op]})`, {
                             level: `DEBUG`, system: this.system
                         });
+
+                        this.emit(`SENT_PAYLOAD`, data);
 
                         resolve();
                     }
@@ -614,14 +615,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     level: `DEBUG`, system: this.system
                 });
 
-                this.emit(`RECEIVED_MESSAGE`, payload);
-
                 if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
                     this.sessionId = payload.d.session_id;
                     this._enterState(GatewayShardState.RUNNING);
                 } else if (payload.t === DiscordTypes.GatewayDispatchEvents.Resumed) {
                     this._enterState(GatewayShardState.RUNNING);
                 }
+
+                this.emit(`RECEIVED_MESSAGE`, payload);
 
                 break;
             }
