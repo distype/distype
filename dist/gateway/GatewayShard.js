@@ -379,7 +379,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             }).catch((error) => {
                 this._heartbeatWaitingSince = null;
                 this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `ERROR`, system: this.system
+                    level: `WARN`, system: this.system
                 });
             });
         }
