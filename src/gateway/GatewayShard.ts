@@ -254,6 +254,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 });
                 throw new DistypeError(`Shard spawn attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
+
+            if (i < this.options.spawnMaxAttempts - 1) await wait(this.options.spawnAttemptDelay);
         }
 
         this._spinning = false;
@@ -294,6 +296,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 });
                 throw new DistypeError(`Shard restart attempts interrupted by kill`, DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
+
+            await wait(this.options.spawnAttemptDelay);
         }
     }
 
