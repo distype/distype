@@ -230,7 +230,6 @@ class Gateway extends node_utils_1.TypedEmitter {
         }
         const success = results.filter((result) => result.status === `fulfilled`).length;
         const failed = this._storedCalculatedShards.shards - success;
-        this.emit(`SHARDS_READY`, success, failed);
         this._log(`${success}/${success + failed} shards spawned`, {
             level: `INFO`, system: this.system
         });
@@ -238,9 +237,10 @@ class Gateway extends node_utils_1.TypedEmitter {
             this._log(`${failed} shards failed to spawn`, {
                 level: `WARN`, system: this.system
             });
-        this._log(`Connected to Discord${this.user ? ` as ${this.user.username}#${this.user.discriminator}` : ``}`, {
+        this._log(`Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`, {
             level: `INFO`, system: this.system
         });
+        this.emit(`SHARDS_READY`, success, failed);
         return results;
     }
     /**

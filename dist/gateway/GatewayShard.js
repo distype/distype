@@ -333,10 +333,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     _enterState(state) {
         if (this.state !== state) {
             this.state = state;
-            this.emit(GatewayShardState[state]);
             this._log(GatewayShardState[state], {
                 level: `DEBUG`, system: this.system
             });
+            this.emit(GatewayShardState[state]);
         }
     }
     /**
@@ -482,11 +482,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     if (error)
                         reject(error);
                     else {
-                        this.emit(`SENT_PAYLOAD`, data);
                         const op = JSON.parse(data).op;
                         this._log(`Sent payload (opcode ${op} ${DiscordTypes.GatewayOpcodes[op]})`, {
                             level: `DEBUG`, system: this.system
                         });
+                        this.emit(`SENT_PAYLOAD`, data);
                         resolve();
                     }
                 });
@@ -551,7 +551,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 this._log(`Got ${payload.t}`, {
                     level: `DEBUG`, system: this.system
                 });
-                this.emit(`RECEIVED_MESSAGE`, payload);
                 if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
                     this.sessionId = payload.d.session_id;
                     this._enterState(GatewayShardState.RUNNING);
@@ -559,6 +558,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 else if (payload.t === DiscordTypes.GatewayDispatchEvents.Resumed) {
                     this._enterState(GatewayShardState.RUNNING);
                 }
+                this.emit(`RECEIVED_MESSAGE`, payload);
                 break;
             }
             case DiscordTypes.GatewayOpcodes.Heartbeat: {
