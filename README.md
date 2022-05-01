@@ -16,12 +16,6 @@ A Discord library written in TypeScript for developers looking to interface dire
 
 *Disclaimer: Distype is currently a work in progress.*
 
-### Links
-
-- **[Docs](https://distype.br88c.dev/)**
-- **[NPM](https://www.npmjs.com/package/distype)**
-- **[GitHub](https://github.com/distype/distype)**
-
 ### Features
 
 - **Scalable:** With a built-in sharding manager (that supports big bot sharding) and a focus on performance, Distype makes it easy to scale your bot.
@@ -29,15 +23,16 @@ A Discord library written in TypeScript for developers looking to interface dire
 - **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
 - **Highly Configurable:** Distype aims to offer as much configuration as possible of its internals, such as fully controllable cache behavior, retry and rate limit behavior, custom rest and gateway base URLs for proxy solutions, access to low-level http and websocket options, and more.
 
+### Links
+
+- **[Docs](https://distype.br88c.dev/)**
+- **[NPM](https://www.npmjs.com/package/distype)**
+- **[GitHub](https://github.com/distype/distype)**
+
 ### Related Packages
 
 - **[@distype/cmd](https://github.com/distype/cmd):** A command handler for Distype.
 - **[@distype/lavalink](https://github.com/distype/lavalink):** A Lavalink wrapper with native bindings to Distype.
-
-## Todo
-- Add gateway shard send payload rate limiting
-- Add zlib compression support to the gateway
-- Add `ClientMaster` and `ClientWorker` (Worker Threads)
 
 ## Example Bot
 
@@ -50,11 +45,6 @@ client.gateway.connect();
 ```
 
 > Note that Discord API typings are for API version `10`, and are from [discord-api-types](https://www.npmjs.com/package/discord-api-types). While you can still specify different API versions to be used, it is not recommended.
-
-## HTTP and WebSocket client used
-
-- **[undici](https://undici.nodejs.org/):** A HTTP/1.1 client written from scratch for Node.js, that is significantly faster than Node's built-in http client.
-- **[ws](https://github.com/websockets/ws):** A WebSocket client (and server) for Node.js.
 
 ## Installation
 
@@ -70,5 +60,5 @@ npm install distype
 
 ### Optional packages
 
-- **[bufferutil](https://www.npmjs.com/package/bufferutil/):** Improves ws performance
-- **[utf-8-validate](https://www.npmjs.com/package/utf-8-validate/):** Improves ws performance
+- **[bufferutil](https://www.npmjs.com/package/bufferutil/):** Improves ws performance.
+- **[utf-8-validate](https://www.npmjs.com/package/utf-8-validate/):** Improves ws performance.
