@@ -148,6 +148,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _queue: Array<{
         data: string
+        op: DiscordTypes.GatewayOpcodes
         resolve: () => void
         reject: (error?: Error) => void
     }> = [];
@@ -325,10 +326,13 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         return await new Promise((resolve, reject) => {
             if (this.state !== GatewayShardState.RUNNING) {
                 this._queue.push({
-                    data: JSON.stringify(data), resolve, reject
+                    data: JSON.stringify(data),
+                    op: data.op,
+                    resolve,
+                    reject
                 });
             } else {
-                this._send(JSON.stringify(data)).then(resolve, reject);
+                this._send(JSON.stringify(data), data.op).then(resolve, reject);
             }
         });
     }
@@ -396,7 +400,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             const next = this._queue.shift();
             if (next) {
                 if (reject) next.reject(new DistypeError(`Send queue force flushed`, DistypeErrorType.GATEWAY_SHARD_SEND_QUEUE_FORCE_FLUSHED, this.system));
-                else await this._send(next.data).then(next.resolve, next.reject);
+                else await this._send(next.data, next.op).then(next.resolve, next.reject);
             }
         }
         while (this._queue.length);
@@ -422,7 +426,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             this._send(JSON.stringify({
                 op: DiscordTypes.GatewayOpcodes.Heartbeat,
                 d: this.lastSequence
-            })).then(() => {
+            }), DiscordTypes.GatewayOpcodes.Heartbeat).then(() => {
                 this._heartbeatWaitingSince = Date.now();
             }).catch((error) => {
                 this._heartbeatWaitingSince = null;
@@ -530,8 +534,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Send data to the gateway.
      * @param data The data to send.
+     * @param op The opcode in the payload (non-consequential, only used for logging).
      */
-    private async _send (data: string): Promise<void> {
+    private async _send (data: string, op: DiscordTypes.GatewayOpcodes): Promise<void> {
         if (typeof data !== `string`) throw new TypeError(`Parameter "data" (string) not provided: got ${data} (${typeof data})`);
 
         return await new Promise((resolve, reject) => {
@@ -541,7 +546,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 this._ws.send(data, (error) => {
                     if (error) reject(error);
                     else {
-                        const op = JSON.parse(data).op;
                         this._log(`Sent payload (opcode ${op} ${DiscordTypes.GatewayOpcodes[op]})`, {
                             level: `DEBUG`, system: this.system
                         });
@@ -677,7 +681,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                             session_id: this.sessionId,
                             token: this._token
                         }
-                    } as DiscordTypes.GatewayResume));
+                    } as DiscordTypes.GatewayResume), DiscordTypes.GatewayOpcodes.Resume);
                 } else {
                     this._send(JSON.stringify({
                         op: DiscordTypes.GatewayOpcodes.Identify,
@@ -693,7 +697,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                             shard: [this.id, this._numShards],
                             token: this._token
                         }
-                    } as DiscordTypes.GatewayIdentify));
+                    } as DiscordTypes.GatewayIdentify), DiscordTypes.GatewayOpcodes.Identify);
                 }
 
                 break;
