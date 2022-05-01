@@ -11,7 +11,7 @@ import { Snowflake } from 'discord-api-types/v10';
  * Note that with the exception of `SHARDS_READY`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
-export interface GatewayEvents extends Record<string, (...args: any[]) => void> {
+export declare type GatewayEvents = {
     /**
      * When all {@link GatewayShard shards} are spawned and ready.
      */
@@ -100,7 +100,7 @@ export interface GatewayEvents extends Record<string, (...args: any[]) => void> 
     VOICE_STATE_UPDATE: (payload: DiscordTypes.GatewayVoiceStateUpdateDispatch) => void;
     VOICE_SERVER_UPDATE: (payload: DiscordTypes.GatewayVoiceServerUpdateDispatch) => void;
     WEBHOOKS_UPDATE: (payload: DiscordTypes.GatewayWebhooksUpdateDispatch) => void;
-}
+};
 /**
  * Gateway presence activity data.
  */

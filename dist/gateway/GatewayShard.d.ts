@@ -5,7 +5,7 @@ import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * {@link GatewayShard Gateway shard} events.
  */
-export interface GatewayShardEvents extends Record<string, (...args: any[]) => void> {
+export declare type GatewayShardEvents = {
     /**
      * When the {@link GatewayShard shard} receives a payload. Data is the parsed payload.
      */
@@ -38,7 +38,7 @@ export interface GatewayShardEvents extends Record<string, (...args: any[]) => v
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
     DISCONNECTED: () => void;
-}
+};
 /**
  * {@link GatewayShard Gateway shard} states.
  */
