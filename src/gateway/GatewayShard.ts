@@ -22,7 +22,7 @@ interface GatewayShardQueueItem {
 /**
  * {@link GatewayShard Gateway shard} events.
  */
-export interface GatewayShardEvents extends Record<string, (...args: any[]) => void> {
+export type GatewayShardEvents = {
     /**
      * When the {@link GatewayShard shard} receives a payload. Data is the parsed payload.
      */
