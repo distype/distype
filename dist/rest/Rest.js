@@ -225,7 +225,6 @@ class Rest extends RestRequests_1.RestRequests {
     _handleResponseCodes(method, route, res) {
         let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
         let level = `WARN`;
-        let shouldThrow = false;
         switch (res.statusCode) {
             case 200: {
                 message = `Status code 200 (OK)`;
@@ -244,55 +243,48 @@ class Rest extends RestRequests_1.RestRequests {
             }
             case 304: {
                 message = `Status code 304 (NOT MODIFIED)`;
+                level = `DEBUG`;
                 break;
             }
             case 400: {
                 message = `Status code 400 (BAD REQUEST)`;
-                level = `ERROR`;
-                shouldThrow = true;
+                level = `throw`;
                 break;
             }
             case 401: {
                 message = `Status code 401 (UNAUTHORIZED)`;
-                level = `ERROR`;
-                shouldThrow = true;
+                level = `throw`;
                 break;
             }
             case 403: {
                 message = `Status code 403 (FORBIDDEN)`;
-                level = `ERROR`;
-                shouldThrow = true;
+                level = `throw`;
                 break;
             }
             case 404: {
                 message = `Status code 404 (NOT FOUND)`;
-                level = `ERROR`;
-                shouldThrow = true;
+                level = `throw`;
                 break;
             }
             case 405: {
                 message = `Status code 405 (METHOD NOT ALLOWED)`;
-                level = `ERROR`;
-                shouldThrow = true;
+                level = `throw`;
                 break;
             }
             case 429: {
                 message = `Status code 429 (TOO MANY REQUESTS)`;
-                level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
-                shouldThrow = this.options.disableRatelimits;
+                level = this.options.disableRatelimits ? `throw` : `DEBUG`;
                 break;
             }
             case 502: {
                 message = `Status code 502 (GATEWAY UNAVAILABLE)`;
-                level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
-                shouldThrow = this.options.disableRatelimits;
+                level = this.options.disableRatelimits ? `throw` : `DEBUG`;
                 break;
             }
             default: {
                 if (res.statusCode >= 500 && res.statusCode < 600) {
                     message = `Status code ${res.statusCode} (SERVER ERROR)`;
-                    level = this.options.disableRatelimits ? `ERROR` : `DEBUG`;
-                    shouldThrow = this.options.disableRatelimits;
+                    level = this.options.disableRatelimits ? `throw` : `DEBUG`;
                 }
                 break;
             }
@@ -310,11 +302,13 @@ class Rest extends RestRequests_1.RestRequests {
                 .flat());
         }
         const errorString = [message, errors.length ? `"${errors.join(`, `)}"` : undefined].filter((e) => !!e).join(` `);
-        this._log(`${method} ${route} returned ${errorString}`, {
-            level, system: this.system
-        });
-        if (shouldThrow) {
+        if (level === `throw`) {
             throw new DistypeError_1.DistypeError(`${errorString} on ${method} ${route}`, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
+        }
+        else {
+            this._log(`${method} ${route} returned ${errorString}`, {
+                level, system: this.system
+            });
         }
     }
 }
