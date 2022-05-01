@@ -212,7 +212,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             sharding: options.sharding ?? {},
             spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
             spawnMaxAttempts: options.spawnMaxAttempts ?? 10,
-            spawnTimeout: options.spawnTimeout ?? 30000,
             version: options.version ?? 10,
             wsOptions: options.wsOptions ?? {}
         };

@@ -110,11 +110,6 @@ export interface GatewayOptions {
      */
     spawnMaxAttempts?: number
     /**
-     * The time in milliseconds to wait until considering a spawn or resume attempt timed out.
-     * @default 30000
-     */
-    spawnTimeout?: number
-    /**
      * Advanced [ws](https://github.com/websockets/ws) options.
      * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
      * @default {}
