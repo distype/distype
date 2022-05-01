@@ -8,7 +8,7 @@ export { ClientWorker } from './client/scaling/ClientWorker';
 export { DiscordConstants } from './constants/DiscordConstants';
 export { DistypeConstants } from './constants/DistypeConstants';
 export { DistypeError, DistypeErrorSystem, DistypeErrorType } from './errors/DistypeError';
-export { Gateway, GatewayEvents } from './gateway/Gateway';
+export { Gateway, GatewayEvents, GatewayPresenceActivity } from './gateway/Gateway';
 export { GatewayOptions } from './gateway/GatewayOptions';
 export { GatewayShard, GatewayShardEvents, GatewayShardState } from './gateway/GatewayShard';
 export { Rest, RestMethod, RestRequestData, RestRequestDataBodyStream, RestRoute } from './rest/Rest';
