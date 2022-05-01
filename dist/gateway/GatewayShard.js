@@ -225,6 +225,8 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 });
                 throw new DistypeError_1.DistypeError(`Shard spawn attempts interrupted by kill`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
+            if (i < this.options.spawnMaxAttempts - 1)
+                await (0, node_utils_1.wait)(this.options.spawnAttemptDelay);
         }
         this._spinning = false;
         this._enterState(GatewayShardState.IDLE);
@@ -259,6 +261,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 });
                 throw new DistypeError_1.DistypeError(`Shard restart attempts interrupted by kill`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
+            await (0, node_utils_1.wait)(this.options.spawnAttemptDelay);
         }
     }
     /**
