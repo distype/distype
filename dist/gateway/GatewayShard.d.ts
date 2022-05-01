@@ -226,6 +226,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Send data to the gateway.
      * @param data The data to send.
+     * @param op The opcode in the payload (non-consequential, only used for logging).
      */
     private _send;
     /**

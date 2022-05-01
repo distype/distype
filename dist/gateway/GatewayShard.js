@@ -285,11 +285,14 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         return await new Promise((resolve, reject) => {
             if (this.state !== GatewayShardState.RUNNING) {
                 this._queue.push({
-                    data: JSON.stringify(data), resolve, reject
+                    data: JSON.stringify(data),
+                    op: data.op,
+                    resolve,
+                    reject
                 });
             }
             else {
-                this._send(JSON.stringify(data)).then(resolve, reject);
+                this._send(JSON.stringify(data), data.op).then(resolve, reject);
             }
         });
     }
@@ -350,7 +353,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 if (reject)
                     next.reject(new DistypeError_1.DistypeError(`Send queue force flushed`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_SEND_QUEUE_FORCE_FLUSHED, this.system));
                 else
-                    await this._send(next.data).then(next.resolve, next.reject);
+                    await this._send(next.data, next.op).then(next.resolve, next.reject);
             }
         } while (this._queue.length);
         this._log(`Flushed send queue`, {
@@ -374,7 +377,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this._send(JSON.stringify({
                 op: DiscordTypes.GatewayOpcodes.Heartbeat,
                 d: this.lastSequence
-            })).then(() => {
+            }), DiscordTypes.GatewayOpcodes.Heartbeat).then(() => {
                 this._heartbeatWaitingSince = Date.now();
             }).catch((error) => {
                 this._heartbeatWaitingSince = null;
@@ -469,8 +472,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * Send data to the gateway.
      * @param data The data to send.
+     * @param op The opcode in the payload (non-consequential, only used for logging).
      */
-    async _send(data) {
+    async _send(data, op) {
         if (typeof data !== `string`)
             throw new TypeError(`Parameter "data" (string) not provided: got ${data} (${typeof data})`);
         return await new Promise((resolve, reject) => {
@@ -482,7 +486,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     if (error)
                         reject(error);
                     else {
-                        const op = JSON.parse(data).op;
                         this._log(`Sent payload (opcode ${op} ${DiscordTypes.GatewayOpcodes[op]})`, {
                             level: `DEBUG`, system: this.system
                         });
@@ -604,7 +607,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                             session_id: this.sessionId,
                             token: this._token
                         }
-                    }));
+                    }), DiscordTypes.GatewayOpcodes.Resume);
                 }
                 else {
                     this._send(JSON.stringify({
@@ -621,7 +624,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                             shard: [this.id, this._numShards],
                             token: this._token
                         }
-                    }));
+                    }), DiscordTypes.GatewayOpcodes.Identify);
                 }
                 break;
             }
