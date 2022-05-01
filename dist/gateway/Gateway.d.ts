@@ -102,6 +102,14 @@ export interface GatewayEvents extends Record<string, (...args: any[]) => void> 
     WEBHOOKS_UPDATE: (payload: DiscordTypes.GatewayWebhooksUpdateDispatch) => void;
 }
 /**
+ * Gateway presence activity data.
+ */
+export interface GatewayPresenceActivity {
+    name: string;
+    type: number;
+    url?: string | null;
+}
+/**
  * The gateway manager.
  * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
  *
@@ -218,11 +226,7 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     updatePresence(presence: {
         since: number | null;
-        activities: Array<{
-            name: string;
-            type: number;
-            url?: string | null;
-        }>;
+        activities: GatewayPresenceActivity[];
         status: `online` | `dnd` | `idle` | `invisible` | `offline`;
         afk: boolean;
     } | DiscordTypes.GatewayPresenceUpdateData, shard?: number | number[] | `all`): Promise<void>;
