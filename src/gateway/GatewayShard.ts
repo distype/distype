@@ -610,6 +610,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         switch (payload.op) {
             case DiscordTypes.GatewayOpcodes.Dispatch: {
+                this._log(`Got ${payload.t}`, {
+                    level: `DEBUG`, system: this.system
+                });
+
                 this.emit(`RECEIVED_MESSAGE`, payload);
 
                 if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
@@ -623,6 +627,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             }
 
             case DiscordTypes.GatewayOpcodes.Heartbeat: {
+                this._log(`Got heartbeat request`, {
+                    level: `DEBUG`, system: this.system
+                });
+
                 this._heartbeat(true);
 
                 break;
