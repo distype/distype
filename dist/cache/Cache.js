@@ -103,9 +103,6 @@ class Cache {
     handleEvent(data) {
         if (this._enabledKeys.length === 0)
             return;
-        this._log(`Caching event ${data.t}`, {
-            level: `DEBUG`, system: this.system
-        });
         switch (data.t) {
             case `READY`: {
                 if (this._enabledKeys.includes(`guilds`))
