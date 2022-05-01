@@ -548,6 +548,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.lastSequence = payload.s;
         switch (payload.op) {
             case DiscordTypes.GatewayOpcodes.Dispatch: {
+                this._log(`Got ${payload.t}`, {
+                    level: `DEBUG`, system: this.system
+                });
                 this.emit(`RECEIVED_MESSAGE`, payload);
                 if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
                     this.sessionId = payload.d.session_id;
@@ -559,6 +562,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 break;
             }
             case DiscordTypes.GatewayOpcodes.Heartbeat: {
+                this._log(`Got heartbeat request`, {
+                    level: `DEBUG`, system: this.system
+                });
                 this._heartbeat(true);
                 break;
             }
