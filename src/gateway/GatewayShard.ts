@@ -9,6 +9,17 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { RawData, WebSocket } from 'ws';
 
 /**
+ * An item in a {@link GatewayShard gateway shard}'s send queue.
+ * @internal
+ */
+interface GatewayShardQueueItem {
+    data: string
+    op: DiscordTypes.GatewayOpcodes
+    resolve: () => void
+    reject: (error?: Error) => void
+}
+
+/**
  * {@link GatewayShard Gateway shard} events.
  */
 export interface GatewayShardEvents extends Record<string, (...args: any[]) => void> {
@@ -146,12 +157,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * A queue of data to be sent after the socket opens.
      */
-    private _queue: Array<{
-        data: string
-        op: DiscordTypes.GatewayOpcodes
-        resolve: () => void
-        reject: (error?: Error) => void
-    }> = [];
+    private _queue: GatewayShardQueueItem[] = [];
     /**
      * If the shard has an active spawn or restart loop.
      */
