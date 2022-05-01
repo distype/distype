@@ -76,7 +76,7 @@ class RestBucket {
         this.majorParameter = majorParameter;
         this.manager = manager;
         this._log = logCallback.bind(logThisArg);
-        this._log(`Initialized rest bucket ${id} with hash ${bucketHash}`, {
+        this._log(`Initialized rest bucket ${id}`, {
             level: `DEBUG`, system: this.system
         });
     }
