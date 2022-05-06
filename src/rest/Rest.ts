@@ -101,10 +101,6 @@ export class Rest extends RestRequests {
      * The {@link LogCallback log callback} used by the gateway manager.
      */
     private _log: LogCallback;
-    /**
-     * A value to use as `this` in the `this#_log`.
-     */
-    private _logThisArg?: any;
 
     /**
      * The bot's token.
@@ -152,7 +148,6 @@ export class Rest extends RestRequests {
         }
 
         this._log = logCallback.bind(logThisArg);
-        this._logThisArg = logThisArg;
         this._log(`Initialized rest manager`, {
             level: `DEBUG`, system: this.system
         });
@@ -275,7 +270,7 @@ export class Rest extends RestRequests {
      */
     private _createBucket (bucketId: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter): RestBucket {
         if (!this.buckets || this.options.disableRatelimits) throw new DistypeError(`Cannot create a bucket while rate limits are disabled`, DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
-        const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
+        const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this);
         this.buckets.set(bucketId, bucket);
         return bucket;
     }

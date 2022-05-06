@@ -1,11 +1,10 @@
 import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { LogCallback } from '../types/Log';
+import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 
 import { wait } from '@br88c/node-utils';
 import { Snowflake } from 'discord-api-types/v10';
-import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 
 
 /**
@@ -71,10 +70,6 @@ export class RestBucket {
     public readonly system = `Rest Bucket`;
 
     /**
-     * The {@link LogCallback log callback} used by the rest bucket.
-     */
-    private _log: LogCallback;
-    /**
      * The request queue.
      */
     private _queue: Array<{
@@ -91,22 +86,16 @@ export class RestBucket {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor (id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest) {
         if (typeof id !== `string`) throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
         if (typeof bucketHash !== `string`) throw new TypeError(`Parameter "bucketHash" (string) not provided: got ${bucketHash} (${typeof bucketHash})`);
         if (typeof majorParameter !== `string`) throw new TypeError(`Parameter "majorParameter" (string) not provided: got ${majorParameter} (${typeof majorParameter})`);
         if (!(manager instanceof Rest)) throw new TypeError(`Parameter "manager" (Rest) not provided: got ${manager} (${typeof manager})`);
-        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
 
         this.id = id;
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;
         this.manager = manager;
-
-        this._log = logCallback.bind(logThisArg);
-        this._log(`Initialized rest bucket ${id}`, {
-            level: `DEBUG`, system: this.system
-        });
     }
 
     /**
