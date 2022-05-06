@@ -40,13 +40,13 @@
   "dependencies": {
     "@br88c/node-utils": "^1.2.0",  
     "@types/ws": "^8.5.3",
-    "discord-api-types": "^0.32.0",
-    "undici": "^5.1.0",
+    "discord-api-types": "^0.32.1",
+    "undici": "^5.1.1",
     "ws": "^8.6.0"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.4.0",
-    "@types/node": "^16.11.32",
+    "@types/node": "^16.11.33",
     "eslint": "^8.14.0",
     "typedoc": "^0.22.15",
     "typescript": "^4.6.4"
