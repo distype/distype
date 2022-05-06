@@ -621,10 +621,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         switch (payload.op) {
             case DiscordTypes.GatewayOpcodes.Dispatch: {
-                this._log(`Got ${payload.t}`, {
-                    level: `DEBUG`, system: this.system
-                });
-
                 if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
                     this.sessionId = payload.d.session_id;
                     this._enterState(GatewayShardState.RUNNING);
