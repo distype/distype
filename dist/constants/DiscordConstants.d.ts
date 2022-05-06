@@ -33,6 +33,19 @@ export declare const DiscordConstants: {
      */
     readonly CDN_URL: "https://cdn.discordapp.com";
     /**
+     * Official [Discord branding](https://discord.com/branding) colors.
+     */
+    readonly COLORS: {
+        readonly BLURPLE: 5793266;
+        readonly OLD_BLURPLE: 7506394;
+        readonly GREEN: 5763719;
+        readonly YELLOW: 16705372;
+        readonly FUCHSIA: 15418782;
+        readonly RED: 15548997;
+        readonly WHITE: 16777215;
+        readonly BLACK: 0;
+    };
+    /**
      * Component limits.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
      */
