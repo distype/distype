@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CDNUtils = void 0;
 const DiscordConstants_1 = require("../constants/DiscordConstants");
-const url_1 = require("url");
+const node_url_1 = require("node:url");
 /**
  * Methods for constructing CDN links.
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
@@ -175,7 +175,7 @@ class CDNUtils {
      * @param options Image options.
      */
     static _make(route, options) {
-        const url = new url_1.URL(`${DiscordConstants_1.DiscordConstants.CDN_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
+        const url = new node_url_1.URL(`${DiscordConstants_1.DiscordConstants.CDN_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
         if (options.size)
             url.searchParams.set(`size`, `${options.size}`);
         return url.toString();

@@ -31,7 +31,7 @@ const DistypeError_1 = require("../errors/DistypeError");
 const Rest_1 = require("../rest/Rest");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
-const url_1 = require("url");
+const node_url_1 = require("node:url");
 /**
  * The gateway manager.
  * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
@@ -170,7 +170,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         if (gatewayBot)
             this._storedGetGatewayBot = gatewayBot;
         else {
-            const customGetGatewayBotURL = this.options.customGetGatewayBotURL ? new url_1.URL(this.options.customGetGatewayBotURL) : undefined;
+            const customGetGatewayBotURL = this.options.customGetGatewayBotURL ? new node_url_1.URL(this.options.customGetGatewayBotURL) : undefined;
             this._storedGetGatewayBot = customGetGatewayBotURL ? await this._rest.request(`GET`, customGetGatewayBotURL.pathname, {
                 customBaseURL: customGetGatewayBotURL.origin,
                 query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries())
@@ -198,7 +198,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         for (let i = 0; i < this._storedCalculatedShards.shards; i++) {
             let shard = null;
             if (i >= this._storedCalculatedShards.offset) {
-                shard = new GatewayShard_1.GatewayShard(this._token, i, this._storedCalculatedShards.totalBotShards, new url_1.URL(`?${new url_1.URLSearchParams({
+                shard = new GatewayShard_1.GatewayShard(this._token, i, this._storedCalculatedShards.totalBotShards, new node_url_1.URL(`?${new node_url_1.URLSearchParams({
                     v: `${this.options.version}`, encoding: `json`
                 }).toString()}`, this.options.customGatewaySocketURL ?? this._storedGetGatewayBot.url).toString(), this.options, this._log, this._logThisArg);
                 this.shards.set(i, shard);

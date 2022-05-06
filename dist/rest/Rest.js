@@ -8,10 +8,10 @@ const DistypeConstants_1 = require("../constants/DistypeConstants");
 const DistypeError_1 = require("../errors/DistypeError");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const node_utils_1 = require("@br88c/node-utils");
-const stream_1 = require("stream");
+const node_stream_1 = require("node:stream");
+const node_url_1 = require("node:url");
+const types_1 = require("node:util/types");
 const undici_1 = require("undici");
-const url_1 = require("url");
-const types_1 = require("util/types");
 /**
  * The rest manager.
  * Used for making rest requests to the Discord API.
@@ -158,14 +158,14 @@ class Rest extends RestRequests_1.RestRequests {
         };
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const url = new url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
-        url.search = new url_1.URLSearchParams(options.query).toString();
+        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
+        url.search = new node_url_1.URLSearchParams(options.query).toString();
         const req = (0, undici_1.request)(url, {
             ...this.options,
             ...options,
             method,
             headers,
-            body: options.body instanceof stream_1.Readable || (0, types_1.isUint8Array)(options.body) || Buffer.isBuffer(options.body) ? options.body : JSON.stringify(options.body),
+            body: options.body instanceof node_stream_1.Readable || (0, types_1.isUint8Array)(options.body) || Buffer.isBuffer(options.body) ? options.body : JSON.stringify(options.body),
             bodyTimeout: options.timeout ?? this.options.timeout
         });
         let unableToParse = false;

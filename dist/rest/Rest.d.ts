@@ -4,7 +4,7 @@ import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import { Dispatcher } from 'undici';
 /**
  * Internal request response.

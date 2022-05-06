@@ -1,4 +1,4 @@
-import { GatewayCloseCodes, GatewayIntentBits } from 'discord-api-types/v10';
+import * as DiscordTypes from 'discord-api-types/v10';
 /**
  * Discord API constants.
  */
@@ -99,11 +99,11 @@ export declare const DiscordConstants: {
         /**
          * Close codes that a shard should attempt to reconnect after receiving.
          */
-        readonly RECONNECTABLE: readonly [GatewayCloseCodes.UnknownError, GatewayCloseCodes.UnknownOpcode, GatewayCloseCodes.DecodeError, GatewayCloseCodes.NotAuthenticated, GatewayCloseCodes.AlreadyAuthenticated, GatewayCloseCodes.InvalidSeq, GatewayCloseCodes.RateLimited, GatewayCloseCodes.SessionTimedOut];
+        readonly RECONNECTABLE: readonly [DiscordTypes.GatewayCloseCodes.UnknownError, DiscordTypes.GatewayCloseCodes.UnknownOpcode, DiscordTypes.GatewayCloseCodes.DecodeError, DiscordTypes.GatewayCloseCodes.NotAuthenticated, DiscordTypes.GatewayCloseCodes.AlreadyAuthenticated, DiscordTypes.GatewayCloseCodes.InvalidSeq, DiscordTypes.GatewayCloseCodes.RateLimited, DiscordTypes.GatewayCloseCodes.SessionTimedOut];
         /**
          * Close codes that a shard should not attempt to reconnect after receiving.
          */
-        readonly NOT_RECONNECTABLE: readonly [GatewayCloseCodes.AuthenticationFailed, GatewayCloseCodes.InvalidShard, GatewayCloseCodes.ShardingRequired, GatewayCloseCodes.InvalidAPIVersion, GatewayCloseCodes.InvalidIntents, GatewayCloseCodes.DisallowedIntents];
+        readonly NOT_RECONNECTABLE: readonly [DiscordTypes.GatewayCloseCodes.AuthenticationFailed, DiscordTypes.GatewayCloseCodes.InvalidShard, DiscordTypes.GatewayCloseCodes.ShardingRequired, DiscordTypes.GatewayCloseCodes.InvalidAPIVersion, DiscordTypes.GatewayCloseCodes.InvalidIntents, DiscordTypes.GatewayCloseCodes.DisallowedIntents];
     };
     /**
      * Gateway intents.
@@ -111,23 +111,23 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
     readonly GATEWAY_INTENTS: {
-        readonly GUILDS: GatewayIntentBits.Guilds;
-        readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
-        readonly GUILD_BANS: GatewayIntentBits.GuildBans;
-        readonly GUILD_EMOJIS_AND_STICKERS: GatewayIntentBits.GuildEmojisAndStickers;
-        readonly GUILD_INTEGRATIONS: GatewayIntentBits.GuildIntegrations;
-        readonly GUILD_WEBHOOKS: GatewayIntentBits.GuildWebhooks;
-        readonly GUILD_INVITES: GatewayIntentBits.GuildInvites;
-        readonly GUILD_VOICE_STATES: GatewayIntentBits.GuildVoiceStates;
-        readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
-        readonly GUILD_MESSAGES: GatewayIntentBits.GuildMessages;
-        readonly GUILD_MESSAGE_REACTIONS: GatewayIntentBits.GuildMessageReactions;
-        readonly GUILD_MESSAGE_TYPING: GatewayIntentBits.GuildMessageTyping;
-        readonly DIRECT_MESSAGES: GatewayIntentBits.DirectMessages;
-        readonly DIRECT_MESSAGE_REACTIONS: GatewayIntentBits.DirectMessageReactions;
-        readonly DIRECT_MESSAGE_TYPING: GatewayIntentBits.DirectMessageTyping;
-        readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
-        readonly GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents;
+        readonly GUILDS: DiscordTypes.GatewayIntentBits.Guilds;
+        readonly GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers;
+        readonly GUILD_BANS: DiscordTypes.GatewayIntentBits.GuildBans;
+        readonly GUILD_EMOJIS_AND_STICKERS: DiscordTypes.GatewayIntentBits.GuildEmojisAndStickers;
+        readonly GUILD_INTEGRATIONS: DiscordTypes.GatewayIntentBits.GuildIntegrations;
+        readonly GUILD_WEBHOOKS: DiscordTypes.GatewayIntentBits.GuildWebhooks;
+        readonly GUILD_INVITES: DiscordTypes.GatewayIntentBits.GuildInvites;
+        readonly GUILD_VOICE_STATES: DiscordTypes.GatewayIntentBits.GuildVoiceStates;
+        readonly GUILD_PRESENCES: DiscordTypes.GatewayIntentBits.GuildPresences;
+        readonly GUILD_MESSAGES: DiscordTypes.GatewayIntentBits.GuildMessages;
+        readonly GUILD_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.GuildMessageReactions;
+        readonly GUILD_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.GuildMessageTyping;
+        readonly DIRECT_MESSAGES: DiscordTypes.GatewayIntentBits.DirectMessages;
+        readonly DIRECT_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.DirectMessageReactions;
+        readonly DIRECT_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.DirectMessageTyping;
+        readonly MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent;
+        readonly GUILD_SCHEDULED_EVENTS: DiscordTypes.GatewayIntentBits.GuildScheduledEvents;
     };
     /**
      * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
@@ -138,9 +138,9 @@ export declare const DiscordConstants: {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
     readonly GATEWAY_PRIVILEGED_INTENTS: {
-        readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
-        readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
-        readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
+        readonly GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers;
+        readonly GUILD_PRESENCES: DiscordTypes.GatewayIntentBits.GuildPresences;
+        readonly MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent;
     };
     /**
      * Gateway rate limits.
