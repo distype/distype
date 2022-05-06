@@ -247,7 +247,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             if (attempt) {
                 this._spinning = false;
                 this._log(`Spawned after ${i + 1} attempts`, {
-                    level: `DEBUG`, system: this.system
+                    level: i === 0 ? `DEBUG` : `WARN`, system: this.system
                 });
                 return;
             }
@@ -289,7 +289,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             if (attempt) {
                 this._log(`Restarted after ${i} attempts`, {
-                    level: `DEBUG`, system: this.system
+                    level: i === 1 ? `DEBUG` : `WARN`, system: this.system
                 });
                 this._spinning = false;
                 return;
