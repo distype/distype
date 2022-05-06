@@ -89,10 +89,6 @@ export declare class Rest extends RestRequests {
      */
     private _log;
     /**
-     * A value to use as `this` in the `this#_log`.
-     */
-    private _logThisArg?;
-    /**
      * The bot's token.
      */
     private readonly _token;

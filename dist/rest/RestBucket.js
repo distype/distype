@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestBucket = void 0;
 const Rest_1 = require("./Rest");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
-const node_utils_1 = require("@br88c/node-utils");
 const DistypeError_1 = require("../errors/DistypeError");
+const node_utils_1 = require("@br88c/node-utils");
 /**
  * A {@link Rest rest} bucket.
  * Used for rate limiting requests.
@@ -44,10 +44,6 @@ class RestBucket {
      */
     system = `Rest Bucket`;
     /**
-     * The {@link LogCallback log callback} used by the rest bucket.
-     */
-    _log;
-    /**
      * The request queue.
      */
     _queue = [];
@@ -60,7 +56,7 @@ class RestBucket {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(id, bucketHash, majorParameter, manager, logCallback = () => { }, logThisArg) {
+    constructor(id, bucketHash, majorParameter, manager) {
         if (typeof id !== `string`)
             throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
         if (typeof bucketHash !== `string`)
@@ -69,16 +65,10 @@ class RestBucket {
             throw new TypeError(`Parameter "majorParameter" (string) not provided: got ${majorParameter} (${typeof majorParameter})`);
         if (!(manager instanceof Rest_1.Rest))
             throw new TypeError(`Parameter "manager" (Rest) not provided: got ${manager} (${typeof manager})`);
-        if (typeof logCallback !== `function`)
-            throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
         this.id = id;
         this.bucketHash = bucketHash;
         this.majorParameter = majorParameter;
         this.manager = manager;
-        this._log = logCallback.bind(logThisArg);
-        this._log(`Initialized rest bucket ${id}`, {
-            level: `DEBUG`, system: this.system
-        });
     }
     /**
      * If the bucket is currently making a request.

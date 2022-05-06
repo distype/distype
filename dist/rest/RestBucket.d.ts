@@ -1,5 +1,4 @@
 import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
-import { LogCallback } from '../types/Log';
 import { Snowflake } from 'discord-api-types/v10';
 /**
  * A {@link Rest rest} bucket hash.
@@ -58,10 +57,6 @@ export declare class RestBucket {
      */
     readonly system = "Rest Bucket";
     /**
-     * The {@link LogCallback log callback} used by the rest bucket.
-     */
-    private _log;
-    /**
      * The request queue.
      */
     private _queue;
@@ -74,7 +69,7 @@ export declare class RestBucket {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor(id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest, logCallback?: LogCallback, logThisArg?: any);
+    constructor(id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest);
     /**
      * If the bucket is currently making a request.
      */

@@ -57,10 +57,6 @@ class Rest extends RestRequests_1.RestRequests {
      */
     _log;
     /**
-     * A value to use as `this` in the `this#_log`.
-     */
-    _logThisArg;
-    /**
      * The bot's token.
      */
     // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
@@ -104,7 +100,6 @@ class Rest extends RestRequests_1.RestRequests {
                 this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval).unref();
         }
         this._log = logCallback.bind(logThisArg);
-        this._logThisArg = logThisArg;
         this._log(`Initialized rest manager`, {
             level: `DEBUG`, system: this.system
         });
@@ -215,7 +210,7 @@ class Rest extends RestRequests_1.RestRequests {
     _createBucket(bucketId, bucketHash, majorParameter) {
         if (!this.buckets || this.options.disableRatelimits)
             throw new DistypeError_1.DistypeError(`Cannot create a bucket while rate limits are disabled`, DistypeError_1.DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
-        const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this, this._log, this._logThisArg);
+        const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this);
         this.buckets.set(bucketId, bucket);
         return bucket;
     }
