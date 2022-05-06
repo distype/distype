@@ -5,7 +5,7 @@ export const DistypeConstants = {
     /**
      * The package's version.
      */
-    VERSION: `0.12.1`,
+    VERSION: `0.12.2`,
     /**
      * The URL to Distype's source.
      */
