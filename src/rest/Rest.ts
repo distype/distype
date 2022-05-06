@@ -9,10 +9,10 @@ import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
 import { ExtendedMap, flattenObject, LoggerLevel } from '@br88c/node-utils';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
+import { URL, URLSearchParams } from 'node:url';
+import { isUint8Array } from 'node:util/types';
 import { Dispatcher, request } from 'undici';
-import { URL, URLSearchParams } from 'url';
-import { isUint8Array } from 'util/types';
 
 /**
  * Internal request response.

@@ -2,7 +2,7 @@ import { DiscordConstants } from '../constants/DiscordConstants';
 import { RestRoute } from '../rest/Rest';
 
 import { Snowflake } from 'discord-api-types/v10';
-import { URL } from 'url';
+import { URL } from 'node:url';
 
 /**
  * Image options.

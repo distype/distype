@@ -10,7 +10,7 @@ import { LogCallback } from '../types/Log';
 import { ExtendedMap, TypedEmitter, wait } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
-import { URL, URLSearchParams } from 'url';
+import { URL, URLSearchParams } from 'node:url';
 
 /**
  * {@link Gateway} events.
