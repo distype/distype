@@ -9,6 +9,11 @@ export declare class SnowflakeUtils {
      */
     static increment(snowflake: Snowflake): number;
     /**
+     * Determines if a snowflake is valid.
+     * @param snowflake The snowflake to test.
+     */
+    static isValid(snowflake: Snowflake): boolean;
+    /**
      * Internal Discord process ID the snowflake was created on.
      */
     static processId(snowflake: Snowflake): number;

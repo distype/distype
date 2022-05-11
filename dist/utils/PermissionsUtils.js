@@ -84,15 +84,15 @@ class PermissionsUtils {
     }
     /**
      * Check if a combination of permission flags includes a permission.
-     * @param perms Combine permission flags to test for a permission.
-     * @param perm The permission to test for.
+     * @param perms Permission flags to test for a permission.
+     * @param test The permissions to test for.
      */
-    static hasPerm(perms, perm) {
+    static hasPerm(perms, test) {
         const permsFlags = BigInt(perms);
-        const permFlag = typeof perm === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[perm] : BigInt(perm);
+        const testFlags = typeof test === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[test] : BigInt(test);
         if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
             return true;
-        return (permsFlags & permFlag) !== 0n;
+        return (permsFlags & testFlags) === testFlags;
     }
     /**
      * Remove permission flags.

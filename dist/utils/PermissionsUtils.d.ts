@@ -63,10 +63,10 @@ export declare class PermissionsUtils {
     static guildPermissions(member: PermissionsMember, guild: PermissionsGuild, timedOut?: boolean): bigint;
     /**
      * Check if a combination of permission flags includes a permission.
-     * @param perms Combine permission flags to test for a permission.
-     * @param perm The permission to test for.
+     * @param perms Permission flags to test for a permission.
+     * @param test The permissions to test for.
      */
-    static hasPerm(perms: number | bigint, perm: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean;
+    static hasPerm(perms: number | bigint, test: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean;
     /**
      * Remove permission flags.
      * @param baseFlags The base flags to subtract from.

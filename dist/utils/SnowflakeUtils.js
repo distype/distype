@@ -14,6 +14,13 @@ class SnowflakeUtils {
         return Number(BigInt(snowflake) & 0xfffn);
     }
     /**
+     * Determines if a snowflake is valid.
+     * @param snowflake The snowflake to test.
+     */
+    static isValid(snowflake) {
+        return Number.isInteger(+snowflake) && BigInt(snowflake) > 4194304n && !isNaN(new Date(SnowflakeUtils.time(snowflake)).getTime());
+    }
+    /**
      * Internal Discord process ID the snowflake was created on.
      */
     static processId(snowflake) {
