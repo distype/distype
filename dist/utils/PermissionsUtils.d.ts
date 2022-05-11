@@ -66,7 +66,7 @@ export declare class PermissionsUtils {
      * @param perms Permission flags to test for a permission.
      * @param test The permissions to test for.
      */
-    static hasPerm(perms: number | bigint, test: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean;
+    static hasPerms(perms: number | bigint, test: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean;
     /**
      * Remove permission flags.
      * @param baseFlags The base flags to subtract from.

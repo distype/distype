@@ -35,7 +35,7 @@ class PermissionsUtils {
      */
     static channelPermissions(member, guild, channel, timedOut = false) {
         let perms = this.guildPermissions(member, guild, timedOut);
-        if (this.hasPerm(perms, `ADMINISTRATOR`))
+        if (this.hasPerms(perms, `ADMINISTRATOR`))
             return this.allPermissions;
         const overwrites = channel.permission_overwrites ?? [];
         // @everyone
@@ -78,7 +78,7 @@ class PermissionsUtils {
         member.roles?.forEach((role) => {
             perms = this.combine(perms, BigInt(guild.roles?.find((r) => r.id === role)?.permissions ?? 0));
         });
-        if (this.hasPerm(perms, `ADMINISTRATOR`))
+        if (this.hasPerms(perms, `ADMINISTRATOR`))
             return this.allPermissions;
         return timedOut ? this.timeout(perms) : perms;
     }
@@ -87,7 +87,7 @@ class PermissionsUtils {
      * @param perms Permission flags to test for a permission.
      * @param test The permissions to test for.
      */
-    static hasPerm(perms, test) {
+    static hasPerms(perms, test) {
         const permsFlags = BigInt(perms);
         const testFlags = typeof test === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[test] : BigInt(test);
         if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
@@ -108,7 +108,7 @@ class PermissionsUtils {
      */
     static timeout(perms) {
         const permsFlags = BigInt(perms);
-        if (this.hasPerm(permsFlags, `ADMINISTRATOR`))
+        if (this.hasPerms(permsFlags, `ADMINISTRATOR`))
             return permsFlags;
         return this.combine(...Object.values(DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS_TIMEOUT)) & permsFlags;
     }
