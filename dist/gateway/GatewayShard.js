@@ -510,8 +510,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             return JSON.parse(data.toString());
         }
         catch (error) {
-            if (typeof data === `string` || (typeof data.toString === `function` && typeof data.toString() === `string`))
+            if (typeof data === `string`)
                 return data;
+            else if (typeof data.toString === `function` && typeof data.toString() === `string`)
+                return data.toString();
             this._log(`Payload parsing error: ${(error?.message ?? error) ?? `Unknown reason`}`, {
                 level: `WARN`, system: this.system
             });
