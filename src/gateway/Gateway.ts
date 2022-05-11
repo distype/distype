@@ -359,7 +359,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Get members from a guild.
      * @param guildId The ID of the guild to get members from.
-     * @param options Guild member request options.
+     * @param options Guild member request options. By default, all members in the guild will be fetched.
      * @returns Received members, presences, and missing members.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
