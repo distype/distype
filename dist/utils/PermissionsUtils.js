@@ -61,7 +61,7 @@ class PermissionsUtils {
      * @param flags The flags to combine.
      */
     static combine(...flags) {
-        return flags.reduce((p, c) => BigInt(typeof p === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[p] : p) | BigInt(typeof c === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[c] : c));
+        return flags.reduce((p, c) => p | BigInt(typeof c === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[c] : c), 0n);
     }
     /**
      * Compute a member's permissions in a guild.
