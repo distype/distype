@@ -151,10 +151,6 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _logThisArg?;
     /**
-     * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
-     */
-    private _requestGuildMembersNonceIncrement;
-    /**
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
     private _rest;

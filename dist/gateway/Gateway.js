@@ -31,6 +31,7 @@ const DistypeError_1 = require("../errors/DistypeError");
 const Rest_1 = require("../rest/Rest");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const node_crypto_1 = require("node:crypto");
 const node_url_1 = require("node:url");
 /**
  * The gateway manager.
@@ -71,10 +72,6 @@ class Gateway extends node_utils_1.TypedEmitter {
      * A value to use as `this` in the `this#_log`.
      */
     _logThisArg;
-    /**
-     * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
-     */
-    _requestGuildMembersNonceIncrement = 0;
     /**
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
@@ -270,8 +267,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH)
             throw new DistypeError_1.DistypeError(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`, DistypeError_1.DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, this.system);
         const shard = this.guildShard(guildId, true);
-        const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
-        this._requestGuildMembersNonceIncrement++;
+        const nonce = options.nonce ?? (0, node_crypto_1.randomUUID)().replaceAll(`-`, ``);
         const members = new node_utils_1.ExtendedMap();
         const presences = new node_utils_1.ExtendedMap();
         const notFound = [];
