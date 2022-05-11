@@ -10,6 +10,7 @@ import { LogCallback } from '../types/Log';
 import { ExtendedMap, TypedEmitter, wait } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
+import { randomUUID } from 'node:crypto';
 import { URL, URLSearchParams } from 'node:url';
 
 /**
@@ -160,10 +161,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * A value to use as `this` in the `this#_log`.
      */
     private _logThisArg?: any;
-    /**
-     * An increment used for creating unique nonce values for [request guild member](https://discord.com/developers/docs/topics/gateway#request-guild-members) payloads.
-     */
-    private _requestGuildMembersNonceIncrement = 0;
     /**
      * The {@link Rest rest manager} to use for fetching gateway endpoints.
      */
@@ -376,8 +373,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
         const shard = this.guildShard(guildId, true);
 
-        const nonce = options.nonce ?? `${BigInt(this._requestGuildMembersNonceIncrement) % (10n ** BigInt(DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH))}`;
-        this._requestGuildMembersNonceIncrement++;
+        const nonce = options.nonce ?? randomUUID().replaceAll(`-`, ``);
 
         const members = new ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>();
         const presences = new ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>();
