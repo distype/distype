@@ -19,7 +19,7 @@ export class SnowflakeUtils {
      * @param snowflake The snowflake to test.
      */
     public static isValid (snowflake: Snowflake): boolean {
-        return Number.isInteger(+snowflake) && BigInt(snowflake) > 4194304n && !isNaN(new Date(SnowflakeUtils.time(snowflake)).getTime());
+        return Number.isInteger(+snowflake) && BigInt(snowflake) > 4194304n && !isNaN(new Date(this.time(snowflake)).getTime());
     }
 
     /**
