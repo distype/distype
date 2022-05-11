@@ -10,6 +10,11 @@ export interface PermissionsChannel {
 }
 
 /**
+ * Permission flags.
+ */
+export type PermissionsFlags = number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS);
+
+/**
  * Properties of an `APIGuild` that are relevant to permissions.
  */
 export interface PermissionsGuild {
@@ -96,7 +101,7 @@ export class PermissionsUtils {
      * Combine permission flags.
      * @param flags The flags to combine.
      */
-    public static combine (...flags: Array<number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)>): bigint {
+    public static combine (...flags: PermissionsFlags[]): bigint {
         return flags.reduce((p, c) => BigInt(typeof p === `string` ? DiscordConstants.PERMISSION_FLAGS[p] : p) | BigInt(typeof c === `string` ? DiscordConstants.PERMISSION_FLAGS[c] : c)) as bigint;
     }
 
@@ -127,9 +132,9 @@ export class PermissionsUtils {
      * @param perms Permission flags to test for a permission.
      * @param test The permissions to test for.
      */
-    public static hasPerms (perms: number | bigint, test: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean {
+    public static hasPerms (perms: number | bigint, ...test: PermissionsFlags[]): boolean {
         const permsFlags = BigInt(perms);
-        const testFlags = typeof test === `string` ? DiscordConstants.PERMISSION_FLAGS[test] : BigInt(test);
+        const testFlags = this.combine(...test);
 
         if ((permsFlags & DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n) return true;
         return (permsFlags & testFlags) === testFlags;
@@ -140,7 +145,7 @@ export class PermissionsUtils {
      * @param baseFlags The base flags to subtract from.
      * @param flags The flags to subtract.
      */
-    public static remove (baseFlags: number | bigint, ...flags: Array<number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)>): bigint {
+    public static remove (baseFlags: number | bigint, ...flags: PermissionsFlags[]): bigint {
         return BigInt(baseFlags) & ~this.combine(...flags);
     }
 
