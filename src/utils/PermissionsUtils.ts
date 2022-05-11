@@ -102,7 +102,7 @@ export class PermissionsUtils {
      * @param flags The flags to combine.
      */
     public static combine (...flags: PermissionsFlags[]): bigint {
-        return flags.reduce((p, c) => BigInt(typeof p === `string` ? DiscordConstants.PERMISSION_FLAGS[p] : p) | BigInt(typeof c === `string` ? DiscordConstants.PERMISSION_FLAGS[c] : c)) as bigint;
+        return flags.reduce((p: bigint, c) => p | BigInt(typeof c === `string` ? DiscordConstants.PERMISSION_FLAGS[c] : c), 0n);
     }
 
     /**
