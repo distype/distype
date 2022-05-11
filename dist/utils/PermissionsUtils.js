@@ -87,9 +87,9 @@ class PermissionsUtils {
      * @param perms Permission flags to test for a permission.
      * @param test The permissions to test for.
      */
-    static hasPerms(perms, test) {
+    static hasPerms(perms, ...test) {
         const permsFlags = BigInt(perms);
-        const testFlags = typeof test === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[test] : BigInt(test);
+        const testFlags = this.combine(...test);
         if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
             return true;
         return (permsFlags & testFlags) === testFlags;

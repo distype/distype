@@ -7,6 +7,10 @@ export interface PermissionsChannel {
     permission_overwrites?: APIOverwrite[];
 }
 /**
+ * Permission flags.
+ */
+export declare type PermissionsFlags = number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS);
+/**
  * Properties of an `APIGuild` that are relevant to permissions.
  */
 export interface PermissionsGuild {
@@ -53,7 +57,7 @@ export declare class PermissionsUtils {
      * Combine permission flags.
      * @param flags The flags to combine.
      */
-    static combine(...flags: Array<number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)>): bigint;
+    static combine(...flags: PermissionsFlags[]): bigint;
     /**
      * Compute a member's permissions in a guild.
      * @param member The member to get permissions for.
@@ -66,13 +70,13 @@ export declare class PermissionsUtils {
      * @param perms Permission flags to test for a permission.
      * @param test The permissions to test for.
      */
-    static hasPerms(perms: number | bigint, test: number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)): boolean;
+    static hasPerms(perms: number | bigint, ...test: PermissionsFlags[]): boolean;
     /**
      * Remove permission flags.
      * @param baseFlags The base flags to subtract from.
      * @param flags The flags to subtract.
      */
-    static remove(baseFlags: number | bigint, ...flags: Array<number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS)>): bigint;
+    static remove(baseFlags: number | bigint, ...flags: PermissionsFlags[]): bigint;
     /**
      * Applies timeout overwrites to permission flags.
      * @param perms The permissions to convert.
