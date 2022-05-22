@@ -140,15 +140,15 @@ export const DiscordConstants = {
          */
         LIMIT: 120,
         /**
-         * The amount of time that `LIMIT` is specified for.
+         * The amount of time in milliseconds that `LIMIT` is specified for.
          */
-        RESET_AFTER: 60000
+        RESET_AFTER: 60000,
+        /**
+         * The cooldown between spawning shards from the same bucket in milliseconds.
+         * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+         */
+        SHARD_SPAWN_COOLDOWN: 5000
     },
-    /**
-     * The cooldown between spawning shards from the same bucket.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
-     */
-    GATEWAY_SHARD_SPAWN_COOLDOWN: 5000,
     /**
      * Allowed image formats.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)

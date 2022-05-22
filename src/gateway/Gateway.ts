@@ -323,7 +323,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY_RATELIMITS.SHARD_SPAWN_COOLDOWN);
         }
 
         const success = results.filter((result) => result.status === `fulfilled`).length;
