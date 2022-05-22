@@ -8,7 +8,7 @@ import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
-import { ExtendedMap, flattenObject, LoggerLevel } from '@br88c/node-utils';
+import { ExtendedMap, flattenObject } from '@br88c/node-utils';
 import { Readable } from 'node:stream';
 import { URL, URLSearchParams } from 'node:url';
 import { isUint8Array } from 'node:util/types';
@@ -279,97 +279,38 @@ export class Rest extends RestRequests {
      * Handles response codes.
      */
     private _handleResponseCodes (method: RestMethod, route: RestRoute, res: RestInternalRestResponse): void {
-        let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
-        let level: LoggerLevel | `throw` = `WARN`;
+        const result = `${res.statusCode} ${method} ${route}`;
 
-        switch (res.statusCode) {
-            case 200: {
-                message = `Status code 200 (OK)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 201: {
-                message = `Status code 201 (CREATED)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 204: {
-                message = `Status code 204 (NO CONTENT)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 304: {
-                message = `Status code 304 (NOT MODIFIED)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 400: {
-                message = `Status code 400 (BAD REQUEST)`;
-                level = `throw`;
-                break;
-            }
-            case 401: {
-                message = `Status code 401 (UNAUTHORIZED)`;
-                level = `throw`;
-                break;
-            }
-            case 403: {
-                message = `Status code 403 (FORBIDDEN)`;
-                level = `throw`;
-                break;
-            }
-            case 404: {
-                message = `Status code 404 (NOT FOUND)`;
-                level = `throw`;
-                break;
-            }
-            case 405: {
-                message = `Status code 405 (METHOD NOT ALLOWED)`;
-                level = `throw`;
-                break;
-            }
-            case 429: {
-                message = `Status code 429 (TOO MANY REQUESTS)`;
-                level = this.options.disableRatelimits ? `throw` : `DEBUG`;
-                break;
-            }
-            case 502: {
-                message = `Status code 502 (GATEWAY UNAVAILABLE)`;
-                level = this.options.disableRatelimits ? `throw` : `DEBUG`;
-                break;
-            }
-            default: {
-                if (res.statusCode >= 500 && res.statusCode < 600) {
-                    message = `Status code ${res.statusCode} (SERVER ERROR)`;
-                    level = this.options.disableRatelimits ? `throw` : `DEBUG`;
-                }
-                break;
-            }
-        }
-
-        const errors: string[] = [];
-        if (res.body?.message) errors.push(res.body.message);
-        if (res.body?.errors) {
-            const flattened = flattenObject(res.body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
-            errors.push(
-                ...Object.keys(flattened)
-                    .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
-                    .map((key) => flattened[key].map((error) =>
-                        `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
-                            .trimEnd()
-                            .replace(/\.$/, ``)
-                    ))
-                    .flat()
-            );
-        }
-        const errorString = [message, errors.length ? `"${errors.join(`, `)}"` : undefined].filter((e) => !!e).join(` `);
-
-        if (level === `throw`) {
-            throw new DistypeError(`${errorString} on ${method} ${route}`, DistypeErrorType.REST_REQUEST_ERROR, this.system);
-        } else {
-            this._log(`${method} ${route} returned ${errorString}`, {
-                level, system: this.system
+        if (res.statusCode < 400) {
+            this._log(result, {
+                level: `DEBUG`, system: this.system
             });
+        } else {
+            const errors: string[] = [];
+            if (res.body?.message) errors.push(res.body.message);
+            if (res.body?.errors) {
+                const flattened = flattenObject(res.body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+                errors.push(
+                    ...Object.keys(flattened)
+                        .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
+                        .map((key) => flattened[key].map((error) =>
+                            `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
+                                .trimEnd()
+                                .replace(/\.$/, ``)
+                        ))
+                        .flat()
+                );
+            }
+
+            const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
+
+            if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
+                throw new DistypeError(errorMessage, DistypeErrorType.REST_REQUEST_ERROR, this.system);
+            } else {
+                this._log(result, {
+                    level: `DEBUG`, system: this.system
+                });
+            }
         }
     }
 }
