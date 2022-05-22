@@ -44,48 +44,6 @@ export const DiscordConstants = {
      */
     CDN_URL: `https://cdn.discordapp.com`,
     /**
-     * Component limits.
-     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
-     */
-    COMPONENT_LIMITS: {
-        BUTTON: {
-            CUSTOM_ID: 100,
-            LABEL: 80
-        },
-        SELECT_MENU: {
-            CUSTOM_ID: 100,
-            MAX_VALUES: {
-                MIN: 1,
-                MAX: 25
-            },
-            MIN_VALUES: {
-                MIN: 0,
-                MAX: 25
-            },
-            OPTIONS: 25,
-            OPTION: {
-                DESCRIPTION: 100,
-                LABEL: 100,
-                VALUE: 100
-            },
-            PLACEHOLDER: 150
-        },
-        TEXT_INPUT: {
-            CUSTOM_ID: 100,
-            LABEL: 45,
-            MAX_LENGTH: {
-                MIN: 1,
-                MAX: 4000
-            },
-            MIN_LENGTH: {
-                MIN: 0,
-                MAX: 4000
-            },
-            PLACEHOLDER: 100,
-            VALUE: 4000
-        }
-    },
-    /**
      * The Discord epoch as a unix millisecond timestamp.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
      */
@@ -158,6 +116,48 @@ export const DiscordConstants = {
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
          */
         SHARD_SPAWN_COOLDOWN: 5000
+    },
+    /**
+     * Message component limits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
+     */
+    MESSAGE_COMPONENT_LIMITS: {
+        BUTTON: {
+            CUSTOM_ID: 100,
+            LABEL: 80
+        },
+        SELECT_MENU: {
+            CUSTOM_ID: 100,
+            MAX_VALUES: {
+                MIN: 1,
+                MAX: 25
+            },
+            MIN_VALUES: {
+                MIN: 0,
+                MAX: 25
+            },
+            OPTIONS: 25,
+            OPTION: {
+                DESCRIPTION: 100,
+                LABEL: 100,
+                VALUE: 100
+            },
+            PLACEHOLDER: 150
+        },
+        TEXT_INPUT: {
+            CUSTOM_ID: 100,
+            LABEL: 45,
+            MAX_LENGTH: {
+                MIN: 1,
+                MAX: 4000
+            },
+            MIN_LENGTH: {
+                MIN: 0,
+                MAX: 4000
+            },
+            PLACEHOLDER: 100,
+            VALUE: 4000
+        }
     },
     /**
      * Limits for message embed fields.
