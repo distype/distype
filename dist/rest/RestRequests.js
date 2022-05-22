@@ -165,18 +165,6 @@ class RestRequests {
         });
     }
     /**
-     * @param applicationId The application ID.
-     * @param guildId The guild ID.
-     * @param body Request body.
-     * @param options Request options.
-     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#batch-edit-application-command-permissions)
-     */
-    async batchEditApplicationCommandPermissions(applicationId, guildId, body, options) {
-        return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/permissions`, {
-            body, ...options
-        });
-    }
-    /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
@@ -1152,7 +1140,7 @@ class RestRequests {
      * @param userId The user ID.
      * @param body Request body.
      * @param options Request options.
-     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-user-voice-state)
      */
     async modifyUserVoiceState(guildId, userId, body, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/${userId}`, {
@@ -1434,7 +1422,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/voice#list-voice-regions)
      */
     async listVoiceRegions(options) {
-        return await this.request(`GET`, ``, options);
+        return await this.request(`GET`, `/voice/regions`, options);
     }
     /**
      * @param channelId The channel ID.

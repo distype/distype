@@ -32,6 +32,7 @@ const Rest_1 = require("../rest/Rest");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const node_crypto_1 = require("node:crypto");
+const promises_1 = require("node:timers/promises");
 const node_url_1 = require("node:url");
 /**
  * The gateway manager.
@@ -223,7 +224,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
             if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
-                await (0, node_utils_1.wait)(DiscordConstants_1.DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
+                await (0, promises_1.setTimeout)(DiscordConstants_1.DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
         }
         const success = results.filter((result) => result.status === `fulfilled`).length;
         const failed = this._storedCalculatedShards.shards - success;

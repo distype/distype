@@ -28,6 +28,7 @@ const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeError_1 = require("../errors/DistypeError");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const promises_1 = require("node:timers/promises");
 const ws_1 = require("ws");
 /**
  * {@link GatewayShard Gateway shard} states.
@@ -226,7 +227,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 throw new DistypeError_1.DistypeError(`Shard spawn attempts interrupted by kill`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
             if (i < this.options.spawnMaxAttempts - 1)
-                await (0, node_utils_1.wait)(this.options.spawnAttemptDelay);
+                await (0, promises_1.setTimeout)(this.options.spawnAttemptDelay);
         }
         this._spinning = false;
         this._enterState(GatewayShardState.IDLE);
@@ -261,7 +262,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 });
                 throw new DistypeError_1.DistypeError(`Shard restart attempts interrupted by kill`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
             }
-            await (0, node_utils_1.wait)(this.options.spawnAttemptDelay);
+            await (0, promises_1.setTimeout)(this.options.spawnAttemptDelay);
         }
     }
     /**
@@ -586,7 +587,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 this._close(!!payload.d, payload.d ? 4000 : 1000, `Got Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`);
                 this._enterState(GatewayShardState.DISCONNECTED);
                 if (!this._spinning)
-                    (0, node_utils_1.wait)(2500).then(() => this._reconnect(!!payload.d));
+                    (0, promises_1.setTimeout)(2500).then(() => this._reconnect(!!payload.d));
                 break;
             }
             case DiscordTypes.GatewayOpcodes.Hello: {
@@ -595,7 +596,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 });
                 const jitterActive = Date.now();
                 this._heartbeatJitterActive = jitterActive;
-                (0, node_utils_1.wait)(payload.d.heartbeat_interval * 0.5).then(() => {
+                (0, promises_1.setTimeout)(payload.d.heartbeat_interval * 0.5).then(() => {
                     if (jitterActive === this._heartbeatJitterActive && (this.state === GatewayShardState.IDENTIFYING || this.state === GatewayShardState.RESUMING || this.state === GatewayShardState.RUNNING)) {
                         this._heartbeatJitterActive = null;
                         this._heartbeat();

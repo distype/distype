@@ -47,6 +47,7 @@ export declare type GatewayEvents = {
     '*': (payload: DiscordTypes.GatewayDispatchPayload) => void;
     READY: (payload: DiscordTypes.GatewayReadyDispatch) => void;
     RESUMED: (payload: DiscordTypes.GatewayResumedDispatch) => void;
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE: (payload: DiscordTypes.APIGuildApplicationCommandPermissions) => void;
     CHANNEL_CREATE: (payload: DiscordTypes.GatewayChannelCreateDispatch) => void;
     CHANNEL_UPDATE: (payload: DiscordTypes.GatewayChannelUpdateDispatch) => void;
     CHANNEL_DELETE: (payload: DiscordTypes.GatewayChannelDeleteDispatch) => void;

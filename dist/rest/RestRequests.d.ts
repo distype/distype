@@ -123,14 +123,6 @@ export declare abstract class RestRequests {
      */
     editApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, body: DiscordTypes.RESTPutAPIApplicationCommandPermissionsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIApplicationCommandPermissionsResult>;
     /**
-     * @param applicationId The application ID.
-     * @param guildId The guild ID.
-     * @param body Request body.
-     * @param options Request options.
-     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#batch-edit-application-command-permissions)
-     */
-    batchEditApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, body: DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsResult>;
-    /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
@@ -441,7 +433,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#add-thread-member)
      */
-    addThreadMember(threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<never>;
+    addThreadMember(threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelThreadMembersResult>;
     /**
      * @param threadId The thread ID.
      * @param options Request options.
@@ -454,7 +446,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#remove-thread-member)
      */
-    removeThreadMember(threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<never>;
+    removeThreadMember(threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelThreadMembersResult>;
     /**
      * @param threadId The thread ID.
      * @param options Request options.
@@ -801,20 +793,20 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-guild-welcome-screen)
      */
-    modifyGuildWelcomeScreen(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildWelcomeScreenJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildWelcomeScreenResult>;
+    modifyGuildWelcomeScreen(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildWelcomeScreenJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildWelcomeScreenResult>;
     /**
      * @param guildId The guild ID.
      * @param body Request body.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
      */
-    modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<never>;
+    modifyCurrentUserVoiceState(guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberResult>;
     /**
      * @param guildId The guild ID.
      * @param userId The user ID.
      * @param body Request body.
      * @param options Request options.
-     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-user-voice-state)
      */
     modifyUserVoiceState(guildId: Snowflake, userId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateUserJSONBody, options?: RestRequestOptions): Promise<never>;
     /**
