@@ -33,6 +33,7 @@ export interface PermissionsMember {
     user: {
         id: Snowflake
     }
+    communication_disabled_until?: string | null
     roles?: Snowflake[]
 }
 
@@ -67,10 +68,9 @@ export class PermissionsUtils {
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
      * @param channel The channel to compute overwrites for.
-     * @param timedOut If the member is timed out.
      */
-    public static channelPermissions (member: PermissionsMember, guild: PermissionsGuild, channel: PermissionsChannel, timedOut = false): bigint {
-        let perms = this.guildPermissions(member, guild, timedOut);
+    public static channelPermissions (member: PermissionsMember, guild: PermissionsGuild, channel: PermissionsChannel): bigint {
+        let perms = this.guildPermissions(member, guild);
         if (this.hasPerms(perms, `ADMINISTRATOR`)) return this.allPermissions;
 
         const overwrites = channel.permission_overwrites ?? [];
@@ -94,7 +94,7 @@ export class PermissionsUtils {
         // Member overwrites
         perms = this.applyOverwrites(perms, overwrites, member.user.id);
 
-        return timedOut ? this.timeout(perms) : perms;
+        return member.communication_disabled_until ? this.timeout(perms) : perms;
     }
 
     /**
@@ -109,9 +109,8 @@ export class PermissionsUtils {
      * Compute a member's permissions in a guild.
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
-     * @param timedOut If the member is timed out.
      */
-    public static guildPermissions (member: PermissionsMember, guild: PermissionsGuild, timedOut = false): bigint {
+    public static guildPermissions (member: PermissionsMember, guild: PermissionsGuild): bigint {
         if (member.user.id === guild.owner_id) return this.allPermissions;
 
         // @everyone
@@ -124,7 +123,7 @@ export class PermissionsUtils {
 
         if (this.hasPerms(perms, `ADMINISTRATOR`)) return this.allPermissions;
 
-        return timedOut ? this.timeout(perms) : perms;
+        return member.communication_disabled_until ? this.timeout(perms) : perms;
     }
 
     /**
