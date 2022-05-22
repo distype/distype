@@ -218,92 +218,34 @@ class Rest extends RestRequests_1.RestRequests {
      * Handles response codes.
      */
     _handleResponseCodes(method, route, res) {
-        let message = `Status code ${res.statusCode} (UNKNOWN STATUS CODE)`;
-        let level = `WARN`;
-        switch (res.statusCode) {
-            case 200: {
-                message = `Status code 200 (OK)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 201: {
-                message = `Status code 201 (CREATED)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 204: {
-                message = `Status code 204 (NO CONTENT)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 304: {
-                message = `Status code 304 (NOT MODIFIED)`;
-                level = `DEBUG`;
-                break;
-            }
-            case 400: {
-                message = `Status code 400 (BAD REQUEST)`;
-                level = `throw`;
-                break;
-            }
-            case 401: {
-                message = `Status code 401 (UNAUTHORIZED)`;
-                level = `throw`;
-                break;
-            }
-            case 403: {
-                message = `Status code 403 (FORBIDDEN)`;
-                level = `throw`;
-                break;
-            }
-            case 404: {
-                message = `Status code 404 (NOT FOUND)`;
-                level = `throw`;
-                break;
-            }
-            case 405: {
-                message = `Status code 405 (METHOD NOT ALLOWED)`;
-                level = `throw`;
-                break;
-            }
-            case 429: {
-                message = `Status code 429 (TOO MANY REQUESTS)`;
-                level = this.options.disableRatelimits ? `throw` : `DEBUG`;
-                break;
-            }
-            case 502: {
-                message = `Status code 502 (GATEWAY UNAVAILABLE)`;
-                level = this.options.disableRatelimits ? `throw` : `DEBUG`;
-                break;
-            }
-            default: {
-                if (res.statusCode >= 500 && res.statusCode < 600) {
-                    message = `Status code ${res.statusCode} (SERVER ERROR)`;
-                    level = this.options.disableRatelimits ? `throw` : `DEBUG`;
-                }
-                break;
-            }
-        }
-        const errors = [];
-        if (res.body?.message)
-            errors.push(res.body.message);
-        if (res.body?.errors) {
-            const flattened = (0, node_utils_1.flattenObject)(res.body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
-            errors.push(...Object.keys(flattened)
-                .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
-                .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
-                .trimEnd()
-                .replace(/\.$/, ``)))
-                .flat());
-        }
-        const errorString = [message, errors.length ? `"${errors.join(`, `)}"` : undefined].filter((e) => !!e).join(` `);
-        if (level === `throw`) {
-            throw new DistypeError_1.DistypeError(`${errorString} on ${method} ${route}`, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
+        const result = `${res.statusCode} ${method} ${route}`;
+        if (res.statusCode < 400) {
+            this._log(result, {
+                level: `DEBUG`, system: this.system
+            });
         }
         else {
-            this._log(`${method} ${route} returned ${errorString}`, {
-                level, system: this.system
-            });
+            const errors = [];
+            if (res.body?.message)
+                errors.push(res.body.message);
+            if (res.body?.errors) {
+                const flattened = (0, node_utils_1.flattenObject)(res.body.errors, DiscordConstants_1.DiscordConstants.REST_ERROR_KEY);
+                errors.push(...Object.keys(flattened)
+                    .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST_ERROR_KEY)
+                    .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
+                    .trimEnd()
+                    .replace(/\.$/, ``)))
+                    .flat());
+            }
+            const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
+            if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
+                throw new DistypeError_1.DistypeError(errorMessage, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
+            }
+            else {
+                this._log(result, {
+                    level: `DEBUG`, system: this.system
+                });
+            }
         }
     }
 }
