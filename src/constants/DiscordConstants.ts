@@ -34,19 +34,6 @@ export const DiscordConstants = {
      */
     CDN_URL: `https://cdn.discordapp.com`,
     /**
-     * Official [Discord branding](https://discord.com/branding) colors.
-     */
-    COLORS: {
-        BLURPLE: 0x5865F2,
-        OLD_BLURPLE: 0x7289DA,
-        GREEN: 0x57F287,
-        YELLOW: 0xFEE75C,
-        FUCHSIA: 0xEB459E,
-        RED: 0xED4245,
-        WHITE: 0xFFFFFF,
-        BLACK: 0x000000
-    },
-    /**
      * Component limits.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
      */
