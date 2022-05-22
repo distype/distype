@@ -6,16 +6,10 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "rm -rf ./dist && tsc",
-    "build:install": "npm i --also=dev && npm run build",
     "docs": "rm -rf ./docs && typedoc",
-    "docs:install": "npm i --also=dev && npm run docs",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix",
-    "lint:install": "npm i --also=dev && npm run lint",
-    "prepublishOnly": "npm run build:install",
-    "test:build": "npm run build:install",
-    "test:docs": "npm run docs:install",
-    "test:lint": "npm run lint:install"
+    "prepublishOnly": "npm i --also=dev && npm run build"
   },
   "keywords": [
     "api",
