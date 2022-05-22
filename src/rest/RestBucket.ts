@@ -161,14 +161,10 @@ export class RestBucket {
 
         const res = await this.manager.make(method, route, options);
 
-        const limit = Number(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.LIMIT] ?? Infinity);
-        const remaining = Number(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.REMAINING] ?? 1);
-        const resetAfter = Number(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000;
         const bucket = res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.BUCKET] as string | undefined;
-        const global = res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL] === `true`;
-        const globalRetryAfter = Number(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
+        const globalRetryAfter = +(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
 
-        if (globalRetryAfter > 0 && global) {
+        if (globalRetryAfter > 0 && res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL] === `true`) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
@@ -177,9 +173,9 @@ export class RestBucket {
             this.manager.routeHashCache!.set(routeHash, bucket);
         }
 
-        this.requestsLeft = remaining;
-        this.resetAt = resetAfter + Date.now();
-        this.allowedRequestsPerRatelimit = limit;
+        this.requestsLeft = +(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.REMAINING] ?? 1);
+        this.resetAt = +(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000 + Date.now();
+        this.allowedRequestsPerRatelimit = +(res.headers[DiscordConstants.REST_RATELIMIT_HEADERS.LIMIT] ?? Infinity);
 
         if (res.statusCode === 429) return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {

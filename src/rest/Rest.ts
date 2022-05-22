@@ -177,7 +177,7 @@ export class Rest extends RestRequests {
     public async request (method: RestMethod, route: RestRoute, options: RestRequestData = {}): Promise<any> {
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
 
             const routeHash: RestRouteHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash: RestBucketHash = this.routeHashCache!.get(routeHash) ?? `global;${routeHash}`;
@@ -212,14 +212,14 @@ export class Rest extends RestRequests {
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
         const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
-        url.search = new URLSearchParams(options.query).toString();
+        if (options.query) url.search = new URLSearchParams(options.query).toString();
 
         const req = request(url, {
             ...this.options,
             ...options,
             method,
             headers,
-            body: options.body instanceof Readable || isUint8Array(options.body) || Buffer.isBuffer(options.body) ? options.body : JSON.stringify(options.body),
+            body: Buffer.isBuffer(options.body) || options.body instanceof Readable || isUint8Array(options.body) ? options.body : JSON.stringify(options.body),
             bodyTimeout: options.timeout ?? this.options.timeout
         });
 
