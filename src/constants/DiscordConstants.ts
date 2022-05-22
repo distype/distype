@@ -29,6 +29,16 @@ export const DiscordConstants = {
      */
     BASE_URL: `https://discord.com/api`,
     /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    CDN_IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`],
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    CDN_IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
+    /**
      * Discord's CDN URL.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
      */
@@ -149,16 +159,6 @@ export const DiscordConstants = {
          */
         SHARD_SPAWN_COOLDOWN: 5000
     },
-    /**
-     * Allowed image formats.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
-     */
-    IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`],
-    /**
-     * Allowed image sizes.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
-     */
-    IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
     /**
      * Limits for message embed fields.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)
