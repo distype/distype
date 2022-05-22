@@ -155,7 +155,7 @@ export class Client {
      * @param userId The presence's user ID.
      * @param keys Properties to ensure.
      */
-    public getPresenceData <T extends Array<keyof CachedPresence>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Promise<Pick<CachedPresence, T[number]>> {
+    public getPresenceData <T extends Array<keyof CachedPresence>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Pick<CachedPresence, T[number]> {
         const data = this.cache.presences?.get(guildId)?.get(userId) ?? {
             guild_id: guildId, user_id: userId
         };
@@ -207,7 +207,7 @@ export class Client {
      * @param userId The presence's user ID.
      * @param keys Properties to ensure.
      */
-    public getVoiceStateData <T extends Array<keyof CachedVoiceState>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Promise<Pick<CachedVoiceState, T[number]>> {
+    public getVoiceStateData <T extends Array<keyof CachedVoiceState>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Pick<CachedVoiceState, T[number]> {
         const data = this.cache.voiceStates?.get(guildId)?.get(userId) ?? {
             guild_id: guildId, user_id: userId
         };
