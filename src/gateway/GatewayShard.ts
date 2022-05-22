@@ -109,7 +109,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     public lastSequence: number | null = null;
     /**
-     * The shard's ping.
+     * The shard's ping in milliseconds.
      */
     public ping = 0;
     /**
