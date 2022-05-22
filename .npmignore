@@ -2,11 +2,9 @@
 docs/
 node_modules/
 src/
-test/
 
 .eslintrc.json
 .gitattributes
 .gitignore
-package-lock.json
 tsconfig.json
 typedoc.json

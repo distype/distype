@@ -5,8 +5,8 @@ on:
     types: [created]
 
 jobs:
-  push-docs:
-    name: Push Docs
+  docs:
+    name: Docs
     runs-on: ubuntu-latest
 
     strategy:
@@ -14,31 +14,22 @@ jobs:
         node: [16]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           registry-url: https://registry.npmjs.org/
 
-      - name: Run docs
-        run: npm run docs:install
+      - name: Install Node Modules
+        run: npm i --also=dev
 
-      - name: Push docs
+      - name: Generate Docs
+        run: npm run docs
+
+      - name: Push Docs
         run: |
           REPO="https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           TARGET_BRANCH="docs"

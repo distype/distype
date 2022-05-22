@@ -8,18 +8,17 @@ on:
       - '.github/labels.yml'
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch:
 
 jobs:
-  label-sync:
-    name: Label Sync
+  labels:
+    name: Labels
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Run Label Sync
+      - name: Sync Labels
         uses: crazy-max/ghaction-github-labeler@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
