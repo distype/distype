@@ -3,9 +3,8 @@ import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 
-import { wait } from '@br88c/node-utils';
 import { Snowflake } from 'discord-api-types/v10';
-
+import { setTimeout as wait } from 'node:timers/promises';
 
 /**
  * A {@link Rest rest} bucket hash.

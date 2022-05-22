@@ -4,7 +4,7 @@ import { CacheOptions } from './CacheOptions';
 import { LogCallback } from '../types/Log';
 
 import { ExtendedMap } from '@br88c/node-utils';
-import { ChannelType, GatewayDispatchPayload, Snowflake } from 'discord-api-types/v10';
+import { ChannelType, GatewayDispatchEvents, GatewayDispatchPayload, GatewayGuildCreateDispatchData, Snowflake } from 'discord-api-types/v10';
 
 /**
  * The cache manager.
@@ -113,15 +113,16 @@ export class Cache {
         if (this._enabledKeys.length === 0) return;
 
         switch (data.t) {
-            case `READY`: {
+            case GatewayDispatchEvents.Ready: {
                 if (this._enabledKeys.includes(`guilds`)) data.d.guilds.forEach((guild) => this._updateGuild(false, guild));
                 if (this._enabledKeys.includes(`users`)) this._updateUser(false, data.d.user);
                 break;
             }
-            case `RESUMED`: {
-                break;
-            }
-            case `CHANNEL_CREATE`: {
+            // case GatewayDispatchEvents.ApplicationCommandPermissionsUpdate: {
+            //     ...
+            //     break;
+            // }
+            case GatewayDispatchEvents.ChannelCreate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
                     id: data.d.guild_id,
@@ -129,23 +130,23 @@ export class Cache {
                 });
                 break;
             }
-            case `CHANNEL_UPDATE`: {
+            case GatewayDispatchEvents.ChannelUpdate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 break;
             }
-            case `CHANNEL_DELETE`: {
+            case GatewayDispatchEvents.ChannelDelete: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
-            case `CHANNEL_PINS_UPDATE`: {
+            case GatewayDispatchEvents.ChannelPinsUpdate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, {
                     ...data.d,
                     id: data.d.channel_id
                 });
                 break;
             }
-            case `THREAD_CREATE`: {
+            case GatewayDispatchEvents.ThreadCreate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
                     id: data.d.guild_id,
@@ -153,47 +154,49 @@ export class Cache {
                 });
                 break;
             }
-            case `THREAD_UPDATE`: {
+            case GatewayDispatchEvents.ThreadUpdate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 break;
             }
-            case `THREAD_DELETE`: {
+            case GatewayDispatchEvents.ThreadDelete: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
-            case `THREAD_LIST_SYNC`:
-            case `THREAD_MEMBER_UPDATE`:
-            case `THREAD_MEMBERS_UPDATE`: {
-                break;
-            }
-            case `GUILD_CREATE`:
-            case `GUILD_UPDATE`: {
-                if (this._enabledKeys.includes(`channels`)) data.d.channels?.forEach((channel) => this._updateChannel(false, channel as any));
+            case GatewayDispatchEvents.GuildCreate: {
+                if (this._enabledKeys.includes(`channels`)) (data.d as GatewayGuildCreateDispatchData).channels.forEach((channel) => this._updateChannel(false, channel as any));
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     ...data.d,
-                    channels: data.d.channels?.map((channel) => channel.id),
-                    members: data.d.members?.filter((member) => member.user).map((member) => member.user!.id),
+                    channels: (data.d as GatewayGuildCreateDispatchData).channels?.map((channel) => channel.id),
+                    members: (data.d as GatewayGuildCreateDispatchData).members?.filter((member) => member.user).map((member) => member.user!.id),
                     roles: data.d.roles.map((role) => role.id)
                 });
-                if (this._enabledKeys.includes(`members`)) data.d.members?.filter((member) => member.user).forEach((member) => this._updateMember(false, {
+                if (this._enabledKeys.includes(`members`)) (data.d as GatewayGuildCreateDispatchData).members.filter((member) => member.user).forEach((member) => this._updateMember(false, {
                     ...member,
                     user_id: member.user!.id,
                     guild_id: data.d.id
                 }));
-                if (this._enabledKeys.includes(`presences`)) data.d.presences?.forEach((presence) => this._updatePresence(false, {
+                if (this._enabledKeys.includes(`presences`)) (data.d as GatewayGuildCreateDispatchData).presences.forEach((presence) => this._updatePresence(false, {
                     ...presence,
                     user_id: presence.user.id
                 }));
                 if (this._enabledKeys.includes(`roles`)) data.d.roles.forEach((role) => this._updateRole(false, role));
-                if (this._enabledKeys.includes(`users`)) data.d.members?.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user!));
-                if (this._enabledKeys.includes(`voiceStates`)) data.d.voice_states?.forEach((voiceState) => this._updateVoiceState(false, {
+                if (this._enabledKeys.includes(`users`)) (data.d as GatewayGuildCreateDispatchData).members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user!));
+                if (this._enabledKeys.includes(`voiceStates`)) (data.d as GatewayGuildCreateDispatchData).voice_states.forEach((voiceState) => this._updateVoiceState(false, {
                     ...voiceState,
                     guild_id: data.d.id
                 }));
                 break;
             }
-            case `GUILD_DELETE`: {
+            case GatewayDispatchEvents.GuildUpdate: {
+                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
+                    ...data.d,
+                    roles: data.d.roles.map((role) => role.id)
+                });
+                if (this._enabledKeys.includes(`roles`)) data.d.roles.forEach((role) => this._updateRole(false, role));
+                break;
+            }
+            case GatewayDispatchEvents.GuildDelete: {
                 if (data.d.unavailable) {
                     if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, data.d);
                 } else {
@@ -206,28 +209,21 @@ export class Cache {
                 }
                 break;
             }
-            case `GUILD_BAN_ADD`:
-            case `GUILD_BAN_REMOVE`: {
-                break;
-            }
-            case `GUILD_EMOJIS_UPDATE`: {
+            case GatewayDispatchEvents.GuildEmojisUpdate: {
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     id: data.d.guild_id,
                     emojis: data.d.emojis
                 });
                 break;
             }
-            case `GUILD_STICKERS_UPDATE`: {
+            case GatewayDispatchEvents.GuildStickersUpdate: {
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     id: data.d.guild_id,
                     stickers: data.d.stickers
                 });
                 break;
             }
-            case `GUILD_INTEGRATIONS_UPDATE`: {
-                break;
-            }
-            case `GUILD_MEMBER_ADD`: {
+            case GatewayDispatchEvents.GuildMemberAdd: {
                 if (this._enabledKeys.includes(`guilds`) && data.d.user) this._updateGuild(false, {
                     id: data.d.guild_id,
                     members: [data.d.user.id, ...(this.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user!.id) ?? [])]
@@ -239,7 +235,7 @@ export class Cache {
                 if (this._enabledKeys.includes(`users`) && data.d.user) this._updateUser(false, data.d.user);
                 break;
             }
-            case `GUILD_MEMBER_REMOVE`: {
+            case GatewayDispatchEvents.GuildMemberRemove: {
                 if (this._enabledKeys.includes(`guilds`)) this.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id);
                 if (this._enabledKeys.includes(`members`)) this._updateMember(true, {
                     ...data.d,
@@ -247,7 +243,7 @@ export class Cache {
                 });
                 break;
             }
-            case `GUILD_MEMBER_UPDATE`: {
+            case GatewayDispatchEvents.GuildMemberUpdate: {
                 if (this._enabledKeys.includes(`members`)) this._updateMember(false, {
                     ...data.d,
                     user_id: data.d.user.id,
@@ -256,7 +252,7 @@ export class Cache {
                 if (this._enabledKeys.includes(`users`) && data.d.user) this._updateUser(false, data.d.user);
                 break;
             }
-            case `GUILD_MEMBERS_CHUNK`: {
+            case GatewayDispatchEvents.GuildMembersChunk: {
                 if (this._enabledKeys.includes(`members`)) data.d.members.filter((member) => member.user).forEach((member) => this._updateMember(false, {
                     ...member,
                     guild_id: data.d.guild_id,
@@ -269,7 +265,7 @@ export class Cache {
                 if (this._enabledKeys.includes(`users`)) data.d.members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user!));
                 break;
             }
-            case `GUILD_ROLE_CREATE`: {
+            case GatewayDispatchEvents.GuildRoleCreate: {
                 if (this._enabledKeys.includes(`roles`)) this._updateRole(false, {
                     ...data.d.role,
                     guild_id: data.d.guild_id
@@ -280,14 +276,14 @@ export class Cache {
                 });
                 break;
             }
-            case `GUILD_ROLE_UPDATE`: {
+            case GatewayDispatchEvents.GuildRoleUpdate: {
                 if (this._enabledKeys.includes(`roles`)) this._updateRole(false, {
                     ...data.d.role,
                     guild_id: data.d.guild_id
                 });
                 break;
             }
-            case `GUILD_ROLE_DELETE`: {
+            case GatewayDispatchEvents.GuildRoleDelete: {
                 if (this._enabledKeys.includes(`roles`)) this._updateRole(true, {
                     id: data.d.role_id,
                     guild_id: data.d.guild_id
@@ -295,85 +291,59 @@ export class Cache {
                 if (this._enabledKeys.includes(`guilds`)) this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role_id);
                 break;
             }
-            case `GUILD_SCHEDULED_EVENT_CREATE`:
-            case `GUILD_SCHEDULED_EVENT_UPDATE`: {
+            case GatewayDispatchEvents.GuildScheduledEventCreate:
+            case GatewayDispatchEvents.GuildScheduledEventUpdate: {
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     id: data.d.guild_id,
                     guild_scheduled_events: [data.d, ...(this.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id) ?? [])]
                 });
                 break;
             }
-            case `GUILD_SCHEDULED_EVENT_DELETE`: {
+            case GatewayDispatchEvents.GuildScheduledEventDelete: {
                 if (this._enabledKeys.includes(`guilds`)) this.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id);
                 break;
             }
-            case `GUILD_SCHEDULED_EVENT_USER_ADD`:
-            case `GUILD_SCHEDULED_EVENT_USER_REMOVE`:
-            case `INTEGRATION_CREATE`:
-            case `INTEGRATION_UPDATE`:
-            case `INTEGRATION_DELETE`:
-            case `INTERACTION_CREATE`:
-            case `INVITE_CREATE`:
-            case `INVITE_DELETE`: {
-                break;
-            }
-            case `MESSAGE_CREATE`: {
+            case GatewayDispatchEvents.MessageCreate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, {
                     id: data.d.channel_id,
                     last_message_id: data.d.id
                 });
                 break;
             }
-            case `MESSAGE_UPDATE`:
-            case `MESSAGE_DELETE`:
-            case `MESSAGE_DELETE_BULK`:
-            case `MESSAGE_REACTION_ADD`:
-            case `MESSAGE_REACTION_REMOVE`:
-            case `MESSAGE_REACTION_REMOVE_ALL`:
-            case `MESSAGE_REACTION_REMOVE_EMOJI`: {
-                break;
-            }
-            case `PRESENCE_UPDATE`: {
+            case GatewayDispatchEvents.PresenceUpdate: {
                 if (this._enabledKeys.includes(`presences`)) this._updatePresence(false, {
                     ...data.d,
                     user_id: data.d.user.id
                 });
                 break;
             }
-            case `STAGE_INSTANCE_CREATE`: {
+            case GatewayDispatchEvents.StageInstanceCreate: {
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     id: data.d.guild_id,
                     stage_instances: [data.d, ...(this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
                 });
                 break;
             }
-            case `STAGE_INSTANCE_DELETE`: {
+            case GatewayDispatchEvents.StageInstanceDelete: {
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     id: data.d.guild_id,
                     stage_instances: this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []
                 });
                 break;
             }
-            case `STAGE_INSTANCE_UPDATE`: {
+            case GatewayDispatchEvents.StageInstanceUpdate: {
                 if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
                     id: data.d.guild_id,
                     stage_instances: [data.d, ...(this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
                 });
                 break;
             }
-            case `TYPING_START`: {
-                break;
-            }
-            case `USER_UPDATE`: {
+            case GatewayDispatchEvents.UserUpdate: {
                 if (this._enabledKeys.includes(`users`)) this._updateUser(false, data.d);
                 break;
             }
-            case `VOICE_STATE_UPDATE`: {
+            case GatewayDispatchEvents.VoiceStateUpdate: {
                 if (this._enabledKeys.includes(`voiceStates`) && data.d.guild_id) this._updateVoiceState(data.d.channel_id === null, data.d as any);
-                break;
-            }
-            case `VOICE_SERVER_UPDATE`:
-            case `WEBHOOKS_UPDATE`: {
                 break;
             }
         }

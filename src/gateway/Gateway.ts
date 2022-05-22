@@ -7,10 +7,11 @@ import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
 
-import { ExtendedMap, TypedEmitter, wait } from '@br88c/node-utils';
+import { ExtendedMap, TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as wait } from 'node:timers/promises';
 import { URL, URLSearchParams } from 'node:url';
 
 /**
@@ -56,6 +57,7 @@ export type GatewayEvents = {
     '*': (payload: DiscordTypes.GatewayDispatchPayload) => void // eslint-disable-line quotes
     READY: (payload: DiscordTypes.GatewayReadyDispatch) => void
     RESUMED: (payload: DiscordTypes.GatewayResumedDispatch) => void
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE: (payload: DiscordTypes.APIGuildApplicationCommandPermissions) => void
     CHANNEL_CREATE: (payload: DiscordTypes.GatewayChannelCreateDispatch) => void
     CHANNEL_UPDATE: (payload: DiscordTypes.GatewayChannelUpdateDispatch) => void
     CHANNEL_DELETE: (payload: DiscordTypes.GatewayChannelDeleteDispatch) => void

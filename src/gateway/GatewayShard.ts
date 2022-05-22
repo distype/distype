@@ -4,8 +4,9 @@ import { DiscordConstants } from '../constants/DiscordConstants';
 import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 import { LogCallback } from '../types/Log';
 
-import { TypedEmitter, wait } from '@br88c/node-utils';
+import { TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
+import { setTimeout as wait } from 'node:timers/promises';
 import { RawData, WebSocket } from 'ws';
 
 /**

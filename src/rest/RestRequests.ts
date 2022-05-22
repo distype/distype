@@ -185,19 +185,6 @@ export abstract class RestRequests {
     }
 
     /**
-     * @param applicationId The application ID.
-     * @param guildId The guild ID.
-     * @param body Request body.
-     * @param options Request options.
-     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#batch-edit-application-command-permissions)
-     */
-    public async batchEditApplicationCommandPermissions (applicationId: Snowflake, guildId: Snowflake, body: DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIGuildApplicationCommandsPermissionsResult> {
-        return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/permissions`, {
-            body, ...options
-        });
-    }
-
-    /**
      * @param interactionId The interaction ID.
      * @param interactionToken The interaction token.
      * @param body Request body.
@@ -240,7 +227,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
     public async deleteOriginalInteractionResponse (applicationId: Snowflake, interactionToken: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult> {
-        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options) as never;
+        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options) as DiscordTypes.RESTDeleteAPIInteractionOriginalResponseResult;
     }
 
     /**
@@ -289,7 +276,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
     public async deleteFollowupMessage (applicationId: Snowflake, interactionToken: string, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIInteractionFollowupResult> {
-        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options) as never;
+        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options) as DiscordTypes.RESTDeleteAPIInteractionFollowupResult;
     }
 
     /**
@@ -390,7 +377,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-reaction)
      */
     public async createReaction (channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelMessageReactionResult> {
-        return await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as never;
+        return await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as DiscordTypes.RESTPutAPIChannelMessageReactionResult;
     }
 
     /**
@@ -401,7 +388,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-own-reaction)
      */
     public async deleteOwnReaction (channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction> {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as never;
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options) as DiscordTypes.RESTDeleteAPIChannelMessageOwnReaction;
     }
 
     /**
@@ -413,7 +400,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-user-reaction)
      */
     public async deleteUserReaction (channelId: Snowflake, messageId: Snowflake, emoji: string, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageUserReactionResult> {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`, options) as never;
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`, options) as DiscordTypes.RESTDeleteAPIChannelMessageUserReactionResult;
     }
 
     /**
@@ -437,7 +424,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions)
      */
     public async deleteAllReactions (channelId: Snowflake, messageId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelAllMessageReactionsResult> {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions`, options) as never;
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions`, options) as DiscordTypes.RESTDeleteAPIChannelAllMessageReactionsResult;
     }
 
     /**
@@ -448,7 +435,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions-for-emoji)
      */
     public async deleteAllReactionsForEmoji (channelId: Snowflake, messageId: Snowflake, emoji: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageReactionResult> {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, options) as never;
+        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, options) as DiscordTypes.RESTDeleteAPIChannelMessageReactionResult;
     }
 
     /**
@@ -474,7 +461,7 @@ export abstract class RestRequests {
     public async deleteMessage (channelId: Snowflake, messageId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelMessageResult> {
         return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}`, {
             reason, ...options
-        }) as never;
+        }) as DiscordTypes.RESTDeleteAPIChannelMessageResult;
     }
 
     /**
@@ -487,7 +474,7 @@ export abstract class RestRequests {
     public async bulkDeleteMessages (channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteResult> {
         return await this.request(`POST`, `/channels/${channelId}/messages/bulk-delete`, {
             body, reason, ...options
-        }) as never;
+        }) as DiscordTypes.RESTPostAPIChannelMessagesBulkDeleteResult;
     }
 
     /**
@@ -501,7 +488,7 @@ export abstract class RestRequests {
     public async editChannelPermissions (channelId: Snowflake, overwriteId: Snowflake, body: DiscordTypes.RESTPutAPIChannelPermissionJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelPermissionResult> {
         return await this.request(`PUT`, `/channels/${channelId}/permissions/${overwriteId}`, {
             body, reason, ...options
-        }) as never;
+        }) as DiscordTypes.RESTPutAPIChannelPermissionResult;
     }
 
     /**
@@ -674,8 +661,8 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#add-thread-member)
      */
-    public async addThreadMember (threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<never> {
-        return await this.request(`PUT`, `/channels/${threadId}/thread-members/${userId}`, options) as never;
+    public async addThreadMember (threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPutAPIChannelThreadMembersResult> {
+        return await this.request(`PUT`, `/channels/${threadId}/thread-members/${userId}`, options) as DiscordTypes.RESTPutAPIChannelThreadMembersResult;
     }
 
     /**
@@ -693,8 +680,8 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#remove-thread-member)
      */
-    public async removeThreadMember (threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<never> {
-        return await this.request(`DELETE`, `/channels/${threadId}/thread-members/${userId}`, options) as never;
+    public async removeThreadMember (threadId: Snowflake, userId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIChannelThreadMembersResult> {
+        return await this.request(`DELETE`, `/channels/${threadId}/thread-members/${userId}`, options) as DiscordTypes.RESTDeleteAPIChannelThreadMembersResult;
     }
 
     /**
@@ -1242,7 +1229,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-guild-welcome-screen)
      */
-    public async modifyGuildWelcomeScreen (guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildWelcomeScreenJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildWelcomeScreenResult> {
+    public async modifyGuildWelcomeScreen (guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildWelcomeScreenJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildWelcomeScreenResult> {
         return await this.request(`PATCH`, `/guilds/${guildId}/welcome-screen`, {
             body, reason, ...options
         });
@@ -1254,10 +1241,10 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
      */
-    public async modifyCurrentUserVoiceState (guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<never> {
+    public async modifyCurrentUserVoiceState (guildId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberResult> {
         return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/@me`, {
             body, ...options
-        }) as never;
+        }) as DiscordTypes.RESTPatchAPIGuildVoiceStateCurrentMemberResult;
     }
 
     /**
@@ -1265,7 +1252,7 @@ export abstract class RestRequests {
      * @param userId The user ID.
      * @param body Request body.
      * @param options Request options.
-     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-user-voice-state)
      */
     public async modifyUserVoiceState (guildId: Snowflake, userId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateUserJSONBody, options?: RestRequestOptions): Promise<never> {
         return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/${userId}`, {
@@ -1575,7 +1562,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/voice#list-voice-regions)
      */
     public async listVoiceRegions (options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildVoiceRegionsResult> {
-        return await this.request(`GET`, ``, options);
+        return await this.request(`GET`, `/voice/regions`, options);
     }
 
     /**

@@ -122,8 +122,6 @@ export class Client {
             data = {
                 ...data,
                 ...guild,
-                channels: guild.channels?.map((channel) => channel.id),
-                members: guild.members?.filter((member) => !!member.user).map((member) => member.user!.id),
                 roles: guild.roles.map((role) => role.id)
             };
         }

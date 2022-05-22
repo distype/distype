@@ -31,7 +31,7 @@ export type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> & 
 /**
  * A cached guild.
  */
-export interface CachedGuild extends Partial<Omit<DiscordTypes.APIGuild, `channels` | `members` | `presences` | `roles` | `threads` | `voice_states`>> {
+export interface CachedGuild extends Partial<Omit<DiscordTypes.GatewayGuildCreateDispatchData, `channels` | `members` | `presences` | `roles` | `threads` | `voice_states`>> {
     /**
      * The guild's ID.
      * Always included, regardless of cache control.
