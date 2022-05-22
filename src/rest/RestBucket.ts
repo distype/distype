@@ -82,8 +82,6 @@ export class RestBucket {
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
      * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
-     * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the rest manager.
-     * @param logThisArg A value to use as `this` in the `logCallback`.
      */
     constructor (id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest) {
         if (typeof id !== `string`) throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
