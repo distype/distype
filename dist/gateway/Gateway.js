@@ -149,6 +149,15 @@ class Gateway extends node_utils_1.TypedEmitter {
         });
     }
     /**
+     * The average ping in milliseconds across all shards.
+     */
+    get averagePing() {
+        if (!this.shardsRunning)
+            return 0;
+        else
+            return this.shards.reduce((p, c) => p + c.ping, 0) / this.shards.size;
+    }
+    /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */
     get shardsRunning() {
@@ -224,7 +233,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
             if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
-                await (0, promises_1.setTimeout)(DiscordConstants_1.DiscordConstants.GATEWAY_SHARD_SPAWN_COOLDOWN);
+                await (0, promises_1.setTimeout)(DiscordConstants_1.DiscordConstants.GATEWAY_RATELIMITS.SHARD_SPAWN_COOLDOWN);
         }
         const success = results.filter((result) => result.status === `fulfilled`).length;
         const failed = this._storedCalculatedShards.shards - success;

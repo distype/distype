@@ -31,10 +31,9 @@ class PermissionsUtils {
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
      * @param channel The channel to compute overwrites for.
-     * @param timedOut If the member is timed out.
      */
-    static channelPermissions(member, guild, channel, timedOut = false) {
-        let perms = this.guildPermissions(member, guild, timedOut);
+    static channelPermissions(member, guild, channel) {
+        let perms = this.guildPermissions(member, guild);
         if (this.hasPerms(perms, `ADMINISTRATOR`))
             return this.allPermissions;
         const overwrites = channel.permission_overwrites ?? [];
@@ -54,7 +53,7 @@ class PermissionsUtils {
         perms = this.combine(perms, BigInt(rolesAllow));
         // Member overwrites
         perms = this.applyOverwrites(perms, overwrites, member.user.id);
-        return timedOut ? this.timeout(perms) : perms;
+        return member.communication_disabled_until ? this.timeout(perms) : perms;
     }
     /**
      * Combine permission flags.
@@ -67,9 +66,8 @@ class PermissionsUtils {
      * Compute a member's permissions in a guild.
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
-     * @param timedOut If the member is timed out.
      */
-    static guildPermissions(member, guild, timedOut = false) {
+    static guildPermissions(member, guild) {
         if (member.user.id === guild.owner_id)
             return this.allPermissions;
         // @everyone
@@ -80,7 +78,7 @@ class PermissionsUtils {
         });
         if (this.hasPerms(perms, `ADMINISTRATOR`))
             return this.allPermissions;
-        return timedOut ? this.timeout(perms) : perms;
+        return member.communication_disabled_until ? this.timeout(perms) : perms;
     }
     /**
      * Check if a combination of permission flags includes a permission.

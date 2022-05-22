@@ -90,7 +90,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     lastSequence: number | null;
     /**
-     * The shard's ping.
+     * The shard's ping in milliseconds.
      */
     ping: number;
     /**

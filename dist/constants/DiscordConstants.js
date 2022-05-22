@@ -54,52 +54,20 @@ exports.DiscordConstants = {
      */
     BASE_URL: `https://discord.com/api`,
     /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    CDN_IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`],
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    CDN_IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
+    /**
      * Discord's CDN URL.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
      */
     CDN_URL: `https://cdn.discordapp.com`,
-    /**
-     * Component limits.
-     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
-     */
-    COMPONENT_LIMITS: {
-        BUTTON: {
-            CUSTOM_ID: 100,
-            LABEL: 80
-        },
-        SELECT_MENU: {
-            CUSTOM_ID: 100,
-            MAX_VALUES: {
-                MIN: 1,
-                MAX: 25
-            },
-            MIN_VALUES: {
-                MIN: 0,
-                MAX: 25
-            },
-            OPTIONS: 25,
-            OPTION: {
-                DESCRIPTION: 100,
-                LABEL: 100,
-                VALUE: 100
-            },
-            PLACEHOLDER: 150
-        },
-        TEXT_INPUT: {
-            CUSTOM_ID: 100,
-            LABEL: 45,
-            MAX_LENGTH: {
-                MIN: 1,
-                MAX: 4000
-            },
-            MIN_LENGTH: {
-                MIN: 0,
-                MAX: 4000
-            },
-            PLACEHOLDER: 100,
-            VALUE: 4000
-        }
-    },
     /**
      * The Discord epoch as a unix millisecond timestamp.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
@@ -165,25 +133,57 @@ exports.DiscordConstants = {
          */
         LIMIT: 120,
         /**
-         * The amount of time that `LIMIT` is specified for.
+         * The amount of time in milliseconds that `LIMIT` is specified for.
          */
-        RESET_AFTER: 60000
+        RESET_AFTER: 60000,
+        /**
+         * The cooldown between spawning shards from the same bucket in milliseconds.
+         * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+         */
+        SHARD_SPAWN_COOLDOWN: 5000
     },
     /**
-     * The cooldown between spawning shards from the same bucket.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     * Message component limits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
      */
-    GATEWAY_SHARD_SPAWN_COOLDOWN: 5000,
-    /**
-     * Allowed image formats.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
-     */
-    IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`],
-    /**
-     * Allowed image sizes.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
-     */
-    IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
+    MESSAGE_COMPONENT_LIMITS: {
+        BUTTON: {
+            CUSTOM_ID: 100,
+            LABEL: 80
+        },
+        SELECT_MENU: {
+            CUSTOM_ID: 100,
+            MAX_VALUES: {
+                MIN: 1,
+                MAX: 25
+            },
+            MIN_VALUES: {
+                MIN: 0,
+                MAX: 25
+            },
+            OPTIONS: 25,
+            OPTION: {
+                DESCRIPTION: 100,
+                LABEL: 100,
+                VALUE: 100
+            },
+            PLACEHOLDER: 150
+        },
+        TEXT_INPUT: {
+            CUSTOM_ID: 100,
+            LABEL: 45,
+            MAX_LENGTH: {
+                MIN: 1,
+                MAX: 4000
+            },
+            MIN_LENGTH: {
+                MIN: 0,
+                MAX: 4000
+            },
+            PLACEHOLDER: 100,
+            VALUE: 4000
+        }
+    },
     /**
      * Limits for message embed fields.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)

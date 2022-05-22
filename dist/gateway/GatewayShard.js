@@ -81,7 +81,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     lastSequence = null;
     /**
-     * The shard's ping.
+     * The shard's ping in milliseconds.
      */
     ping = 0;
     /**

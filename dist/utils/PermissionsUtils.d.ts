@@ -28,6 +28,7 @@ export interface PermissionsMember {
     user: {
         id: Snowflake;
     };
+    communication_disabled_until?: string | null;
     roles?: Snowflake[];
 }
 /**
@@ -50,9 +51,8 @@ export declare class PermissionsUtils {
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
      * @param channel The channel to compute overwrites for.
-     * @param timedOut If the member is timed out.
      */
-    static channelPermissions(member: PermissionsMember, guild: PermissionsGuild, channel: PermissionsChannel, timedOut?: boolean): bigint;
+    static channelPermissions(member: PermissionsMember, guild: PermissionsGuild, channel: PermissionsChannel): bigint;
     /**
      * Combine permission flags.
      * @param flags The flags to combine.
@@ -62,9 +62,8 @@ export declare class PermissionsUtils {
      * Compute a member's permissions in a guild.
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
-     * @param timedOut If the member is timed out.
      */
-    static guildPermissions(member: PermissionsMember, guild: PermissionsGuild, timedOut?: boolean): bigint;
+    static guildPermissions(member: PermissionsMember, guild: PermissionsGuild): bigint;
     /**
      * Check if a combination of permission flags includes a permission.
      * @param perms Permission flags to test for a permission.

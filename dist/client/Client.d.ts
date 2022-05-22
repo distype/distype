@@ -83,7 +83,7 @@ export declare class Client {
      * @param userId The presence's user ID.
      * @param keys Properties to ensure.
      */
-    getPresenceData<T extends Array<keyof CachedPresence>>(guildId: Snowflake, userId: Snowflake, ...keys: T): Promise<Pick<CachedPresence, T[number]>>;
+    getPresenceData<T extends Array<keyof CachedPresence>>(guildId: Snowflake, userId: Snowflake, ...keys: T): Pick<CachedPresence, T[number]>;
     /**
      * Tries to ensure role data.
      * Fetches data from the {@link Cache cache}, then if data isn't found a {@link Rest rest} request is made.
@@ -105,7 +105,7 @@ export declare class Client {
      * @param userId The presence's user ID.
      * @param keys Properties to ensure.
      */
-    getVoiceStateData<T extends Array<keyof CachedVoiceState>>(guildId: Snowflake, userId: Snowflake, ...keys: T): Promise<Pick<CachedVoiceState, T[number]>>;
+    getVoiceStateData<T extends Array<keyof CachedVoiceState>>(guildId: Snowflake, userId: Snowflake, ...keys: T): Pick<CachedVoiceState, T[number]>;
     /**
      * Gets the bot's self permissions.
      * For no requests to the API to be made, the following must be cached:

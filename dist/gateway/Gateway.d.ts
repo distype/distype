@@ -178,6 +178,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     constructor(token: string, rest: Rest, cache: Cache | false, options?: GatewayOptions, logCallback?: LogCallback, logThisArg?: any);
     /**
+     * The average ping in milliseconds across all shards.
+     */
+    get averagePing(): number;
+    /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */
     get shardsRunning(): boolean;

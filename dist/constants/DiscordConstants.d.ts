@@ -28,52 +28,20 @@ export declare const DiscordConstants: {
      */
     readonly BASE_URL: "https://discord.com/api";
     /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    readonly CDN_IMAGE_FORMATS: readonly ["gif", "jpeg", "jpg", "json", "png", "webp"];
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    readonly CDN_IMAGE_SIZES: readonly [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+    /**
      * Discord's CDN URL.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
      */
     readonly CDN_URL: "https://cdn.discordapp.com";
-    /**
-     * Component limits.
-     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
-     */
-    readonly COMPONENT_LIMITS: {
-        readonly BUTTON: {
-            readonly CUSTOM_ID: 100;
-            readonly LABEL: 80;
-        };
-        readonly SELECT_MENU: {
-            readonly CUSTOM_ID: 100;
-            readonly MAX_VALUES: {
-                readonly MIN: 1;
-                readonly MAX: 25;
-            };
-            readonly MIN_VALUES: {
-                readonly MIN: 0;
-                readonly MAX: 25;
-            };
-            readonly OPTIONS: 25;
-            readonly OPTION: {
-                readonly DESCRIPTION: 100;
-                readonly LABEL: 100;
-                readonly VALUE: 100;
-            };
-            readonly PLACEHOLDER: 150;
-        };
-        readonly TEXT_INPUT: {
-            readonly CUSTOM_ID: 100;
-            readonly LABEL: 45;
-            readonly MAX_LENGTH: {
-                readonly MIN: 1;
-                readonly MAX: 4000;
-            };
-            readonly MIN_LENGTH: {
-                readonly MIN: 0;
-                readonly MAX: 4000;
-            };
-            readonly PLACEHOLDER: 100;
-            readonly VALUE: 4000;
-        };
-    };
     /**
      * The Discord epoch as a unix millisecond timestamp.
      * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes-snowflake-id-format-structure-left-to-right)
@@ -139,25 +107,57 @@ export declare const DiscordConstants: {
          */
         readonly LIMIT: 120;
         /**
-         * The amount of time that `LIMIT` is specified for.
+         * The amount of time in milliseconds that `LIMIT` is specified for.
          */
         readonly RESET_AFTER: 60000;
+        /**
+         * The cooldown between spawning shards from the same bucket in milliseconds.
+         * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+         */
+        readonly SHARD_SPAWN_COOLDOWN: 5000;
     };
     /**
-     * The cooldown between spawning shards from the same bucket.
-     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     * Message component limits.
+     * @see [Discord API Reference](https://discord.com/developers/docs/interactions/message-components)
      */
-    readonly GATEWAY_SHARD_SPAWN_COOLDOWN: 5000;
-    /**
-     * Allowed image formats.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
-     */
-    readonly IMAGE_FORMATS: readonly ["gif", "jpeg", "jpg", "json", "png", "webp"];
-    /**
-     * Allowed image sizes.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
-     */
-    readonly IMAGE_SIZES: readonly [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
+    readonly MESSAGE_COMPONENT_LIMITS: {
+        readonly BUTTON: {
+            readonly CUSTOM_ID: 100;
+            readonly LABEL: 80;
+        };
+        readonly SELECT_MENU: {
+            readonly CUSTOM_ID: 100;
+            readonly MAX_VALUES: {
+                readonly MIN: 1;
+                readonly MAX: 25;
+            };
+            readonly MIN_VALUES: {
+                readonly MIN: 0;
+                readonly MAX: 25;
+            };
+            readonly OPTIONS: 25;
+            readonly OPTION: {
+                readonly DESCRIPTION: 100;
+                readonly LABEL: 100;
+                readonly VALUE: 100;
+            };
+            readonly PLACEHOLDER: 150;
+        };
+        readonly TEXT_INPUT: {
+            readonly CUSTOM_ID: 100;
+            readonly LABEL: 45;
+            readonly MAX_LENGTH: {
+                readonly MIN: 1;
+                readonly MAX: 4000;
+            };
+            readonly MIN_LENGTH: {
+                readonly MIN: 0;
+                readonly MAX: 4000;
+            };
+            readonly PLACEHOLDER: 100;
+            readonly VALUE: 4000;
+        };
+    };
     /**
      * Limits for message embed fields.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#embed-limits)

@@ -205,12 +205,11 @@ class Client {
     async getSelfPermissions(guildId, channelId) {
         if (!this.gateway.user?.id)
             throw new DistypeError_1.DistypeError(`Cannot get self permissions when the gateway user is not defined`, DistypeError_1.DistypeErrorType.CLIENT_GET_SELF_PERMISSIONS_GATEWAY_USER_UNDEFINED, this.system);
-        const member = await this.getMemberData(guildId, this.gateway.user.id, `roles`);
+        const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
         const completeMember = {
             ...member,
             user: { id: this.gateway.user.id }
         };
-        const timedOut = typeof (this.options.cache.members?.includes(`communication_disabled_until`) ? this.cache.members?.get(guildId)?.get(this.gateway.user.id)?.communication_disabled_until : (await this.rest.getGuildMember(guildId, this.gateway.user.id)).communication_disabled_until) === `string`;
         let completeGuild;
         const cachedGuild = this.cache.guilds?.get(guildId) ?? { id: guildId };
         if (typeof cachedGuild.owner_id !== `string` || !Array.isArray(cachedGuild.roles)) {
@@ -232,10 +231,10 @@ class Client {
             };
         }
         if (channelId) {
-            return PermissionsUtils_1.PermissionsUtils.channelPermissions(completeMember, completeGuild, await this.getChannelData(channelId, `permission_overwrites`), timedOut);
+            return PermissionsUtils_1.PermissionsUtils.channelPermissions(completeMember, completeGuild, await this.getChannelData(channelId, `permission_overwrites`));
         }
         else {
-            return PermissionsUtils_1.PermissionsUtils.guildPermissions(completeMember, completeGuild, timedOut);
+            return PermissionsUtils_1.PermissionsUtils.guildPermissions(completeMember, completeGuild);
         }
     }
 }

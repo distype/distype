@@ -3,7 +3,7 @@ import { Snowflake } from 'discord-api-types/v10';
 /**
  * Image options.
  */
-export interface CDNImageOptions<T extends (typeof DiscordConstants)[`IMAGE_FORMATS`][number]> {
+export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN_IMAGE_FORMATS)[number]> {
     /**
      * If the image is animated, automatically make it a gif.
      * @default true
@@ -18,7 +18,7 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants)[`IMAGE_FORM
      * The image's size.
      * @default undefined
      */
-    size?: (typeof DiscordConstants)[`IMAGE_SIZES`][number];
+    size?: (typeof DiscordConstants.CDN_IMAGE_SIZES)[number];
 }
 /**
  * Methods for constructing CDN links.
