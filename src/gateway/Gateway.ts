@@ -241,6 +241,14 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     }
 
     /**
+     * The average ping in milliseconds across all shards.
+     */
+    public get averagePing (): number {
+        if (!this.shardsRunning) return 0;
+        else return this.shards.reduce((p, c) => p + c.ping, 0) / this.shards.size;
+    }
+
+    /**
      * If all shards are in a {@link GatewayShardState READY} state.
      */
     public get shardsRunning (): boolean {
