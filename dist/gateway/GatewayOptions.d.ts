@@ -108,8 +108,8 @@ export interface GatewayOptions {
      */
     spawnMaxAttempts?: number;
     /**
-     * Advanced [ws](https://github.com/websockets/ws) options.
-     * [`ws` API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
+     * Advanced [WebSocket](https://github.com/websockets/ws) options.
+     * @see [WebSocket API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
      * @default {}
      */
     wsOptions?: WsClientOptions;

@@ -93,6 +93,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     state = GatewayShardState.DISCONNECTED;
     /**
+     * The [WebSocket](https://github.com/websockets/ws) used by the shard.
+     */
+    ws = null;
+    /**
      * The shard's ID.
      */
     id;
@@ -133,10 +137,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * If the shard has an active spawn or restart loop.
      */
     _spinning = false;
-    /**
-     * The websocket used.
-     */
-    _ws = null;
     /**
      * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      */
@@ -308,16 +308,16 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             level: `DEBUG`, system: this.system
         });
         this._flushQueue(true);
-        this._ws?.removeAllListeners();
-        if (this._ws?.readyState !== ws_1.WebSocket.CLOSED) {
+        this.ws?.removeAllListeners();
+        if (this.ws?.readyState !== ws_1.WebSocket.CLOSED) {
             try {
-                this._ws?.close(code, reason);
+                this.ws?.close(code, reason);
             }
             catch {
-                this._ws?.terminate();
+                this.ws?.terminate();
             }
         }
-        this._ws = null;
+        this.ws = null;
         this.ping = 0;
         if (this._heartbeatIntervalTimer !== null) {
             clearInterval(this._heartbeatIntervalTimer);
@@ -405,12 +405,12 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             const disconnectedListener = () => reject(new DistypeError_1.DistypeError(`Socket disconnected on socket init`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system));
             this.once(`DISCONNECTED`, disconnectedListener);
             this.once(`IDLE`, disconnectedListener);
-            this._ws = new ws_1.WebSocket(this._url, this.options.wsOptions);
+            this.ws = new ws_1.WebSocket(this._url, this.options.wsOptions);
             const closeListener = ((code, reason) => reject(new DistypeError_1.DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
-            this._ws.once(`close`, closeListener);
+            this.ws.once(`close`, closeListener);
             const errorListener = ((error) => reject(error)).bind(this);
-            this._ws.once(`error`, errorListener);
-            this._ws.once(`open`, () => {
+            this.ws.once(`error`, errorListener);
+            this.ws.once(`open`, () => {
                 this._log(`Socket open`, {
                     level: `DEBUG`, system: this.system
                 });
@@ -418,14 +418,14 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     this._enterState(GatewayShardState.RESUMING);
                 else
                     this._enterState(GatewayShardState.IDENTIFYING);
-                this._ws.on(`close`, this._wsOnClose.bind(this));
-                this._ws.on(`error`, this._wsOnError.bind(this));
-                this._ws.on(`message`, this._wsOnMessage.bind(this));
+                this.ws.on(`close`, this.wsOnClose.bind(this));
+                this.ws.on(`error`, this.wsOnError.bind(this));
+                this.ws.on(`message`, this.wsOnMessage.bind(this));
                 node_utils_1.TypedEmitter.once(this, `RUNNING`).then(() => {
                     this.removeListener(`DISCONNECTED`, disconnectedListener);
                     this.removeListener(`IDLE`, disconnectedListener);
-                    this._ws.removeListener(`close`, closeListener);
-                    this._ws.removeListener(`error`, errorListener);
+                    this.ws.removeListener(`close`, closeListener);
+                    this.ws.removeListener(`error`, errorListener);
                     resolve(true);
                 });
             });
@@ -479,11 +479,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         if (typeof data !== `string`)
             throw new TypeError(`Parameter "data" (string) not provided: got ${data} (${typeof data})`);
         return await new Promise((resolve, reject) => {
-            if (!this._ws || this._ws.readyState !== ws_1.WebSocket.OPEN) {
+            if (!this.ws || this.ws.readyState !== ws_1.WebSocket.OPEN) {
                 reject(new DistypeError_1.DistypeError(`Cannot send data when the socket is not in an OPEN state`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET, this.system));
             }
             else {
-                this._ws.send(data, (error) => {
+                this.ws.send(data, (error) => {
                     if (error)
                         reject(error);
                     else {
@@ -529,7 +529,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * When the socket emits a close event.
      */
-    _wsOnClose(code, reason) {
+    wsOnClose(code, reason) {
         const parsedReason = this._parsePayload(reason);
         this._log(`Received close code ${code} with reason "${parsedReason}"`, {
             level: `WARN`, system: this.system
@@ -546,7 +546,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * When the socket emits an error event.
      */
-    _wsOnError(error) {
+    wsOnError(error) {
         this._log((error?.message ?? error) ?? `Unknown reason`, {
             level: `ERROR`, system: this.system
         });
@@ -554,7 +554,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * When the socket emits a message event.
      */
-    _wsOnMessage(data) {
+    wsOnMessage(data) {
         const payload = this._parsePayload(data);
         if (payload.s !== null)
             this.lastSequence = payload.s;

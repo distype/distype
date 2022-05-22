@@ -2,6 +2,7 @@ import { Gateway } from './Gateway';
 import { LogCallback } from '../types/Log';
 import { TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
+import { WebSocket } from 'ws';
 /**
  * {@link GatewayShard Gateway shard} events.
  */
@@ -101,6 +102,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     state: GatewayShardState;
     /**
+     * The [WebSocket](https://github.com/websockets/ws) used by the shard.
+     */
+    ws: WebSocket | null;
+    /**
      * The shard's ID.
      */
     readonly id: number;
@@ -141,10 +146,6 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * If the shard has an active spawn or restart loop.
      */
     private _spinning;
-    /**
-     * The websocket used.
-     */
-    private _ws;
     /**
      * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
      */
@@ -238,13 +239,13 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * When the socket emits a close event.
      */
-    private _wsOnClose;
+    private wsOnClose;
     /**
      * When the socket emits an error event.
      */
-    private _wsOnError;
+    private wsOnError;
     /**
      * When the socket emits a message event.
      */
-    private _wsOnMessage;
+    private wsOnMessage;
 }
