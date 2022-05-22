@@ -127,7 +127,7 @@ class Rest extends RestRequests_1.RestRequests {
     async request(method, route, options = {}) {
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = method === `DELETE` && rawHash === `/channels/:id/messages/:id` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
             const routeHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash = this.routeHashCache.get(routeHash) ?? `global;${routeHash}`;
             const majorParameter = /^\/(?:channels|guilds|webhooks)\/(\d{16,19})/.exec(route)?.[1] ?? `global`;
@@ -159,13 +159,14 @@ class Rest extends RestRequests_1.RestRequests {
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
         const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
-        url.search = new node_url_1.URLSearchParams(options.query).toString();
+        if (options.query)
+            url.search = new node_url_1.URLSearchParams(options.query).toString();
         const req = (0, undici_1.request)(url, {
             ...this.options,
             ...options,
             method,
             headers,
-            body: options.body instanceof node_stream_1.Readable || (0, types_1.isUint8Array)(options.body) || Buffer.isBuffer(options.body) ? options.body : JSON.stringify(options.body),
+            body: Buffer.isBuffer(options.body) || options.body instanceof node_stream_1.Readable || (0, types_1.isUint8Array)(options.body) ? options.body : JSON.stringify(options.body),
             bodyTimeout: options.timeout ?? this.options.timeout
         });
         let unableToParse = false;
