@@ -44,7 +44,7 @@ export interface RestOptions {
  * Extends undici request options.
  * @see [Undici Documentation](https://undici.nodejs.org/#/?id=undicirequesturl-options-promise)
  */
-export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `bodyTimeout` | `method`> {
+export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `query`> {
     /**
      * A custom string to use as the authorization header.
      */
@@ -57,9 +57,5 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
      * Note that the rest manager will also omit the API version from the route (`.../v10/...`).
      */
     customBaseURL?: string
-    /**
-     * The amount of time in milliseconds to wait before considering a request timed out.
-     * Defaults to [undici's](https://undici.nodejs.org) `bodyTimeout` from [DispatchOptions](https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-dispatchoptions).
-     */
-    timeout?: number
+    headers?: string[] | Record<string, string> | null
 }

@@ -10,9 +10,8 @@ import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
 import { ExtendedMap, flattenObject } from '@br88c/node-utils';
 import { Readable } from 'node:stream';
-import { URL, URLSearchParams } from 'node:url';
 import { isUint8Array } from 'node:util/types';
-import { Dispatcher, request } from 'undici';
+import { Dispatcher, FormData, request } from 'undici';
 
 /**
  * Internal request response.
@@ -48,7 +47,7 @@ export interface RestRequestData extends RestRequestOptions {
 /**
  * A streamable body. Used for uploads.
  */
-export type RestRequestDataBodyStream = Readable | Buffer | Uint8Array;
+export type RestRequestDataBodyStream = Readable | Buffer | Uint8Array | FormData;
 
 /**
  * A {@link Rest rest} route.
@@ -211,16 +210,13 @@ export class Rest extends RestRequests {
 
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
-        if (options.query) url.search = new URLSearchParams(options.query).toString();
-
-        const req = request(url, {
+        const req = request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
-            method,
+            body: Buffer.isBuffer(options.body) || options.body instanceof Readable || isUint8Array(options.body) || options.body instanceof FormData ? options.body : JSON.stringify(options.body),
             headers,
-            body: Buffer.isBuffer(options.body) || options.body instanceof Readable || isUint8Array(options.body) ? options.body : JSON.stringify(options.body),
-            bodyTimeout: options.timeout ?? this.options.timeout
+            method,
+            query: options.query
         });
 
         let unableToParse: string | boolean = false;
