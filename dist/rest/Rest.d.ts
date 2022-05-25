@@ -5,7 +5,7 @@ import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
 import { Readable } from 'node:stream';
-import { Dispatcher } from 'undici';
+import { Dispatcher, FormData } from 'undici';
 /**
  * Internal request response.
  * @internal
@@ -39,7 +39,7 @@ export interface RestRequestData extends RestRequestOptions {
 /**
  * A streamable body. Used for uploads.
  */
-export declare type RestRequestDataBodyStream = Readable | Buffer | Uint8Array;
+export declare type RestRequestDataBodyStream = Readable | Buffer | Uint8Array | FormData;
 /**
  * A {@link Rest rest} route.
  */

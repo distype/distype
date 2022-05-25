@@ -9,7 +9,6 @@ const DistypeError_1 = require("../errors/DistypeError");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const node_utils_1 = require("@br88c/node-utils");
 const node_stream_1 = require("node:stream");
-const node_url_1 = require("node:url");
 const types_1 = require("node:util/types");
 const undici_1 = require("undici");
 /**
@@ -158,16 +157,13 @@ class Rest extends RestRequests_1.RestRequests {
         };
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`);
-        if (options.query)
-            url.search = new node_url_1.URLSearchParams(options.query).toString();
-        const req = (0, undici_1.request)(url, {
+        const req = (0, undici_1.request)(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
-            method,
+            body: Buffer.isBuffer(options.body) || options.body instanceof node_stream_1.Readable || (0, types_1.isUint8Array)(options.body) || options.body instanceof undici_1.FormData ? options.body : JSON.stringify(options.body),
             headers,
-            body: Buffer.isBuffer(options.body) || options.body instanceof node_stream_1.Readable || (0, types_1.isUint8Array)(options.body) ? options.body : JSON.stringify(options.body),
-            bodyTimeout: options.timeout ?? this.options.timeout
+            method,
+            query: options.query
         });
         let unableToParse = false;
         const res = await req.then(async (r) => ({

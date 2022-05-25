@@ -247,7 +247,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         this._log(`Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`, {
             level: `INFO`, system: this.system
         });
-        this.emit(`SHARDS_READY`, success, failed);
+        this.emit(`SHARDS_RUNNING`, success, failed);
         return results;
     }
     /**
