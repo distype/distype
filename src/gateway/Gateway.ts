@@ -16,14 +16,14 @@ import { URL, URLSearchParams } from 'node:url';
 
 /**
  * {@link Gateway} events.
- * Note that with the exception of `SHARDS_READY`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
+ * Note that with the exception of `SHARDS_RUNNING`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export type GatewayEvents = {
     /**
-     * When all {@link GatewayShard shards} are spawned and ready.
+     * When all {@link GatewayShard shards} are running.
      */
-    SHARDS_READY: (success: number, failed: number) => void
+    SHARDS_RUNNING: (success: number, failed: number) => void
 
     /**
      * When a payload is sent.
@@ -347,7 +347,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             level: `INFO`, system: this.system
         });
 
-        this.emit(`SHARDS_READY`, success, failed);
+        this.emit(`SHARDS_RUNNING`, success, failed);
 
         return results;
     }
