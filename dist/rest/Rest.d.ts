@@ -4,7 +4,6 @@ import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/node-utils';
-import { Readable } from 'node:stream';
 import { Dispatcher, FormData } from 'undici';
 /**
  * Internal request response.
@@ -26,20 +25,16 @@ export interface RestRequestData extends RestRequestOptions {
     /**
      * The request body.
      */
-    body?: Record<string, any> | RestRequestDataBodyStream;
+    body?: Record<string, any> | FormData;
     /**
      * The request query.
      */
     query?: Record<string, any>;
     /**
-     * The value for the X-Audit-Log-Reason header.
+     * The value for the `X-Audit-Log-Reason` header.
      */
     reason?: string;
 }
-/**
- * A streamable body. Used for uploads.
- */
-export declare type RestRequestDataBodyStream = Readable | Buffer | Uint8Array | FormData;
 /**
  * A {@link Rest rest} route.
  */

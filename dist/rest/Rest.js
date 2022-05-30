@@ -8,8 +8,6 @@ const DistypeConstants_1 = require("../constants/DistypeConstants");
 const DistypeError_1 = require("../errors/DistypeError");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const node_utils_1 = require("@br88c/node-utils");
-const node_stream_1 = require("node:stream");
-const types_1 = require("node:util/types");
 const undici_1 = require("undici");
 /**
  * The rest manager.
@@ -148,9 +146,10 @@ class Rest extends RestRequests_1.RestRequests {
      * @internal
      */
     async make(method, route, options) {
+        const isForm = options.body instanceof undici_1.FormData;
         const headers = {
             'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
-            'Content-Type': `application/json`,
+            'Content-Type': isForm ? `multipart/form-data` : `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`,
             ...this._convertUndiciHeaders(this.options.headers),
             ...this._convertUndiciHeaders(options.headers)
@@ -160,7 +159,7 @@ class Rest extends RestRequests_1.RestRequests {
         const req = (0, undici_1.request)(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
-            body: Buffer.isBuffer(options.body) || options.body instanceof node_stream_1.Readable || (0, types_1.isUint8Array)(options.body) || options.body instanceof undici_1.FormData ? options.body : JSON.stringify(options.body),
+            body: isForm ? options.body : JSON.stringify(options.body),
             headers,
             method,
             query: options.query
@@ -195,7 +194,7 @@ class Rest extends RestRequests_1.RestRequests {
      * @returns The formatted headers.
      */
     _convertUndiciHeaders(headers) {
-        return Array.isArray(headers) ? Object.fromEntries(headers.map((header) => header.split(`:`).map((v) => v.trim()))) : { ...headers };
+        return Array.isArray(headers) ? Object.fromEntries((0, node_utils_1.to2dArray)(headers, 2)) : headers;
     }
     /**
      * Create a rate limit {@link RestBucket bucket}.

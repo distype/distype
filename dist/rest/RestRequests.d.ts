@@ -1,7 +1,8 @@
-import { RestMethod, RestRequestData, RestRequestDataBodyStream } from './Rest';
+import { RestMethod, RestRequestData } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
+import { FormData } from 'undici';
 /**
  * A class containing methods for all routes for the Discord API.
  * @internal
@@ -129,7 +130,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
-    createInteractionResponse(interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<never>;
+    createInteractionResponse(interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<never>;
     /**
      * @param applicationId The application ID.
      * @param interactionToken The interaction token.
@@ -144,7 +145,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
-    editOriginalInteractionResponse(applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult>;
+    editOriginalInteractionResponse(applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult>;
     /**
      * @param applicationId The application ID.
      * @param interactionToken The interaction token.
@@ -159,7 +160,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
-    createFollowupMessage(applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult>;
+    createFollowupMessage(applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult>;
     /**
      * @param applicationId The application ID.
      * @param interactionToken The interaction token.
@@ -176,7 +177,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
-    editFollowupMessage(applicationId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
+    editFollowupMessage(applicationId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult>;
     /**
      * @param applicationId The application ID.
      * @param interactionToken The interaction token.
@@ -233,7 +234,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
      */
-    createMessage(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessageJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageResult>;
+    createMessage(channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageResult>;
     /**
      * @param channelId The channel ID.
      * @param messageId The message ID.
@@ -297,7 +298,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-message)
      */
-    editMessage(channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIChannelMessageJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult>;
+    editMessage(channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult>;
     /**
      * @param channelId The channel ID.
      * @param messageId The message ID.
@@ -420,7 +421,7 @@ export declare abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-in-forum-channel)
      * @todo PR in `discord-api-types` for proper return type.
      */
-    startThreadInForumChannel(channelId: Snowflake, body: DiscordTypes.RESTPostAPIGuildForumThreadsJSONBody | RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelThreadsResult>;
+    startThreadInForumChannel(channelId: Snowflake, body: DiscordTypes.RESTPostAPIGuildForumThreadsJSONBody | FormData, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelThreadsResult>;
     /**
      * @param threadId The thread ID.
      * @param options Request options.
@@ -929,7 +930,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#create-guild-sticker)
      */
-    createGuildSticker(guildId: Snowflake, body: RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildStickerResult>;
+    createGuildSticker(guildId: Snowflake, body: FormData, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildStickerResult>;
     /**
      * @param guildId The guild ID.
      * @param stickerId The sticker ID.
@@ -1071,7 +1072,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#execute-webhook)
      */
-    executeWebhook<T extends boolean = false>(webhookId: Snowflake, token: string, body: DiscordTypes.RESTPostAPIWebhookWithTokenJSONBody | RestRequestDataBodyStream, wait?: T, threadId?: Snowflake, options?: RestRequestOptions): Promise<T extends true ? DiscordTypes.RESTPostAPIWebhookWithTokenWaitResult : DiscordTypes.RESTPostAPIWebhookWithTokenResult>;
+    executeWebhook<T extends boolean = false>(webhookId: Snowflake, token: string, body: DiscordTypes.RESTPostAPIWebhookWithTokenJSONBody | FormData, wait?: T, threadId?: Snowflake, options?: RestRequestOptions): Promise<T extends true ? DiscordTypes.RESTPostAPIWebhookWithTokenWaitResult : DiscordTypes.RESTPostAPIWebhookWithTokenResult>;
     /**
      * @param webhookId The webhook ID.
      * @param token The webhook's token.
@@ -1089,7 +1090,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#edit-webhook-message)
      */
-    editWebhookMessage(webhookId: Snowflake, token: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookWithTokenMessageJSONBody | RestRequestDataBodyStream, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenMessageResult>;
+    editWebhookMessage(webhookId: Snowflake, token: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookWithTokenMessageJSONBody | FormData, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenMessageResult>;
     /**
      * @param webhookId The webhook ID.
      * @param token The webhook's token.

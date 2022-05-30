@@ -55,5 +55,10 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
      * Note that the rest manager will also omit the API version from the route (`.../v10/...`).
      */
     customBaseURL?: string;
+    /**
+     * Request headers.
+     * Overwrite hierarchy; default headers overwritten by manager, manager headers overwritten by request options.
+     * The `X-Audit-Log-Reason` header is overwritten by the `reason` option.
+     */
     headers?: string[] | Record<string, string> | null;
 }
