@@ -40,7 +40,6 @@ export {
     Rest,
     RestMethod,
     RestRequestData,
-    RestRequestDataBodyStream,
     RestRoute
 } from './rest/Rest';
 export {
