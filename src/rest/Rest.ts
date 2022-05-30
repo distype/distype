@@ -8,9 +8,7 @@ import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
-import { ExtendedMap, flattenObject } from '@br88c/node-utils';
-import { Readable } from 'node:stream';
-import { isUint8Array } from 'node:util/types';
+import { ExtendedMap, flattenObject, to2dArray } from '@br88c/node-utils';
 import { Dispatcher, FormData, request } from 'undici';
 
 /**
@@ -33,21 +31,16 @@ export interface RestRequestData extends RestRequestOptions {
     /**
      * The request body.
      */
-    body?: Record<string, any> | RestRequestDataBodyStream
+    body?: Record<string, any> | FormData
     /**
      * The request query.
      */
     query?: Record<string, any>
     /**
-     * The value for the X-Audit-Log-Reason header.
+     * The value for the `X-Audit-Log-Reason` header.
      */
     reason?: string
 }
-
-/**
- * A streamable body. Used for uploads.
- */
-export type RestRequestDataBodyStream = Readable | Buffer | Uint8Array | FormData;
 
 /**
  * A {@link Rest rest} route.
@@ -200,9 +193,11 @@ export class Rest extends RestRequests {
      * @internal
      */
     public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse> {
+        const isForm = options.body instanceof FormData;
+
         const headers: Record<string, string> = {
             'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
-            'Content-Type': `application/json`,
+            'Content-Type': isForm ? `multipart/form-data` : `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`,
             ...this._convertUndiciHeaders(this.options.headers),
             ...this._convertUndiciHeaders(options.headers)
@@ -213,7 +208,7 @@ export class Rest extends RestRequests {
         const req = request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
-            body: Buffer.isBuffer(options.body) || options.body instanceof Readable || isUint8Array(options.body) || options.body instanceof FormData ? options.body : JSON.stringify(options.body),
+            body: isForm ? options.body as FormData : JSON.stringify(options.body),
             headers,
             method,
             query: options.query
@@ -254,7 +249,7 @@ export class Rest extends RestRequests {
      * @returns The formatted headers.
      */
     private _convertUndiciHeaders (headers: RestRequestData[`headers`]): Record<string, string> {
-        return Array.isArray(headers) ? Object.fromEntries(headers.map((header) => header.split(`:`).map((v) => v.trim()))) : { ...headers };
+        return Array.isArray(headers) ? Object.fromEntries(to2dArray(headers, 2)) : headers;
     }
 
     /**

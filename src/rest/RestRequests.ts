@@ -1,8 +1,9 @@
-import { RestMethod, RestRequestData, RestRequestDataBodyStream } from './Rest';
+import { RestMethod, RestRequestData } from './Rest';
 import { RestRequestOptions } from './RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
+import { FormData } from 'undici';
 
 /**
  * A class containing methods for all routes for the Discord API.
@@ -191,7 +192,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
-    public async createInteractionResponse (interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<never> {
+    public async createInteractionResponse (interactionId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionCallbackJSONBody | FormData, options?: RestRequestOptions): Promise<never> {
         return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}/callback`, {
             body, ...options
         }) as never;
@@ -214,7 +215,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-original-interaction-response)
      */
-    public async editOriginalInteractionResponse (applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
+    public async editOriginalInteractionResponse (applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPatchAPIInteractionOriginalResponseJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionOriginalResponseResult> {
         return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, {
             body, ...options
         });
@@ -237,7 +238,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-followup-message)
      */
-    public async createFollowupMessage (applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
+    public async createFollowupMessage (applicationId: Snowflake, interactionToken: string, body: DiscordTypes.RESTPostAPIInteractionFollowupJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIInteractionFollowupResult> {
         return await this.request(`POST`, `/webhooks/${applicationId}/${interactionToken}`, {
             body, ...options
         });
@@ -262,7 +263,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#edit-followup-message)
      */
-    public async editFollowupMessage (applicationId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
+    public async editFollowupMessage (applicationId: Snowflake, interactionToken: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIInteractionFollowupJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIInteractionFollowupResult> {
         return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, {
             body, ...options
         });
@@ -353,7 +354,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-message)
      */
-    public async createMessage (channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessageJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageResult> {
+    public async createMessage (channelId: Snowflake, body: DiscordTypes.RESTPostAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelMessageResult> {
         return await this.request(`POST`, `/channels/${channelId}/messages`, {
             body, ...options
         });
@@ -445,7 +446,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-message)
      */
-    public async editMessage (channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIChannelMessageJSONBody | RestRequestDataBodyStream, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult> {
+    public async editMessage (channelId: Snowflake, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIChannelMessageJSONBody | FormData, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIChannelMessageResult> {
         return await this.request(`PATCH`, `/channels/${channelId}/messages/${messageId}`, {
             body, ...options
         });
@@ -640,7 +641,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#start-thread-in-forum-channel)
      * @todo PR in `discord-api-types` for proper return type.
      */
-    public async startThreadInForumChannel (channelId: Snowflake, body: DiscordTypes.RESTPostAPIGuildForumThreadsJSONBody | RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelThreadsResult> {
+    public async startThreadInForumChannel (channelId: Snowflake, body: DiscordTypes.RESTPostAPIGuildForumThreadsJSONBody | FormData, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIChannelThreadsResult> {
         return await this.request(`POST`, `/channels/${channelId}/threads`, {
             body, reason, ...options
         });
@@ -1448,7 +1449,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#create-guild-sticker)
      */
-    public async createGuildSticker (guildId: Snowflake, body: RestRequestDataBodyStream, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildStickerResult> {
+    public async createGuildSticker (guildId: Snowflake, body: FormData, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildStickerResult> {
         return await this.request(`POST`, `/guilds/${guildId}/stickers`, {
             body, reason, ...options
         });
@@ -1675,7 +1676,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#execute-webhook)
      */
-    public async executeWebhook <T extends boolean = false> (webhookId: Snowflake, token: string, body: DiscordTypes.RESTPostAPIWebhookWithTokenJSONBody | RestRequestDataBodyStream, wait?: T, threadId?: Snowflake, options?: RestRequestOptions): Promise<T extends true ? DiscordTypes.RESTPostAPIWebhookWithTokenWaitResult : DiscordTypes.RESTPostAPIWebhookWithTokenResult> {
+    public async executeWebhook <T extends boolean = false> (webhookId: Snowflake, token: string, body: DiscordTypes.RESTPostAPIWebhookWithTokenJSONBody | FormData, wait?: T, threadId?: Snowflake, options?: RestRequestOptions): Promise<T extends true ? DiscordTypes.RESTPostAPIWebhookWithTokenWaitResult : DiscordTypes.RESTPostAPIWebhookWithTokenResult> {
         return await this.request(`POST`, `/webhooks/${webhookId}/${token}`, {
             body,
             query: {
@@ -1709,7 +1710,7 @@ export abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#edit-webhook-message)
      */
-    public async editWebhookMessage (webhookId: Snowflake, token: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookWithTokenMessageJSONBody | RestRequestDataBodyStream, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenMessageResult> {
+    public async editWebhookMessage (webhookId: Snowflake, token: string, messageId: Snowflake, body: DiscordTypes.RESTPatchAPIWebhookWithTokenMessageJSONBody | FormData, threadId?: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIWebhookWithTokenMessageResult> {
         return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
             body,
             query: { thread_id: threadId },
