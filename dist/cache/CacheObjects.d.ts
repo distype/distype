@@ -17,7 +17,8 @@ declare type CachedChannelType<T> = {
     guild_id?: Snowflake;
     /**
      * The ID of the last message sent in this channel (may not point to an existing or valid message).
-     * Note that this field will not update if you do not have the GUILD_MESSAGES / DIRECT_MESSAGES intent enabled. [Discord API Reference](https://discord.com/developers/docs/topics/gateway#channel-update)
+     * Note that this field will not update if you do not have the GUILD_MESSAGES / DIRECT_MESSAGES intent enabled.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#channel-update)
      */
     last_message_id?: Snowflake | null;
 } & Partial<Omit<T, `member`>>;
