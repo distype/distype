@@ -11,7 +11,7 @@ import { ChannelType, GatewayDispatchEvents, GatewayDispatchPayload, GatewayGuil
  * Contains cached data, and {@link cacheEventHandler handles dispatched gateway events} to keep the cache up to date.
  * Keep in mind that there are many caveats to the gateway, and that real-world cache data may not directly reflect your {@link CacheOptions cache control options}.
  * It is recommended that you research [intents](https://discord.com/developers/docs/topics/gateway#gateway-intents) and the [caveats](https://discord.com/developers/docs/topics/gateway#caveats) to the gateway, to make sure your bot receives sufficient data for your use case.
- * [Discord API Reference](https://discord.com/developers/docs/topics/gateway)
+ * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway)
  */
 export class Cache {
     /**
