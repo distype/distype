@@ -143,6 +143,21 @@ export declare class CDNUtils {
      */
     static roleIcon(id: Snowflake, hash: string, options?: CDNImageOptions<`jpeg` | `jpg` | `png` | `webp`>): string;
     /**
+     * A scheduled event's cover image.
+     * @param id The event's ID.
+     * @param hash The [cover hash](https://discord.com/developers/docs/resources/guild-scheduled-event#guild-scheduled-event-object).
+     * @param options Image options.
+     */
+    static guildScheduledEventCover(id: Snowflake, hash: string, options?: CDNImageOptions<`jpeg` | `jpg` | `png` | `webp`>): string;
+    /**
+     * A guild member's banner.
+     * @param guildId The guild's ID.
+     * @param memberId The member's ID.
+     * @param hash The [member's banner hash](https://discord.com/developers/docs/resources/guild#guild-member-object).
+     * @param options Image options.
+     */
+    static guildMemberBanner(guildId: Snowflake, memberId: Snowflake, hash: string, options?: CDNImageOptions<`gif` | `jpeg` | `jpg` | `png` | `webp`>): string;
+    /**
      * Make an asset URL.
      * @param route The asset's route.
      * @param options Image options.
