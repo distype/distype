@@ -700,9 +700,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                             large_threshold: this.options.largeGuildThreshold,
                             presence: this.options.presence ?? undefined,
                             properties: {
-                                $browser: `distype`,
-                                $device: `distype`,
-                                $os: process.platform
+                                browser: `distype`,
+                                device: `distype`,
+                                os: process.platform
                             },
                             shard: [this.id, this._numShards],
                             token: this._token
