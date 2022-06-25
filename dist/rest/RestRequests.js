@@ -999,6 +999,17 @@ class RestRequests {
     }
     /**
      * @param guildId The guild ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-guild-mfa-level)
+     */
+    async modifyGuildMFALevel(guildId, body, options) {
+        return await this.request(`PATCH`, `/guilds/${guildId}/mfa`, {
+            body, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
      * @param roleId The role ID.
      * @param reason The value for the `X-Audit-Log-Reason` header.
      * @param options Request options.

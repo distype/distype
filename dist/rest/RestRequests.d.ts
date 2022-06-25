@@ -708,6 +708,13 @@ export declare abstract class RestRequests {
     modifyGuildRole(guildId: Snowflake, roleId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildRoleJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildRoleResult>;
     /**
      * @param guildId The guild ID.
+     * @param body Request body.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-guild-mfa-level)
+     */
+    modifyGuildMFALevel(guildId: Snowflake, body: DiscordTypes.RESTPostAPIGuildsMFAJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIGuildsMFAResult>;
+    /**
+     * @param guildId The guild ID.
      * @param roleId The role ID.
      * @param reason The value for the `X-Audit-Log-Reason` header.
      * @param options Request options.
