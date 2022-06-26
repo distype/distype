@@ -238,7 +238,7 @@ class Rest extends RestRequests_1.RestRequests {
                 throw new DistypeError_1.DistypeError(errorMessage, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
             }
             else {
-                this._log(result, {
+                this._log(errorMessage, {
                     level: `DEBUG`, system: this.system
                 });
             }
