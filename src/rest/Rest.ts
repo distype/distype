@@ -298,7 +298,7 @@ export class Rest extends RestRequests {
             if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
                 throw new DistypeError(errorMessage, DistypeErrorType.REST_REQUEST_ERROR, this.system);
             } else {
-                this._log(result, {
+                this._log(errorMessage, {
                     level: `DEBUG`, system: this.system
                 });
             }
