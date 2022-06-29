@@ -891,7 +891,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#add-guild-member-role)
      */
     async removeGuildMemberRole(guildId, userId, roleId, reason, options) {
-        return await this.request(`PUT`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
+        return await this.request(`DELETE`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
             reason, ...options
         });
     }
