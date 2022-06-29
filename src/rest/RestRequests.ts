@@ -980,7 +980,7 @@ export abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#add-guild-member-role)
      */
     public async removeGuildMemberRole (guildId: Snowflake, userId: Snowflake, roleId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIGuildMemberRoleResult> {
-        return await this.request(`PUT`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
+        return await this.request(`DELETE`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
             reason, ...options
         }) as DiscordTypes.RESTDeleteAPIGuildMemberRoleResult;
     }
