@@ -56,6 +56,10 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
      */
     customBaseURL?: string;
     /**
+     * If only the specified headers should be included (including authHeader).
+     */
+    forceHeaders?: boolean;
+    /**
      * Request headers.
      * Overwrite hierarchy; default headers overwritten by manager, manager headers overwritten by request options.
      * The `X-Audit-Log-Reason` header is overwritten by the `reason` option.

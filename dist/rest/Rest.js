@@ -147,13 +147,18 @@ class Rest extends RestRequests_1.RestRequests {
      */
     async make(method, route, options) {
         const isForm = options.body instanceof undici_1.FormData;
-        const headers = {
+        const headers = (options.forceHeaders ?? this.options.forceHeaders) ? {
+            ...this._convertUndiciHeaders(this.options.headers),
+            ...this._convertUndiciHeaders(options.headers)
+        } : {
             'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
             'Content-Type': isForm ? `multipart/form-data` : `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`,
             ...this._convertUndiciHeaders(this.options.headers),
             ...this._convertUndiciHeaders(options.headers)
         };
+        if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader))
+            headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
         const req = (0, undici_1.request)(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
