@@ -1,3 +1,4 @@
+import { GatewayPresenceUpdateData } from './Gateway';
 import { DiscordConstants } from '../constants/DiscordConstants';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { ClientOptions as WsClientOptions } from 'ws';
@@ -51,7 +52,7 @@ export interface GatewayOptions {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-presence-gateway-presence-update-structure)
      * @default null
      */
-    presence?: Required<DiscordTypes.GatewayIdentifyData>[`presence`] | null;
+    presence?: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData | null;
     /**
      * Gateway sharding.
      * Unless you are using a custom scaling solution (for example, running your bot across numerous servers or processes), it is recommended that you leave all of these options undefined.
