@@ -27,7 +27,8 @@ export {
 export {
     Gateway,
     GatewayEvents,
-    GatewayPresenceActivity
+    GatewayPresenceActivity,
+    GatewayPresenceUpdateData
 } from './gateway/Gateway';
 export { GatewayOptions } from './gateway/GatewayOptions';
 export {

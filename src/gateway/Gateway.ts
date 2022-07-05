@@ -123,6 +123,16 @@ export interface GatewayPresenceActivity {
 }
 
 /**
+ * Gateway presence update data.
+ */
+export interface GatewayPresenceUpdateData {
+    since: number | null
+    activities: GatewayPresenceActivity[]
+    status: `online` | `dnd` | `idle` | `invisible` | `offline`
+    afk: boolean
+}
+
+/**
  * The gateway manager.
  * Manages {@link GatewayShard shards}, handles incoming payloads, and sends commands to the Discord gateway.
  *
@@ -447,12 +457,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param presence Presence data.
      * @param shard A shard or shards to set the presence on. A number will set the presence on a single shard with a matching ID, a number array will set the presence on all shards matching am ID in the array, and `all` will set the presence on all shards.
      */
-    public async updatePresence (presence: {
-        since: number | null
-        activities: GatewayPresenceActivity[]
-        status: `online` | `dnd` | `idle` | `invisible` | `offline`
-        afk: boolean
-    } | DiscordTypes.GatewayPresenceUpdateData, shard: number | number[] | `all` = `all`): Promise<void> {
+    public async updatePresence (presence: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData, shard: number | number[] | `all` = `all`): Promise<void> {
         const shards = typeof shard === `number` ? [this.shards.get(shard)] : ((shard instanceof Array) ? this.shards.filter((s) => shard.some((sh) => sh === s.id)) : this.shards).map((s) => s);
         await Promise.all(shards.map((s) => s?.send({
             op: DiscordTypes.GatewayOpcodes.PresenceUpdate,
