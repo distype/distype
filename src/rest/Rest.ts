@@ -195,7 +195,10 @@ export class Rest extends RestRequests {
     public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse> {
         const isForm = options.body instanceof FormData;
 
-        const headers: Record<string, string> = {
+        const headers: Record<string, string> = (options.forceHeaders ?? this.options.forceHeaders) ? {
+            ...this._convertUndiciHeaders(this.options.headers),
+            ...this._convertUndiciHeaders(options.headers)
+        } : {
             'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
             'Content-Type': isForm ? `multipart/form-data` : `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`,
@@ -203,6 +206,7 @@ export class Rest extends RestRequests {
             ...this._convertUndiciHeaders(options.headers)
         };
 
+        if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
         const req = request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
