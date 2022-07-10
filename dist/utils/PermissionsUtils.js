@@ -82,7 +82,7 @@ class PermissionsUtils {
     }
     /**
      * Check if a combination of permission flags includes a permission.
-     * @param perms Permission flags to test for a permission.
+     * @param perms Permission flags to test for permissions.
      * @param test The permissions to test for.
      */
     static hasPerms(perms, ...test) {
@@ -91,6 +91,19 @@ class PermissionsUtils {
         if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
             return true;
         return (permsFlags & testFlags) === testFlags;
+    }
+    /**
+     * Returns missing permissions.
+     * @param perms Permission flags to test for permissions.
+     * @param test The permissions to test for.
+     */
+    static missingPerms(perms, ...test) {
+        const permsFlags = BigInt(perms);
+        const testFlags = this.combine(...test);
+        if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
+            return 0n;
+        else
+            return testFlags - (permsFlags & testFlags);
     }
     /**
      * Remove permission flags.

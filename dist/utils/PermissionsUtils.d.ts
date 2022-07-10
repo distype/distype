@@ -66,10 +66,16 @@ export declare class PermissionsUtils {
     static guildPermissions(member: PermissionsMember, guild: PermissionsGuild): bigint;
     /**
      * Check if a combination of permission flags includes a permission.
-     * @param perms Permission flags to test for a permission.
+     * @param perms Permission flags to test for permissions.
      * @param test The permissions to test for.
      */
     static hasPerms(perms: number | bigint, ...test: PermissionsFlags[]): boolean;
+    /**
+     * Returns missing permissions.
+     * @param perms Permission flags to test for permissions.
+     * @param test The permissions to test for.
+     */
+    static missingPerms(perms: number | bigint, ...test: PermissionsFlags[]): bigint;
     /**
      * Remove permission flags.
      * @param baseFlags The base flags to subtract from.
