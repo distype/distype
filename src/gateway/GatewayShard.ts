@@ -130,7 +130,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     public readonly id: number;
     /**
-     * {@link GatewayShardOptions Options} for the gateway shard.
+     * Options for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     public readonly options: Gateway[`options`];
@@ -188,7 +188,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param id The shard's ID.
      * @param url The URL being used to connect to the gateway.
      * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
-     * @param options {@link GatewayShardOptions Gateway shard options}.
+     * @param options Gateway shard options.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway shard.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
