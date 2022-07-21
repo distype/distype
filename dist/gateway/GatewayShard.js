@@ -66,10 +66,14 @@ var GatewayShardState;
      */
     GatewayShardState[GatewayShardState["RUNNING"] = 4] = "RUNNING";
     /**
+     * The {@link GatewayShard shard} has received all `GUILD_CREATE` events (or has timed out).
+     */
+    GatewayShardState[GatewayShardState["GUILDS_READY"] = 5] = "GUILDS_READY";
+    /**
      * The {@link GatewayShard shard} was disconnected.
      * Note that if the shard is not automatically reconnecting to the gateway, the shard will enter an `IDLE` state and will not enter a `DISCONNECTED` state.
      */
-    GatewayShardState[GatewayShardState["DISCONNECTED"] = 5] = "DISCONNECTED";
+    GatewayShardState[GatewayShardState["DISCONNECTED"] = 6] = "DISCONNECTED";
 })(GatewayShardState = exports.GatewayShardState || (exports.GatewayShardState = {}));
 /**
  * A gateway shard.
@@ -101,7 +105,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     id;
     /**
-     * {@link GatewayShardOptions Options} for the gateway shard.
+     * Options for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     options;
@@ -109,6 +113,14 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
      */
     system;
+    /**
+     * Guilds expected to receive a `GUILD_CREATE` from.
+     */
+    _expectedGuilds = null;
+    /**
+     * Timeout for waiting for guilds.
+     */
+    _expectedGuildsTimeout = null;
     /**
      * The heartbeat interval timer.
      */
@@ -156,7 +168,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * @param id The shard's ID.
      * @param url The URL being used to connect to the gateway.
      * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
-     * @param options {@link GatewayShardOptions Gateway shard options}.
+     * @param options Gateway shard options.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway shard.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
@@ -198,6 +210,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     }
     /**
      * Connect to the gateway.
+     * Note that this method does not wait for guilds to be ready to resolve.
      */
     async spawn() {
         if (this._spinning)
@@ -298,6 +311,25 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
+     * Checks if all `GUILD_CREATE` events have been received.
+     */
+    _checkGuildsReady() {
+        if (this._expectedGuildsTimeout !== null) {
+            clearTimeout(this._expectedGuildsTimeout);
+            this._expectedGuildsTimeout = null;
+        }
+        if (!this._expectedGuilds || !this._expectedGuilds.size) {
+            this._enterState(GatewayShardState.GUILDS_READY);
+            return;
+        }
+        this._expectedGuildsTimeout = setTimeout(() => {
+            this._log(`Timed out while waiting for guilds, emitting GUILDS_READY anyways...`, {
+                level: `WARN`, system: this.system
+            });
+            this._enterState(GatewayShardState.GUILDS_READY);
+        }, this.options.guildsReadyTimeout).unref();
+    }
+    /**
      * Closes the connection, cleans up helper variables and flushes the queue.
      * @param resuming If the shard will be resuming after the close.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code).
@@ -319,6 +351,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         }
         this.ws = null;
         this.ping = 0;
+        this._expectedGuilds = null;
+        if (this._expectedGuildsTimeout !== null) {
+            clearTimeout(this._expectedGuildsTimeout);
+            this._expectedGuildsTimeout = null;
+        }
         if (this._heartbeatIntervalTimer !== null) {
             clearInterval(this._heartbeatIntervalTimer);
             this._heartbeatIntervalTimer = null;
@@ -560,12 +597,30 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.lastSequence = payload.s;
         switch (payload.op) {
             case DiscordTypes.GatewayOpcodes.Dispatch: {
-                if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
-                    this.sessionId = payload.d.session_id;
-                    this._enterState(GatewayShardState.RUNNING);
-                }
-                else if (payload.t === DiscordTypes.GatewayDispatchEvents.Resumed) {
-                    this._enterState(GatewayShardState.RUNNING);
+                switch (payload.t) {
+                    case DiscordTypes.GatewayDispatchEvents.Ready: {
+                        this.sessionId = payload.d.session_id;
+                        this._enterState(GatewayShardState.RUNNING);
+                        if ((DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILDS) {
+                            this._expectedGuilds = new Set(payload.d.guilds.map((guild) => guild.id));
+                            this._checkGuildsReady();
+                        }
+                        else {
+                            this._enterState(GatewayShardState.GUILDS_READY);
+                        }
+                        break;
+                    }
+                    case DiscordTypes.GatewayDispatchEvents.Resumed: {
+                        this._enterState(GatewayShardState.RUNNING);
+                        break;
+                    }
+                    case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
+                        if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds) {
+                            this._expectedGuilds.delete(payload.d.id);
+                            this._checkGuildsReady();
+                        }
+                        break;
+                    }
                 }
                 this.emit(`RECEIVED_MESSAGE`, payload);
                 break;

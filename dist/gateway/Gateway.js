@@ -124,6 +124,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             customGatewaySocketURL: options.customGatewaySocketURL ?? null,
             customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
             disableBucketRatelimits: options.disableBucketRatelimits ?? false,
+            guildsReadyTimeout: options.guildsReadyTimeout ?? 15000,
             intents: this._intentsFactory(options.intents),
             largeGuildThreshold: options.largeGuildThreshold ?? 50,
             presence: options.presence ?? null,
@@ -136,10 +137,16 @@ class Gateway extends node_utils_1.TypedEmitter {
         this.on(`*`, (payload) => {
             if (this._cache)
                 this._cache.handleEvent(payload);
-            if (payload.t === `READY`)
-                this.user = payload.d.user;
-            if (payload.t === `USER_UPDATE` && payload.d.id === this.user?.id)
-                this.user = payload.d;
+            switch (payload.t) {
+                case DiscordTypes.GatewayDispatchEvents.Ready: {
+                    this.user = payload.d.user;
+                    break;
+                }
+                case DiscordTypes.GatewayDispatchEvents.UserUpdate: {
+                    this.user = payload.d;
+                    break;
+                }
+            }
             this.emit(payload.t, payload);
         });
         this._log = logCallback.bind(logThisArg);
@@ -216,6 +223,7 @@ class Gateway extends node_utils_1.TypedEmitter {
                 shard.on(`IDENTIFYING`, () => this.emit(`SHARD_IDENTIFYING`, shard));
                 shard.on(`RESUMING`, () => this.emit(`SHARD_RESUMING`, shard));
                 shard.on(`RUNNING`, () => this.emit(`SHARD_RUNNING`, shard));
+                shard.on(`GUILDS_READY`, () => this.emit(`SHARD_GUILDS_READY`, shard));
                 shard.on(`DISCONNECTED`, () => this.emit(`SHARD_DISCONNECTED`, shard));
             }
             const bucketId = i % this._storedGetGatewayBot.session_start_limit.max_concurrency;
@@ -224,6 +232,17 @@ class Gateway extends node_utils_1.TypedEmitter {
             else
                 buckets.set(bucketId, new node_utils_1.ExtendedMap()).get(bucketId).set(i, shard);
         }
+        const waitingForGuildReady = new Promise((resolve) => {
+            const shardsWaiting = new Set(this.shards.map((shard) => shard.id));
+            const guildsReadyListener = (shard) => {
+                shardsWaiting.delete(shard.id);
+                if (!shardsWaiting.size) {
+                    this.removeListener(`SHARD_GUILDS_READY`, guildsReadyListener);
+                    resolve();
+                }
+            };
+            this.on(`SHARD_GUILDS_READY`, guildsReadyListener);
+        });
         const results = [];
         const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
         for (let i = 0; i < mostShards; i++) {
@@ -244,10 +263,11 @@ class Gateway extends node_utils_1.TypedEmitter {
             this._log(`${failed} shards failed to spawn`, {
                 level: `WARN`, system: this.system
             });
+        await waitingForGuildReady;
         this._log(`Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`, {
             level: `INFO`, system: this.system
         });
-        this.emit(`SHARDS_RUNNING`, success, failed);
+        this.emit(`MANAGER_READY`, success, failed);
         return results;
     }
     /**

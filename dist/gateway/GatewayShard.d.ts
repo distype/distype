@@ -36,6 +36,10 @@ export declare type GatewayShardEvents = {
      */
     RUNNING: () => void;
     /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
+     */
+    GUILDS_READY: () => void;
+    /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
     DISCONNECTED: () => void;
@@ -75,10 +79,14 @@ export declare enum GatewayShardState {
      */
     RUNNING = 4,
     /**
+     * The {@link GatewayShard shard} has received all `GUILD_CREATE` events (or has timed out).
+     */
+    GUILDS_READY = 5,
+    /**
      * The {@link GatewayShard shard} was disconnected.
      * Note that if the shard is not automatically reconnecting to the gateway, the shard will enter an `IDLE` state and will not enter a `DISCONNECTED` state.
      */
-    DISCONNECTED = 5
+    DISCONNECTED = 6
 }
 /**
  * A gateway shard.
@@ -110,7 +118,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     readonly id: number;
     /**
-     * {@link GatewayShardOptions Options} for the gateway shard.
+     * Options for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     readonly options: Gateway[`options`];
@@ -118,6 +126,14 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
      */
     readonly system: `Gateway Shard ${number}`;
+    /**
+     * Guilds expected to receive a `GUILD_CREATE` from.
+     */
+    private _expectedGuilds;
+    /**
+     * Timeout for waiting for guilds.
+     */
+    private _expectedGuildsTimeout;
     /**
      * The heartbeat interval timer.
      */
@@ -164,7 +180,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param id The shard's ID.
      * @param url The URL being used to connect to the gateway.
      * @param numShards The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
-     * @param options {@link GatewayShardOptions Gateway shard options}.
+     * @param options Gateway shard options.
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway shard.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
@@ -175,6 +191,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     get canResume(): boolean;
     /**
      * Connect to the gateway.
+     * Note that this method does not wait for guilds to be ready to resolve.
      */
     spawn(): Promise<void>;
     /**
@@ -192,6 +209,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param data The data to send.
      */
     send(data: DiscordTypes.GatewaySendPayload): Promise<void>;
+    /**
+     * Checks if all `GUILD_CREATE` events have been received.
+     */
+    private _checkGuildsReady;
     /**
      * Closes the connection, cleans up helper variables and flushes the queue.
      * @param resuming If the shard will be resuming after the close.

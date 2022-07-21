@@ -32,6 +32,11 @@ export interface GatewayOptions {
      */
     disableBucketRatelimits?: boolean;
     /**
+     * The time to wait in milliseconds after the last `GUILD_CREATE` event to consider that guilds are ready.
+     * @default 15000
+     */
+    guildsReadyTimeout?: number;
+    /**
      * Gateway intents.
      * A numerical value is simply passed to the identify payload.
      * An array of intent names will only enable the specified intents.

@@ -8,14 +8,14 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 /**
  * {@link Gateway} events.
- * Note that with the exception of `SHARDS_RUNNING`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
+ * Note that with the exception of `MANAGER_READY`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export declare type GatewayEvents = {
     /**
-     * When all {@link GatewayShard shards} are running.
+     * When all shards are ready.
      */
-    SHARDS_RUNNING: (success: number, failed: number) => void;
+    MANAGER_READY: (successfulSpawns: number, unsuccessfulSpawns: number) => void;
     /**
      * When a payload is sent.
      */
@@ -40,6 +40,10 @@ export declare type GatewayEvents = {
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState running state}.
      */
     SHARD_RUNNING: (shard: GatewayShard) => void;
+    /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
+     */
+    SHARD_GUILDS_READY: (shard: GatewayShard) => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
