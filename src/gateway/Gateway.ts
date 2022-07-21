@@ -16,14 +16,14 @@ import { URL, URLSearchParams } from 'node:url';
 
 /**
  * {@link Gateway} events.
- * Note that with the exception of `SHARDS_RUNNING`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
+ * Note that with the exception of `MANAGER_READY`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
 export type GatewayEvents = {
     /**
-     * When all {@link GatewayShard shards} are running.
+     * When all shards are ready.
      */
-    SHARDS_RUNNING: (success: number, failed: number) => void
+    MANAGER_READY: (successfulSpawns: number, unsuccessfulSpawns: number) => void
 
     /**
      * When a payload is sent.
@@ -49,6 +49,10 @@ export type GatewayEvents = {
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState running state}.
      */
     SHARD_RUNNING: (shard: GatewayShard) => void
+    /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
+     */
+    SHARD_GUILDS_READY: (shard: GatewayShard) => void
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
@@ -224,6 +228,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             customGatewaySocketURL: options.customGatewaySocketURL ?? null,
             customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
             disableBucketRatelimits: options.disableBucketRatelimits ?? false,
+            guildsReadyTimeout: options.guildsReadyTimeout ?? 15000,
             intents: this._intentsFactory(options.intents),
             largeGuildThreshold: options.largeGuildThreshold ?? 50,
             presence: options.presence ?? null,
@@ -237,8 +242,16 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this.on(`*`, (payload) => {
             if (this._cache) this._cache.handleEvent(payload);
 
-            if (payload.t === `READY`) this.user = payload.d.user;
-            if (payload.t === `USER_UPDATE` && payload.d.id === this.user?.id) this.user = payload.d;
+            switch (payload.t) {
+                case DiscordTypes.GatewayDispatchEvents.Ready: {
+                    this.user = payload.d.user;
+                    break;
+                }
+                case DiscordTypes.GatewayDispatchEvents.UserUpdate: {
+                    this.user = payload.d;
+                    break;
+                }
+            }
 
             this.emit(payload.t, payload as any);
         });
@@ -325,6 +338,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                 shard.on(`IDENTIFYING`, () => this.emit(`SHARD_IDENTIFYING`, shard!));
                 shard.on(`RESUMING`, () => this.emit(`SHARD_RESUMING`, shard!));
                 shard.on(`RUNNING`, () => this.emit(`SHARD_RUNNING`, shard!));
+                shard.on(`GUILDS_READY`, () => this.emit(`SHARD_GUILDS_READY`, shard!));
                 shard.on(`DISCONNECTED`, () => this.emit(`SHARD_DISCONNECTED`, shard!));
             }
 
@@ -332,6 +346,20 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             if (buckets.has(bucketId)) buckets.get(bucketId)?.set(i, shard);
             else buckets.set(bucketId, new ExtendedMap()).get(bucketId)!.set(i, shard);
         }
+
+        const waitingForGuildReady = new Promise<void>((resolve) => {
+            const shardsWaiting = new Set(this.shards.map((shard) => shard.id));
+
+            const guildsReadyListener = (shard: GatewayShard): void => {
+                shardsWaiting.delete(shard.id);
+                if (!shardsWaiting.size) {
+                    this.removeListener(`SHARD_GUILDS_READY`, guildsReadyListener);
+                    resolve();
+                }
+            };
+
+            this.on(`SHARD_GUILDS_READY`, guildsReadyListener);
+        });
 
         const results: Array<PromiseSettledResult<void>> = [];
         const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
@@ -353,11 +381,14 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         if (failed > 0) this._log(`${failed} shards failed to spawn`, {
             level: `WARN`, system: this.system
         });
+
+        await waitingForGuildReady;
+
         this._log(`Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`, {
             level: `INFO`, system: this.system
         });
 
-        this.emit(`SHARDS_RUNNING`, success, failed);
+        this.emit(`MANAGER_READY`, success, failed);
 
         return results;
     }

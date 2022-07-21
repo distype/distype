@@ -6,6 +6,7 @@ import { LogCallback } from '../types/Log';
 
 import { TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
+import { Snowflake } from 'discord-api-types/v10';
 import { setTimeout as wait } from 'node:timers/promises';
 import { RawData, WebSocket } from 'ws';
 
@@ -53,6 +54,10 @@ export type GatewayShardEvents = {
      */
     RUNNING: () => void
     /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
+     */
+    GUILDS_READY: () => void
+    /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
     DISCONNECTED: () => void
@@ -92,6 +97,10 @@ export enum GatewayShardState {
      * The {@link GatewayShard shard} is connected and is operating normally. A [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
      */
     RUNNING,
+    /**
+     * The {@link GatewayShard shard} has received all `GUILD_CREATE` events (or has timed out).
+     */
+    GUILDS_READY,
     /**
      * The {@link GatewayShard shard} was disconnected.
      * Note that if the shard is not automatically reconnecting to the gateway, the shard will enter an `IDLE` state and will not enter a `DISCONNECTED` state.
@@ -139,6 +148,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     public readonly system: `Gateway Shard ${number}`;
 
+    /**
+     * Guilds expected to receive a `GUILD_CREATE` from.
+     */
+    private _expectedGuilds: Set<Snowflake> | null = null;
+    /**
+     * Timeout for waiting for guilds.
+     */
+    private _expectedGuildsTimeout: NodeJS.Timeout | null = null;
     /**
      * The heartbeat interval timer.
      */
@@ -230,6 +247,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
     /**
      * Connect to the gateway.
+     * Note that this method does not wait for guilds to be ready to resolve.
      */
     public async spawn (): Promise<void> {
         if (this._spinning) throw new DistypeError(`Shard is already connecting to the gateway`, DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
@@ -345,6 +363,29 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
+     * Checks if all `GUILD_CREATE` events have been received.
+     */
+    private _checkGuildsReady (): void {
+        if (this._expectedGuildsTimeout !== null) {
+            clearTimeout(this._expectedGuildsTimeout);
+            this._expectedGuildsTimeout = null;
+        }
+
+        if (!this._expectedGuilds || !this._expectedGuilds.size) {
+            this._enterState(GatewayShardState.GUILDS_READY);
+            return;
+        }
+
+        this._expectedGuildsTimeout = setTimeout(() => {
+            this._log(`Timed out while waiting for guilds, emitting GUILDS_READY anyways...`, {
+                level: `WARN`, system: this.system
+            });
+
+            this._enterState(GatewayShardState.GUILDS_READY);
+        }, this.options.guildsReadyTimeout).unref();
+    }
+
+    /**
      * Closes the connection, cleans up helper variables and flushes the queue.
      * @param resuming If the shard will be resuming after the close.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code).
@@ -368,6 +409,12 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         this.ws = null;
 
         this.ping = 0;
+
+        this._expectedGuilds = null;
+        if (this._expectedGuildsTimeout !== null) {
+            clearTimeout(this._expectedGuildsTimeout);
+            this._expectedGuildsTimeout = null;
+        }
 
         if (this._heartbeatIntervalTimer !== null) {
             clearInterval(this._heartbeatIntervalTimer);
@@ -629,11 +676,31 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         switch (payload.op) {
             case DiscordTypes.GatewayOpcodes.Dispatch: {
-                if (payload.t === DiscordTypes.GatewayDispatchEvents.Ready) {
-                    this.sessionId = payload.d.session_id;
-                    this._enterState(GatewayShardState.RUNNING);
-                } else if (payload.t === DiscordTypes.GatewayDispatchEvents.Resumed) {
-                    this._enterState(GatewayShardState.RUNNING);
+                switch (payload.t) {
+                    case DiscordTypes.GatewayDispatchEvents.Ready: {
+                        this.sessionId = payload.d.session_id;
+
+                        this._enterState(GatewayShardState.RUNNING);
+
+                        if ((DiscordConstants.GATEWAY_INTENTS.GUILDS & this.options.intents) === DiscordConstants.GATEWAY_INTENTS.GUILDS) {
+                            this._expectedGuilds = new Set(payload.d.guilds.map((guild) => guild.id));
+                            this._checkGuildsReady();
+                        } else {
+                            this._enterState(GatewayShardState.GUILDS_READY);
+                        }
+                        break;
+                    }
+                    case DiscordTypes.GatewayDispatchEvents.Resumed: {
+                        this._enterState(GatewayShardState.RUNNING);
+                        break;
+                    }
+                    case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
+                        if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds) {
+                            this._expectedGuilds.delete(payload.d.id);
+                            this._checkGuildsReady();
+                        }
+                        break;
+                    }
                 }
 
                 this.emit(`RECEIVED_MESSAGE`, payload);
