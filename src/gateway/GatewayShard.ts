@@ -114,6 +114,10 @@ export enum GatewayShardState {
  */
 export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
+     * Guilds that belong to the shard.
+     */
+    public guilds: Set<Snowflake> = new Set();
+    /**
      * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
     public lastSequence: number | null = null;
@@ -682,6 +686,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                         this._enterState(GatewayShardState.RUNNING);
 
+                        payload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         if ((DiscordConstants.GATEWAY_INTENTS.GUILDS & this.options.intents) === DiscordConstants.GATEWAY_INTENTS.GUILDS) {
                             this._expectedGuilds = new Set(payload.d.guilds.map((guild) => guild.id));
                             this._checkGuildsReady();
@@ -695,11 +700,15 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
+                        this.guilds.add(payload.d.id);
                         if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds) {
                             this._expectedGuilds.delete(payload.d.id);
                             this._checkGuildsReady();
                         }
                         break;
+                    }
+                    case DiscordTypes.GatewayDispatchEvents.GuildDelete: {
+                        this.guilds.delete(payload.d.id);
                     }
                 }
 
