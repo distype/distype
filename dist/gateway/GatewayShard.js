@@ -81,6 +81,10 @@ var GatewayShardState;
  */
 class GatewayShard extends node_utils_1.TypedEmitter {
     /**
+     * Guilds that belong to the shard.
+     */
+    guilds = new Set();
+    /**
      * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
     lastSequence = null;
@@ -601,6 +605,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     case DiscordTypes.GatewayDispatchEvents.Ready: {
                         this.sessionId = payload.d.session_id;
                         this._enterState(GatewayShardState.RUNNING);
+                        payload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         if ((DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILDS) {
                             this._expectedGuilds = new Set(payload.d.guilds.map((guild) => guild.id));
                             this._checkGuildsReady();
@@ -615,11 +620,15 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
+                        this.guilds.add(payload.d.id);
                         if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds) {
                             this._expectedGuilds.delete(payload.d.id);
                             this._checkGuildsReady();
                         }
                         break;
+                    }
+                    case DiscordTypes.GatewayDispatchEvents.GuildDelete: {
+                        this.guilds.delete(payload.d.id);
                     }
                 }
                 this.emit(`RECEIVED_MESSAGE`, payload);

@@ -2,6 +2,7 @@ import { Gateway } from './Gateway';
 import { LogCallback } from '../types/Log';
 import { TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
+import { Snowflake } from 'discord-api-types/v10';
 import { WebSocket } from 'ws';
 /**
  * {@link GatewayShard Gateway shard} events.
@@ -93,6 +94,10 @@ export declare enum GatewayShardState {
  * Handles the low level ws communication with Discord.
  */
 export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
+    /**
+     * Guilds that belong to the shard.
+     */
+    guilds: Set<Snowflake>;
     /**
      * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
