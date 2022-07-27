@@ -23,12 +23,17 @@ export enum DistypeErrorType {
      */
     GATEWAY_NO_SHARD = `GATEWAY_NO_SHARD`,
     /**
-     * A stored [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot) payload was not found.
+     * Shard calculations aren't stored on the {@link Gateway gateway manager}.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
-    GATEWAY_NO_STORED_GET_GATEWAY_PAYLOAD = `GATEWAY_NO_STORED_GET_GATEWAY_PAYLOAD`,
+    GATEWAY_NO_STORED_SHARD_CALCULATION = `GATEWAY_NO_STORED_SHARD_CALCULATION`,
     /**
-     * A specified nonce for getting members via the {@link Gateway gateway} is too big.
+     * The {@link Gateway gateway manager} hasn't received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches.
+     * Should be emitted by the {@link Gateway gateway manager}.
+     */
+    GATEWAY_MANAGER_NOT_READY = `GATEWAY_MANAGER_NOT_READY`,
+    /**
+     * A specified nonce for getting members via the {@link Gateway gateway manager} is too big.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
     GATEWAY_MEMBER_NONCE_TOO_BIG = `GATEWAY_MEMBER_NONCE_TOO_BIG`,
