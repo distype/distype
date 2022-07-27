@@ -390,7 +390,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         else if (specified === `nonPrivileged`)
             return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
         else
-            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0));
+            return 0;
     }
     /**
      * Spawns shards.
