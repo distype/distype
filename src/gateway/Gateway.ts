@@ -530,8 +530,8 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         else if (typeof specified === `bigint`) return Number(specified);
         else if (specified instanceof Array) return specified.reduce((p, c) => p | DiscordConstants.GATEWAY_INTENTS[c], 0);
         else if (specified === `all`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
-        else if (specified === `nonPrivileged`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0)
-        else return Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0 as number));
+        else if (specified === `nonPrivileged`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
+        else return 0;
     }
 
     /**
