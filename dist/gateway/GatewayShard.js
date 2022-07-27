@@ -51,22 +51,22 @@ var GatewayShardState;
      * During this stage, the {@link GatewayShard shard}:
      * - Waits for a [hello payload](https://discord.com/developers/docs/topics/gateway#hello)
      * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify)
-     * - Waits for the [ready event](https://discord.com/developers/docs/topics/gateway#ready)
+     * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch
      */
     GatewayShardState[GatewayShardState["IDENTIFYING"] = 2] = "IDENTIFYING";
     /**
      * The {@link GatewayShard shard} is resuming.
      * During this stage, the {@link GatewayShard shard}:
      * - Sends a [resume payload](https://discord.com/developers/docs/topics/gateway#resume)
-     * - Waits for the [resumed event](https://discord.com/developers/docs/topics/gateway#resumed)
+     * - Waits for the [RESUME](https://discord.com/developers/docs/topics/gateway#resumed) dispatch
      */
     GatewayShardState[GatewayShardState["RESUMING"] = 3] = "RESUMING";
     /**
-     * The {@link GatewayShard shard} is connected and is operating normally. A [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
+     * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
      */
     GatewayShardState[GatewayShardState["RUNNING"] = 4] = "RUNNING";
     /**
-     * The {@link GatewayShard shard} has received all `GUILD_CREATE` events (or has timed out).
+     * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events (or has timed out).
      */
     GatewayShardState[GatewayShardState["GUILDS_READY"] = 5] = "GUILDS_READY";
     /**
@@ -82,6 +82,7 @@ var GatewayShardState;
 class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * Guilds that belong to the shard.
+     * This is populated as the shard is receiving [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) payloads, and is accurate after the shard is in a {@link GatewayShardState guilds ready state}.
      */
     guilds = new Set();
     /**
@@ -118,7 +119,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     system;
     /**
-     * Guilds expected to receive a `GUILD_CREATE` from.
+     * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
      */
     _expectedGuilds = null;
     /**
@@ -315,7 +316,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Checks if all `GUILD_CREATE` events have been received.
+     * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events have been received.
      */
     _checkGuildsReady() {
         if (this._expectedGuildsTimeout !== null) {
@@ -628,7 +629,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildDelete: {
-                        this.guilds.delete(payload.d.id);
+                        if (!payload.d.unavailable) {
+                            this.guilds.delete(payload.d.id);
+                        }
                     }
                 }
                 this.emit(`RECEIVED_MESSAGE`, payload);
