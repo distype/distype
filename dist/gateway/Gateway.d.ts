@@ -270,4 +270,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns Intents flags.
      */
     private _intentsFactory;
+    /**
+     * Spawns shards.
+     * @param buckets Shard buckets.
+     * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
+     */
+    private _spawnShards;
 }
