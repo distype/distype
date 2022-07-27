@@ -23,12 +23,17 @@ export enum DistypeErrorType {
      */
     GATEWAY_NO_SHARD = `GATEWAY_NO_SHARD`,
     /**
+     * A stored [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot) payload was not found.
+     * Should be emitted by the {@link Gateway gateway manager}.
+     */
+    GATEWAY_NO_STORED_GET_GATEWAY_PAYLOAD = `GATEWAY_NO_STORED_GET_GATEWAY_PAYLOAD`,
+    /**
      * A specified nonce for getting members via the {@link Gateway gateway} is too big.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
     GATEWAY_MEMBER_NONCE_TOO_BIG = `GATEWAY_MEMBER_NONCE_TOO_BIG`,
     /**
-     * The {@link Gateway gateway manager} got an invalid response from `GET` `/gateway/bot`, or the custom specified URL.
+     * The {@link Gateway gateway manager} got an invalid response from [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot), or the custom specified URL.
      * Should be emitted by the {@link Gateway gateway manager}.
      */
     GATEWAY_INVALID_REST_RESPONSE = `GATEWAY_INVALID_REST_RESPONSE`,

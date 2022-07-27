@@ -280,7 +280,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
     /**
      * Connect to the gateway.
-     * @param gatewayBot A pre-fetched `GET` `/gateway/bot`. Not required, as this method will fetch it if not specified.
+     * @param gatewayBot A pre-fetched [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot). Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     public async connect (gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<void>>> {
@@ -299,7 +299,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             }) : await this._rest.getGatewayBot();
         }
 
-        if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new DistypeError(`Invalid gateway bot response`, DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, this.system);
+        if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`)) throw new DistypeError(`Invalid /gateway/bot response`, DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, this.system);
 
         const totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this._storedCalculatedShards = {

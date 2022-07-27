@@ -94,11 +94,11 @@ export enum GatewayShardState {
      */
     RESUMING,
     /**
-     * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
+     * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) dispatch has been received.
      */
     RUNNING,
     /**
-     * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events (or has timed out).
+     * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches (or has timed out).
      */
     GUILDS_READY,
     /**
@@ -368,7 +368,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events have been received.
+     * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
      */
     private _checkGuildsReady (): void {
         if (this._expectedGuildsTimeout !== null) {
