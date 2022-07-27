@@ -300,10 +300,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         gatewayBot ??= await this._getGatewayBot();
         this.managingShards = this._calculateShards(gatewayBot);
 
-        if (this.managingShards.shards > gatewayBot.session_start_limit.remaining) {
-            throw new DistypeError(`Session start limit reached; tried to spawn ${this.managingShards.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`, DistypeErrorType.GATEWAY_SESSION_START_LIMIT_REACHED, this.system);
-        }
-
         this._log(`Spawning ${this.managingShards.shards} shards`, {
             level: `INFO`, system: this.system
         });
@@ -312,7 +308,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             v: `${this.options.version}`, encoding: `json`
         } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? gatewayBot.url).toString();
 
-        const buckets: ExtendedMap<number, ExtendedMap<number, GatewayShard | null>> = new ExtendedMap();
+        const buckets = new ExtendedMap<number, ExtendedMap<number, GatewayShard | null>>();
         for (let i = 0; i < this.managingShards.shards; i++) {
             let shard: GatewayShard | null = null;
 
@@ -327,50 +323,25 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             else buckets.set(bucketId, new ExtendedMap()).get(bucketId)!.set(i, shard);
         }
 
-        const waitingForGuildReady = new Promise<void>((resolve) => {
-            const shardsWaiting = new Set(this.shards.map((shard) => shard.id));
-
-            const guildsReadyListener = (shard: GatewayShard): void => {
-                shardsWaiting.delete(shard.id);
-                if (!shardsWaiting.size) {
-                    this.removeListener(`SHARD_GUILDS_READY`, guildsReadyListener);
-                    resolve();
-                }
-            };
-
-            this.on(`SHARD_GUILDS_READY`, guildsReadyListener);
-        });
-
-        const results: Array<PromiseSettledResult<void>> = [];
-        const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
-        for (let i = 0; i < mostShards; i++) {
-            this._log(`Starting spawn process for shard rate limit key ${i}`, {
-                level: `DEBUG`, system: this.system
+        const results = await this._spawnShards(buckets).catch((error: Error) => {
+            this.shards.forEach((shard) => {
+                shard.kill();
+                shard.removeAllListeners();
             });
-            const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
-            results.push(...bucketResult);
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY_RATELIMITS.SHARD_SPAWN_COOLDOWN);
-        }
+            this.shards.clear();
 
-        const success = results.filter((result) => result.status === `fulfilled`).length;
-        const failed = this.managingShards.shards - success;
-
-        this._log(`${success}/${success + failed} shards spawned`, {
-            level: `INFO`, system: this.system
-        });
-        if (failed > 0) this._log(`${failed} shards failed to spawn`, {
-            level: `WARN`, system: this.system
+            return error;
         });
 
-        await waitingForGuildReady;
+        if (results instanceof Error) throw results;
 
         this._log(`Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`, {
             level: `INFO`, system: this.system
         });
 
-        this.emit(`MANAGER_READY`, success, failed);
+        this.emit(`MANAGER_READY`, results[0], results[1]);
 
-        return [success, failed];
+        return results;
     }
 
     /**
@@ -517,6 +488,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             throw new DistypeError(`Invalid shard configuration, got ${calculatedShards.totalBotShards} total shards, with ${calculatedShards.shards} to be spawned with an offset of ${calculatedShards.offset}`, DistypeErrorType.GATEWAY_INVALID_SHARD_CONFIG, this.system);
         }
 
+        if (calculatedShards.shards > gatewayBot.session_start_limit.remaining) {
+            throw new DistypeError(`Session start limit reached; tried to spawn ${calculatedShards.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`, DistypeErrorType.GATEWAY_SESSION_START_LIMIT_REACHED, this.system);
+        }
+
         return calculatedShards;
     }
 
@@ -556,5 +531,39 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         else if (specified instanceof Array) return specified.reduce((p, c) => p | DiscordConstants.GATEWAY_INTENTS[c], 0);
         else if (specified === `all`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
         else return Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p & ~c, Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0 as number));
+    }
+
+    /**
+     * Spawns shards.
+     * @param buckets Shard buckets.
+     * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
+     */
+    private async _spawnShards (buckets: ExtendedMap<number, ExtendedMap<number, GatewayShard | null>>): Promise<[number, number]> {
+        const waitingForGuildReady = Promise.all(buckets.reduce((p, c) => p.concat(c.filter((shard) => shard !== null).map((shard) => shard as GatewayShard)), [] as GatewayShard[]).map((shard) => TypedEmitter.once(shard, `GUILDS_READY`)));
+
+        const results: Array<PromiseSettledResult<void>> = [];
+        const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
+        for (let i = 0; i < mostShards; i++) {
+            this._log(`Starting spawn process for shard rate limit key ${i}`, {
+                level: `DEBUG`, system: this.system
+            });
+            const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
+            results.push(...bucketResult);
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY_RATELIMITS.SHARD_SPAWN_COOLDOWN);
+        }
+
+        await waitingForGuildReady;
+
+        const success = results.filter((result) => result.status === `fulfilled`).length;
+        const failed = results.filter((result) => result.status === `rejected`).length;
+
+        this._log(`${success}/${success + failed} shards spawned`, {
+            level: `INFO`, system: this.system
+        });
+        if (failed > 0) this._log(`${failed} shards failed to spawn`, {
+            level: `WARN`, system: this.system
+        });
+
+        return [success, failed];
     }
 }
