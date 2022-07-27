@@ -62,11 +62,11 @@ var GatewayShardState;
      */
     GatewayShardState[GatewayShardState["RESUMING"] = 3] = "RESUMING";
     /**
-     * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
+     * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) dispatch has been received.
      */
     GatewayShardState[GatewayShardState["RUNNING"] = 4] = "RUNNING";
     /**
-     * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events (or has timed out).
+     * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches (or has timed out).
      */
     GatewayShardState[GatewayShardState["GUILDS_READY"] = 5] = "GUILDS_READY";
     /**
@@ -316,7 +316,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events have been received.
+     * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
      */
     _checkGuildsReady() {
         if (this._expectedGuildsTimeout !== null) {

@@ -15,12 +15,12 @@ export interface GatewayOptions {
      */
     customGatewaySocketURL?: string | null;
     /**
-     * A custom URL to use as a substitute for `GET` `/gateway/bot`.
+     * A custom URL to use as a substitute for [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
      * Useful if you use a proxy to connect to the Discord gateway, and it handles bot instances / sharding.
      * This should be the full URL, not just a route (Example: `https://api.example.com/gateway`, not `/gateway`).
      * It is expected that making a request to this URL returns the [same response that Discord normally would](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
      * If the response returns your system's socket URL as the `url` parameter, there is no need to specify `customGatewaySocketURL`.
-     * Additionally, if you use a custom base URL for the rest manager that returns custom information when `GET` `/gateway/bot` is called, this can be left undefined.
+     * Additionally, if you use a custom base URL for the rest manager that returns custom information when [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot) is called, this can be left undefined.
      * @default null
      */
     customGetGatewayBotURL?: string | null;

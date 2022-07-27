@@ -200,7 +200,7 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     get shardsRunning(): boolean;
     /**
      * Connect to the gateway.
-     * @param gatewayBot A pre-fetched `GET` `/gateway/bot`. Not required, as this method will fetch it if not specified.
+     * @param gatewayBot A pre-fetched [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot). Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<void>>>;

@@ -172,7 +172,7 @@ class Gateway extends node_utils_1.TypedEmitter {
     }
     /**
      * Connect to the gateway.
-     * @param gatewayBot A pre-fetched `GET` `/gateway/bot`. Not required, as this method will fetch it if not specified.
+     * @param gatewayBot A pre-fetched [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot). Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns.
      */
     async connect(gatewayBot) {
@@ -191,7 +191,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             }) : await this._rest.getGatewayBot();
         }
         if (!this._storedGetGatewayBot?.session_start_limit || typeof this._storedGetGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof this._storedGetGatewayBot.url !== `string`))
-            throw new DistypeError_1.DistypeError(`Invalid gateway bot response`, DistypeError_1.DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, this.system);
+            throw new DistypeError_1.DistypeError(`Invalid /gateway/bot response`, DistypeError_1.DistypeErrorType.GATEWAY_INVALID_REST_RESPONSE, this.system);
         const totalBotShards = this.options.sharding.totalBotShards === `auto` ? this._storedGetGatewayBot.shards : (this.options.sharding.totalBotShards ?? this._storedGetGatewayBot.shards);
         this._storedCalculatedShards = {
             totalBotShards,
