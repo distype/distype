@@ -83,22 +83,22 @@ export enum GatewayShardState {
      * During this stage, the {@link GatewayShard shard}:
      * - Waits for a [hello payload](https://discord.com/developers/docs/topics/gateway#hello)
      * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify)
-     * - Waits for the [ready event](https://discord.com/developers/docs/topics/gateway#ready)
+     * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch
      */
     IDENTIFYING,
     /**
      * The {@link GatewayShard shard} is resuming.
      * During this stage, the {@link GatewayShard shard}:
      * - Sends a [resume payload](https://discord.com/developers/docs/topics/gateway#resume)
-     * - Waits for the [resumed event](https://discord.com/developers/docs/topics/gateway#resumed)
+     * - Waits for the [RESUME](https://discord.com/developers/docs/topics/gateway#resumed) dispatch
      */
     RESUMING,
     /**
-     * The {@link GatewayShard shard} is connected and is operating normally. A [ready](https://discord.com/developers/docs/topics/gateway#ready) or [resumed](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
+     * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) event has been received.
      */
     RUNNING,
     /**
-     * The {@link GatewayShard shard} has received all `GUILD_CREATE` events (or has timed out).
+     * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events (or has timed out).
      */
     GUILDS_READY,
     /**
@@ -115,6 +115,7 @@ export enum GatewayShardState {
 export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Guilds that belong to the shard.
+     * This is populated as the shard is receiving [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) payloads, and is accurate after the shard is in a {@link GatewayShardState guilds ready state}.
      */
     public guilds: Set<Snowflake> = new Set();
     /**
@@ -153,7 +154,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     public readonly system: `Gateway Shard ${number}`;
 
     /**
-     * Guilds expected to receive a `GUILD_CREATE` from.
+     * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
      */
     private _expectedGuilds: Set<Snowflake> | null = null;
     /**
@@ -367,7 +368,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Checks if all `GUILD_CREATE` events have been received.
+     * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) events have been received.
      */
     private _checkGuildsReady (): void {
         if (this._expectedGuildsTimeout !== null) {
@@ -708,7 +709,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildDelete: {
-                        this.guilds.delete(payload.d.id);
+                        if (!payload.d.unavailable) {
+                            this.guilds.delete(payload.d.id);
+                        }
                     }
                 }
 
