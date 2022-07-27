@@ -133,6 +133,14 @@ export interface GatewayPresenceUpdateData {
  */
 export declare class Gateway extends TypedEmitter<GatewayEvents> {
     /**
+     * The shard counts the manager is controlling.
+     */
+    managingShards: {
+        totalBotShards: number;
+        shards: number;
+        offset: number;
+    } | null;
+    /**
      * {@link GatewayShard Gateway shards}.
      * Modifying this map externally may result in unexpected behavior.
      */
@@ -169,14 +177,6 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _rest;
     /**
-     * Stored calculated sharding options.
-     */
-    private _storedCalculatedShards;
-    /**
-     * Stored response from `Rest#getGatewayBot()`.
-     */
-    private _storedGetGatewayBot;
-    /**
      * The bot's token.
      */
     private readonly _token;
@@ -195,15 +195,19 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     get averagePing(): number;
     /**
-     * If all shards are in a {@link GatewayShardState READY} state.
+     * If all shards are in a {@link GatewayShardState running state}.
      */
     get shardsRunning(): boolean;
     /**
+     * If all shards are in a {@link GatewayShardState guilds ready}.
+     */
+    get shardsGuildsReady(): boolean;
+    /**
      * Connect to the gateway.
      * @param gatewayBot A pre-fetched [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot). Not required, as this method will fetch it if not specified.
-     * @returns The results from {@link GatewayShard shard} spawns.
+     * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
-    connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<Array<PromiseSettledResult<void>>>;
+    connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<[number, number]>;
     /**
      * Get a guild's shard.
      * @param guildId The guild's ID.
@@ -239,6 +243,20 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @param shard A shard or shards to set the presence on. A number will set the presence on a single shard with a matching ID, a number array will set the presence on all shards matching am ID in the array, and `all` will set the presence on all shards.
      */
     updatePresence(presence: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData, shard?: number | number[] | `all`): Promise<void>;
+    /**
+     * Binds a shard's events.
+     * @param shard The shard to bind.
+     */
+    private _bindShardEvents;
+    /**
+     * Calculate the shards the gateway manager will be spawning.
+     * @param gatewayBot [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
+     */
+    private _calculateShards;
+    /**
+     * Gets [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot) from Discord or from the custom URL.
+     */
+    private _getGatewayBot;
     /**
      * Get a guild's shard ID.
      * @param guildId The guild's ID.
