@@ -124,6 +124,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     readonly id: number;
     /**
+     * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
+     */
+    readonly numShards: number;
+    /**
      * Options for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
@@ -132,6 +136,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
      */
     readonly system: `Gateway Shard ${number}`;
+    /**
+     * The URL being used.
+     */
+    readonly url: string;
     /**
      * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
      */
@@ -168,14 +176,6 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * If the shard has an active spawn or restart loop.
      */
     private _spinning;
-    /**
-     * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
-     */
-    private readonly _numShards;
-    /**
-     * The URL being used.
-     */
-    private readonly _url;
     /**
      * The bot's token.
      */

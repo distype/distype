@@ -110,6 +110,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     id;
     /**
+     * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
+     */
+    numShards;
+    /**
      * Options for the gateway shard.
      * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
@@ -118,6 +122,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
      */
     system;
+    /**
+     * The URL being used.
+     */
+    url;
     /**
      * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
      */
@@ -155,14 +163,6 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     _spinning = false;
     /**
-     * The value to pass to `num_shards` in the [identify payload](https://discord.com/developers/docs/topics/gateway#identifying).
-     */
-    _numShards;
-    /**
-     * The URL being used.
-     */
-    _url;
-    /**
      * The bot's token.
      */
     // @ts-expect-error Property '_token' has no initializer and is not definitely assigned in the constructor.
@@ -199,8 +199,8 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
         this.id = id;
         this.system = `Gateway Shard ${this.id}`;
-        this._numShards = numShards;
-        this._url = url;
+        this.numShards = numShards;
+        this.url = url;
         this.options = options;
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized gateway shard ${id}`, {
@@ -447,7 +447,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             const disconnectedListener = () => reject(new DistypeError_1.DistypeError(`Socket disconnected on socket init`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system));
             this.once(`DISCONNECTED`, disconnectedListener);
             this.once(`IDLE`, disconnectedListener);
-            this.ws = new ws_1.WebSocket(this._url, this.options.wsOptions);
+            this.ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
             const closeListener = ((code, reason) => reject(new DistypeError_1.DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
             this.ws.once(`close`, closeListener);
             const errorListener = ((error) => reject(error)).bind(this);
@@ -694,7 +694,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                                 device: `distype`,
                                 os: process.platform
                             },
-                            shard: [this.id, this._numShards],
+                            shard: [this.id, this.numShards],
                             token: this._token
                         }
                     }), DiscordTypes.GatewayOpcodes.Identify);
