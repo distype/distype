@@ -354,7 +354,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     public async send (data: DiscordTypes.GatewaySendPayload): Promise<void> {
         return await new Promise((resolve, reject) => {
-            if (this.state !== GatewayShardState.RUNNING) {
+            if (this.state !== GatewayShardState.RUNNING && this.state !== GatewayShardState.GUILDS_READY) {
                 this._queue.push({
                     data: JSON.stringify(data),
                     op: data.op,
@@ -754,7 +754,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 const jitterActive = Date.now();
                 this._heartbeatJitterActive = jitterActive;
                 wait(payload.d.heartbeat_interval * 0.5).then(() => {
-                    if (jitterActive === this._heartbeatJitterActive && (this.state === GatewayShardState.IDENTIFYING || this.state === GatewayShardState.RESUMING || this.state === GatewayShardState.RUNNING)) {
+                    if (jitterActive === this._heartbeatJitterActive && (this.state >= GatewayShardState.IDENTIFYING || this.state <= GatewayShardState.GUILDS_READY)) {
                         this._heartbeatJitterActive = null;
                         this._heartbeat();
                         if (this._heartbeatIntervalTimer !== null) clearInterval(this._heartbeatIntervalTimer);
