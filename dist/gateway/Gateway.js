@@ -167,10 +167,10 @@ class Gateway extends node_utils_1.TypedEmitter {
         return this.shards.reduce((p, c) => p + c.guilds.size, 0);
     }
     /**
-     * If all shards are in a {@link GatewayShardState running state}.
+     * If all shards are in a {@link GatewayShardState running state} (or {@link GatewayShardState guilds ready}).
      */
     get shardsRunning() {
-        return this.shards.size > 0 && this.shards.every((shard) => shard.state === GatewayShard_1.GatewayShardState.RUNNING);
+        return this.shards.size > 0 && this.shards.every((shard) => shard.state >= GatewayShard_1.GatewayShardState.RUNNING);
     }
     /**
      * If all shards are in a {@link GatewayShardState guilds ready}.

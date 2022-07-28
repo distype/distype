@@ -302,7 +302,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     async send(data) {
         return await new Promise((resolve, reject) => {
-            if (this.state !== GatewayShardState.RUNNING) {
+            if (this.state !== GatewayShardState.RUNNING && this.state !== GatewayShardState.GUILDS_READY) {
                 this._queue.push({
                     data: JSON.stringify(data),
                     op: data.op,
@@ -664,7 +664,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 const jitterActive = Date.now();
                 this._heartbeatJitterActive = jitterActive;
                 (0, promises_1.setTimeout)(payload.d.heartbeat_interval * 0.5).then(() => {
-                    if (jitterActive === this._heartbeatJitterActive && (this.state === GatewayShardState.IDENTIFYING || this.state === GatewayShardState.RESUMING || this.state === GatewayShardState.RUNNING)) {
+                    if (jitterActive === this._heartbeatJitterActive && (this.state >= GatewayShardState.IDENTIFYING || this.state <= GatewayShardState.GUILDS_READY)) {
                         this._heartbeatJitterActive = null;
                         this._heartbeat();
                         if (this._heartbeatIntervalTimer !== null)
