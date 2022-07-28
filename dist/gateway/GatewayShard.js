@@ -680,7 +680,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                             session_id: this.sessionId,
                             token: this._token
                         }
-                    }), DiscordTypes.GatewayOpcodes.Resume);
+                    }), DiscordTypes.GatewayOpcodes.Resume)
+                        .catch(() => {
+                        this._close(true, 4000, `Failed to send resume payload`);
+                        this._enterState(GatewayShardState.DISCONNECTED);
+                    });
                 }
                 else {
                     this._send(JSON.stringify({
@@ -697,7 +701,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                             shard: [this.id, this.numShards],
                             token: this._token
                         }
-                    }), DiscordTypes.GatewayOpcodes.Identify);
+                    }), DiscordTypes.GatewayOpcodes.Identify)
+                        .catch(() => {
+                        this._close(false, 1000, `Failed to send identify payload`);
+                        this._enterState(GatewayShardState.DISCONNECTED);
+                    });
                 }
                 break;
             }
