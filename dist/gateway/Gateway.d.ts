@@ -195,6 +195,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     get averagePing(): number;
     /**
+     * The total guild count across all shards.
+     */
+    get guildCount(): number;
+    /**
      * If all shards are in a {@link GatewayShardState running state}.
      */
     get shardsRunning(): boolean;

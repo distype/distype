@@ -161,6 +161,12 @@ class Gateway extends node_utils_1.TypedEmitter {
             return this.shards.reduce((p, c) => p + c.ping, 0) / this.shards.size;
     }
     /**
+     * The total guild count across all shards.
+     */
+    get guildCount() {
+        return this.shards.reduce((p, c) => p + c.guilds.size, 0);
+    }
+    /**
      * If all shards are in a {@link GatewayShardState running state}.
      */
     get shardsRunning() {
