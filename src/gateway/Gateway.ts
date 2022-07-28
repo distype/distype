@@ -272,6 +272,13 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     }
 
     /**
+     * The total guild count across all shards.
+     */
+    public get guildCount (): number {
+        return this.shards.reduce((p, c) => p + c.guilds.size, 0);
+    }
+
+    /**
      * If all shards are in a {@link GatewayShardState running state}.
      */
     public get shardsRunning (): boolean {
