@@ -20,6 +20,10 @@ class Client {
      */
     gateway;
     /**
+     * The {@link LogCallback log callback} used by the client.
+     */
+    log;
+    /**
      * The client's {@link Rest rest manager}.
      */
     rest;
@@ -36,10 +40,6 @@ class Client {
      * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
      */
     system = `Client`;
-    /**
-     * The {@link LogCallback log callback} used by the client.
-     */
-    _log;
     /**
      * The bot's token.
      */
@@ -73,8 +73,8 @@ class Client {
             gateway: this.gateway.options,
             rest: this.rest.options
         };
-        this._log = logCallback.bind(logThisArg);
-        this._log(`Initialized client`, {
+        this.log = logCallback.bind(logThisArg);
+        this.log(`Initialized client`, {
             level: `DEBUG`, system: this.system
         });
     }

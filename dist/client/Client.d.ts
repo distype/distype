@@ -19,6 +19,10 @@ export declare class Client {
      */
     gateway: Gateway;
     /**
+     * The {@link LogCallback log callback} used by the client.
+     */
+    log: LogCallback;
+    /**
      * The client's {@link Rest rest manager}.
      */
     rest: Rest;
@@ -39,10 +43,6 @@ export declare class Client {
      * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
      */
     readonly system = "Client";
-    /**
-     * The {@link LogCallback log callback} used by the client.
-     */
-    private _log;
     /**
      * The bot's token.
      */
