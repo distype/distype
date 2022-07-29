@@ -68,13 +68,6 @@ export interface GatewayOptions {
      *
      * When using a `Client`, specified options are passed directly to the gateway manager, without manipulation.
      *
-     * When using a `ClientMaster` and `ClientWorker`, specified options are adapted internally to evenly distribute shards across workers.
-     * Because these options are specified on `ClientMaster`, they act as if they're dictating 1 `Client` / `Gateway` instance.
-     * This means that the options parameter of a `Gateway` instance may not exactly reflect the options specified.
-     * - `GatewayOptions#sharding#totalBotShards` - Stays the same.
-     * - `GatewayOptions#sharding#shards` - The amount of shards that will be spawned across all `ClientWorker`s. An individual `ClientWorker` will have `numWorkers / (totalBotShards - offset)` shards. This option does not have to be a multiple of the number of workers spawned; a non-multiple being specified will simply result in some workers having less shards. This is useful if you only wish to spawn a fraction of your bot's total shards on once instance.
-     * - `GatewayOptions#sharding#offset` - The amount of shards to offset spawning by across all `ClientWorker`s. This option is adapted to have the "first" `ClientWorker` start at the specified offset, then following workers will be offset by the initial offset in addition to the number of shards spawned in previous workers. This option is useful if you are scaling your bot across numerous servers or processes.
-     *
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
      * @default {}
      */

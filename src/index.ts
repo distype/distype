@@ -12,8 +12,6 @@ export { CacheOptions } from './cache/CacheOptions';
 
 export { Client } from './client/Client';
 export { ClientOptions } from './client/ClientOptions';
-export { ClientMaster } from './client/scaling/ClientMaster';
-export { ClientWorker } from './client/scaling/ClientWorker';
 
 export { DiscordConstants } from './constants/DiscordConstants';
 export { DistypeConstants } from './constants/DistypeConstants';
