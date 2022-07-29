@@ -163,23 +163,25 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
      */
-    private _expectedGuilds: Set<Snowflake> | null = null;
+    private _expectedGuilds: {
+        remaining: Set<Snowflake> | null
+        timeout: NodeJS.Timeout | null
+    } = {
+            remaining: null,
+            timeout: null
+        };
     /**
-     * Timeout for waiting for guilds.
+     * Heartbeat helpers.
      */
-    private _expectedGuildsTimeout: NodeJS.Timeout | null = null;
-    /**
-     * The heartbeat interval timer.
-     */
-    private _heartbeatIntervalTimer: NodeJS.Timer | null = null;
-    /**
-     * The time that the heartbeat timer has been waiting for the jitter to start for.
-     */
-    private _heartbeatJitterActive: number | null = null;
-    /**
-     * The time the heartbeat has been waiting for an ACK for.
-     */
-    private _heartbeatWaitingSince: number | null = null;
+    private _heartbeat: {
+        interval: NodeJS.Timer | null
+        jitterTimestamp: number | null
+        waitingForAckTimestamp: number | null
+    } = {
+            interval: null,
+            jitterTimestamp: null,
+            waitingForAckTimestamp: null
+        };
     /**
      * If the shard was killed. Set back to `false` when a new connection attempt is started.
      */
@@ -370,17 +372,17 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
      */
     private _checkGuildsReady (): void {
-        if (this._expectedGuildsTimeout !== null) {
-            clearTimeout(this._expectedGuildsTimeout);
-            this._expectedGuildsTimeout = null;
+        if (this._expectedGuilds.timeout !== null) {
+            clearTimeout(this._expectedGuilds.timeout);
+            this._expectedGuilds.timeout = null;
         }
 
-        if (!this._expectedGuilds || !this._expectedGuilds.size) {
+        if (!this._expectedGuilds.remaining || !this._expectedGuilds.remaining.size) {
             this._enterState(GatewayShardState.GUILDS_READY);
             return;
         }
 
-        this._expectedGuildsTimeout = setTimeout(() => {
+        this._expectedGuilds.timeout = setTimeout(() => {
             this._log(`Timed out while waiting for guilds, emitting GUILDS_READY anyways...`, {
                 level: `WARN`, system: this.system
             });
@@ -396,7 +398,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param reason The reason the shard is being closed.
      */
     private _close (resuming: boolean, code: number, reason: string): void {
-        this._log(`Closing... (Code ${code}, reason "${reason}")`, {
+        this._log(`Closing shard...`, {
             level: `DEBUG`, system: this.system
         });
 
@@ -405,8 +407,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         this.ws?.removeAllListeners();
         if (this.ws?.readyState !== WebSocket.CLOSED) {
             try {
+                this._log(`Closing connection... (Code ${code}, reason "${reason}")`, {
+                    level: `DEBUG`, system: this.system
+                });
                 this.ws?.close(code, reason);
             } catch {
+                this._log(`Terminating connection...`, {
+                    level: `DEBUG`, system: this.system
+                });
                 this.ws?.terminate();
             }
         }
@@ -414,18 +422,18 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         this.ping = 0;
 
-        this._expectedGuilds = null;
-        if (this._expectedGuildsTimeout !== null) {
-            clearTimeout(this._expectedGuildsTimeout);
-            this._expectedGuildsTimeout = null;
+        this._expectedGuilds.remaining = null;
+        if (this._expectedGuilds.timeout !== null) {
+            clearTimeout(this._expectedGuilds.timeout);
+            this._expectedGuilds.timeout = null;
         }
 
-        if (this._heartbeatIntervalTimer !== null) {
-            clearInterval(this._heartbeatIntervalTimer);
-            this._heartbeatIntervalTimer = null;
+        if (this._heartbeat.interval !== null) {
+            clearInterval(this._heartbeat.interval);
+            this._heartbeat.interval = null;
         }
-        this._heartbeatJitterActive = null;
-        this._heartbeatWaitingSince = null;
+        this._heartbeat.jitterTimestamp = null;
+        this._heartbeat.waitingForAckTimestamp = null;
 
         if (!resuming) {
             this.lastSequence = null;
@@ -466,33 +474,6 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         this._log(`Flushed send queue`, {
             level: `DEBUG`, system: this.system
         });
-    }
-
-    /**
-     * Sends a heartbeat.
-     * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
-     */
-    private _heartbeat (force = false): void {
-        if (this._heartbeatWaitingSince !== null && !force) {
-            this._log(`Not receiving heartbeat ACKs (Zombified Connection), restarting...`, {
-                level: `WARN`, system: this.system
-            });
-            this._close(true, 4009, `Did not receive heartbeat ACK`);
-            this._enterState(GatewayShardState.DISCONNECTED);
-            this._reconnect(true);
-        } else {
-            this._send(JSON.stringify({
-                op: DiscordTypes.GatewayOpcodes.Heartbeat,
-                d: this.lastSequence
-            }), DiscordTypes.GatewayOpcodes.Heartbeat).then(() => {
-                this._heartbeatWaitingSince = Date.now();
-            }).catch((error) => {
-                this._heartbeatWaitingSince = null;
-                this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `WARN`, system: this.system
-                });
-            });
-        }
     }
 
     /**
@@ -618,6 +599,33 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
+     * Sends a heartbeat.
+     * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
+     */
+    private _sendHeartbeat (force = false): void {
+        if (this._heartbeat.waitingForAckTimestamp !== null && !force) {
+            this._log(`Not receiving heartbeat ACKs (Zombified Connection), restarting...`, {
+                level: `WARN`, system: this.system
+            });
+            this._close(true, 4009, `Did not receive heartbeat ACK`);
+            this._enterState(GatewayShardState.DISCONNECTED);
+            this._reconnect(true);
+        } else {
+            this._send(JSON.stringify({
+                op: DiscordTypes.GatewayOpcodes.Heartbeat,
+                d: this.lastSequence
+            }), DiscordTypes.GatewayOpcodes.Heartbeat).then(() => {
+                this._heartbeat.waitingForAckTimestamp = Date.now();
+            }).catch((error) => {
+                this._heartbeat.waitingForAckTimestamp = null;
+                this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                    level: `WARN`, system: this.system
+                });
+            });
+        }
+    }
+
+    /**
      * Parses an incoming payload.
      * @param data The data to parse.
      * @returns The parsed data.
@@ -646,7 +654,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * When the socket emits a close event.
      */
     private wsOnClose (code: number, reason: Buffer): void {
-        const parsedReason = this._parsePayload(reason);
+        let parsedReason = this._parsePayload(reason);
+        if (!parsedReason.length) parsedReason = `[No reason provided]`;
 
         this._log(`Received close code ${code} with reason "${parsedReason}"`, {
             level: `WARN`, system: this.system
@@ -688,7 +697,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                         payload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         if ((DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants.GATEWAY.INTENTS.GUILDS) {
-                            this._expectedGuilds = new Set(payload.d.guilds.map((guild) => guild.id));
+                            this._expectedGuilds.remaining = new Set(payload.d.guilds.map((guild) => guild.id));
                             this._checkGuildsReady();
                         } else {
                             this._enterState(GatewayShardState.GUILDS_READY);
@@ -701,8 +710,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
                         this.guilds.add(payload.d.id);
-                        if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds) {
-                            this._expectedGuilds.delete(payload.d.id);
+                        if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds.remaining) {
+                            this._expectedGuilds.remaining.delete(payload.d.id);
                             this._checkGuildsReady();
                         }
                         break;
@@ -724,7 +733,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     level: `DEBUG`, system: this.system
                 });
 
-                this._heartbeat(true);
+                this._sendHeartbeat(true);
 
                 break;
             }
@@ -751,13 +760,13 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 });
 
                 const jitterActive = Date.now();
-                this._heartbeatJitterActive = jitterActive;
+                this._heartbeat.jitterTimestamp = jitterActive;
                 wait(payload.d.heartbeat_interval * 0.5).then(() => {
-                    if (jitterActive === this._heartbeatJitterActive && (this.state >= GatewayShardState.IDENTIFYING || this.state <= GatewayShardState.GUILDS_READY)) {
-                        this._heartbeatJitterActive = null;
-                        this._heartbeat();
-                        if (this._heartbeatIntervalTimer !== null) clearInterval(this._heartbeatIntervalTimer);
-                        this._heartbeatIntervalTimer = setInterval(() => this._heartbeat(), payload.d.heartbeat_interval).unref();
+                    if (jitterActive === this._heartbeat.jitterTimestamp && (this.state >= GatewayShardState.IDENTIFYING || this.state <= GatewayShardState.GUILDS_READY)) {
+                        this._heartbeat.jitterTimestamp = null;
+                        this._sendHeartbeat();
+                        if (this._heartbeat.interval !== null) clearInterval(this._heartbeat.interval);
+                        this._heartbeat.interval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval).unref();
                     }
                 });
 
@@ -800,9 +809,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             }
 
             case DiscordTypes.GatewayOpcodes.HeartbeatAck: {
-                if (this._heartbeatWaitingSince !== null) {
-                    this.ping = Date.now() - this._heartbeatWaitingSince;
-                    this._heartbeatWaitingSince = null;
+                if (this._heartbeat.waitingForAckTimestamp !== null) {
+                    this.ping = Date.now() - this._heartbeat.waitingForAckTimestamp;
+                    this._heartbeat.waitingForAckTimestamp = null;
                 }
 
                 this._log(`Heartbeat ACK (Ping at ${this.ping}ms)`, {
