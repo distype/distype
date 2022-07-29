@@ -169,7 +169,7 @@ export class Rest extends RestRequests {
     public async request (method: RestMethod, route: RestRoute, options: RestRequestData = {}): Promise<any> {
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST_OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
 
             const routeHash: RestRouteHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash: RestBucketHash = this.routeHashCache!.get(routeHash) ?? `global;${routeHash}`;
@@ -209,7 +209,7 @@ export class Rest extends RestRequests {
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const req = request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.BASE_URL}/v${this.options.version}`}${route}`, {
+        const req = request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
             body: isForm ? options.body as FormData : JSON.stringify(options.body),
@@ -284,12 +284,12 @@ export class Rest extends RestRequests {
             const errors: string[] = [];
             if (res.body?.message) errors.push(res.body.message);
             if (res.body?.errors) {
-                const flattened = flattenObject(res.body.errors, DiscordConstants.REST_ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+                const flattened = flattenObject(res.body.errors, DiscordConstants.REST.ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
                 errors.push(
                     ...Object.keys(flattened)
-                        .filter((key) => key.endsWith(`.${DiscordConstants.REST_ERROR_KEY}`) || key === DiscordConstants.REST_ERROR_KEY)
+                        .filter((key) => key.endsWith(`.${DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants.REST.ERROR_KEY)
                         .map((key) => flattened[key].map((error) =>
-                            `${key !== DiscordConstants.REST_ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST_ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
+                            `${key !== DiscordConstants.REST.ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
                                 .trimEnd()
                                 .replace(/\.$/, ``)
                         ))

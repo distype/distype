@@ -379,7 +379,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         notFound?: Snowflake[]
     }> {
         if (options.query && options.user_ids) throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH) throw new DistypeError(`nonce length is greater than the allowed ${DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`, DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, this.system);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH) throw new DistypeError(`nonce length is greater than the allowed ${DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`, DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, this.system);
 
         const shard = this.guildShard(guildId, true);
 
@@ -414,7 +414,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                     guild_id: guildId,
                     query: !options.query && !options.user_ids ? `` : options.query,
                     limit: options.limit ?? 0,
-                    presences: (this.options.intents & DiscordConstants.GATEWAY_INTENTS.GUILD_PRESENCES) !== 0,
+                    presences: (this.options.intents & DiscordConstants.GATEWAY.INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
                     nonce
                 }
@@ -535,9 +535,9 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     private _intentsFactory (specified?: GatewayOptions[`intents`]): number {
         if (typeof specified === `number`) return specified;
         else if (typeof specified === `bigint`) return Number(specified);
-        else if (specified instanceof Array) return specified.reduce((p, c) => p | DiscordConstants.GATEWAY_INTENTS[c], 0);
-        else if (specified === `all`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
-        else if (specified === `nonPrivileged`) return Object.values(DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
+        else if (specified instanceof Array) return specified.reduce((p, c) => p | DiscordConstants.GATEWAY.INTENTS[c], 0);
+        else if (specified === `all`) return Object.values(DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0);
+        else if (specified === `nonPrivileged`) return Object.values(DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants.GATEWAY.PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
         else return 0;
     }
 
@@ -557,7 +557,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY_RATELIMITS.SHARD_SPAWN_COOLDOWN);
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY.RATELIMITS.SHARD_SPAWN_COOLDOWN);
         }
 
         await waitingForGuildReady;

@@ -7,7 +7,7 @@ import { URL } from 'node:url';
 /**
  * Image options.
  */
-export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN_IMAGE_FORMATS)[number]> {
+export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FORMATS)[number]> {
     /**
      * If the image is animated, automatically make it a gif.
      * @default true
@@ -22,7 +22,7 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN_IMAGE_FO
      * The image's size.
      * @default undefined
      */
-    size?: (typeof DiscordConstants.CDN_IMAGE_SIZES)[number]
+    size?: (typeof DiscordConstants.CDN.IMAGE_SIZES)[number]
 }
 
 /**
@@ -236,11 +236,11 @@ export class CDNUtils {
      */
     private static _make (route: RestRoute, options: {
         dynamic?: boolean
-        format?: (typeof DiscordConstants.CDN_IMAGE_FORMATS)[number],
+        format?: (typeof DiscordConstants.CDN.IMAGE_FORMATS)[number],
         hash?: string,
-        size?: (typeof DiscordConstants.CDN_IMAGE_SIZES)[number]
+        size?: (typeof DiscordConstants.CDN.IMAGE_SIZES)[number]
     }): string {
-        const url = new URL(`${DiscordConstants.CDN_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
+        const url = new URL(`${DiscordConstants.CDN.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
         if (options.size) url.searchParams.set(`size`, `${options.size}`);
         return url.toString();
     }
