@@ -144,21 +144,9 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _expectedGuilds;
     /**
-     * Timeout for waiting for guilds.
+     * Heartbeat helpers.
      */
-    private _expectedGuildsTimeout;
-    /**
-     * The heartbeat interval timer.
-     */
-    private _heartbeatIntervalTimer;
-    /**
-     * The time that the heartbeat timer has been waiting for the jitter to start for.
-     */
-    private _heartbeatJitterActive;
-    /**
-     * The time the heartbeat has been waiting for an ACK for.
-     */
-    private _heartbeatWaitingSince;
+    private _heartbeat;
     /**
      * If the shard was killed. Set back to `false` when a new connection attempt is started.
      */
@@ -236,11 +224,6 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     private _flushQueue;
     /**
-     * Sends a heartbeat.
-     * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
-     */
-    private _heartbeat;
-    /**
      * Initiate the socket.
      * @param resume If the shard is resuming.
      */
@@ -256,6 +239,11 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param op The opcode in the payload (non-consequential, only used for logging).
      */
     private _send;
+    /**
+     * Sends a heartbeat.
+     * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
+     */
+    private _sendHeartbeat;
     /**
      * Parses an incoming payload.
      * @param data The data to parse.
