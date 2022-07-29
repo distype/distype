@@ -253,8 +253,8 @@ class Gateway extends node_utils_1.TypedEmitter {
     getGuildMembers(guildId, options = {}) {
         if (options.query && options.user_ids)
             throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH)
-            throw new DistypeError_1.DistypeError(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.GATEWAY_MAX_REQUEST_GUILD_MEMBERS_NONCE_LENGTH} bytes`, DistypeError_1.DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, this.system);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH)
+            throw new DistypeError_1.DistypeError(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`, DistypeError_1.DistypeErrorType.GATEWAY_MEMBER_NONCE_TOO_BIG, this.system);
         const shard = this.guildShard(guildId, true);
         const nonce = options.nonce ?? (0, node_crypto_1.randomUUID)().replaceAll(`-`, ``);
         const members = new node_utils_1.ExtendedMap();
@@ -283,7 +283,7 @@ class Gateway extends node_utils_1.TypedEmitter {
                     guild_id: guildId,
                     query: !options.query && !options.user_ids ? `` : options.query,
                     limit: options.limit ?? 0,
-                    presences: (this.options.intents & DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILD_PRESENCES) !== 0,
+                    presences: (this.options.intents & DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
                     nonce
                 }
@@ -390,11 +390,11 @@ class Gateway extends node_utils_1.TypedEmitter {
         else if (typeof specified === `bigint`)
             return Number(specified);
         else if (specified instanceof Array)
-            return specified.reduce((p, c) => p | DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS[c], 0);
+            return specified.reduce((p, c) => p | DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS[c], 0);
         else if (specified === `all`)
-            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0);
+            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0);
         else if (specified === `nonPrivileged`)
-            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants_1.DiscordConstants.GATEWAY_PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
+            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants_1.DiscordConstants.GATEWAY.PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
         else
             return 0;
     }
@@ -414,7 +414,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
             if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
-                await (0, promises_1.setTimeout)(DiscordConstants_1.DiscordConstants.GATEWAY_RATELIMITS.SHARD_SPAWN_COOLDOWN);
+                await (0, promises_1.setTimeout)(DiscordConstants_1.DiscordConstants.GATEWAY.RATELIMITS.SHARD_SPAWN_COOLDOWN);
         }
         await waitingForGuildReady;
         const success = results.filter((result) => result.status === `fulfilled`).length;

@@ -194,7 +194,7 @@ class CDNUtils {
      * @param options Image options.
      */
     static _make(route, options) {
-        const url = new node_url_1.URL(`${DiscordConstants_1.DiscordConstants.CDN_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
+        const url = new node_url_1.URL(`${DiscordConstants_1.DiscordConstants.CDN.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
         if (options.size)
             url.searchParams.set(`size`, `${options.size}`);
         return url.toString();

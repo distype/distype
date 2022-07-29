@@ -576,7 +576,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._log(`Received close code ${code} with reason "${parsedReason}"`, {
             level: `WARN`, system: this.system
         });
-        if (DiscordConstants_1.DiscordConstants.GATEWAY_CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
+        if (DiscordConstants_1.DiscordConstants.GATEWAY.CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
             this.kill(1000, parsedReason);
         }
         else {
@@ -607,7 +607,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         this.sessionId = payload.d.session_id;
                         this._enterState(GatewayShardState.RUNNING);
                         payload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
-                        if ((DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY_INTENTS.GUILDS) {
+                        if ((DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS) {
                             this._expectedGuilds = new Set(payload.d.guilds.map((guild) => guild.id));
                             this._checkGuildsReady();
                         }

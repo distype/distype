@@ -128,18 +128,18 @@ class RestBucket {
         }
         this.manager.globalLeft--;
         const res = await this.manager.make(method, route, options);
-        const bucket = res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.BUCKET];
-        const globalRetryAfter = +(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
-        if (globalRetryAfter > 0 && res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.GLOBAL] === `true`) {
+        const bucket = res.headers[DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET];
+        const globalRetryAfter = +(res.headers[DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
+        if (globalRetryAfter > 0 && res.headers[DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL] === `true`) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
         if (bucket && bucket !== this.bucketHash) {
             this.manager.routeHashCache.set(routeHash, bucket);
         }
-        this.requestsLeft = +(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.REMAINING] ?? 1);
-        this.resetAt = +(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000 + Date.now();
-        this.allowedRequestsPerRatelimit = +(res.headers[DiscordConstants_1.DiscordConstants.REST_RATELIMIT_HEADERS.LIMIT] ?? Infinity);
+        this.requestsLeft = +(res.headers[DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING] ?? 1);
+        this.resetAt = +(res.headers[DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000 + Date.now();
+        this.allowedRequestsPerRatelimit = +(res.headers[DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT] ?? Infinity);
         if (res.statusCode === 429)
             return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {
