@@ -1,7 +1,7 @@
 /**
  * The system the error was emitted from.
  */
-export declare type DistypeErrorSystem = `General` | `Client` | `Client Master` | `Client Worker ${number}` | `Cache` | `Gateway` | `Gateway Shard ${number}` | `Gateway Shard Socket ${number}` | `Rest` | `Rest Bucket`;
+export declare type DistypeErrorSystem = `General` | `Client` | `Cache` | `Gateway` | `Gateway Shard ${number}` | `Gateway Shard Socket ${number}` | `Rest` | `Rest Bucket`;
 /**
  * The type of error that has ocurred.
  */

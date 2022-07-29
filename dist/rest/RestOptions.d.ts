@@ -21,7 +21,6 @@ export interface RestOptions {
     disableRatelimits?: boolean;
     /**
      * The amount of requests to allow to be sent per second.
-     * Note that this only applies to a single {@link ClientWorker} instance (If {@link ClientMaster} / {@link ClientWorker} are being used), meaning that you still may encounter `429` errors from global rate limits.
      * @default 50
      */
     ratelimitGlobal?: number;

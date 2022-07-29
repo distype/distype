@@ -129,7 +129,6 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     readonly numShards: number;
     /**
      * Options for the gateway shard.
-     * Note that if you are using a {@link Client} or {@link ClientMaster} / {@link ClientWorker} and not manually creating a {@link Client} separately, these options may differ than the options specified when creating the client due to them being passed through the {@link clientOptionsFactory}.
      */
     readonly options: Gateway[`options`];
     /**

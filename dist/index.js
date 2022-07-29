@@ -1,14 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeErrorType = exports.DistypeError = exports.DistypeConstants = exports.DiscordConstants = exports.ClientWorker = exports.ClientMaster = exports.Client = exports.Cache = void 0;
+exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeErrorType = exports.DistypeError = exports.DistypeConstants = exports.DiscordConstants = exports.Client = exports.Cache = void 0;
 var Cache_1 = require("./cache/Cache");
 Object.defineProperty(exports, "Cache", { enumerable: true, get: function () { return Cache_1.Cache; } });
 var Client_1 = require("./client/Client");
 Object.defineProperty(exports, "Client", { enumerable: true, get: function () { return Client_1.Client; } });
-var ClientMaster_1 = require("./client/scaling/ClientMaster");
-Object.defineProperty(exports, "ClientMaster", { enumerable: true, get: function () { return ClientMaster_1.ClientMaster; } });
-var ClientWorker_1 = require("./client/scaling/ClientWorker");
-Object.defineProperty(exports, "ClientWorker", { enumerable: true, get: function () { return ClientWorker_1.ClientWorker; } });
 var DiscordConstants_1 = require("./constants/DiscordConstants");
 Object.defineProperty(exports, "DiscordConstants", { enumerable: true, get: function () { return DiscordConstants_1.DiscordConstants; } });
 var DistypeConstants_1 = require("./constants/DistypeConstants");
