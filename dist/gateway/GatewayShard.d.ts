@@ -127,6 +127,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     readonly url: string;
     /**
+     * The shard's text decoder.
+     */
+    private _textDecoder;
+    /**
      * Timers used by the shard.
      */
     private _timers;
@@ -154,23 +158,23 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     constructor(token: string, id: number, numShards: number, url: string, options: Gateway[`options`], logCallback?: LogCallback, logThisArg?: any);
     /**
-     * Get the shard's ping.
+     * Gets the shard's ping.
      * @returns The node's ping in milliseconds.
      */
     getPing(): Promise<number>;
     /**
-     * Kill the shard.
+     * Kills the shard.
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code) to send if the connection is still open. Defaults to `1000`.
      */
     kill(reason?: string, code?: number): void;
     /**
-     * Send a payload to the gateway.
+     * Sends a payload to the gateway.
      * @param paylaod The data to send.
      */
     send(payload: DiscordTypes.GatewaySendPayload): Promise<void>;
     /**
-     * Spawn the shard.
+     * Spawns the shard.
      */
     spawn(): Promise<void>;
     /**
@@ -199,7 +203,18 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
      */
     private _sendHeartbeat;
+    /**
+     * Spawns the shard.
+     * @param attempt The current attempt count.
+     */
     private _spawn;
+    /**
+     * Unpack a payload.
+     * @param payload The payload.
+     * @param isBinary If the payload is binary.
+     * @returns The unpacked payload.
+     */
+    private _unpackPayload;
     /**
      * When the WebSocket emits a close event.
      */

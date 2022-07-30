@@ -29,6 +29,7 @@ const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const node_crypto_1 = require("node:crypto");
 const promises_1 = require("node:timers/promises");
+const node_util_1 = require("node:util");
 const ws_1 = require("ws");
 /**
  * {@link GatewayShard Gateway shard} states.
@@ -121,6 +122,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     url;
     /**
+     * The shard's text decoder.
+     */
+    _textDecoder = new node_util_1.TextDecoder();
+    /**
      * Timers used by the shard.
      */
     _timers = {
@@ -184,7 +189,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Get the shard's ping.
+     * Gets the shard's ping.
      * @returns The node's ping in milliseconds.
      */
     async getPing() {
@@ -212,7 +217,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Kill the shard.
+     * Kills the shard.
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code) to send if the connection is still open. Defaults to `1000`.
      */
@@ -224,7 +229,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Send a payload to the gateway.
+     * Sends a payload to the gateway.
      * @param paylaod The data to send.
      */
     async send(payload) {
@@ -249,7 +254,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Spawn the shard.
+     * Spawns the shard.
      */
     async spawn() {
         if (this.state >= GatewayShardState.READY)
@@ -396,6 +401,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             });
         }
     }
+    /**
+     * Spawns the shard.
+     * @param attempt The current attempt count.
+     */
     async _spawn(attempt = 1) {
         return await new Promise((resolve, reject) => {
             this._close(`Respawning`, this.state === GatewayShardState.IDLE ? 1000 : 4000);
@@ -436,10 +445,45 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
+     * Unpack a payload.
+     * @param payload The payload.
+     * @param isBinary If the payload is binary.
+     * @returns The unpacked payload.
+     */
+    _unpackPayload(payload, isBinary) {
+        try {
+            const raw = new Uint8Array(payload);
+            if (!isBinary) {
+                return JSON.parse(this._textDecoder.decode(raw));
+            }
+            else {
+                this._log(`Got binary payload; unable to unpack`, {
+                    level: `DEBUG`, system: this.system
+                });
+                return null;
+            }
+        }
+        catch (error) {
+            this._log(`Unable to unpack payload: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                level: `WARN`, system: this.system
+            });
+            return null;
+        }
+    }
+    /**
      * When the WebSocket emits a close event.
      */
     _wsOnClose(code, reason) {
-        this._log(`Received close code ${code} with reason "${reason.toString() ?? `[Unknown Reason]`}"`, {
+        let parsedReason;
+        try {
+            parsedReason = reason.toString();
+        }
+        catch (error) {
+            this._log(`Unable to parse close reason: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                level: `WARN`, system: this.system
+            });
+        }
+        this._log(`Received close code ${code} with reason "${parsedReason ?? `[Unknown Reason]`}"`, {
             level: `WARN`, system: this.system
         });
         if (DiscordConstants_1.DiscordConstants.GATEWAY.CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
@@ -461,8 +505,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * When the WebSocket emits a message event.
      */
-    _wsOnMessage(payload) {
-        const parsedPayload = JSON.parse(payload.toString());
+    _wsOnMessage(payload, isBinary) {
+        const parsedPayload = this._unpackPayload(payload, isBinary);
+        if (!parsedPayload)
+            return;
         if (parsedPayload.s !== null)
             this.lastSequence = parsedPayload.s;
         switch (parsedPayload.op) {
