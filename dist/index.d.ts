@@ -5,7 +5,6 @@ export { Client } from './client/Client';
 export { ClientOptions } from './client/ClientOptions';
 export { DiscordConstants } from './constants/DiscordConstants';
 export { DistypeConstants } from './constants/DistypeConstants';
-export { DistypeError, DistypeErrorSystem, DistypeErrorType } from './errors/DistypeError';
 export { Gateway, GatewayEvents, GatewayPresenceActivity, GatewayPresenceUpdateData } from './gateway/Gateway';
 export { GatewayOptions } from './gateway/GatewayOptions';
 export { GatewayShard, GatewayShardEvents, GatewayShardState } from './gateway/GatewayShard';

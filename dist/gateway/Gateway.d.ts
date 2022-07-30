@@ -25,29 +25,21 @@ export declare type GatewayEvents = {
      */
     SHARD_IDLE: (shard: GatewayShard) => void;
     /**
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
+     */
+    SHARD_DISCONNECTED: (payload: GatewayShard) => void;
+    /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState connecting state}.
      */
     SHARD_CONNECTING: (shard: GatewayShard) => void;
     /**
-     * When a {@link GatewayShard shard} enters an {@link GatewayShardState identifying state}.
+     * When a {@link GatewayShard shard} enters a {@link GatewayShardState ready state}.
      */
-    SHARD_IDENTIFYING: (shard: GatewayShard) => void;
-    /**
-     * When a {@link GatewayShard shard} enters a {@link GatewayShardState resuming state}.
-     */
-    SHARD_RESUMING: (shard: GatewayShard) => void;
-    /**
-     * When a {@link GatewayShard shard} enters a {@link GatewayShardState running state}.
-     */
-    SHARD_RUNNING: (shard: GatewayShard) => void;
+    SHARD_READY: (shard: GatewayShard) => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
      */
     SHARD_GUILDS_READY: (shard: GatewayShard) => void;
-    /**
-     * When a {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
-     */
-    SHARD_DISCONNECTED: (payload: GatewayShard) => void;
     '*': (payload: DiscordTypes.GatewayDispatchPayload) => void;
     READY: (payload: DiscordTypes.GatewayReadyDispatch) => void;
     RESUMED: (payload: DiscordTypes.GatewayResumedDispatch) => void;

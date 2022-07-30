@@ -1,4 +1,3 @@
-import { DistypeErrorSystem } from '../errors/DistypeError';
 /**
  * A callback for logging events.
  */
@@ -23,4 +22,4 @@ export interface LogMessageOptions {
 /**
  * A system that created a log.
  */
-export declare type LogSystem = DistypeErrorSystem;
+export declare type LogSystem = `General` | `Client` | `Cache` | `Gateway` | `Gateway Shard ${number}` | `Gateway Shard Socket ${number}` | `Rest` | `Rest Bucket`;

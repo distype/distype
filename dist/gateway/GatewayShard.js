@@ -25,7 +25,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
 const DiscordConstants_1 = require("../constants/DiscordConstants");
-const DistypeError_1 = require("../errors/DistypeError");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const promises_1 = require("node:timers/promises");
@@ -36,44 +35,31 @@ const ws_1 = require("ws");
 var GatewayShardState;
 (function (GatewayShardState) {
     /**
-     * The {@link GatewayShard shard} is not running, and is not pending a reconnect.
+     * The {@link GatewayShard shard} is not running.
      */
     GatewayShardState[GatewayShardState["IDLE"] = 0] = "IDLE";
+    /**
+     * The {@link GatewayShard shard} was disconnected.
+     */
+    GatewayShardState[GatewayShardState["DISCONNECTED"] = 1] = "DISCONNECTED";
     /**
      * The {@link GatewayShard shard} is connecting to the gateway.
      * During this stage, the {@link GatewayShard shard}:
      * - Initiates the websocket connection
-     * - Starts [heartbeating](https://discord.com/developers/docs/topics/gateway#heartbeating)
-     */
-    GatewayShardState[GatewayShardState["CONNECTING"] = 1] = "CONNECTING";
-    /**
-     * The {@link GatewayShard shard} is identifying.
-     * During this stage, the {@link GatewayShard shard}:
      * - Waits for a [hello payload](https://discord.com/developers/docs/topics/gateway#hello)
+     * - Starts [heartbeating](https://discord.com/developers/docs/topics/gateway#heartbeating)
      * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify)
      * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch
      */
-    GatewayShardState[GatewayShardState["IDENTIFYING"] = 2] = "IDENTIFYING";
-    /**
-     * The {@link GatewayShard shard} is resuming.
-     * During this stage, the {@link GatewayShard shard}:
-     * - Sends a [resume payload](https://discord.com/developers/docs/topics/gateway#resume)
-     * - Waits for the [RESUME](https://discord.com/developers/docs/topics/gateway#resumed) dispatch
-     */
-    GatewayShardState[GatewayShardState["RESUMING"] = 3] = "RESUMING";
+    GatewayShardState[GatewayShardState["CONNECTING"] = 2] = "CONNECTING";
     /**
      * The {@link GatewayShard shard} is connected and is operating normally. A [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) dispatch has been received.
      */
-    GatewayShardState[GatewayShardState["RUNNING"] = 4] = "RUNNING";
+    GatewayShardState[GatewayShardState["READY"] = 3] = "READY";
     /**
      * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches (or has timed out).
      */
-    GatewayShardState[GatewayShardState["GUILDS_READY"] = 5] = "GUILDS_READY";
-    /**
-     * The {@link GatewayShard shard} was disconnected.
-     * Note that if the shard is not automatically reconnecting to the gateway, the shard will enter an `IDLE` state and will not enter a `DISCONNECTED` state.
-     */
-    GatewayShardState[GatewayShardState["DISCONNECTED"] = 6] = "DISCONNECTED";
+    GatewayShardState[GatewayShardState["GUILDS_READY"] = 4] = "GUILDS_READY";
 })(GatewayShardState = exports.GatewayShardState || (exports.GatewayShardState = {}));
 /**
  * A gateway shard.
@@ -100,7 +86,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
     /**
      * The shard's {@link GatewayShardState state}.
      */
-    state = GatewayShardState.DISCONNECTED;
+    state = GatewayShardState.IDLE;
+    /**
+     * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
+     */
+    waitingForGuilds = null;
     /**
      * The [WebSocket](https://github.com/websockets/ws) used by the shard.
      */
@@ -126,36 +116,23 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     url;
     /**
-     * Guilds expected to receive a [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) from.
+     * Timers used by the shard.
      */
-    _expectedGuilds = {
-        remaining: null,
-        timeout: null
+    _timers = {
+        guilds: null,
+        heartbeat: null
     };
     /**
-     * Heartbeat helpers.
+     * Timestamps used by the shard.
      */
-    _heartbeat = {
-        interval: null,
-        jitterTimestamp: null,
-        waitingForAckTimestamp: null
+    _timestamps = {
+        lastHeartbeat: null,
+        lastHeartbeatAck: null
     };
-    /**
-     * If the shard was killed. Set back to `false` when a new connection attempt is started.
-     */
-    _killed = false;
     /**
      * The {@link LogCallback log callback} used by the shard.
      */
     _log;
-    /**
-     * A queue of data to be sent after the socket opens.
-     */
-    _queue = [];
-    /**
-     * If the shard has an active spawn or restart loop.
-     */
-    _spinning = false;
     /**
      * The bot's token.
      */
@@ -202,175 +179,115 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * If the shard can resume.
-     */
-    get canResume() {
-        return this.lastSequence !== null && this.sessionId !== null;
-    }
-    /**
-     * Connect to the gateway.
-     * Note that this method does not wait for guilds to be ready to resolve.
+     * Spawn the shard.
      */
     async spawn() {
-        if (this._spinning)
-            throw new DistypeError_1.DistypeError(`Shard is already connecting to the gateway`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
-        this._spinning = true;
-        this._killed = false;
-        for (let i = 0; i < this.options.spawnMaxAttempts; i++) {
-            const attempt = await this._initSocket(false).then(() => true).catch((error) => {
-                this._log(`Spawn attempt ${i + 1}/${this.options.spawnMaxAttempts} failed: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `ERROR`, system: this.system
-                });
-                return false;
-            });
-            if (attempt) {
-                this._spinning = false;
-                this._log(`Spawned after ${i + 1} attempts`, {
-                    level: i === 0 ? `DEBUG` : `WARN`, system: this.system
-                });
-                return;
-            }
-            if (this._killed) {
-                this._enterState(GatewayShardState.IDLE);
-                this._spinning = false;
-                this._log(`Spawning interrupted by kill`, {
-                    level: `DEBUG`, system: this.system
-                });
-                throw new DistypeError_1.DistypeError(`Shard spawn attempts interrupted by kill`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
-            }
-            if (i < this.options.spawnMaxAttempts - 1)
-                await (0, promises_1.setTimeout)(this.options.spawnAttemptDelay);
-        }
-        this._spinning = false;
-        this._enterState(GatewayShardState.IDLE);
-        throw new DistypeError_1.DistypeError(`Failed to spawn shard after ${this.options.spawnMaxAttempts} attempts`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_MAX_SPAWN_ATTEMPTS_REACHED, this.system);
-    }
-    /**
-     * Restart / resume the shard.
-     */
-    async restart() {
-        if (this._spinning)
-            throw new DistypeError_1.DistypeError(`Shard is already connecting to the gateway`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_ALREADY_CONNECTING, this.system);
-        this._spinning = true;
-        this._killed = false;
-        for (let i = 1;; i++) {
-            const attempt = await this._initSocket(true).then(() => true).catch((error) => {
-                this._log(`Restart attempt ${i + 1} failed: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `ERROR`, system: this.system
-                });
-                return false;
-            });
-            if (attempt) {
-                this._log(`Restarted after ${i} attempts`, {
-                    level: i === 1 ? `DEBUG` : `WARN`, system: this.system
-                });
-                this._spinning = false;
-                return;
-            }
-            if (this._killed) {
-                this._enterState(GatewayShardState.IDLE);
-                this._log(`Restarting interrupted by kill`, {
-                    level: `DEBUG`, system: this.system
-                });
-                throw new DistypeError_1.DistypeError(`Shard restart attempts interrupted by kill`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_INTERRUPT_FROM_KILL, this.system);
-            }
-            await (0, promises_1.setTimeout)(this.options.spawnAttemptDelay);
-        }
+        if (this.state >= GatewayShardState.READY)
+            return Promise.resolve();
+        if (this.state >= GatewayShardState.CONNECTING)
+            return await node_utils_1.TypedEmitter.once(this, `READY`).then(() => { });
+        return await this._spawn();
     }
     /**
      * Kill the shard.
-     * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code). Defaults to `1000`.
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
+     * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code) to send if the connection is still open. Defaults to `1000`.
      */
-    kill(code = 1000, reason = `Manual kill`) {
-        this._close(false, code, reason);
+    kill(reason = `Manual kill`, code = 1000) {
         this._enterState(GatewayShardState.IDLE);
-        this._killed = true;
-        this._log(`Shard killed with code ${code}, reason "${reason}"`, {
+        this._close(reason, code);
+        this._log(`Shard killed: ${reason}`, {
             level: `WARN`, system: this.system
         });
     }
     /**
-     * Send data to the gateway.
-     * @param data The data to send.
+     * Send a payload to the gateway.
+     * @param paylaod The data to send.
      */
-    async send(data) {
+    async send(payload) {
+        if (this.state < GatewayShardState.READY && ![DiscordTypes.GatewayOpcodes.Heartbeat, DiscordTypes.GatewayOpcodes.Identify, DiscordTypes.GatewayOpcodes.Resume].includes(payload.op)) {
+            return await node_utils_1.TypedEmitter.once(this, `READY`).then(() => this.send(payload));
+        }
+        if (!this.ws || this.ws.readyState !== ws_1.WebSocket.OPEN)
+            throw new Error(`Cannot send data when the WebSocket is not in an OPEN state`);
         return await new Promise((resolve, reject) => {
-            if (this.state !== GatewayShardState.RUNNING && this.state !== GatewayShardState.GUILDS_READY) {
-                this._queue.push({
-                    data: JSON.stringify(data),
-                    op: data.op,
-                    resolve,
-                    reject
-                });
-            }
-            else {
-                this._send(JSON.stringify(data), data.op).then(resolve, reject);
-            }
+            const data = JSON.stringify(payload);
+            this.ws.send(data, (error) => {
+                if (error)
+                    reject(error);
+                else {
+                    this._log(`Sent payload (opcode ${payload.op} ${DiscordTypes.GatewayOpcodes[payload.op]})`, {
+                        level: `DEBUG`, system: this.system
+                    });
+                    this.emit(`SENT_PAYLOAD`, data);
+                    resolve();
+                }
+            });
         });
     }
     /**
      * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
      */
-    _checkGuildsReady() {
-        if (this._expectedGuilds.timeout !== null) {
-            clearTimeout(this._expectedGuilds.timeout);
-            this._expectedGuilds.timeout = null;
+    _checkGuilds() {
+        if (this._timers.guilds !== null) {
+            clearTimeout(this._timers.guilds);
+            this._timers.guilds = null;
         }
-        if (!this._expectedGuilds.remaining || !this._expectedGuilds.remaining.size) {
+        if (!this.waitingForGuilds || !this.waitingForGuilds.size) {
             this._enterState(GatewayShardState.GUILDS_READY);
             return;
         }
-        this._expectedGuilds.timeout = setTimeout(() => {
-            this._log(`Timed out while waiting for guilds, emitting GUILDS_READY anyways...`, {
+        this._timers.guilds = setTimeout(() => {
+            this._log(`Timed out while waiting for guilds, entering GUILDS_READY state anyways...`, {
                 level: `WARN`, system: this.system
             });
             this._enterState(GatewayShardState.GUILDS_READY);
         }, this.options.guildsReadyTimeout).unref();
     }
     /**
-     * Closes the connection, cleans up helper variables and flushes the queue.
-     * @param resuming If the shard will be resuming after the close.
-     * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code).
-     * @param reason The reason the shard is being closed.
+     * Closes the connection and cleans up variables on the shard to spawn a new connection.
      */
-    _close(resuming, code, reason) {
-        this._log(`Closing shard...`, {
-            level: `DEBUG`, system: this.system
-        });
-        this._flushQueue(true);
-        this.ws?.removeAllListeners();
-        if (this.ws?.readyState !== ws_1.WebSocket.CLOSED) {
-            try {
-                this._log(`Closing connection... (Code ${code}, reason "${reason}")`, {
-                    level: `DEBUG`, system: this.system
-                });
-                this.ws?.close(code, reason);
+    _close(reason, code) {
+        if (this.ws) {
+            this.ws.removeAllListeners();
+            if (this.ws.readyState !== ws_1.WebSocket.CLOSED) {
+                try {
+                    this.ws.close(code, reason);
+                    this._log(`Closed connection (Code ${code}, reason "${reason}")`, {
+                        level: `DEBUG`, system: this.system
+                    });
+                }
+                catch {
+                    this.ws.terminate();
+                    this._log(`Terminated connection`, {
+                        level: `DEBUG`, system: this.system
+                    });
+                }
             }
-            catch {
-                this._log(`Terminating connection...`, {
-                    level: `DEBUG`, system: this.system
-                });
-                this.ws?.terminate();
-            }
+            this.ws = null;
         }
-        this.ws = null;
-        this.ping = 0;
-        this._expectedGuilds.remaining = null;
-        if (this._expectedGuilds.timeout !== null) {
-            clearTimeout(this._expectedGuilds.timeout);
-            this._expectedGuilds.timeout = null;
-        }
-        if (this._heartbeat.interval !== null) {
-            clearInterval(this._heartbeat.interval);
-            this._heartbeat.interval = null;
-        }
-        this._heartbeat.jitterTimestamp = null;
-        this._heartbeat.waitingForAckTimestamp = null;
-        if (!resuming) {
+        if (this.state === GatewayShardState.IDLE) {
             this.lastSequence = null;
             this.sessionId = null;
         }
+        this.guilds = new Set();
+        this.ping = 0;
+        this.waitingForGuilds = null;
+        if (this._timers.guilds) {
+            clearTimeout(this._timers.guilds);
+            this._timers.guilds = null;
+        }
+        if (this._timers.heartbeat) {
+            clearInterval(this._timers.heartbeat);
+            this._timers.heartbeat = null;
+        }
+        this._timestamps = {
+            lastHeartbeat: null,
+            lastHeartbeatAck: null
+        };
+        this._log(`Cleaned up shard`, {
+            level: `DEBUG`, system: this.system
+        });
     }
     /**
      * Enter a state.
@@ -385,181 +302,44 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.emit(GatewayShardState[state]);
         }
     }
-    /**
-     * Flushes the send queue.
-     * @param reject If the queue shouldn't be sent, and all promises should be rejected.
-     */
-    async _flushQueue(reject = false) {
-        do {
-            const next = this._queue.shift();
-            if (next) {
-                if (reject)
-                    next.reject(new DistypeError_1.DistypeError(`Send queue force flushed`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_SEND_QUEUE_FORCE_FLUSHED, this.system));
-                else
-                    await this._send(next.data, next.op).then(next.resolve, next.reject);
-            }
-        } while (this._queue.length);
-        this._log(`Flushed send queue`, {
-            level: `DEBUG`, system: this.system
-        });
-    }
-    /**
-     * Initiate the socket.
-     * @param resume If the shard is resuming.
-     */
-    async _initSocket(resume) {
-        if (this.state !== GatewayShardState.IDLE && this.state !== GatewayShardState.DISCONNECTED) {
-            this._close(resume, resume ? 4000 : 1000, `Restarting`);
-            this._enterState(GatewayShardState.DISCONNECTED);
-        }
-        this._log(`Initiating socket... (Resuming: ${resume})`, {
-            level: `DEBUG`, system: this.system
-        });
-        this._enterState(GatewayShardState.CONNECTING);
-        const result = await new Promise((resolve, reject) => {
-            const disconnectedListener = () => reject(new DistypeError_1.DistypeError(`Socket disconnected on socket init`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system));
-            this.once(`DISCONNECTED`, disconnectedListener);
-            this.once(`IDLE`, disconnectedListener);
-            this.ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
-            const closeListener = ((code, reason) => reject(new DistypeError_1.DistypeError(`Socket closed with code ${code}: "${this._parsePayload(reason)}"`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_CLOSED_DURING_SOCKET_INIT, this.system))).bind(this);
-            this.ws.once(`close`, closeListener);
-            const errorListener = ((error) => reject(error)).bind(this);
-            this.ws.once(`error`, errorListener);
-            this.ws.once(`open`, () => {
-                this._log(`Socket open`, {
-                    level: `DEBUG`, system: this.system
-                });
-                if (resume && this.canResume)
-                    this._enterState(GatewayShardState.RESUMING);
-                else
-                    this._enterState(GatewayShardState.IDENTIFYING);
-                this.ws.on(`close`, this.wsOnClose.bind(this));
-                this.ws.on(`error`, this.wsOnError.bind(this));
-                this.ws.on(`message`, this.wsOnMessage.bind(this));
-                node_utils_1.TypedEmitter.once(this, `RUNNING`).then(() => {
-                    this.removeListener(`DISCONNECTED`, disconnectedListener);
-                    this.removeListener(`IDLE`, disconnectedListener);
-                    this.ws.removeListener(`close`, closeListener);
-                    this.ws.removeListener(`error`, errorListener);
-                    resolve(true);
-                });
-            });
-        }).catch((error) => {
-            if (this.state !== GatewayShardState.DISCONNECTED && this.state !== GatewayShardState.IDLE) {
-                this._close(resume, resume ? 4000 : 1000, `Failed to initialize shard`);
-                this._enterState(GatewayShardState.DISCONNECTED);
-            }
-            return error;
-        });
-        if (result !== true)
-            throw result;
-    }
-    /**
-     * Reconnect the shard.
-     * @param resume If the shard should be resumed.
-     */
-    _reconnect(resume) {
-        if (this._spinning)
-            return;
-        this._log(`Reconnecting...`, {
-            level: `INFO`, system: this.system
-        });
-        if (resume) {
-            this.restart()
-                .then(() => this._log(`Reconnected`, {
-                level: `INFO`, system: this.system
-            }))
-                .catch((error) => this._log(`Error reconnecting (restarting): ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                level: `ERROR`, system: this.system
-            }));
-        }
-        else {
-            this.spawn()
-                .then(() => this._log(`Reconnected`, {
-                level: `INFO`, system: this.system
-            }))
-                .catch((error) => {
-                this._log(`Error reconnecting (spawning): ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `ERROR`, system: this.system
-                });
-            });
-        }
-    }
-    /**
-     * Send data to the gateway.
-     * @param data The data to send.
-     * @param op The opcode in the payload (non-consequential, only used for logging).
-     */
-    async _send(data, op) {
-        if (typeof data !== `string`)
-            throw new TypeError(`Parameter "data" (string) not provided: got ${data} (${typeof data})`);
-        return await new Promise((resolve, reject) => {
-            if (!this.ws || this.ws.readyState !== ws_1.WebSocket.OPEN) {
-                reject(new DistypeError_1.DistypeError(`Cannot send data when the socket is not in an OPEN state`, DistypeError_1.DistypeErrorType.GATEWAY_SHARD_SEND_WITHOUT_OPEN_SOCKET, this.system));
-            }
-            else {
-                this.ws.send(data, (error) => {
-                    if (error)
-                        reject(error);
-                    else {
-                        this._log(`Sent payload (opcode ${op} ${DiscordTypes.GatewayOpcodes[op]})`, {
-                            level: `DEBUG`, system: this.system
-                        });
-                        this.emit(`SENT_PAYLOAD`, data);
-                        resolve();
-                    }
-                });
+    async _identify() {
+        return await this.send({
+            op: DiscordTypes.GatewayOpcodes.Identify,
+            d: {
+                intents: this.options.intents,
+                large_threshold: this.options.largeGuildThreshold,
+                presence: this.options.presence ?? undefined,
+                properties: {
+                    browser: `distype`,
+                    device: `distype`,
+                    os: process.platform
+                },
+                shard: [this.id, this.numShards],
+                token: this._token
             }
         });
-    }
-    /**
-     * Sends a heartbeat.
-     * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
-     */
-    _sendHeartbeat(force = false) {
-        if (this._heartbeat.waitingForAckTimestamp !== null && !force) {
-            this._log(`Not receiving heartbeat ACKs (Zombified Connection), restarting...`, {
-                level: `WARN`, system: this.system
-            });
-            this._close(true, 4009, `Did not receive heartbeat ACK`);
-            this._enterState(GatewayShardState.DISCONNECTED);
-            this._reconnect(true);
-        }
-        else {
-            this._send(JSON.stringify({
-                op: DiscordTypes.GatewayOpcodes.Heartbeat,
-                d: this.lastSequence
-            }), DiscordTypes.GatewayOpcodes.Heartbeat).then(() => {
-                this._heartbeat.waitingForAckTimestamp = Date.now();
-            }).catch((error) => {
-                this._heartbeat.waitingForAckTimestamp = null;
-                this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `WARN`, system: this.system
-                });
-            });
-        }
     }
     /**
      * Parses an incoming payload.
-     * @param data The data to parse.
-     * @returns The parsed data.
+     * @param payload The payload to parse.
+     * @returns The parsed payload.
      */
-    _parsePayload(data) {
-        if (typeof data !== `object` && typeof data !== `function`)
-            return data;
+    _parsePayload(payload) {
+        if (typeof payload !== `object` && typeof payload !== `function`)
+            return payload;
         try {
-            if (Array.isArray(data))
-                data = Buffer.concat(data);
-            else if (data instanceof ArrayBuffer)
-                data = Buffer.from(data);
+            if (Array.isArray(payload))
+                payload = Buffer.concat(payload);
+            else if (payload instanceof ArrayBuffer)
+                payload = Buffer.from(payload);
             try {
-                return JSON.parse(data.toString());
+                return JSON.parse(payload.toString());
             }
             catch {
-                if (typeof data.toString === `function`)
-                    return data.toString();
+                if (typeof payload.toString === `function`)
+                    return payload.toString();
                 else
-                    return data;
+                    return payload;
             }
         }
         catch (error) {
@@ -568,10 +348,87 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             });
         }
     }
+    async _resume() {
+        if (this.lastSequence === null || this.sessionId === null)
+            throw new Error(`Cannot resume; lastSequence and / or sessionId is not defined`);
+        return await this.send({
+            op: DiscordTypes.GatewayOpcodes.Resume,
+            d: {
+                seq: this.lastSequence,
+                session_id: this.sessionId,
+                token: this._token
+            }
+        });
+    }
     /**
-     * When the socket emits a close event.
+     * Sends a heartbeat.
+     * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
      */
-    wsOnClose(code, reason) {
+    _sendHeartbeat(force = false) {
+        if (this._timestamps.lastHeartbeatAck !== null && !force) {
+            this._log(`Not receiving heartbeat ACKs (Zombified Connection), restarting...`, {
+                level: `WARN`, system: this.system
+            });
+            this._enterState(GatewayShardState.DISCONNECTED);
+            this._spawn();
+        }
+        else {
+            this.send(({
+                op: DiscordTypes.GatewayOpcodes.Heartbeat,
+                d: this.lastSequence
+            })).then(() => {
+                this._timestamps.lastHeartbeat = Date.now();
+            }).catch((error) => {
+                this._timestamps.lastHeartbeatAck = null;
+                this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                    level: `WARN`, system: this.system
+                });
+            });
+        }
+    }
+    async _spawn(attempt = 1) {
+        return await new Promise((resolve, reject) => {
+            this._close(`Respawning`, this.state === GatewayShardState.IDLE ? 1000 : 4000);
+            this._enterState(GatewayShardState.CONNECTING);
+            this._log(`Connecting... (Attempt ${attempt})`, {
+                level: `DEBUG`, system: this.system
+            });
+            const closedListener = (() => {
+                this.removeListener(`READY`, readyListener);
+                reject(new Error(`Connection closed while spawning`));
+            }).bind(this);
+            const readyListener = (() => {
+                this.removeListener(`IDLE`, closedListener);
+                this.removeListener(`DISCONNECTED`, closedListener);
+                resolve();
+            }).bind(this);
+            this.once(`IDLE`, closedListener);
+            this.once(`DISCONNECTED`, closedListener);
+            this.once(`READY`, readyListener);
+            this.ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
+            this.ws.once(`open`, () => {
+                this._log(`WebSocket open`, {
+                    level: `DEBUG`, system: this.system
+                });
+            });
+            this.ws.on(`close`, this._wsOnClose.bind(this));
+            this.ws.on(`error`, this._wsOnError.bind(this));
+            this.ws.on(`message`, this._wsOnMessage.bind(this));
+        }).catch(async () => {
+            if (this.state === GatewayShardState.IDLE) {
+                this._close(`Shard killed`, 1000);
+                return Promise.reject(new Error(`Shard killed`));
+            }
+            else {
+                await (0, promises_1.setTimeout)(this.options.spawnAttemptDelay);
+                return await this._spawn(attempt + 1);
+            }
+        });
+    }
+    /**
+     * When the WebSocket emits a close event.
+     */
+    _wsOnClose(code, reason) {
         let parsedReason = this._parsePayload(reason);
         if (!parsedReason.length)
             parsedReason = `[No reason provided]`;
@@ -579,39 +436,38 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             level: `WARN`, system: this.system
         });
         if (DiscordConstants_1.DiscordConstants.GATEWAY.CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
-            this.kill(1000, parsedReason);
+            this.kill(`Connection Closed with code ${code}`);
         }
         else {
-            this._close(true, 4000, parsedReason);
             this._enterState(GatewayShardState.DISCONNECTED);
-            this._reconnect(true);
+            this._spawn();
         }
     }
     /**
-     * When the socket emits an error event.
+     * When the WebSocket emits an error event.
      */
-    wsOnError(error) {
-        this._log((error?.message ?? error) ?? `Unknown reason`, {
+    _wsOnError(error) {
+        this._log((error?.message ?? error) ?? `Unknown WebSocket error`, {
             level: `ERROR`, system: this.system
         });
     }
     /**
-     * When the socket emits a message event.
+     * When the WebSocket emits a message event.
      */
-    wsOnMessage(data) {
-        const payload = this._parsePayload(data);
-        if (payload.s !== null)
-            this.lastSequence = payload.s;
-        switch (payload.op) {
+    _wsOnMessage(payload) {
+        const parsedPayload = this._parsePayload(payload);
+        if (parsedPayload.s !== null)
+            this.lastSequence = parsedPayload.s;
+        switch (parsedPayload.op) {
             case DiscordTypes.GatewayOpcodes.Dispatch: {
-                switch (payload.t) {
+                switch (parsedPayload.t) {
                     case DiscordTypes.GatewayDispatchEvents.Ready: {
-                        this.sessionId = payload.d.session_id;
-                        this._enterState(GatewayShardState.RUNNING);
-                        payload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
+                        this.sessionId = parsedPayload.d.session_id;
+                        this._enterState(GatewayShardState.READY);
+                        parsedPayload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         if ((DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS) {
-                            this._expectedGuilds.remaining = new Set(payload.d.guilds.map((guild) => guild.id));
-                            this._checkGuildsReady();
+                            this.waitingForGuilds = new Set(parsedPayload.d.guilds.map((guild) => guild.id));
+                            this._checkGuilds();
                         }
                         else {
                             this._enterState(GatewayShardState.GUILDS_READY);
@@ -619,24 +475,24 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.Resumed: {
-                        this._enterState(GatewayShardState.RUNNING);
+                        this._enterState(GatewayShardState.READY);
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
-                        this.guilds.add(payload.d.id);
-                        if (this.state < GatewayShardState.GUILDS_READY && this._expectedGuilds.remaining) {
-                            this._expectedGuilds.remaining.delete(payload.d.id);
-                            this._checkGuildsReady();
+                        this.guilds.add(parsedPayload.d.id);
+                        if (this.state < GatewayShardState.GUILDS_READY && this.waitingForGuilds) {
+                            this.waitingForGuilds.delete(parsedPayload.d.id);
+                            this._checkGuilds();
                         }
                         break;
                     }
                     case DiscordTypes.GatewayDispatchEvents.GuildDelete: {
-                        if (!payload.d.unavailable) {
-                            this.guilds.delete(payload.d.id);
+                        if (!parsedPayload.d.unavailable) {
+                            this.guilds.delete(parsedPayload.d.id);
                         }
                     }
                 }
-                this.emit(`RECEIVED_MESSAGE`, payload);
+                this.emit(`RECEIVED_PAYLOAD`, parsedPayload);
                 break;
             }
             case DiscordTypes.GatewayOpcodes.Heartbeat: {
@@ -647,74 +503,47 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 break;
             }
             case DiscordTypes.GatewayOpcodes.Reconnect: {
-                this._close(true, 4000, `Got Reconnect (opcode ${DiscordTypes.GatewayOpcodes.Reconnect})`);
+                this._log(`Got Reconnect (opcode ${DiscordTypes.GatewayOpcodes.Reconnect})`, {
+                    level: `INFO`, system: this.system
+                });
                 this._enterState(GatewayShardState.DISCONNECTED);
-                this._reconnect(true);
+                this._spawn();
                 break;
             }
             case DiscordTypes.GatewayOpcodes.InvalidSession: {
-                this._close(!!payload.d, payload.d ? 4000 : 1000, `Got Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`);
-                this._enterState(GatewayShardState.DISCONNECTED);
-                if (!this._spinning)
-                    (0, promises_1.setTimeout)(2500).then(() => this._reconnect(!!payload.d));
+                this._log(`Got ${parsedPayload.d ? `resumable` : `non-resumable`} Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`, {
+                    level: `INFO`, system: this.system
+                });
+                if (parsedPayload.d) {
+                    this._resume();
+                }
+                else {
+                    this._identify();
+                }
                 break;
             }
             case DiscordTypes.GatewayOpcodes.Hello: {
                 this._log(`Got Hello`, {
                     level: `DEBUG`, system: this.system
                 });
-                const jitterActive = Date.now();
-                this._heartbeat.jitterTimestamp = jitterActive;
-                (0, promises_1.setTimeout)(payload.d.heartbeat_interval * 0.5).then(() => {
-                    if (jitterActive === this._heartbeat.jitterTimestamp && (this.state >= GatewayShardState.IDENTIFYING || this.state <= GatewayShardState.GUILDS_READY)) {
-                        this._heartbeat.jitterTimestamp = null;
+                this._timers.heartbeat = setTimeout(() => {
+                    this._sendHeartbeat();
+                    this._timers.heartbeat = setInterval(() => {
                         this._sendHeartbeat();
-                        if (this._heartbeat.interval !== null)
-                            clearInterval(this._heartbeat.interval);
-                        this._heartbeat.interval = setInterval(() => this._sendHeartbeat(), payload.d.heartbeat_interval).unref();
-                    }
-                });
-                if (this.state === GatewayShardState.RESUMING && this.canResume) {
-                    this._send(JSON.stringify({
-                        op: DiscordTypes.GatewayOpcodes.Resume,
-                        d: {
-                            seq: this.lastSequence,
-                            session_id: this.sessionId,
-                            token: this._token
-                        }
-                    }), DiscordTypes.GatewayOpcodes.Resume)
-                        .catch(() => {
-                        this._close(true, 4000, `Failed to send resume payload`);
-                        this._enterState(GatewayShardState.DISCONNECTED);
-                    });
+                    }, parsedPayload.d.heartbeat_interval);
+                }, parsedPayload.d.heartbeat_interval * 0.5);
+                if (this.lastSequence !== null && this.sessionId !== null) {
+                    this._resume();
                 }
                 else {
-                    this._send(JSON.stringify({
-                        op: DiscordTypes.GatewayOpcodes.Identify,
-                        d: {
-                            intents: this.options.intents,
-                            large_threshold: this.options.largeGuildThreshold,
-                            presence: this.options.presence ?? undefined,
-                            properties: {
-                                browser: `distype`,
-                                device: `distype`,
-                                os: process.platform
-                            },
-                            shard: [this.id, this.numShards],
-                            token: this._token
-                        }
-                    }), DiscordTypes.GatewayOpcodes.Identify)
-                        .catch(() => {
-                        this._close(false, 1000, `Failed to send identify payload`);
-                        this._enterState(GatewayShardState.DISCONNECTED);
-                    });
+                    this._identify();
                 }
                 break;
             }
             case DiscordTypes.GatewayOpcodes.HeartbeatAck: {
-                if (this._heartbeat.waitingForAckTimestamp !== null) {
-                    this.ping = Date.now() - this._heartbeat.waitingForAckTimestamp;
-                    this._heartbeat.waitingForAckTimestamp = null;
+                if (this._timestamps.lastHeartbeat !== null) {
+                    this.ping = Date.now() - this._timestamps.lastHeartbeat;
+                    this._timestamps.lastHeartbeatAck = null;
                 }
                 this._log(`Heartbeat ACK (Ping at ${this.ping}ms)`, {
                     level: `DEBUG`, system: this.system

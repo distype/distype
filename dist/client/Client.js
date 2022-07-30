@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = void 0;
 const Cache_1 = require("../cache/Cache");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
-const DistypeError_1 = require("../errors/DistypeError");
 const Gateway_1 = require("../gateway/Gateway");
 const Rest_1 = require("../rest/Rest");
 const PermissionsUtils_1 = require("../utils/PermissionsUtils");
@@ -204,7 +203,7 @@ class Client {
      */
     async getSelfPermissions(guildId, channelId) {
         if (!this.gateway.user?.id)
-            throw new DistypeError_1.DistypeError(`Cannot get self permissions when the gateway user is not defined`, DistypeError_1.DistypeErrorType.CLIENT_GET_SELF_PERMISSIONS_GATEWAY_USER_UNDEFINED, this.system);
+            throw new Error(`Cannot get self permissions when the gateway user is not defined`);
         const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
         const completeMember = {
             ...member,

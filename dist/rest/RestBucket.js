@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestBucket = void 0;
 const Rest_1 = require("./Rest");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
-const DistypeError_1 = require("../errors/DistypeError");
 const promises_1 = require("node:timers/promises");
 /**
  * A {@link Rest rest} bucket.
@@ -144,7 +143,7 @@ class RestBucket {
             return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {
             if (attempt >= this.manager.options.code500retries)
-                throw new DistypeError_1.DistypeError(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
+                throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
             else
                 return this._make(method, route, routeHash, options, attempt + 1);
         }

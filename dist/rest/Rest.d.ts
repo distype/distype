@@ -125,12 +125,6 @@ export declare class Rest extends RestRequests {
      */
     sweepBuckets(): void;
     /**
-     * Converts specified headers with undici typings to a `Record<string, string>`.
-     * @param headers The headers to convert.
-     * @returns The formatted headers.
-     */
-    private _convertUndiciHeaders;
-    /**
      * Create a rate limit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketId ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.

@@ -5,7 +5,6 @@ const RestBucket_1 = require("./RestBucket");
 const RestRequests_1 = require("./RestRequests");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
-const DistypeError_1 = require("../errors/DistypeError");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const node_utils_1 = require("@br88c/node-utils");
 const undici_1 = require("undici");
@@ -148,14 +147,14 @@ class Rest extends RestRequests_1.RestRequests {
     async make(method, route, options) {
         const isForm = options.body instanceof undici_1.FormData;
         const headers = (options.forceHeaders ?? this.options.forceHeaders) ? {
-            ...this._convertUndiciHeaders(this.options.headers),
-            ...this._convertUndiciHeaders(options.headers)
+            ...this.options.headers,
+            ...options.headers
         } : {
             'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
             'Content-Type': isForm ? `multipart/form-data` : `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`,
-            ...this._convertUndiciHeaders(this.options.headers),
-            ...this._convertUndiciHeaders(options.headers)
+            ...this.options.headers,
+            ...options.headers
         };
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader))
             headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
@@ -177,7 +176,7 @@ class Rest extends RestRequests_1.RestRequests {
             }) : undefined
         }));
         if (typeof unableToParse === `string`)
-            throw new DistypeError_1.DistypeError(`Unable to parse response body: "${unableToParse}"`, DistypeError_1.DistypeErrorType.REST_UNABLE_TO_PARSE_RESPONSE_BODY, this.system);
+            throw new Error(`Unable to parse response body: "${unableToParse}"`);
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
         this._handleResponseCodes(method, route, res);
         return res;
@@ -194,14 +193,6 @@ class Rest extends RestRequests_1.RestRequests {
         }
     }
     /**
-     * Converts specified headers with undici typings to a `Record<string, string>`.
-     * @param headers The headers to convert.
-     * @returns The formatted headers.
-     */
-    _convertUndiciHeaders(headers) {
-        return Array.isArray(headers) ? Object.fromEntries((0, node_utils_1.to2dArray)(headers, 2)) : headers;
-    }
-    /**
      * Create a rate limit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketId ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
@@ -210,7 +201,7 @@ class Rest extends RestRequests_1.RestRequests {
      */
     _createBucket(bucketId, bucketHash, majorParameter) {
         if (!this.buckets || this.options.disableRatelimits)
-            throw new DistypeError_1.DistypeError(`Cannot create a bucket while rate limits are disabled`, DistypeError_1.DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
+            throw new Error(`Cannot create a bucket while rate limits are disabled`);
         const bucket = new RestBucket_1.RestBucket(bucketId, bucketHash, majorParameter, this);
         this.buckets.set(bucketId, bucket);
         return bucket;
@@ -240,7 +231,7 @@ class Rest extends RestRequests_1.RestRequests {
             }
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
             if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
-                throw new DistypeError_1.DistypeError(errorMessage, DistypeError_1.DistypeErrorType.REST_REQUEST_ERROR, this.system);
+                throw new Error(errorMessage);
             }
             else {
                 this._log(errorMessage, {

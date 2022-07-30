@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeErrorType = exports.DistypeError = exports.DistypeConstants = exports.DiscordConstants = exports.Client = exports.Cache = void 0;
+exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeConstants = exports.DiscordConstants = exports.Client = exports.Cache = void 0;
 var Cache_1 = require("./cache/Cache");
 Object.defineProperty(exports, "Cache", { enumerable: true, get: function () { return Cache_1.Cache; } });
 var Client_1 = require("./client/Client");
@@ -9,9 +9,6 @@ var DiscordConstants_1 = require("./constants/DiscordConstants");
 Object.defineProperty(exports, "DiscordConstants", { enumerable: true, get: function () { return DiscordConstants_1.DiscordConstants; } });
 var DistypeConstants_1 = require("./constants/DistypeConstants");
 Object.defineProperty(exports, "DistypeConstants", { enumerable: true, get: function () { return DistypeConstants_1.DistypeConstants; } });
-var DistypeError_1 = require("./errors/DistypeError");
-Object.defineProperty(exports, "DistypeError", { enumerable: true, get: function () { return DistypeError_1.DistypeError; } });
-Object.defineProperty(exports, "DistypeErrorType", { enumerable: true, get: function () { return DistypeError_1.DistypeErrorType; } });
 var Gateway_1 = require("./gateway/Gateway");
 Object.defineProperty(exports, "Gateway", { enumerable: true, get: function () { return Gateway_1.Gateway; } });
 var GatewayShard_1 = require("./gateway/GatewayShard");
