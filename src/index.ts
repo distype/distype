@@ -17,12 +17,6 @@ export { DiscordConstants } from './constants/DiscordConstants';
 export { DistypeConstants } from './constants/DistypeConstants';
 
 export {
-    DistypeError,
-    DistypeErrorSystem,
-    DistypeErrorType
-} from './errors/DistypeError';
-
-export {
     Gateway,
     GatewayEvents,
     GatewayPresenceActivity,

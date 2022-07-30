@@ -65,5 +65,5 @@ export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof r
      * Overwrite hierarchy; default headers overwritten by manager, manager headers overwritten by request options.
      * The `X-Audit-Log-Reason` header is overwritten by the `reason` option.
      */
-    headers?: string[] | Record<string, string> | null
+    headers?: Record<string, string> | null
 }

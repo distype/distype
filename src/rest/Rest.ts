@@ -4,11 +4,10 @@ import { RestRequests } from './RestRequests';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { DistypeConstants } from '../constants/DistypeConstants';
-import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
-import { ExtendedMap, flattenObject, to2dArray } from '@br88c/node-utils';
+import { ExtendedMap, flattenObject } from '@br88c/node-utils';
 import { Dispatcher, FormData, request } from 'undici';
 
 /**
@@ -196,14 +195,14 @@ export class Rest extends RestRequests {
         const isForm = options.body instanceof FormData;
 
         const headers: Record<string, string> = (options.forceHeaders ?? this.options.forceHeaders) ? {
-            ...this._convertUndiciHeaders(this.options.headers),
-            ...this._convertUndiciHeaders(options.headers)
+            ...this.options.headers,
+            ...options.headers
         } : {
             'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
             'Content-Type': isForm ? `multipart/form-data` : `application/json`,
             'User-Agent': `DiscordBot (${DistypeConstants.URL}, v${DistypeConstants.VERSION})`,
-            ...this._convertUndiciHeaders(this.options.headers),
-            ...this._convertUndiciHeaders(options.headers)
+            ...this.options.headers,
+            ...options.headers
         };
 
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
@@ -226,7 +225,7 @@ export class Rest extends RestRequests {
             }) : undefined
         }));
 
-        if (typeof unableToParse === `string`) throw new DistypeError(`Unable to parse response body: "${unableToParse}"`, DistypeErrorType.REST_UNABLE_TO_PARSE_RESPONSE_BODY, this.system);
+        if (typeof unableToParse === `string`) throw new Error(`Unable to parse response body: "${unableToParse}"`);
 
         this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
 
@@ -248,15 +247,6 @@ export class Rest extends RestRequests {
     }
 
     /**
-     * Converts specified headers with undici typings to a `Record<string, string>`.
-     * @param headers The headers to convert.
-     * @returns The formatted headers.
-     */
-    private _convertUndiciHeaders (headers: RestRequestData[`headers`]): Record<string, string> {
-        return Array.isArray(headers) ? Object.fromEntries(to2dArray(headers, 2)) : headers;
-    }
-
-    /**
      * Create a rate limit {@link RestBucket bucket}.
      * @param bucketId The bucket's {@link RestBucketId ID}.
      * @param bucketHash The bucket's unique {@link RestBucketHash hash}.
@@ -264,7 +254,7 @@ export class Rest extends RestRequests {
      * @returns The created bucket.
      */
     private _createBucket (bucketId: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter): RestBucket {
-        if (!this.buckets || this.options.disableRatelimits) throw new DistypeError(`Cannot create a bucket while rate limits are disabled`, DistypeErrorType.REST_CREATE_BUCKET_WITH_DISABLED_RATELIMITS, this.system);
+        if (!this.buckets || this.options.disableRatelimits) throw new Error(`Cannot create a bucket while rate limits are disabled`);
         const bucket = new RestBucket(bucketId, bucketHash, majorParameter, this);
         this.buckets.set(bucketId, bucket);
         return bucket;
@@ -300,7 +290,7 @@ export class Rest extends RestRequests {
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
 
             if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
-                throw new DistypeError(errorMessage, DistypeErrorType.REST_REQUEST_ERROR, this.system);
+                throw new Error(errorMessage);
             } else {
                 this._log(errorMessage, {
                     level: `DEBUG`, system: this.system

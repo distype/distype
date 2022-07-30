@@ -1,7 +1,6 @@
 import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
-import { DistypeError, DistypeErrorType } from '../errors/DistypeError';
 
 import { Snowflake } from 'discord-api-types/v10';
 import { setTimeout as wait } from 'node:timers/promises';
@@ -179,7 +178,7 @@ export class RestBucket {
 
         if (res.statusCode === 429) return this._make(method, route, routeHash, options);
         else if (res.statusCode >= 500 && res.statusCode < 600) {
-            if (attempt >= this.manager.options.code500retries) throw new DistypeError(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`, DistypeErrorType.REST_REQUEST_ERROR, this.system);
+            if (attempt >= this.manager.options.code500retries) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
             else return this._make(method, route, routeHash, options, attempt + 1);
         } else return res.body;
     }

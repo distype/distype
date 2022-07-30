@@ -105,11 +105,6 @@ export interface GatewayOptions {
      */
     spawnAttemptDelay?: number
     /**
-     * The maximum number of spawn attempts before rejecting.
-     * @default 10
-     */
-    spawnMaxAttempts?: number
-    /**
      * Advanced [WebSocket](https://github.com/websockets/ws) options.
      * @see [WebSocket API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
      * @default {}
