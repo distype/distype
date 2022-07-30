@@ -486,7 +486,14 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         this._log(`Received close code ${code} with reason "${parsedReason ?? `[Unknown Reason]`}"`, {
             level: `WARN`, system: this.system
         });
-        if (DiscordConstants_1.DiscordConstants.GATEWAY.CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
+        if ([
+            DiscordTypes.GatewayCloseCodes.AuthenticationFailed,
+            DiscordTypes.GatewayCloseCodes.InvalidShard,
+            DiscordTypes.GatewayCloseCodes.ShardingRequired,
+            DiscordTypes.GatewayCloseCodes.InvalidAPIVersion,
+            DiscordTypes.GatewayCloseCodes.InvalidIntents,
+            DiscordTypes.GatewayCloseCodes.DisallowedIntents
+        ].includes(code)) {
             this.kill(`Connection Closed with code ${code}`);
         }
         else {
