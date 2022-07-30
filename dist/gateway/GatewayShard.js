@@ -27,6 +27,7 @@ exports.GatewayShard = exports.GatewayShardState = void 0;
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const node_utils_1 = require("@br88c/node-utils");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const node_crypto_1 = require("node:crypto");
 const promises_1 = require("node:timers/promises");
 const ws_1 = require("ws");
 /**
@@ -50,6 +51,10 @@ var GatewayShardState;
      * - Starts [heartbeating](https://discord.com/developers/docs/topics/gateway#heartbeating)
      * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify)
      * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch
+     *
+     * Alternatively, if the shard receives an [Invalid Session payload](https://discord.com/developers/docs/topics/gateway#invalid-session) and enters this state:
+     * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify) or a [resume payload](https://discord.com/developers/docs/topics/gateway#resume)
+     * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) dispatch
      */
     GatewayShardState[GatewayShardState["CONNECTING"] = 2] = "CONNECTING";
     /**
@@ -72,13 +77,13 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     guilds = new Set();
     /**
+     * The shard's heartbeat ping in milliseconds.
+     */
+    heartbeatPing = 0;
+    /**
      * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
     lastSequence = null;
-    /**
-     * The shard's ping in milliseconds.
-     */
-    ping = 0;
     /**
      * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
      */
@@ -179,14 +184,32 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Spawn the shard.
+     * Get the shard's ping.
+     * @returns The node's ping in milliseconds.
      */
-    async spawn() {
-        if (this.state >= GatewayShardState.READY)
-            return Promise.resolve();
-        if (this.state >= GatewayShardState.CONNECTING)
-            return await node_utils_1.TypedEmitter.once(this, `READY`).then(() => { });
-        return await this._spawn();
+    async getPing() {
+        return await new Promise((resolve, reject) => {
+            if (!this.ws || this.ws.readyState !== ws_1.WebSocket.OPEN) {
+                reject(new Error(`Cannot send data when the socket is not in an OPEN state`));
+            }
+            else {
+                const uuid = (0, node_crypto_1.randomUUID)();
+                const start = Date.now();
+                const onPong = (data) => {
+                    const time = Date.now() - start;
+                    if (data.toString() === uuid) {
+                        this.ws?.removeListener(`pong`, onPong);
+                        resolve(time);
+                    }
+                };
+                this.ws.ping(uuid, undefined, (error) => {
+                    if (error)
+                        reject(error);
+                    else
+                        this.ws?.on(`pong`, onPong);
+                });
+            }
+        });
     }
     /**
      * Kill the shard.
@@ -224,6 +247,16 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 }
             });
         });
+    }
+    /**
+     * Spawn the shard.
+     */
+    async spawn() {
+        if (this.state >= GatewayShardState.READY)
+            return Promise.resolve();
+        if (this.state >= GatewayShardState.CONNECTING)
+            return await node_utils_1.TypedEmitter.once(this, `READY`).then(() => { });
+        return await this._spawn();
     }
     /**
      * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
@@ -271,7 +304,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.sessionId = null;
         }
         this.guilds = new Set();
-        this.ping = 0;
+        this.heartbeatPing = 0;
         this.waitingForGuilds = null;
         if (this._timers.guilds) {
             clearTimeout(this._timers.guilds);
@@ -302,6 +335,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.emit(GatewayShardState[state]);
         }
     }
+    /**
+     * Send the [identify payload](https://discord.com/developers/docs/topics/gateway#identify).
+     */
     async _identify() {
         return await this.send({
             op: DiscordTypes.GatewayOpcodes.Identify,
@@ -320,34 +356,8 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * Parses an incoming payload.
-     * @param payload The payload to parse.
-     * @returns The parsed payload.
+     * Send the [resume payload](https://discord.com/developers/docs/topics/gateway#resume).
      */
-    _parsePayload(payload) {
-        if (typeof payload !== `object` && typeof payload !== `function`)
-            return payload;
-        try {
-            if (Array.isArray(payload))
-                payload = Buffer.concat(payload);
-            else if (payload instanceof ArrayBuffer)
-                payload = Buffer.from(payload);
-            try {
-                return JSON.parse(payload.toString());
-            }
-            catch {
-                if (typeof payload.toString === `function`)
-                    return payload.toString();
-                else
-                    return payload;
-            }
-        }
-        catch (error) {
-            this._log(`Payload parsing error: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                level: `WARN`, system: this.system
-            });
-        }
-    }
     async _resume() {
         if (this.lastSequence === null || this.sessionId === null)
             throw new Error(`Cannot resume; lastSequence and / or sessionId is not defined`);
@@ -429,10 +439,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * When the WebSocket emits a close event.
      */
     _wsOnClose(code, reason) {
-        let parsedReason = this._parsePayload(reason);
-        if (!parsedReason.length)
-            parsedReason = `[No reason provided]`;
-        this._log(`Received close code ${code} with reason "${parsedReason}"`, {
+        this._log(`Received close code ${code} with reason "${reason.toString() ?? `[Unknown Reason]`}"`, {
             level: `WARN`, system: this.system
         });
         if (DiscordConstants_1.DiscordConstants.GATEWAY.CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
@@ -455,7 +462,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      * When the WebSocket emits a message event.
      */
     _wsOnMessage(payload) {
-        const parsedPayload = this._parsePayload(payload);
+        const parsedPayload = JSON.parse(payload.toString());
         if (parsedPayload.s !== null)
             this.lastSequence = parsedPayload.s;
         switch (parsedPayload.op) {
@@ -463,8 +470,8 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 switch (parsedPayload.t) {
                     case DiscordTypes.GatewayDispatchEvents.Ready: {
                         this.sessionId = parsedPayload.d.session_id;
-                        this._enterState(GatewayShardState.READY);
                         parsedPayload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
+                        this._enterState(GatewayShardState.READY);
                         if ((DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS) {
                             this.waitingForGuilds = new Set(parsedPayload.d.guilds.map((guild) => guild.id));
                             this._checkGuilds();
@@ -514,6 +521,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 this._log(`Got ${parsedPayload.d ? `resumable` : `non-resumable`} Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`, {
                     level: `INFO`, system: this.system
                 });
+                this._enterState(GatewayShardState.CONNECTING);
                 if (parsedPayload.d) {
                     this._resume();
                 }
@@ -542,10 +550,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             }
             case DiscordTypes.GatewayOpcodes.HeartbeatAck: {
                 if (this._timestamps.lastHeartbeat !== null) {
-                    this.ping = Date.now() - this._timestamps.lastHeartbeat;
+                    this.heartbeatPing = Date.now() - this._timestamps.lastHeartbeat;
                     this._timestamps.lastHeartbeatAck = null;
                 }
-                this._log(`Heartbeat ACK (Ping at ${this.ping}ms)`, {
+                this._log(`Heartbeat ACK (Heartbeat ping at ${this.heartbeatPing}ms)`, {
                     level: `DEBUG`, system: this.system
                 });
                 break;

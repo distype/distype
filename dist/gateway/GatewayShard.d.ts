@@ -57,6 +57,10 @@ export declare enum GatewayShardState {
      * - Starts [heartbeating](https://discord.com/developers/docs/topics/gateway#heartbeating)
      * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify)
      * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch
+     *
+     * Alternatively, if the shard receives an [Invalid Session payload](https://discord.com/developers/docs/topics/gateway#invalid-session) and enters this state:
+     * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify) or a [resume payload](https://discord.com/developers/docs/topics/gateway#resume)
+     * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) dispatch
      */
     CONNECTING = 2,
     /**
@@ -79,13 +83,13 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     guilds: Set<Snowflake>;
     /**
+     * The shard's heartbeat ping in milliseconds.
+     */
+    heartbeatPing: number;
+    /**
      * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
     lastSequence: number | null;
-    /**
-     * The shard's ping in milliseconds.
-     */
-    ping: number;
     /**
      * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
      */
@@ -150,9 +154,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     constructor(token: string, id: number, numShards: number, url: string, options: Gateway[`options`], logCallback?: LogCallback, logThisArg?: any);
     /**
-     * Spawn the shard.
+     * Get the shard's ping.
+     * @returns The node's ping in milliseconds.
      */
-    spawn(): Promise<void>;
+    getPing(): Promise<number>;
     /**
      * Kill the shard.
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
@@ -164,6 +169,10 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param paylaod The data to send.
      */
     send(payload: DiscordTypes.GatewaySendPayload): Promise<void>;
+    /**
+     * Spawn the shard.
+     */
+    spawn(): Promise<void>;
     /**
      * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
      */
@@ -177,13 +186,13 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param state The state to enter.
      */
     private _enterState;
+    /**
+     * Send the [identify payload](https://discord.com/developers/docs/topics/gateway#identify).
+     */
     private _identify;
     /**
-     * Parses an incoming payload.
-     * @param payload The payload to parse.
-     * @returns The parsed payload.
+     * Send the [resume payload](https://discord.com/developers/docs/topics/gateway#resume).
      */
-    private _parsePayload;
     private _resume;
     /**
      * Sends a heartbeat.

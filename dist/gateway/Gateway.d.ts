@@ -183,17 +183,17 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     constructor(token: string, rest: Rest, cache: Cache | false, options?: GatewayOptions, logCallback?: LogCallback, logThisArg?: any);
     /**
-     * The average ping in milliseconds across all shards.
+     * The average heartbeat ping in milliseconds across all shards.
      */
-    get averagePing(): number;
+    get averageHeartbeatPing(): number;
     /**
      * The total guild count across all shards.
      */
     get guildCount(): number;
     /**
-     * If all shards are in a {@link GatewayShardState running state} (or {@link GatewayShardState guilds ready}).
+     * If all shards are in a {@link GatewayShardState ready state} (or {@link GatewayShardState guilds ready}).
      */
-    get shardsRunning(): boolean;
+    get shardsReady(): boolean;
     /**
      * If all shards are in a {@link GatewayShardState guilds ready}.
      */
@@ -204,6 +204,10 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
     connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<[number, number]>;
+    /**
+     * Get the average ping across all shards.
+     */
+    getAveragePing(): Promise<number>;
     /**
      * Get a guild's shard.
      * @param guildId The guild's ID.

@@ -150,13 +150,13 @@ class Gateway extends node_utils_1.TypedEmitter {
         });
     }
     /**
-     * The average ping in milliseconds across all shards.
+     * The average heartbeat ping in milliseconds across all shards.
      */
-    get averagePing() {
-        if (!this.shardsRunning)
+    get averageHeartbeatPing() {
+        if (!this.shardsReady)
             return 0;
         else
-            return this.shards.reduce((p, c) => p + c.ping, 0) / this.shards.size;
+            return this.shards.reduce((p, c) => p + c.heartbeatPing, 0) / this.shards.size;
     }
     /**
      * The total guild count across all shards.
@@ -165,9 +165,9 @@ class Gateway extends node_utils_1.TypedEmitter {
         return this.shards.reduce((p, c) => p + c.guilds.size, 0);
     }
     /**
-     * If all shards are in a {@link GatewayShardState running state} (or {@link GatewayShardState guilds ready}).
+     * If all shards are in a {@link GatewayShardState ready state} (or {@link GatewayShardState guilds ready}).
      */
-    get shardsRunning() {
+    get shardsReady() {
         return this.shards.size > 0 && this.shards.every((shard) => shard.state >= GatewayShard_1.GatewayShardState.READY);
     }
     /**
@@ -182,7 +182,7 @@ class Gateway extends node_utils_1.TypedEmitter {
      * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
     async connect(gatewayBot) {
-        if (this.shardsRunning)
+        if (this.shardsReady)
             throw new Error(`Shards are already connected`);
         this._log(`Starting connection process`, {
             level: `DEBUG`, system: this.system
@@ -224,6 +224,18 @@ class Gateway extends node_utils_1.TypedEmitter {
         });
         this.emit(`MANAGER_READY`, results[0], results[1]);
         return results;
+    }
+    /**
+     * Get the average ping across all shards.
+     */
+    async getAveragePing() {
+        if (!this.shardsReady) {
+            return 0;
+        }
+        else {
+            const ping = await Promise.all(this.shards.map((shard) => shard.getPing()));
+            return ping.reduce((p, c) => p + c) / this.shards.size;
+        }
     }
     /**
      * Get a guild's shard.
