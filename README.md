@@ -17,10 +17,10 @@ A Discord library written in TypeScript for developers looking to interface dire
 ### Features
 
 - **Lightweight:** Distype uses minimal dependencies, and is highly performant due to the absence of transforming raw data from Discord into complex structures and abstractions.
-- **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
 - **Scalable:** With a built-in sharding manager (that supports big bot sharding) and a focus on performance, Distype makes it easy to scale your bot.
 - **Predictable:** Distype is as close as you can get to the Discord API, meaning that typically, what you see in Discord's documentation is also here.
 - **Modular:** The gateway manager, rest manager, and cache manager can all be instantiated independently, allowing for super lightweight solutions.
+- **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
 - **Highly Configurable:** Distype aims to offer as much configuration as possible of its internals, such as fully controllable cache behavior, retry and rate limit behavior, custom rest and gateway base URLs for proxy solutions, access to low-level http and websocket options, and more.
 
 ### Links
