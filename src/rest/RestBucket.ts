@@ -158,12 +158,12 @@ export class RestBucket {
         }
         this.manager.globalLeft!--;
 
-        const res = await this.manager.make(method, route, options);
+        const response = await this.manager.make(method, route, options);
 
-        const bucket = res.headers[DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET] as string | undefined;
-        const globalRetryAfter = +(res.headers[DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
+        const bucket = response.headers[DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET] as string | undefined;
+        const globalRetryAfter = +(response.headers[DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER] ?? 0) * 1000;
 
-        if (globalRetryAfter > 0 && res.headers[DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL] === `true`) {
+        if (globalRetryAfter > 0 && response.headers[DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL] === `true`) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
@@ -172,15 +172,18 @@ export class RestBucket {
             this.manager.routeHashCache!.set(routeHash, bucket);
         }
 
-        this.requestsLeft = +(res.headers[DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING] ?? 1);
-        this.resetAt = +(res.headers[DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000 + Date.now();
-        this.allowedRequestsPerRatelimit = +(res.headers[DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT] ?? Infinity);
+        this.requestsLeft = +(response.headers[DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING] ?? 1);
+        this.resetAt = +(response.headers[DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER] ?? 0) * 1000 + Date.now();
+        this.allowedRequestsPerRatelimit = +(response.headers[DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT] ?? Infinity);
 
-        if (res.statusCode === 429) return this._make(method, route, routeHash, options);
-        else if (res.statusCode >= 500 && res.statusCode < 600) {
+        if (response.statusCode === 429) {
+            return this._make(method, route, routeHash, options);
+        } else if (response.statusCode >= 500 && response.statusCode < 600) {
             if (attempt >= this.manager.options.code500retries) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
             else return this._make(method, route, routeHash, options, attempt + 1);
-        } else return res.body;
+        } else {
+            return response.body;
+        }
     }
 
     /**

@@ -208,7 +208,7 @@ export class Rest extends RestRequests {
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const req = request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
+        const reqResponse = await request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
             body: isForm ? options.body as FormData : JSON.stringify(options.body),
@@ -216,22 +216,16 @@ export class Rest extends RestRequests {
             method,
             query: options.query
         });
+        const body = reqResponse.statusCode !== 204 ? await reqResponse.body?.json() : undefined;
 
-        let unableToParse: string | boolean = false;
-        const res: RestInternalRestResponse = await req.then(async (r) => ({
-            ...r,
-            body: r.statusCode !== 204 ? await r.body?.json().catch((error) => {
-                unableToParse = (error?.message ?? error) ?? `Unknown reason`;
-            }) : undefined
-        }));
+        const response: RestInternalRestResponse = {
+            ...reqResponse,
+            body
+        };
 
-        if (typeof unableToParse === `string`) throw new Error(`Unable to parse response body: "${unableToParse}"`);
+        this._handleResponseCodes(method, route, response);
 
-        this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
-
-        this._handleResponseCodes(method, route, res);
-
-        return res;
+        return response;
     }
 
     /**
@@ -263,18 +257,20 @@ export class Rest extends RestRequests {
     /**
      * Handles response codes.
      */
-    private _handleResponseCodes (method: RestMethod, route: RestRoute, res: RestInternalRestResponse): void {
-        const result = `${res.statusCode} ${method} ${route}`;
+    private _handleResponseCodes (method: RestMethod, route: RestRoute, response: RestInternalRestResponse): void {
+        this.responseCodeTally[response.statusCode] = (this.responseCodeTally[response.statusCode] ?? 0) + 1;
 
-        if (res.statusCode < 400) {
+        const result = `${response.statusCode} ${method} ${route}`;
+
+        if (response.statusCode < 400) {
             this._log(result, {
                 level: `DEBUG`, system: this.system
             });
         } else {
             const errors: string[] = [];
-            if (res.body?.message) errors.push(res.body.message);
-            if (res.body?.errors) {
-                const flattened = flattenObject(res.body.errors, DiscordConstants.REST.ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+            if (response.body?.message) errors.push(response.body.message);
+            if (response.body?.errors) {
+                const flattened = flattenObject(response.body.errors, DiscordConstants.REST.ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
                 errors.push(
                     ...Object.keys(flattened)
                         .filter((key) => key.endsWith(`.${DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants.REST.ERROR_KEY)
@@ -289,7 +285,7 @@ export class Rest extends RestRequests {
 
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
 
-            if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
+            if (!this.options.disableRatelimits ? (response.statusCode !== 429 && response.statusCode < 500) : true) {
                 throw new Error(errorMessage);
             } else {
                 this._log(errorMessage, {
