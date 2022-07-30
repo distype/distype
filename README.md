@@ -14,8 +14,6 @@
 
 A Discord library written in TypeScript for developers looking to interface directly with the [Discord API](https://discord.com/developers/docs/intro) with little to no abstractions.
 
-*Disclaimer: Distype is currently a work in progress.*
-
 ### Features
 
 - **Scalable:** With a built-in sharding manager (that supports big bot sharding) and a focus on performance, Distype makes it easy to scale your bot.
