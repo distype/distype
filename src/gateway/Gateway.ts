@@ -254,11 +254,11 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     }
 
     /**
-     * The average ping in milliseconds across all shards.
+     * The average heartbeat ping in milliseconds across all shards.
      */
-    public get averagePing (): number {
-        if (!this.shardsRunning) return 0;
-        else return this.shards.reduce((p, c) => p + c.ping, 0) / this.shards.size;
+    public get averageHeartbeatPing (): number {
+        if (!this.shardsReady) return 0;
+        else return this.shards.reduce((p, c) => p + c.heartbeatPing, 0) / this.shards.size;
     }
 
     /**
@@ -269,9 +269,9 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     }
 
     /**
-     * If all shards are in a {@link GatewayShardState running state} (or {@link GatewayShardState guilds ready}).
+     * If all shards are in a {@link GatewayShardState ready state} (or {@link GatewayShardState guilds ready}).
      */
-    public get shardsRunning (): boolean {
+    public get shardsReady (): boolean {
         return this.shards.size > 0 && this.shards.every((shard) => shard.state >= GatewayShardState.READY);
     }
 
@@ -288,7 +288,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
     public async connect (gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<[number, number]> {
-        if (this.shardsRunning) throw new Error(`Shards are already connected`);
+        if (this.shardsReady) throw new Error(`Shards are already connected`);
 
         this._log(`Starting connection process`, {
             level: `DEBUG`, system: this.system
@@ -339,6 +339,18 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this.emit(`MANAGER_READY`, results[0], results[1]);
 
         return results;
+    }
+
+    /**
+     * Get the average ping across all shards.
+     */
+    public async getAveragePing (): Promise<number> {
+        if (!this.shardsReady) {
+            return 0;
+        } else {
+            const ping = await Promise.all(this.shards.map((shard) => shard.getPing()));
+            return ping.reduce((p, c) => p + c) / this.shards.size;
+        }
     }
 
     /**

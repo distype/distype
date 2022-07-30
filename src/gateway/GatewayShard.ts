@@ -6,6 +6,7 @@ import { LogCallback } from '../types/Log';
 import { TypedEmitter } from '@br88c/node-utils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
+import { randomUUID } from 'node:crypto';
 import { setTimeout as wait } from 'node:timers/promises';
 import { RawData, WebSocket } from 'ws';
 
@@ -63,6 +64,10 @@ export enum GatewayShardState {
      * - Starts [heartbeating](https://discord.com/developers/docs/topics/gateway#heartbeating)
      * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify)
      * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch
+     *
+     * Alternatively, if the shard receives an [Invalid Session payload](https://discord.com/developers/docs/topics/gateway#invalid-session) and enters this state:
+     * - The shard sends an [identify payload](https://discord.com/developers/docs/topics/gateway#identify) or a [resume payload](https://discord.com/developers/docs/topics/gateway#resume)
+     * - Waits for the [READY](https://discord.com/developers/docs/topics/gateway#ready) or [RESUMED](https://discord.com/developers/docs/topics/gateway#resumed) dispatch
      */
     CONNECTING,
     /**
@@ -86,13 +91,13 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     public guilds: Set<Snowflake> = new Set();
     /**
+     * The shard's heartbeat ping in milliseconds.
+     */
+    public heartbeatPing = 0;
+    /**
      * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
      */
     public lastSequence: number | null = null;
-    /**
-     * The shard's ping in milliseconds.
-     */
-    public ping = 0;
     /**
      * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
      */
@@ -214,12 +219,31 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Spawn the shard.
+     * Get the shard's ping.
+     * @returns The node's ping in milliseconds.
      */
-    public async spawn (): Promise<void> {
-        if (this.state >= GatewayShardState.READY) return Promise.resolve();
-        if (this.state >= GatewayShardState.CONNECTING) return await TypedEmitter.once(this as TypedEmitter<GatewayShardEvents>, `READY`).then(() => {});
-        return await this._spawn();
+    public async getPing (): Promise<number> {
+        return await new Promise((resolve, reject) => {
+            if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+                reject(new Error(`Cannot send data when the socket is not in an OPEN state`));
+            } else {
+                const uuid = randomUUID();
+                const start = Date.now();
+
+                const onPong = (data: Buffer): void => {
+                    const time = Date.now() - start;
+                    if (data.toString() === uuid) {
+                        this.ws?.removeListener(`pong`, onPong);
+                        resolve(time);
+                    }
+                };
+
+                this.ws.ping(uuid, undefined, (error) => {
+                    if (error) reject(error);
+                    else this.ws?.on(`pong`, onPong);
+                });
+            }
+        });
     }
 
     /**
@@ -263,6 +287,15 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 }
             });
         });
+    }
+
+    /**
+     * Spawn the shard.
+     */
+    public async spawn (): Promise<void> {
+        if (this.state >= GatewayShardState.READY) return Promise.resolve();
+        if (this.state >= GatewayShardState.CONNECTING) return await TypedEmitter.once(this as TypedEmitter<GatewayShardEvents>, `READY`).then(() => {});
+        return await this._spawn();
     }
 
     /**
@@ -318,7 +351,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         }
 
         this.guilds = new Set();
-        this.ping = 0;
+        this.heartbeatPing = 0;
         this.waitingForGuilds = null;
 
         if (this._timers.guilds) {
@@ -357,6 +390,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         }
     }
 
+    /**
+     * Send the [identify payload](https://discord.com/developers/docs/topics/gateway#identify).
+     */
     private async _identify (): Promise<void> {
         return await this.send({
             op: DiscordTypes.GatewayOpcodes.Identify,
@@ -376,30 +412,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Parses an incoming payload.
-     * @param payload The payload to parse.
-     * @returns The parsed payload.
+     * Send the [resume payload](https://discord.com/developers/docs/topics/gateway#resume).
      */
-    private _parsePayload (payload: RawData): any {
-        if (typeof payload !== `object` && typeof payload !== `function`) return payload;
-
-        try {
-            if (Array.isArray(payload)) payload = Buffer.concat(payload);
-            else if (payload instanceof ArrayBuffer) payload = Buffer.from(payload);
-
-            try {
-                return JSON.parse(payload.toString());
-            } catch {
-                if (typeof payload.toString === `function`) return payload.toString();
-                else return payload;
-            }
-        } catch (error: any) {
-            this._log(`Payload parsing error: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                level: `WARN`, system: this.system
-            });
-        }
-    }
-
     private async _resume (): Promise<void> {
         if (this.lastSequence === null || this.sessionId === null) throw new Error(`Cannot resume; lastSequence and / or sessionId is not defined`);
 
@@ -490,10 +504,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * When the WebSocket emits a close event.
      */
     private _wsOnClose (code: number, reason: Buffer): void {
-        let parsedReason = this._parsePayload(reason);
-        if (!parsedReason.length) parsedReason = `[No reason provided]`;
-
-        this._log(`Received close code ${code} with reason "${parsedReason}"`, {
+        this._log(`Received close code ${code} with reason "${reason.toString() ?? `[Unknown Reason]`}"`, {
             level: `WARN`, system: this.system
         });
 
@@ -518,7 +529,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * When the WebSocket emits a message event.
      */
     private _wsOnMessage (payload: RawData): void {
-        const parsedPayload = this._parsePayload(payload) as DiscordTypes.GatewayReceivePayload;
+        const parsedPayload = JSON.parse(payload.toString()) as DiscordTypes.GatewayReceivePayload;
 
         if (parsedPayload.s !== null) this.lastSequence = parsedPayload.s;
 
@@ -528,9 +539,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     case DiscordTypes.GatewayDispatchEvents.Ready: {
                         this.sessionId = parsedPayload.d.session_id;
 
-                        this._enterState(GatewayShardState.READY);
-
                         parsedPayload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
+
+                        this._enterState(GatewayShardState.READY);
 
                         if ((DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants.GATEWAY.INTENTS.GUILDS) {
                             this.waitingForGuilds = new Set(parsedPayload.d.guilds.map((guild) => guild.id));
@@ -594,6 +605,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     level: `INFO`, system: this.system
                 });
 
+                this._enterState(GatewayShardState.CONNECTING);
                 if (parsedPayload.d) {
                     this._resume();
                 } else {
@@ -626,11 +638,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             case DiscordTypes.GatewayOpcodes.HeartbeatAck: {
                 if (this._timestamps.lastHeartbeat !== null) {
-                    this.ping = Date.now() - this._timestamps.lastHeartbeat;
+                    this.heartbeatPing = Date.now() - this._timestamps.lastHeartbeat;
                     this._timestamps.lastHeartbeatAck = null;
                 }
 
-                this._log(`Heartbeat ACK (Ping at ${this.ping}ms)`, {
+                this._log(`Heartbeat ACK (Heartbeat ping at ${this.heartbeatPing}ms)`, {
                     level: `DEBUG`, system: this.system
                 });
 
