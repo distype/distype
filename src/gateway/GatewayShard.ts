@@ -553,7 +553,16 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             level: `WARN`, system: this.system
         });
 
-        if (DiscordConstants.GATEWAY.CLOSE_CODES.NOT_RECONNECTABLE.includes(code)) {
+        if (
+            [
+                DiscordTypes.GatewayCloseCodes.AuthenticationFailed,
+                DiscordTypes.GatewayCloseCodes.InvalidShard,
+                DiscordTypes.GatewayCloseCodes.ShardingRequired,
+                DiscordTypes.GatewayCloseCodes.InvalidAPIVersion,
+                DiscordTypes.GatewayCloseCodes.InvalidIntents,
+                DiscordTypes.GatewayCloseCodes.DisallowedIntents
+            ].includes(code)
+        ) {
             this.kill(`Connection Closed with code ${code}`);
         } else {
             this._enterState(GatewayShardState.DISCONNECTED);
