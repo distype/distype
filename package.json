@@ -39,7 +39,7 @@
     "ws": "^8.8.1"
   },
   "devDependencies": {
-    "@br88c/eslint-config": "^1.5.1",
+    "@br88c/eslint-config": "^1.6.0",
     "@types/node": "^16.11.46",
     "eslint": "^8.20.0",
     "rimraf": "^3.0.2",
