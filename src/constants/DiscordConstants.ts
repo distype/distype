@@ -81,11 +81,27 @@ export const DiscordConstants = {
             /**
              * Close codes that a shard should attempt to reconnect after receiving.
              */
-            RECONNECTABLE: [DiscordTypes.GatewayCloseCodes.UnknownError, DiscordTypes.GatewayCloseCodes.UnknownOpcode, DiscordTypes.GatewayCloseCodes.DecodeError, DiscordTypes.GatewayCloseCodes.NotAuthenticated, DiscordTypes.GatewayCloseCodes.AlreadyAuthenticated, DiscordTypes.GatewayCloseCodes.InvalidSeq, DiscordTypes.GatewayCloseCodes.RateLimited, DiscordTypes.GatewayCloseCodes.SessionTimedOut],
+            RECONNECTABLE: [
+                DiscordTypes.GatewayCloseCodes.UnknownError,
+                DiscordTypes.GatewayCloseCodes.UnknownOpcode,
+                DiscordTypes.GatewayCloseCodes.DecodeError,
+                DiscordTypes.GatewayCloseCodes.NotAuthenticated,
+                DiscordTypes.GatewayCloseCodes.AlreadyAuthenticated,
+                DiscordTypes.GatewayCloseCodes.InvalidSeq,
+                DiscordTypes.GatewayCloseCodes.RateLimited,
+                DiscordTypes.GatewayCloseCodes.SessionTimedOut
+            ],
             /**
              * Close codes that a shard should not attempt to reconnect after receiving.
              */
-            NOT_RECONNECTABLE: [DiscordTypes.GatewayCloseCodes.AuthenticationFailed, DiscordTypes.GatewayCloseCodes.InvalidShard, DiscordTypes.GatewayCloseCodes.ShardingRequired, DiscordTypes.GatewayCloseCodes.InvalidAPIVersion, DiscordTypes.GatewayCloseCodes.InvalidIntents, DiscordTypes.GatewayCloseCodes.DisallowedIntents]
+            NOT_RECONNECTABLE: [
+                DiscordTypes.GatewayCloseCodes.AuthenticationFailed,
+                DiscordTypes.GatewayCloseCodes.InvalidShard,
+                DiscordTypes.GatewayCloseCodes.ShardingRequired,
+                DiscordTypes.GatewayCloseCodes.InvalidAPIVersion,
+                DiscordTypes.GatewayCloseCodes.InvalidIntents,
+                DiscordTypes.GatewayCloseCodes.DisallowedIntents
+            ]
         },
         /**
          * Gateway intents.
