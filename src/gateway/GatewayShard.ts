@@ -8,6 +8,7 @@ import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as wait } from 'node:timers/promises';
+import { TextDecoder } from 'node:util';
 import { RawData, WebSocket } from 'ws';
 
 /**
@@ -137,6 +138,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     public readonly url: string;
 
     /**
+     * The shard's text decoder.
+     */
+    private _textDecoder: TextDecoder = new TextDecoder();
+    /**
      * Timers used by the shard.
      */
     private _timers: {
@@ -219,7 +224,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Get the shard's ping.
+     * Gets the shard's ping.
      * @returns The node's ping in milliseconds.
      */
     public async getPing (): Promise<number> {
@@ -247,7 +252,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Kill the shard.
+     * Kills the shard.
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code) to send if the connection is still open. Defaults to `1000`.
      */
@@ -261,7 +266,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Send a payload to the gateway.
+     * Sends a payload to the gateway.
      * @param paylaod The data to send.
      */
     public async send (payload: DiscordTypes.GatewaySendPayload): Promise<void> {
@@ -290,7 +295,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
-     * Spawn the shard.
+     * Spawns the shard.
      */
     public async spawn (): Promise<void> {
         if (this.state >= GatewayShardState.READY) return Promise.resolve();
@@ -453,7 +458,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         }
     }
 
-
+    /**
+     * Spawns the shard.
+     * @param attempt The current attempt count.
+     */
     private async _spawn (attempt = 1): Promise<void> {
         return await new Promise<void>((resolve, reject) => {
             this._close(`Respawning`, this.state === GatewayShardState.IDLE ? 1000 : 4000);
@@ -501,10 +509,47 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     }
 
     /**
+     * Unpack a payload.
+     * @param payload The payload.
+     * @param isBinary If the payload is binary.
+     * @returns The unpacked payload.
+     */
+    private _unpackPayload (payload: ArrayBuffer | Buffer, isBinary: boolean): DiscordTypes.GatewayReceivePayload | null {
+        try {
+            const raw = new Uint8Array(payload);
+
+            if (!isBinary) {
+                return JSON.parse(this._textDecoder.decode(raw));
+            } else {
+                this._log(`Got binary payload; unable to unpack`, {
+                    level: `DEBUG`, system: this.system
+                });
+
+                return null;
+            }
+        } catch (error: any) {
+            this._log(`Unable to unpack payload: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                level: `WARN`, system: this.system
+            });
+
+            return null;
+        }
+    }
+
+    /**
      * When the WebSocket emits a close event.
      */
     private _wsOnClose (code: number, reason: Buffer): void {
-        this._log(`Received close code ${code} with reason "${reason.toString() ?? `[Unknown Reason]`}"`, {
+        let parsedReason;
+        try {
+            parsedReason = reason.toString();
+        } catch (error: any) {
+            this._log(`Unable to parse close reason: ${(error?.message ?? error) ?? `Unknown reason`}`, {
+                level: `WARN`, system: this.system
+            });
+        }
+
+        this._log(`Received close code ${code} with reason "${parsedReason ?? `[Unknown Reason]`}"`, {
             level: `WARN`, system: this.system
         });
 
@@ -528,8 +573,9 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * When the WebSocket emits a message event.
      */
-    private _wsOnMessage (payload: RawData): void {
-        const parsedPayload = JSON.parse(payload.toString()) as DiscordTypes.GatewayReceivePayload;
+    private _wsOnMessage (payload: RawData, isBinary: boolean): void {
+        const parsedPayload = this._unpackPayload(payload as ArrayBuffer | Buffer, isBinary);
+        if (!parsedPayload) return;
 
         if (parsedPayload.s !== null) this.lastSequence = parsedPayload.s;
 
