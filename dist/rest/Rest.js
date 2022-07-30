@@ -160,7 +160,7 @@ class Rest extends RestRequests_1.RestRequests {
             headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const req = (0, undici_1.request)(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
+        const reqResponse = await (0, undici_1.request)(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
             ...this.options,
             ...options,
             body: isForm ? options.body : JSON.stringify(options.body),
@@ -168,18 +168,13 @@ class Rest extends RestRequests_1.RestRequests {
             method,
             query: options.query
         });
-        let unableToParse = false;
-        const res = await req.then(async (r) => ({
-            ...r,
-            body: r.statusCode !== 204 ? await r.body?.json().catch((error) => {
-                unableToParse = (error?.message ?? error) ?? `Unknown reason`;
-            }) : undefined
-        }));
-        if (typeof unableToParse === `string`)
-            throw new Error(`Unable to parse response body: "${unableToParse}"`);
-        this.responseCodeTally[res.statusCode] = (this.responseCodeTally[res.statusCode] ?? 0) + 1;
-        this._handleResponseCodes(method, route, res);
-        return res;
+        const body = reqResponse.statusCode !== 204 ? await reqResponse.body?.json() : undefined;
+        const response = {
+            ...reqResponse,
+            body
+        };
+        this._handleResponseCodes(method, route, response);
+        return response;
     }
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
@@ -209,19 +204,20 @@ class Rest extends RestRequests_1.RestRequests {
     /**
      * Handles response codes.
      */
-    _handleResponseCodes(method, route, res) {
-        const result = `${res.statusCode} ${method} ${route}`;
-        if (res.statusCode < 400) {
+    _handleResponseCodes(method, route, response) {
+        this.responseCodeTally[response.statusCode] = (this.responseCodeTally[response.statusCode] ?? 0) + 1;
+        const result = `${response.statusCode} ${method} ${route}`;
+        if (response.statusCode < 400) {
             this._log(result, {
                 level: `DEBUG`, system: this.system
             });
         }
         else {
             const errors = [];
-            if (res.body?.message)
-                errors.push(res.body.message);
-            if (res.body?.errors) {
-                const flattened = (0, node_utils_1.flattenObject)(res.body.errors, DiscordConstants_1.DiscordConstants.REST.ERROR_KEY);
+            if (response.body?.message)
+                errors.push(response.body.message);
+            if (response.body?.errors) {
+                const flattened = (0, node_utils_1.flattenObject)(response.body.errors, DiscordConstants_1.DiscordConstants.REST.ERROR_KEY);
                 errors.push(...Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST.ERROR_KEY)
                     .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST.ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
@@ -230,7 +226,7 @@ class Rest extends RestRequests_1.RestRequests {
                     .flat());
             }
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
-            if (!this.options.disableRatelimits ? (res.statusCode !== 429 && res.statusCode < 500) : true) {
+            if (!this.options.disableRatelimits ? (response.statusCode !== 429 && response.statusCode < 500) : true) {
                 throw new Error(errorMessage);
             }
             else {
