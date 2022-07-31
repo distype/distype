@@ -16,8 +16,10 @@ A Discord library written in TypeScript for developers looking to interface dire
 
 ### Features
 
+- **Lightweight:** Distype uses minimal dependencies, and is highly performant due to the absence of transforming raw data from Discord into complex structures and abstractions.
 - **Scalable:** With a built-in sharding manager (that supports big bot sharding) and a focus on performance, Distype makes it easy to scale your bot.
 - **Predictable:** Distype is as close as you can get to the Discord API, meaning that typically, what you see in Discord's documentation is also here.
+- **Modular:** The cache manager, gateway manager, and rest manager can all be instantiated independently, allowing for super lightweight solutions.
 - **Fully Featured:** Distype covers 100% of the Discord API, meaning that you'll never be missing out on any features.
 - **Highly Configurable:** Distype aims to offer as much configuration as possible of its internals, such as fully controllable cache behavior, retry and rate limit behavior, custom rest and gateway base URLs for proxy solutions, access to low-level http and websocket options, and more.
 
@@ -35,10 +37,17 @@ A Discord library written in TypeScript for developers looking to interface dire
 ## Example Bot
 
 ```ts
-import { Client } from 'distype';
+// Import Distype and logging typings.
+import { Client, LogCallback } from 'distype';
 
-const client = new Client(YOUR_BOT_TOKEN);
+// Distype pushes logging events through callbacks, and allows you to define your own logger.
+const logger: LogCallback = (message, { level }) => console.log(`${level} | ${message}`);
 
+// Creates the client. The client creates a cache, gateway, and rest manager. The first parameter is your
+// bot's token, followed by client options, then finally the log callback.
+const client = new Client(YOUR_BOT_TOKEN, {}, logger);
+
+// This connects the client to the gateway.
 client.gateway.connect();
 ```
 
