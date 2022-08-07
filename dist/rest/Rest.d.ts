@@ -76,7 +76,7 @@ export declare class Rest extends RestRequests {
      */
     readonly options: Required<RestOptions> & RestRequestOptions;
     /**
-     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     readonly system = "Rest";
     /**

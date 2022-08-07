@@ -119,7 +119,7 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     readonly options: Gateway[`options`];
     /**
-     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     readonly system: `Gateway Shard ${number}`;
     /**

@@ -55,7 +55,7 @@ class Cache {
      */
     options;
     /**
-     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     system = `Cache`;
     /**
