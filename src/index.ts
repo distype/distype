@@ -48,8 +48,7 @@ export {
 export {
     LogCallback,
     LogLevel,
-    LogMessageOptions,
-    LogSystem
+    LogMessageOptions
 } from './types/Log';
 
 export {
