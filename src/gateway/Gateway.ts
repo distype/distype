@@ -160,7 +160,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      */
     public readonly options: Required<GatewayOptions> & { intents: number };
     /**
-     * The system string used for emitting {@link DistypeError errors} and for the {@link LogCallback log callback}.
+     * The system string used for logging.
      */
     public readonly system = `Gateway`;
 
