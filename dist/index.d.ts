@@ -11,7 +11,7 @@ export { GatewayShard, GatewayShardEvents, GatewayShardState } from './gateway/G
 export { Rest, RestMethod, RestRequestData, RestRoute } from './rest/Rest';
 export { RestBucket, RestBucketId, RestRouteHash } from './rest/RestBucket';
 export { RestOptions, RestRequestOptions } from './rest/RestOptions';
-export { LogCallback, LogLevel, LogMessageOptions, LogSystem } from './types/Log';
+export { LogCallback, LogLevel, LogMessageOptions } from './types/Log';
 export { CDNImageOptions, CDNUtils } from './utils/CDNUtils';
 export { PermissionsChannel, PermissionsGuild, PermissionsMember, PermissionsUtils } from './utils/PermissionsUtils';
 export { SnowflakeUtils } from './utils/SnowflakeUtils';
