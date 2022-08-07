@@ -1,6 +1,6 @@
 {
   "name": "distype",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Discord library written in TypeScript for developers looking to interface directly with the Discord API with little to no abstractions.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
