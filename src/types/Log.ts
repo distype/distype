@@ -19,10 +19,5 @@ export interface LogMessageOptions {
     /**
      * The {@link LoggerSystem system} creating the log.
      */
-    system: LogSystem
+    system: string
 }
-
-/**
- * A system that created a log.
- */
-export type LogSystem = `General` | `Client` | `Cache` | `Gateway` | `Gateway Shard ${number}` | `Gateway Shard Socket ${number}` | `Rest` | `Rest Bucket`;
