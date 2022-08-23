@@ -305,10 +305,10 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.ws = null;
         }
         if (this.state === GatewayShardState.IDLE) {
+            this.guilds = new Set();
             this.lastSequence = null;
             this.sessionId = null;
         }
-        this.guilds = new Set();
         this.heartbeatPing = 0;
         this.waitingForGuilds = null;
         if (this._timers.guilds) {
@@ -526,7 +526,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                         parsedPayload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         this._enterState(GatewayShardState.READY);
                         if ((DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS) {
-                            this.waitingForGuilds = new Set(parsedPayload.d.guilds.map((guild) => guild.id));
+                            const guilds = parsedPayload.d.guilds.map((guild) => guild.id);
+                            this.guilds = new Set(guilds);
+                            this.waitingForGuilds = new Set(guilds);
                             this._checkGuilds();
                         }
                         else {

@@ -291,7 +291,7 @@ class Gateway extends node_utils_1.TypedEmitter {
                 op: DiscordTypes.GatewayOpcodes.RequestGuildMembers,
                 d: {
                     guild_id: guildId,
-                    query: !options.query && !options.user_ids ? `` : options.query,
+                    query: (!options.query && !options.user_ids ? `` : options.query),
                     limit: options.limit ?? 0,
                     presences: (this.options.intents & DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
