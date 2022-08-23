@@ -351,11 +351,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         }
 
         if (this.state === GatewayShardState.IDLE) {
+            this.guilds = new Set();
             this.lastSequence = null;
             this.sessionId = null;
         }
 
-        this.guilds = new Set();
         this.heartbeatPing = 0;
         this.waitingForGuilds = null;
 
@@ -599,7 +599,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                         this._enterState(GatewayShardState.READY);
 
                         if ((DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants.GATEWAY.INTENTS.GUILDS) {
-                            this.waitingForGuilds = new Set(parsedPayload.d.guilds.map((guild) => guild.id));
+                            const guilds = parsedPayload.d.guilds.map((guild) => guild.id);
+
+                            this.guilds = new Set(guilds);
+                            this.waitingForGuilds = new Set(guilds);
+
                             this._checkGuilds();
                         } else {
                             this._enterState(GatewayShardState.GUILDS_READY);
@@ -615,10 +619,12 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                     case DiscordTypes.GatewayDispatchEvents.GuildCreate: {
                         this.guilds.add(parsedPayload.d.id);
+
                         if (this.state < GatewayShardState.GUILDS_READY && this.waitingForGuilds) {
                             this.waitingForGuilds.delete(parsedPayload.d.id);
                             this._checkGuilds();
                         }
+
                         break;
                     }
 
