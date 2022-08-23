@@ -27,7 +27,7 @@ type CachedChannelType<T> = {
 /**
  * A cached channel.
  */
-export type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> & CachedChannelType<DiscordTypes.APIDMChannel> & CachedChannelType<DiscordTypes.APITextChannel> & CachedChannelType<DiscordTypes.APINewsChannel> & CachedChannelType<DiscordTypes.APIVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildCategoryChannel> & CachedChannelType<DiscordTypes.APIThreadChannel> & CachedChannelType<DiscordTypes.APINewsChannel>;
+export type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> & CachedChannelType<DiscordTypes.APIDMChannel> & CachedChannelType<DiscordTypes.APITextChannel> & CachedChannelType<DiscordTypes.APINewsChannel> & CachedChannelType<DiscordTypes.APIGuildVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildCategoryChannel> & CachedChannelType<DiscordTypes.APIThreadChannel> & CachedChannelType<DiscordTypes.APINewsChannel>;
 
 /**
  * A cached guild.

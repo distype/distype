@@ -375,7 +375,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns Received members, presences, and missing members.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
-    public getGuildMembers (guildId: Snowflake, options: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersData, `guild_id` | `presences`>> = {}): Promise<{
+    public getGuildMembers (guildId: Snowflake, options: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersDataWithQuery, `guild_id` | `presences`>> & { user_ids?: Snowflake | Snowflake[]; } = {}): Promise<{
         members: ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>
         presences?: ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>
         notFound?: Snowflake[]
@@ -414,7 +414,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                 op: DiscordTypes.GatewayOpcodes.RequestGuildMembers,
                 d: {
                     guild_id: guildId,
-                    query: !options.query && !options.user_ids ? `` : options.query,
+                    query: (!options.query && !options.user_ids ? `` : options.query)!,
                     limit: options.limit ?? 0,
                     presences: (this.options.intents & DiscordConstants.GATEWAY.INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
