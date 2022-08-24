@@ -495,7 +495,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             this.ws = new WebSocket(url, this.options.wsOptions);
 
             this.ws.once(`open`, () => {
-                this._log(`WebSocket open`, {
+                this._log(`WebSocket open (${url})`, {
                     level: `DEBUG`, system: this.system
                 });
             });
