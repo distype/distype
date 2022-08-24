@@ -35,12 +35,12 @@
     "@br88c/node-utils": "^1.4.0",
     "@types/ws": "^8.5.3",
     "discord-api-types": "^0.37.4",
-    "undici": "^5.9.1",
+    "undici": "^5.10.0",
     "ws": "^8.8.1"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.6.0",
-    "@types/node": "^16.11.55",
+    "@types/node": "^16.11.56",
     "eslint": "^8.22.0",
     "rimraf": "^3.0.2",
     "typedoc": "^0.23.10",
