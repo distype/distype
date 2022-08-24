@@ -117,6 +117,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             this._cache = cache;
         this.options = {
             customGatewaySocketURL: options.customGatewaySocketURL ?? null,
+            customGatewaySocketURLOverwrittenByResumeURL: options.customGatewaySocketURLOverwrittenByResumeURL ?? null,
             customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
             disableBucketRatelimits: options.disableBucketRatelimits ?? false,
             guildsReadyTimeout: options.guildsReadyTimeout ?? 15000,

@@ -82,9 +82,13 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     heartbeatPing = 0;
     /**
-     * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
+     * The last [sequence number](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure) received.
      */
     lastSequence = null;
+    /**
+     * The URL used for reconnecting and resuming sessions.
+     */
+    resumeURL = null;
     /**
      * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
      */
@@ -307,6 +311,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         if (this.state === GatewayShardState.IDLE) {
             this.guilds = new Set();
             this.lastSequence = null;
+            this.resumeURL = null;
             this.sessionId = null;
         }
         this.heartbeatPing = 0;
@@ -424,7 +429,8 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             this.once(`IDLE`, closedListener);
             this.once(`DISCONNECTED`, closedListener);
             this.once(`READY`, readyListener);
-            this.ws = new ws_1.WebSocket(this.url, this.options.wsOptions);
+            const url = this.resumeURL !== null && this.lastSequence !== null && this.sessionId !== null ? this.resumeURL : this.url;
+            this.ws = new ws_1.WebSocket(url, this.options.wsOptions);
             this.ws.once(`open`, () => {
                 this._log(`WebSocket open`, {
                     level: `DEBUG`, system: this.system
@@ -523,6 +529,9 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 switch (parsedPayload.t) {
                     case DiscordTypes.GatewayDispatchEvents.Ready: {
                         this.sessionId = parsedPayload.d.session_id;
+                        if (this.options.customGatewaySocketURL === null || (this.options.customGatewaySocketURL !== null && this.options.customGatewaySocketURLOverwrittenByResumeURL)) {
+                            this.resumeURL = parsedPayload.d.resume_gateway_url;
+                        }
                         parsedPayload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         this._enterState(GatewayShardState.READY);
                         if ((DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS) {

@@ -87,9 +87,13 @@ export declare class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      */
     heartbeatPing: number;
     /**
-     * The last [sequence number](https://discord.com/developers/docs/topics/gateway#resumed) received.
+     * The last [sequence number](https://discord.com/developers/docs/topics/gateway#payloads-gateway-payload-structure) received.
      */
     lastSequence: number | null;
+    /**
+     * The URL used for reconnecting and resuming sessions.
+     */
+    resumeURL: string | null;
     /**
      * The shard's [session ID](https://discord.com/developers/docs/topics/gateway#ready-ready-event-fields).
      */
