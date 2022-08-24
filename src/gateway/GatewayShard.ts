@@ -447,7 +447,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 level: `WARN`, system: this.system
             });
             this._enterState(GatewayShardState.DISCONNECTED);
-            this._spawn();
+            this._spawn().catch((error) => {
+                this._log(`Failed to respawn shard: ${error.message}`, {
+                    level: `ERROR`, system: this.system
+                });
+            });
         } else {
             this.send(({
                 op: DiscordTypes.GatewayOpcodes.Heartbeat,
@@ -670,7 +674,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 });
 
                 this._enterState(GatewayShardState.DISCONNECTED);
-                this._spawn();
+                this._spawn().catch((error) => {
+                    this._log(`Failed to respawn shard: ${error.message}`, {
+                        level: `ERROR`, system: this.system
+                    });
+                });
 
                 break;
             }
