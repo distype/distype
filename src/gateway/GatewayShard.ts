@@ -572,7 +572,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             this.kill(`Connection Closed with code ${code}`);
         } else {
             this._enterState(GatewayShardState.DISCONNECTED);
-            this._spawn();
+            this._spawn().catch((error) => {
+                this._log(`Failed to respawn shard: ${error.message}`, {
+                    level: `ERROR`, system: this.system
+                });
+            });
         }
     }
 
