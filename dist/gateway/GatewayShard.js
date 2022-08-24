@@ -432,7 +432,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
             const url = this.resumeURL !== null && this.lastSequence !== null && this.sessionId !== null ? this.resumeURL : this.url;
             this.ws = new ws_1.WebSocket(url, this.options.wsOptions);
             this.ws.once(`open`, () => {
-                this._log(`WebSocket open`, {
+                this._log(`WebSocket open (${url})`, {
                     level: `DEBUG`, system: this.system
                 });
             });
