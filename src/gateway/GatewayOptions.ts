@@ -18,6 +18,12 @@ export interface GatewayOptions {
      */
     customGatewaySocketURL?: string | null
     /**
+     * If `customGatewaySocketURL` is defined and this is `true`, the `resume_gateway_url` field in the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch is used instead of the `customGatewaySocketURL`.
+     * Otherwise, if `customGatewaySocketURL` is defined, it's used for connecting and resuming.
+     * @default null
+     */
+    customGatewaySocketURLOverwrittenByResumeURL?: boolean | null
+    /**
      * A custom URL to use as a substitute for [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
      * Useful if you use a proxy to connect to the Discord gateway, and it handles bot instances / sharding.
      * This should be the full URL, not just a route (Example: `https://api.example.com/gateway`, not `/gateway`).

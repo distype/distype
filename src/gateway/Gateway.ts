@@ -217,6 +217,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
         this.options = {
             customGatewaySocketURL: options.customGatewaySocketURL ?? null,
+            customGatewaySocketURLOverwrittenByResumeURL: options.customGatewaySocketURLOverwrittenByResumeURL ?? null,
             customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
             disableBucketRatelimits: options.disableBucketRatelimits ?? false,
             guildsReadyTimeout: options.guildsReadyTimeout ?? 15000,
