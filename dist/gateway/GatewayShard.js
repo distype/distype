@@ -390,7 +390,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                 level: `WARN`, system: this.system
             });
             this._enterState(GatewayShardState.DISCONNECTED);
-            this._spawn();
+            this._spawn().catch((error) => {
+                this._log(`Failed to respawn shard: ${error.message}`, {
+                    level: `ERROR`, system: this.system
+                });
+            });
         }
         else {
             this.send(({
@@ -504,7 +508,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         }
         else {
             this._enterState(GatewayShardState.DISCONNECTED);
-            this._spawn();
+            this._spawn().catch((error) => {
+                this._log(`Failed to respawn shard: ${error.message}`, {
+                    level: `ERROR`, system: this.system
+                });
+            });
         }
     }
     /**
@@ -578,7 +586,11 @@ class GatewayShard extends node_utils_1.TypedEmitter {
                     level: `INFO`, system: this.system
                 });
                 this._enterState(GatewayShardState.DISCONNECTED);
-                this._spawn();
+                this._spawn().catch((error) => {
+                    this._log(`Failed to respawn shard: ${error.message}`, {
+                        level: `ERROR`, system: this.system
+                    });
+                });
                 break;
             }
             case DiscordTypes.GatewayOpcodes.InvalidSession: {
