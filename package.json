@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.6.0",
-    "@types/node": "^18.11.9",
+    "@types/node": "^16.18.3",
     "eslint": "^8.26.0",
     "rimraf": "^3.0.2",
     "typedoc": "^0.23.19",
