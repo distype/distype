@@ -96,7 +96,9 @@ export const DiscordConstants = {
             DIRECT_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.DirectMessageReactions,
             DIRECT_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.DirectMessageTyping,
             MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent,
-            GUILD_SCHEDULED_EVENTS: DiscordTypes.GatewayIntentBits.GuildScheduledEvents
+            GUILD_SCHEDULED_EVENTS: DiscordTypes.GatewayIntentBits.GuildScheduledEvents,
+            AUTO_MODERATION_CONFIGURATION: DiscordTypes.GatewayIntentBits.AutoModerationConfiguration,
+            AUTO_MODERATION_EXECUTION: DiscordTypes.GatewayIntentBits.AutoModerationExecution
         },
         /**
          * Privileged gateway intents.
