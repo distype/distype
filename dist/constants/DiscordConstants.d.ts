@@ -96,6 +96,8 @@ export declare const DiscordConstants: {
             readonly DIRECT_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.DirectMessageTyping;
             readonly MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent;
             readonly GUILD_SCHEDULED_EVENTS: DiscordTypes.GatewayIntentBits.GuildScheduledEvents;
+            readonly AUTO_MODERATION_CONFIGURATION: DiscordTypes.GatewayIntentBits.AutoModerationConfiguration;
+            readonly AUTO_MODERATION_EXECUTION: DiscordTypes.GatewayIntentBits.AutoModerationExecution;
         };
         /**
          * Privileged gateway intents.

@@ -8,11 +8,14 @@ exports.RestRequests = void 0;
 class RestRequests {
     /**
      * @param applicationId The application ID.
+     * @param query Request query.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-global-application-commands)
      */
-    async getGlobalApplicationCommands(applicationId, options) {
-        return await this.request(`GET`, `/applications/${applicationId}/commands`, options);
+    async getGlobalApplicationCommands(applicationId, query, options) {
+        return await this.request(`GET`, `/applications/${applicationId}/commands`, {
+            query, ...options
+        });
     }
     /**
      * @param applicationId The application ID.
@@ -69,11 +72,14 @@ class RestRequests {
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
+     * @param query Request query.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-guild-application-commands)
      */
-    async getGuildApplicationCommands(applicationId, guildId, options) {
-        return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands`, options);
+    async getGuildApplicationCommands(applicationId, guildId, query, options) {
+        return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
+            query, ...options
+        });
     }
     /**
      * @param applicationId The application ID.
@@ -260,6 +266,60 @@ class RestRequests {
     async getGuildAuditLog(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/audit-logs`, {
             query, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#list-auto-moderation-rules-for-guild)
+     */
+    async listAutoModerationRulesForGuild(guildId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/auto-moderation/rules`, { ...options });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param autoModerationRuleId The auto moderation rule ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#get-auto-moderation-rule)
+     */
+    async getAutoModerationRule(guildId, autoModerationRuleId, options) {
+        return await this.request(`GET`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, { ...options });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
+     */
+    async createAutoModerationRule(guildId, body, reason, options) {
+        return await this.request(`POST`, `/guilds/${guildId}/auto-moderation/rules`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param autoModerationRuleId The auto moderation rule ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
+     */
+    async modifyAutoModerationRule(guildId, autoModerationRuleId, body, reason, options) {
+        return await this.request(`PATCH`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, {
+            body, reason, ...options
+        });
+    }
+    /**
+     * @param guildId The guild ID.
+     * @param autoModerationRuleId The auto moderation rule ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
+     */
+    async deleteAutoModerationRule(guildId, autoModerationRuleId, reason, options) {
+        return await this.request(`PATCH`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, {
+            reason, ...options
         });
     }
     /**

@@ -11,10 +11,11 @@ export declare abstract class RestRequests {
     abstract request(method: RestMethod, route: string, options?: RestRequestData): Promise<any>;
     /**
      * @param applicationId The application ID.
+     * @param query Request query.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-global-application-commands)
      */
-    getGlobalApplicationCommands(applicationId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandsResult>;
+    getGlobalApplicationCommands(applicationId: Snowflake, query: DiscordTypes.RESTGetAPIApplicationCommandsQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationCommandsResult>;
     /**
      * @param applicationId The application ID.
      * @param body Request body.
@@ -54,10 +55,11 @@ export declare abstract class RestRequests {
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
+     * @param query Request query.
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#get-guild-application-commands)
      */
-    getGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationGuildCommandsResult>;
+    getGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, query: DiscordTypes.RESTGetAPIApplicationGuildCommandsQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIApplicationGuildCommandsResult>;
     /**
      * @param applicationId The application ID.
      * @param guildId The guild ID.
@@ -193,6 +195,44 @@ export declare abstract class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/audit-log#get-guild-audit-log)
      */
     getGuildAuditLog(guildId: Snowflake, query: DiscordTypes.RESTGetAPIAuditLogQuery, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAuditLogResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#list-auto-moderation-rules-for-guild)
+     */
+    listAutoModerationRulesForGuild(guildId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAutoModerationRulesResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param autoModerationRuleId The auto moderation rule ID.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#get-auto-moderation-rule)
+     */
+    getAutoModerationRule(guildId: Snowflake, autoModerationRuleId: Snowflake, options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIAutoModerationRuleResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
+     */
+    createAutoModerationRule(guildId: Snowflake, body: DiscordTypes.RESTPostAPIAutoModerationRuleJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPostAPIAutoModerationRuleResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param autoModerationRuleId The auto moderation rule ID.
+     * @param body Request body.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
+     */
+    modifyAutoModerationRule(guildId: Snowflake, autoModerationRuleId: Snowflake, body: DiscordTypes.RESTPatchAPIAutoModerationRuleJSONBody, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIAutoModerationRuleResult>;
+    /**
+     * @param guildId The guild ID.
+     * @param autoModerationRuleId The auto moderation rule ID.
+     * @param reason The value for the `X-Audit-Log-Reason` header.
+     * @param options Request options.
+     * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
+     */
+    deleteAutoModerationRule(guildId: Snowflake, autoModerationRuleId: Snowflake, reason?: string, options?: RestRequestOptions): Promise<DiscordTypes.RESTDeleteAPIAutoModerationRuleResult>;
     /**
      * @param channelId The channel ID.
      * @param options Request options.
@@ -816,7 +856,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-user-voice-state)
      */
-    modifyUserVoiceState(guildId: Snowflake, userId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateUserJSONBody, options?: RestRequestOptions): Promise<never>;
+    modifyUserVoiceState(guildId: Snowflake, userId: Snowflake, body: DiscordTypes.RESTPatchAPIGuildVoiceStateUserJSONBody, options?: RestRequestOptions): Promise<DiscordTypes.RESTPatchAPIGuildVoiceStateUserResult>;
     /**
      * @param guildId The guild ID.
      * @param query Request query.
@@ -1005,7 +1045,7 @@ export declare abstract class RestRequests {
      * @param options Request options.
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/voice#list-voice-regions)
      */
-    listVoiceRegions(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIGuildVoiceRegionsResult>;
+    listVoiceRegions(options?: RestRequestOptions): Promise<DiscordTypes.RESTGetAPIVoiceRegionsResult>;
     /**
      * @param channelId The channel ID.
      * @param body Request body.
