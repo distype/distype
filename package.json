@@ -1,6 +1,6 @@
 {
   "name": "distype",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A Discord library written in TypeScript for developers looking to interface directly with the Discord API with little to no abstractions.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -34,16 +34,16 @@
   "dependencies": {
     "@br88c/node-utils": "^1.4.0",
     "@types/ws": "^8.5.3",
-    "discord-api-types": "^0.37.16",
+    "discord-api-types": "^0.37.17",
     "undici": "^5.12.0",
-    "ws": "^8.10.0"
+    "ws": "^8.11.0"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.6.0",
     "@types/node": "^16.18.3",
-    "eslint": "^8.26.0",
+    "eslint": "^8.27.0",
     "rimraf": "^3.0.2",
-    "typedoc": "^0.23.19",
+    "typedoc": "^0.23.20",
     "typescript": "^4.8.4"
   },
   "engines": {
