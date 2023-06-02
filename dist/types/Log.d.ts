@@ -1,11 +1,11 @@
 /**
  * A callback for logging events.
  */
-export declare type LogCallback = (msg: string, options: LogMessageOptions) => void;
+export type LogCallback = (msg: string, options: LogMessageOptions) => void;
 /**
  * A logging level.
  */
-export declare type LogLevel = `DEBUG` | `INFO` | `WARN` | `ERROR`;
+export type LogLevel = `DEBUG` | `INFO` | `WARN` | `ERROR`;
 /**
  * Options for a log message.
  */

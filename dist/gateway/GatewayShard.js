@@ -25,7 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
 const DiscordConstants_1 = require("../constants/DiscordConstants");
-const node_utils_1 = require("@br88c/node-utils");
+const typed_emitter_1 = require("@br88c/typed-emitter");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const node_crypto_1 = require("node:crypto");
 const promises_1 = require("node:timers/promises");
@@ -71,7 +71,7 @@ var GatewayShardState;
  * A gateway shard.
  * Handles the low level ws communication with Discord.
  */
-class GatewayShard extends node_utils_1.TypedEmitter {
+class GatewayShard extends typed_emitter_1.TypedEmitter {
     /**
      * Guilds that belong to the shard.
      * This is populated as the shard is receiving [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) payloads, and is accurate after the shard is in a {@link GatewayShardState guilds ready state}.
@@ -238,7 +238,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
      */
     async send(payload) {
         if (this.state < GatewayShardState.READY && ![DiscordTypes.GatewayOpcodes.Heartbeat, DiscordTypes.GatewayOpcodes.Identify, DiscordTypes.GatewayOpcodes.Resume].includes(payload.op)) {
-            return await node_utils_1.TypedEmitter.once(this, `READY`).then(() => this.send(payload));
+            return await typed_emitter_1.TypedEmitter.once(this, `READY`).then(() => this.send(payload));
         }
         if (!this.ws || this.ws.readyState !== ws_1.WebSocket.OPEN)
             throw new Error(`Cannot send data when the WebSocket is not in an OPEN state`);
@@ -264,7 +264,7 @@ class GatewayShard extends node_utils_1.TypedEmitter {
         if (this.state >= GatewayShardState.READY)
             return Promise.resolve();
         if (this.state >= GatewayShardState.CONNECTING)
-            return await node_utils_1.TypedEmitter.once(this, `READY`).then(() => { });
+            return await typed_emitter_1.TypedEmitter.once(this, `READY`).then(() => { });
         return await this._spawn();
     }
     /**

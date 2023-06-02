@@ -6,8 +6,8 @@ const RestRequests_1 = require("./RestRequests");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
-const node_utils_1 = require("@br88c/node-utils");
-const undici_1 = require("undici");
+const extended_map_1 = require("@br88c/extended-map");
+const node_url_1 = require("node:url");
 /**
  * The rest manager.
  * Used for making rest requests to the Discord API.
@@ -88,10 +88,10 @@ class Rest extends RestRequests_1.RestRequests {
             version: options.version ?? 10
         };
         if (!this.options.disableRatelimits) {
-            this.buckets = new node_utils_1.ExtendedMap();
+            this.buckets = new extended_map_1.ExtendedMap();
             this.globalLeft = this.options.ratelimitGlobal;
             this.globalResetAt = -1;
-            this.routeHashCache = new node_utils_1.ExtendedMap();
+            this.routeHashCache = new extended_map_1.ExtendedMap();
             if (this.options.bucketSweepInterval)
                 this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval).unref();
         }
@@ -145,7 +145,7 @@ class Rest extends RestRequests_1.RestRequests {
      * @internal
      */
     async make(method, route, options) {
-        const isForm = options.body instanceof undici_1.FormData;
+        const isForm = options.body instanceof FormData;
         const headers = (options.forceHeaders ?? this.options.forceHeaders) ? {
             ...this.options.headers,
             ...options.headers
@@ -160,15 +160,16 @@ class Rest extends RestRequests_1.RestRequests {
             headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const reqResponse = await (0, undici_1.request)(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
+        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`);
+        url.search = new node_url_1.URLSearchParams(options.query).toString();
+        const reqResponse = await fetch(url, {
             ...this.options,
             ...options,
             body: isForm ? options.body : JSON.stringify(options.body),
             headers,
-            method,
-            query: options.query
+            method
         });
-        const body = reqResponse.statusCode !== 204 ? await reqResponse.body?.json() : undefined;
+        const body = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
         const response = {
             ...reqResponse,
             body
@@ -205,9 +206,9 @@ class Rest extends RestRequests_1.RestRequests {
      * Handles response codes.
      */
     _handleResponseCodes(method, route, response) {
-        this.responseCodeTally[response.statusCode] = (this.responseCodeTally[response.statusCode] ?? 0) + 1;
-        const result = `${response.statusCode} ${method} ${route}`;
-        if (response.statusCode < 400) {
+        this.responseCodeTally[response.status] = (this.responseCodeTally[response.status] ?? 0) + 1;
+        const result = `${response.status} ${method} ${route}`;
+        if (response.status < 400) {
             this._log(result, {
                 level: `DEBUG`, system: this.system
             });
@@ -217,7 +218,7 @@ class Rest extends RestRequests_1.RestRequests {
             if (response.body?.message)
                 errors.push(response.body.message);
             if (response.body?.errors) {
-                const flattened = (0, node_utils_1.flattenObject)(response.body.errors, DiscordConstants_1.DiscordConstants.REST.ERROR_KEY);
+                const flattened = this._flattenErrors(response.body.errors);
                 errors.push(...Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST.ERROR_KEY)
                     .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST.ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
@@ -226,7 +227,7 @@ class Rest extends RestRequests_1.RestRequests {
                     .flat());
             }
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
-            if (!this.options.disableRatelimits ? (response.statusCode !== 429 && response.statusCode < 500) : true) {
+            if (!this.options.disableRatelimits ? (response.status !== 429 && response.status < 500) : true) {
                 throw new Error(errorMessage);
             }
             else {
@@ -235,6 +236,23 @@ class Rest extends RestRequests_1.RestRequests {
                 });
             }
         }
+    }
+    /**
+     * Flattens errors returned from the API.
+     * @returns The flattened errors.
+     */
+    _flattenErrors(errors) {
+        const flatten = (obj, map = {}, parent) => {
+            for (const [k, v] of Object.entries(obj)) {
+                const property = parent ? `${parent}.${k}` : k;
+                if (k !== DiscordConstants_1.DiscordConstants.REST.ERROR_KEY && v && v !== null && typeof v === `object`)
+                    flatten(v, map, property);
+                else
+                    map[property] = v;
+            }
+            return map;
+        };
+        return flatten(errors);
     }
 }
 exports.Rest = Rest;

@@ -28,7 +28,8 @@ const GatewayShard_1 = require("./GatewayShard");
 const Cache_1 = require("../cache/Cache");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const Rest_1 = require("../rest/Rest");
-const node_utils_1 = require("@br88c/node-utils");
+const extended_map_1 = require("@br88c/extended-map");
+const typed_emitter_1 = require("@br88c/typed-emitter");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const node_crypto_1 = require("node:crypto");
 const promises_1 = require("node:timers/promises");
@@ -41,7 +42,7 @@ const node_url_1 = require("node:url");
  * Dispatched events are emitted under the {@link GatewayEvents `*`} event prior to being passed through the cache event handler.
  * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
-class Gateway extends node_utils_1.TypedEmitter {
+class Gateway extends typed_emitter_1.TypedEmitter {
     /**
      * The shard counts the manager is controlling.
      */
@@ -50,7 +51,7 @@ class Gateway extends node_utils_1.TypedEmitter {
      * {@link GatewayShard Gateway shards}.
      * Modifying this map externally may result in unexpected behavior.
      */
-    shards = new node_utils_1.ExtendedMap();
+    shards = new extended_map_1.ExtendedMap();
     /**
      * The latest self user received from the gateway.
      */
@@ -196,7 +197,7 @@ class Gateway extends node_utils_1.TypedEmitter {
         const url = new node_url_1.URL(`?${new node_url_1.URLSearchParams({
             v: `${this.options.version}`, encoding: `json`
         }).toString()}`, this.options.customGatewaySocketURL ?? gatewayBot.url).toString();
-        const buckets = new node_utils_1.ExtendedMap();
+        const buckets = new extended_map_1.ExtendedMap();
         for (let i = 0; i < this.managingShards.shards; i++) {
             let shard = null;
             if (i >= this.managingShards.offset) {
@@ -208,7 +209,7 @@ class Gateway extends node_utils_1.TypedEmitter {
             if (buckets.has(bucketId))
                 buckets.get(bucketId)?.set(i, shard);
             else
-                buckets.set(bucketId, new node_utils_1.ExtendedMap()).get(bucketId).set(i, shard);
+                buckets.set(bucketId, new extended_map_1.ExtendedMap()).get(bucketId).set(i, shard);
         }
         const results = await this._spawnShards(buckets).catch((error) => {
             this.shards.forEach((shard) => {
@@ -268,15 +269,17 @@ class Gateway extends node_utils_1.TypedEmitter {
             throw new Error(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`);
         const shard = this.guildShard(guildId, true);
         const nonce = options.nonce ?? (0, node_crypto_1.randomUUID)().replaceAll(`-`, ``);
-        const members = new node_utils_1.ExtendedMap();
-        const presences = new node_utils_1.ExtendedMap();
+        const members = new extended_map_1.ExtendedMap();
+        const presences = new extended_map_1.ExtendedMap();
         const notFound = [];
         return new Promise((resolve, reject) => {
             const listener = (data) => {
                 if (data.d.nonce !== nonce || data.d.guild_id !== guildId)
                     return;
                 data.d.members.filter((member) => member.user).forEach((member) => members.set(member.user.id, member));
-                data.d.presences?.forEach((presence) => presences.set(presence.user.id, presence));
+                data.d.presences?.forEach((presence) => presences.set(presence.user.id, {
+                    ...presence, guild_id: data.d.guild_id
+                }));
                 notFound.push(...(data.d.not_found ?? []));
                 if (data.d.chunk_index === (data.d.chunk_count ?? 1) - 1) {
                     this.removeListener(`GUILD_MEMBERS_CHUNK`, listener);
@@ -413,7 +416,7 @@ class Gateway extends node_utils_1.TypedEmitter {
      * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
     async _spawnShards(buckets) {
-        const waitingForGuildReady = Promise.all(buckets.reduce((p, c) => p.concat(c.filter((shard) => shard !== null).map((shard) => shard)), []).map((shard) => node_utils_1.TypedEmitter.once(shard, `GUILDS_READY`)));
+        const waitingForGuildReady = Promise.all(buckets.reduce((p, c) => p.concat(c.filter((shard) => shard !== null).map((shard) => shard)), []).map((shard) => typed_emitter_1.TypedEmitter.once(shard, `GUILDS_READY`)));
         const results = [];
         const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
         for (let i = 0; i < mostShards; i++) {

@@ -1,7 +1,7 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
 import { LogCallback } from '../types/Log';
-import { ExtendedMap } from '@br88c/node-utils';
+import { ExtendedMap } from '@br88c/extended-map';
 import { GatewayDispatchPayload, Snowflake } from 'discord-api-types/v10';
 /**
  * The cache manager.

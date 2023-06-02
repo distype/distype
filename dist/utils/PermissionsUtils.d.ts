@@ -9,7 +9,7 @@ export interface PermissionsChannel {
 /**
  * Permission flags.
  */
-export declare type PermissionsFlags = number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS);
+export type PermissionsFlags = number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS);
 /**
  * Properties of an `APIGuild` that are relevant to permissions.
  */

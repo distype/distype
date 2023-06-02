@@ -1,4 +1,3 @@
-import { request } from 'undici';
 /**
  * {@link Rest} options.
  */
@@ -41,7 +40,7 @@ export interface RestOptions {
  * Extends undici request options.
  * @see [Undici Documentation](https://undici.nodejs.org/#/?id=undicirequesturl-options-promise)
  */
-export interface RestRequestOptions extends Omit<NonNullable<Parameters<typeof request>[1]>, `body` | `method` | `query`> {
+export interface RestRequestOptions extends Omit<NonNullable<RequestInit>, `method` | `body` | `headers`> {
     /**
      * A custom string to use as the authorization header.
      */

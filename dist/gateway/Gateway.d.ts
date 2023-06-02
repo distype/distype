@@ -3,7 +3,8 @@ import { GatewayShard } from './GatewayShard';
 import { Cache } from '../cache/Cache';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
-import { ExtendedMap, TypedEmitter } from '@br88c/node-utils';
+import { ExtendedMap } from '@br88c/extended-map';
+import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 /**
@@ -11,7 +12,7 @@ import { Snowflake } from 'discord-api-types/v10';
  * Note that with the exception of `MANAGER_READY`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#commands-and-events-gateway-events)
  */
-export declare type GatewayEvents = {
+export type GatewayEvents = {
     /**
      * When all shards are ready.
      */
@@ -78,6 +79,7 @@ export declare type GatewayEvents = {
     GUILD_SCHEDULED_EVENT_DELETE: (payload: DiscordTypes.GatewayGuildScheduledEventDeleteDispatch) => void;
     GUILD_SCHEDULED_EVENT_USER_ADD: (payload: DiscordTypes.GatewayGuildScheduledEventUserAddDispatch) => void;
     GUILD_SCHEDULED_EVENT_USER_REMOVE: (payload: DiscordTypes.GatewayGuildScheduledEventUserRemoveDispatch) => void;
+    GUILD_AUDIT_LOG_ENTRY_CREATE: (payload: DiscordTypes.GatewayGuildAuditLogEntryCreateDispatch) => void;
     INTEGRATION_CREATE: (payload: DiscordTypes.GatewayIntegrationCreateDispatch) => void;
     INTEGRATION_UPDATE: (payload: DiscordTypes.GatewayIntegrationUpdateDispatch) => void;
     INTEGRATION_DELETE: (payload: DiscordTypes.GatewayIntegrationDeleteDispatch) => void;

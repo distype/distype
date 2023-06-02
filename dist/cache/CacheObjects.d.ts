@@ -4,7 +4,7 @@ import { Snowflake } from 'discord-api-types/v10';
  * A utility type for typed channels.
  * @internal
  */
-declare type CachedChannelType<T> = {
+type CachedChannelType<T> = {
     /**
      * The channel's ID.
      * Always included, regardless of cache control.
@@ -25,7 +25,7 @@ declare type CachedChannelType<T> = {
 /**
  * A cached channel.
  */
-export declare type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> & CachedChannelType<DiscordTypes.APIDMChannel> & CachedChannelType<DiscordTypes.APITextChannel> & CachedChannelType<DiscordTypes.APINewsChannel> & CachedChannelType<DiscordTypes.APIGuildVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildStageVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildCategoryChannel> & CachedChannelType<DiscordTypes.APIThreadChannel> & CachedChannelType<DiscordTypes.APIGuildForumChannel>;
+export type CachedChannel = CachedChannelType<DiscordTypes.APIGroupDMChannel> & CachedChannelType<DiscordTypes.APIDMChannel> & CachedChannelType<DiscordTypes.APITextChannel> & CachedChannelType<DiscordTypes.APINewsChannel> & CachedChannelType<DiscordTypes.APIGuildVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildStageVoiceChannel> & CachedChannelType<DiscordTypes.APIGuildCategoryChannel> & CachedChannelType<DiscordTypes.APIThreadChannel> & CachedChannelType<DiscordTypes.APIGuildForumChannel>;
 /**
  * A cached guild.
  */

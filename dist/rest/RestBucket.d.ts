@@ -4,20 +4,20 @@ import { Snowflake } from 'discord-api-types/v10';
  * A {@link Rest rest} bucket hash.
  * @internal
  */
-export declare type RestBucketHash = `${string}` | `global;${RestRouteHash}`;
+export type RestBucketHash = `${string}` | `global;${RestRouteHash}`;
 /**
  * A {@link RestBucket rest bucket} ID.
  */
-export declare type RestBucketId = `${RestBucketHash}(${RestMajorParameter})`;
+export type RestBucketId = `${RestBucketHash}(${RestMajorParameter})`;
 /**
  * A major {@link Rest rest} rate limit parameter.
  * @internal
  */
-export declare type RestMajorParameter = `global` | Snowflake;
+export type RestMajorParameter = `global` | Snowflake;
 /**
  * A {@link RestRoute rest route} hash.
  */
-export declare type RestRouteHash = `${RestMethod};${RestMajorParameter}`;
+export type RestRouteHash = `${RestMethod};${RestMajorParameter}`;
 /**
  * A {@link Rest rest} bucket.
  * Used for rate limiting requests.

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cache = void 0;
-const node_utils_1 = require("@br88c/node-utils");
+const extended_map_1 = require("@br88c/extended-map");
 const v10_1 = require("discord-api-types/v10");
 /**
  * The cache manager.
@@ -88,7 +88,7 @@ class Cache {
         };
         this._enabledKeys = Object.keys(this.options).filter((control) => Array.isArray(this.options[control]));
         this._enabledKeys.forEach((key) => {
-            this[key] = new node_utils_1.ExtendedMap();
+            this[key] = new extended_map_1.ExtendedMap();
         });
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
@@ -111,10 +111,6 @@ class Cache {
                     this._updateUser(false, data.d.user);
                 break;
             }
-            // case GatewayDispatchEvents.ApplicationCommandPermissionsUpdate: {
-            //     ...
-            //     break;
-            // }
             case v10_1.GatewayDispatchEvents.ChannelCreate: {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(false, data.d);
@@ -292,7 +288,8 @@ class Cache {
                 if (this._enabledKeys.includes(`presences`))
                     data.d.presences?.forEach((presence) => this._updatePresence(false, {
                         ...presence,
-                        user_id: presence.user.id
+                        user_id: presence.user.id,
+                        guild_id: data.d.guild_id
                     }));
                 if (this._enabledKeys.includes(`users`))
                     data.d.members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user));
@@ -440,7 +437,7 @@ class Cache {
             return;
         }
         if (!this.members.has(data.guild_id))
-            this.members.set(data.guild_id, new node_utils_1.ExtendedMap());
+            this.members.set(data.guild_id, new extended_map_1.ExtendedMap());
         if (!this.members.get(data.guild_id)?.has(data.user_id))
             this.members.get(data.guild_id).set(data.user_id, {
                 user_id: data.user_id, guild_id: data.guild_id
@@ -464,7 +461,7 @@ class Cache {
             return;
         }
         if (!this.presences.has(data.guild_id))
-            this.presences.set(data.guild_id, new node_utils_1.ExtendedMap());
+            this.presences.set(data.guild_id, new extended_map_1.ExtendedMap());
         if (!this.presences.get(data.guild_id)?.has(data.user_id))
             this.presences.get(data.guild_id).set(data.user_id, {
                 user_id: data.user_id, guild_id: data.guild_id
@@ -520,7 +517,7 @@ class Cache {
             return;
         }
         if (!this.voiceStates.has(data.guild_id))
-            this.voiceStates.set(data.guild_id, new node_utils_1.ExtendedMap());
+            this.voiceStates.set(data.guild_id, new extended_map_1.ExtendedMap());
         if (!this.voiceStates.get(data.guild_id)?.has(data.user_id))
             this.voiceStates.get(data.guild_id).set(data.user_id, {
                 user_id: data.user_id, guild_id: data.guild_id

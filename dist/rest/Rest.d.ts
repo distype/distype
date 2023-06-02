@@ -3,19 +3,18 @@ import { RestBucket, RestBucketHash, RestBucketId, RestRouteHash } from './RestB
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
-import { ExtendedMap } from '@br88c/node-utils';
-import { Dispatcher, FormData } from 'undici';
+import { ExtendedMap } from '@br88c/extended-map';
 /**
  * Internal request response.
  * @internal
  */
-export declare type RestInternalRestResponse = Dispatcher.ResponseData & {
+export type RestInternalRestResponse = Response & {
     body: any;
 };
 /**
  * {@link Rest} request methods.
  */
-export declare type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
+export type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 /**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
@@ -38,7 +37,7 @@ export interface RestRequestData extends RestRequestOptions {
 /**
  * A {@link Rest rest} route.
  */
-export declare type RestRoute = `/${string}`;
+export type RestRoute = `/${string}`;
 /**
  * The rest manager.
  * Used for making rest requests to the Discord API.
@@ -136,4 +135,9 @@ export declare class Rest extends RestRequests {
      * Handles response codes.
      */
     private _handleResponseCodes;
+    /**
+     * Flattens errors returned from the API.
+     * @returns The flattened errors.
+     */
+    private _flattenErrors;
 }

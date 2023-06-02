@@ -81,7 +81,7 @@ export declare const DiscordConstants: {
         readonly INTENTS: {
             readonly GUILDS: DiscordTypes.GatewayIntentBits.Guilds;
             readonly GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers;
-            readonly GUILD_BANS: DiscordTypes.GatewayIntentBits.GuildBans;
+            readonly GUILD_BANS: DiscordTypes.GatewayIntentBits.GuildModeration;
             readonly GUILD_EMOJIS_AND_STICKERS: DiscordTypes.GatewayIntentBits.GuildEmojisAndStickers;
             readonly GUILD_INTEGRATIONS: DiscordTypes.GatewayIntentBits.GuildIntegrations;
             readonly GUILD_WEBHOOKS: DiscordTypes.GatewayIntentBits.GuildWebhooks;
