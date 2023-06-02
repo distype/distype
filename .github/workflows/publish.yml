@@ -1,6 +1,7 @@
 name: Publish
 
 on:
+  workflow_dispatch:
   release:
     types: [created]
 
@@ -11,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
+        node: [18]
 
     steps:
       - name: Checkout Repository
@@ -24,6 +25,6 @@ jobs:
           registry-url: https://registry.npmjs.org/
 
       - name: Publish to NPM
-        run: npm publish --unsafe-perm
+        run: npm publish --unsafe-perm --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}

@@ -1,6 +1,7 @@
 name: Tests
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'main'
@@ -40,7 +41,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
+        node: [18]
 
     steps:
       - name: Checkout Repository
@@ -65,7 +66,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
+        node: [18]
 
     steps:
       - name: Checkout Repository
@@ -90,7 +91,7 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
+        node: [18]
 
     steps:
       - name: Checkout Repository

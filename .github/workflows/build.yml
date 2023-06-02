@@ -1,6 +1,7 @@
 name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'main'
@@ -12,7 +13,10 @@ jobs:
 
     strategy:
       matrix:
-        node: [16]
+        node: [18]
+
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Repository
@@ -47,6 +51,6 @@ jobs:
           git commit -m "build: TSC build for ${GITHUB_SHA}" || true
           git push origin $TARGET_BRANCH
         env:
-          GITHUB_TOKEN: ${{ secrets.BUILD_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: BR88C
           GITHUB_EMAIL: br88c@br88c.dev
