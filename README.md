@@ -61,8 +61,8 @@ npm install distype
 
 ### Prerequisites
 
-- **[Node.js >=16.13.0](https://nodejs.org/)**
-- **[NPM >=8.1.0](https://www.npmjs.com/)**
+- **[Node.js >=18.14.0](https://nodejs.org/)**
+- **[NPM >=9.3.1](https://www.npmjs.com/)**
 
 ### Optional packages
 
