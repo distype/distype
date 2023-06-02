@@ -3,7 +3,7 @@ import { CacheOptions } from './CacheOptions';
 
 import { LogCallback } from '../types/Log';
 
-import { ExtendedMap } from '@br88c/node-utils';
+import { ExtendedMap } from '@br88c/extended-map';
 import { ChannelType, GatewayDispatchEvents, GatewayDispatchPayload, GatewayGuildCreateDispatchData, Snowflake } from 'discord-api-types/v10';
 
 /**
@@ -118,10 +118,6 @@ export class Cache {
                 if (this._enabledKeys.includes(`users`)) this._updateUser(false, data.d.user);
                 break;
             }
-            // case GatewayDispatchEvents.ApplicationCommandPermissionsUpdate: {
-            //     ...
-            //     break;
-            // }
             case GatewayDispatchEvents.ChannelCreate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
                 if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
@@ -260,7 +256,8 @@ export class Cache {
                 }));
                 if (this._enabledKeys.includes(`presences`)) data.d.presences?.forEach((presence) => this._updatePresence(false, {
                     ...presence,
-                    user_id: presence.user.id
+                    user_id: presence.user.id,
+                    guild_id: data.d.guild_id
                 }));
                 if (this._enabledKeys.includes(`users`)) data.d.members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user!));
                 break;

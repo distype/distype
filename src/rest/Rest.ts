@@ -7,14 +7,14 @@ import { DistypeConstants } from '../constants/DistypeConstants';
 import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
 
-import { ExtendedMap, flattenObject } from '@br88c/node-utils';
-import { Dispatcher, FormData, request } from 'undici';
+import { ExtendedMap } from '@br88c/extended-map';
+import { URL, URLSearchParams } from 'node:url';
 
 /**
  * Internal request response.
  * @internal
  */
-export type RestInternalRestResponse = Dispatcher.ResponseData & { body: any }
+export type RestInternalRestResponse = Response & { body: any }
 
 /**
  * {@link Rest} request methods.
@@ -208,15 +208,17 @@ export class Rest extends RestRequests {
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const reqResponse = await request(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`, {
+        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`);
+        url.search = new URLSearchParams(options.query).toString();
+
+        const reqResponse = await fetch(url, {
             ...this.options,
             ...options,
             body: isForm ? options.body as FormData : JSON.stringify(options.body),
             headers,
-            method,
-            query: options.query
+            method
         });
-        const body = reqResponse.statusCode !== 204 ? await reqResponse.body?.json() : undefined;
+        const body = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
 
         const response: RestInternalRestResponse = {
             ...reqResponse,
@@ -258,11 +260,11 @@ export class Rest extends RestRequests {
      * Handles response codes.
      */
     private _handleResponseCodes (method: RestMethod, route: RestRoute, response: RestInternalRestResponse): void {
-        this.responseCodeTally[response.statusCode] = (this.responseCodeTally[response.statusCode] ?? 0) + 1;
+        this.responseCodeTally[response.status] = (this.responseCodeTally[response.status] ?? 0) + 1;
 
-        const result = `${response.statusCode} ${method} ${route}`;
+        const result = `${response.status} ${method} ${route}`;
 
-        if (response.statusCode < 400) {
+        if (response.status < 400) {
             this._log(result, {
                 level: `DEBUG`, system: this.system
             });
@@ -270,7 +272,7 @@ export class Rest extends RestRequests {
             const errors: string[] = [];
             if (response.body?.message) errors.push(response.body.message);
             if (response.body?.errors) {
-                const flattened = flattenObject(response.body.errors, DiscordConstants.REST.ERROR_KEY) as Record<string, Array<{ code: string, message: string }>>;
+                const flattened = this._flattenErrors(response.body.errors);
                 errors.push(
                     ...Object.keys(flattened)
                         .filter((key) => key.endsWith(`.${DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants.REST.ERROR_KEY)
@@ -285,7 +287,7 @@ export class Rest extends RestRequests {
 
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
 
-            if (!this.options.disableRatelimits ? (response.statusCode !== 429 && response.statusCode < 500) : true) {
+            if (!this.options.disableRatelimits ? (response.status !== 429 && response.status < 500) : true) {
                 throw new Error(errorMessage);
             } else {
                 this._log(errorMessage, {
@@ -293,5 +295,21 @@ export class Rest extends RestRequests {
                 });
             }
         }
+    }
+
+    /**
+     * Flattens errors returned from the API.
+     * @returns The flattened errors.
+     */
+    private _flattenErrors (errors: Record<string, any>): Record<string, Array<{ code: string, message: string }>> {
+        const flatten = (obj: Record<string, any>, map: Record<string, any> = {}, parent?: string): Record<string, any> => {
+            for (const [k, v] of Object.entries(obj)) {
+                const property = parent ? `${parent}.${k}` : k;
+                if (k !== DiscordConstants.REST.ERROR_KEY && v && v !== null && typeof v === `object`) flatten(v, map, property);
+                else map[property] = v;
+            }
+            return map;
+        };
+        return flatten(errors);
     }
 }

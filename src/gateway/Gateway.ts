@@ -6,7 +6,8 @@ import { DiscordConstants } from '../constants/DiscordConstants';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
 
-import { ExtendedMap, TypedEmitter } from '@br88c/node-utils';
+import { ExtendedMap } from '@br88c/extended-map';
+import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';
@@ -87,6 +88,7 @@ export type GatewayEvents = {
     GUILD_SCHEDULED_EVENT_DELETE: (payload: DiscordTypes.GatewayGuildScheduledEventDeleteDispatch) => void
     GUILD_SCHEDULED_EVENT_USER_ADD: (payload: DiscordTypes.GatewayGuildScheduledEventUserAddDispatch) => void
     GUILD_SCHEDULED_EVENT_USER_REMOVE: (payload: DiscordTypes.GatewayGuildScheduledEventUserRemoveDispatch) => void
+    GUILD_AUDIT_LOG_ENTRY_CREATE: (payload: DiscordTypes.GatewayGuildAuditLogEntryCreateDispatch) => void
     INTEGRATION_CREATE: (payload: DiscordTypes.GatewayIntegrationCreateDispatch) => void
     INTEGRATION_UPDATE: (payload: DiscordTypes.GatewayIntegrationUpdateDispatch) => void
     INTEGRATION_DELETE: (payload: DiscordTypes.GatewayIntegrationDeleteDispatch) => void
@@ -400,7 +402,9 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             const listener = (data: DiscordTypes.GatewayGuildMembersChunkDispatch): void => {
                 if (data.d.nonce !== nonce || data.d.guild_id !== guildId) return;
                 data.d.members.filter((member) => member.user).forEach((member) => members.set(member.user!.id, member));
-                data.d.presences?.forEach((presence) => presences.set(presence.user.id, presence));
+                data.d.presences?.forEach((presence) => presences.set(presence.user.id, {
+                    ...presence, guild_id: data.d.guild_id
+                }));
                 notFound.push(...(data.d.not_found as Snowflake[] ?? []));
 
                 if (data.d.chunk_index === (data.d.chunk_count ?? 1) - 1) {

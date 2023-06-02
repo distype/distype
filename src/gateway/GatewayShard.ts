@@ -3,7 +3,7 @@ import { Gateway } from './Gateway';
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { LogCallback } from '../types/Log';
 
-import { TypedEmitter } from '@br88c/node-utils';
+import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';

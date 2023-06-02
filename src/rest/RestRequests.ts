@@ -3,7 +3,6 @@ import { RestRequestOptions } from './RestOptions';
 
 import * as DiscordTypes from 'discord-api-types/v10';
 import { Snowflake } from 'discord-api-types/v10';
-import { FormData } from 'undici';
 
 /**
  * A class containing methods for all routes for the Discord API.
