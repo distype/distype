@@ -14,7 +14,7 @@ import { URL, URLSearchParams } from 'node:url';
  * Internal request response.
  * @internal
  */
-export type RestInternalRestResponse = Response & { body: any }
+export type RestResponse = Response & { parsedBody: any }
 
 /**
  * {@link Rest} request methods.
@@ -82,7 +82,7 @@ export class Rest extends RestRequests {
     /**
      * {@link RestOptions Options} for the rest manager.
      */
-    public readonly options: Required<RestOptions> & RestRequestOptions;
+    public readonly options: Required<RestOptions> & RestRequestOptions & { version: number };
     /**
      * The system string used for logging.
      */
@@ -127,7 +127,7 @@ export class Rest extends RestRequests {
             disableRatelimits: options.disableRatelimits ?? false,
             ratelimitGlobal: options.ratelimitGlobal ?? 50,
             ratelimitPause: options.ratelimitPause ?? 10,
-            version: options.version ?? 10
+            version: options.version ?? DiscordConstants.REST.VERSION
         };
 
         if (!this.options.disableRatelimits) {
@@ -177,8 +177,8 @@ export class Rest extends RestRequests {
 
             const bucket = this.buckets!.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
 
-            return await bucket.request(method, route, routeHash, options);
-        } else return (await this.make(method, route, options)).body;
+            return (await bucket.request(method, route, routeHash, options)).parsedBody;
+        } else return (await this.make(method, route, options)).parsedBody;
     }
 
     /**
@@ -188,10 +188,10 @@ export class Rest extends RestRequests {
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
-     * @returns The full undici response.
+     * @returns The full response.
      * @internal
      */
-    public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse> {
+    public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestResponse> {
         const isForm = options.body instanceof FormData;
 
         const headers: Record<string, string> = (options.forceHeaders ?? this.options.forceHeaders) ? {
@@ -208,7 +208,7 @@ export class Rest extends RestRequests {
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`);
+        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new URLSearchParams(options.query).toString();
 
         const reqResponse = await fetch(url, {
@@ -218,15 +218,11 @@ export class Rest extends RestRequests {
             headers,
             method
         });
-        const body = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
 
-        const response: RestInternalRestResponse = {
-            ...reqResponse,
-            body
-        };
+        const parsedBody = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
+        const response: RestResponse = Object.assign(reqResponse, { parsedBody });
 
-        this._handleResponseCodes(method, route, response);
-
+        this._checkForResponseErrors(method, route, response);
         return response;
     }
 
@@ -257,22 +253,22 @@ export class Rest extends RestRequests {
     }
 
     /**
-     * Handles response codes.
+     * Checks for errors in responses.
      */
-    private _handleResponseCodes (method: RestMethod, route: RestRoute, response: RestInternalRestResponse): void {
+    private _checkForResponseErrors (method: RestMethod, route: RestRoute, response: RestResponse): void {
         this.responseCodeTally[response.status] = (this.responseCodeTally[response.status] ?? 0) + 1;
 
-        const result = `${response.status} ${method} ${route}`;
+        const result = `${response.status}${response.ok ? ` (OK)` : ``} ${method} ${route}`;
 
-        if (response.status < 400) {
+        if (response.ok) {
             this._log(result, {
                 level: `DEBUG`, system: this.system
             });
         } else {
             const errors: string[] = [];
-            if (response.body?.message) errors.push(response.body.message);
-            if (response.body?.errors) {
-                const flattened = this._flattenErrors(response.body.errors);
+            if (response.parsedBody?.message) errors.push(response.parsedBody.message);
+            if (response.parsedBody?.errors) {
+                const flattened = this._flattenErrors(response.parsedBody.errors);
                 errors.push(
                     ...Object.keys(flattened)
                         .filter((key) => key.endsWith(`.${DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants.REST.ERROR_KEY)
@@ -287,7 +283,7 @@ export class Rest extends RestRequests {
 
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
 
-            if (!this.options.disableRatelimits ? (response.status !== 429 && response.status < 500) : true) {
+            if (!this.options.disableRatelimits ? (response.status !== 429 && (response.status >= 500 && response.status < 600)) : true) {
                 throw new Error(errorMessage);
             } else {
                 this._log(errorMessage, {

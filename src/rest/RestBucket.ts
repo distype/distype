@@ -1,4 +1,4 @@
-import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
+import { Rest, RestMethod, RestRequestData, RestResponse, RestRoute } from './Rest';
 
 import { DiscordConstants } from '../constants/DiscordConstants';
 
@@ -124,9 +124,8 @@ export class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    public async request (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<any> {
+    public async request (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestResponse> {
         if (this._queue.length) await this._waitForQueue();
-
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
 
@@ -141,7 +140,7 @@ export class RestBucket {
     }
 
     /**
-     * Lowest level request function that handles active rate limits, rate limit headers, and makes the request with `undici`.
+     * Lowest level request function that handles active rate limits, rate limit headers, and makes the request.
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param routeHash The request's {@link RestRouteHash route hash}.
@@ -149,7 +148,7 @@ export class RestBucket {
      * @param attempt The current attempt value.
      * @returns Response data.
      */
-    private async _make (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData, attempt = 0): Promise<any> {
+    private async _make (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData, attempt = 0): Promise<RestResponse> {
         if (this.ratelimited.any) await this._awaitRatelimit();
 
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
@@ -160,10 +159,10 @@ export class RestBucket {
 
         const response = await this.manager.make(method, route, options);
 
-        const bucket = response.headers.get(DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET);
-        const globalRetryAfter = +(response.headers.get(DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER) ?? 0) * 1000;
+        const bucket = response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET);
+        const globalRetryAfter = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER) ?? 0) * 1000;
 
-        if (globalRetryAfter > 0 && response.headers.get(DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL) === `true`) {
+        if (globalRetryAfter > 0 && response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL) === `true`) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
@@ -172,9 +171,9 @@ export class RestBucket {
             this.manager.routeHashCache!.set(routeHash, bucket);
         }
 
-        this.requestsLeft = +(response.headers.get(DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING) ?? 1);
-        this.resetAt = +(response.headers.get(DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER) ?? 0) * 1000 + Date.now();
-        this.allowedRequestsPerRatelimit = +(response.headers.get(DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT) ?? Infinity);
+        this.requestsLeft = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING) ?? 1);
+        this.resetAt = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER) ?? 0) * 1000 + Date.now();
+        this.allowedRequestsPerRatelimit = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT) ?? Infinity);
 
         if (response.status === 429) {
             return this._make(method, route, routeHash, options);
@@ -182,7 +181,7 @@ export class RestBucket {
             if (attempt >= this.manager.options.code500retries) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
             else return this._make(method, route, routeHash, options, attempt + 1);
         } else {
-            return response.body;
+            return response;
         }
     }
 
