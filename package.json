@@ -34,17 +34,17 @@
   "dependencies": {
     "@br88c/extended-map": "^1.0.0",
     "@br88c/typed-emitter": "^1.0.0",
-    "@types/ws": "^8.5.4",
-    "discord-api-types": "0.37.43",
+    "@types/ws": "^8.5.5",
+    "discord-api-types": "0.37.46",
     "ws": "^8.13.0"
   },
   "devDependencies": {
     "@br88c/eslint-config": "^1.6.0",
-    "@types/node": "^18.16.16",
-    "eslint": "^8.41.0",
+    "@types/node": "^18.16.18",
+    "eslint": "^8.43.0",
     "rimraf": "^5.0.1",
-    "typedoc": "^0.24.7",
-    "typescript": "^5.0.4"
+    "typedoc": "^0.24.8",
+    "typescript": "^5.1.5"
   },
   "engines": {
     "node": ">=18.14.0",
