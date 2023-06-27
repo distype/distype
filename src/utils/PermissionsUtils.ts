@@ -39,8 +39,11 @@ export interface PermissionsMember {
 
 /**
  * Utilities for permission flags.
+ * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions)
  */
 export class PermissionsUtils {
+    private constructor () {} // eslint-disable-line no-useless-constructor
+
     /**
      * All permissions combined.
      */

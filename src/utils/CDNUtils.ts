@@ -30,6 +30,8 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FO
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
  */
 export class CDNUtils {
+    private constructor () {} // eslint-disable-line no-useless-constructor
+
     /**
      * A custom emoji.
      * @param id The emoji's ID.
@@ -97,11 +99,11 @@ export class CDNUtils {
 
     /**
      * A default user avatar.
-     * @param discrimModulo The [user's discriminator](https://discord.com/developers/docs/resources/user#user-object) modulo `5`.
+     * @param modulo The user's default avatar modulo.
      * @param options Image options.
      */
-    public static defaultUserAvatar (discrimModulo: number, options: Omit<CDNImageOptions<`png`>, `size`> = {}): string {
-        return this._make(`/embed/avatars/${discrimModulo}`, options);
+    public static defaultUserAvatar (modulo: number, options: Omit<CDNImageOptions<`png`>, `size`> = {}): string {
+        return this._make(`/embed/avatars/${modulo}`, options);
     }
 
     /**
