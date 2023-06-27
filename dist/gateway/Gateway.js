@@ -28,6 +28,7 @@ const GatewayShard_1 = require("./GatewayShard");
 const Cache_1 = require("../cache/Cache");
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 const Rest_1 = require("../rest/Rest");
+const IntentUtils_1 = require("../utils/IntentUtils");
 const extended_map_1 = require("@br88c/extended-map");
 const typed_emitter_1 = require("@br88c/typed-emitter");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
@@ -58,7 +59,7 @@ class Gateway extends typed_emitter_1.TypedEmitter {
     user = null;
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that any options not specified are set to a default value.x
+     * Note that any options not specified are set to a default value.
      */
     options;
     /**
@@ -122,12 +123,12 @@ class Gateway extends typed_emitter_1.TypedEmitter {
             customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
             disableBucketRatelimits: options.disableBucketRatelimits ?? false,
             guildsReadyTimeout: options.guildsReadyTimeout ?? 15000,
-            intents: this._intentsFactory(options.intents),
+            intents: IntentUtils_1.IntentUtils.factory(options.intents ?? 0),
             largeGuildThreshold: options.largeGuildThreshold ?? 50,
             presence: options.presence ?? null,
             sharding: options.sharding ?? {},
             spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
-            version: options.version ?? 10,
+            version: options.version ?? DiscordConstants_1.DiscordConstants.GATEWAY.VERSION,
             wsOptions: options.wsOptions ?? {}
         };
         this.on(`*`, (payload) => {
@@ -187,6 +188,9 @@ class Gateway extends typed_emitter_1.TypedEmitter {
         if (this.shardsReady)
             throw new Error(`Shards are already connected`);
         this._log(`Starting connection process`, {
+            level: `DEBUG`, system: this.system
+        });
+        this._log(`Using intents: ${this.options.intents !== 0 ? IntentUtils_1.IntentUtils.toReadable(this.options.intents).join(`, `) : `None`}`, {
             level: `DEBUG`, system: this.system
         });
         gatewayBot ??= await this._getGatewayBot();
@@ -390,25 +394,6 @@ class Gateway extends typed_emitter_1.TypedEmitter {
      */
     _guildShard(guildId, numShards) {
         return Number((BigInt(guildId) >> 22n) % BigInt(numShards));
-    }
-    /**
-     * Creates intents flags from intents specified in the constructor.
-     * @param specified The specified intents.
-     * @returns Intents flags.
-     */
-    _intentsFactory(specified) {
-        if (typeof specified === `number`)
-            return specified;
-        else if (typeof specified === `bigint`)
-            return Number(specified);
-        else if (specified instanceof Array)
-            return specified.reduce((p, c) => p | DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS[c], 0);
-        else if (specified === `all`)
-            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0);
-        else if (specified === `nonPrivileged`)
-            return Object.values(DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants_1.DiscordConstants.GATEWAY.PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
-        else
-            return 0;
     }
     /**
      * Spawns shards.

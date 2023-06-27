@@ -1,30 +1,7 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DiscordConstants = void 0;
-const DiscordTypes = __importStar(require("discord-api-types/v10"));
+const v10_1 = require("discord-api-types/v10");
 /**
  * Discord API constants.
  */
@@ -105,34 +82,34 @@ exports.DiscordConstants = {
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
          */
         INTENTS: {
-            GUILDS: DiscordTypes.GatewayIntentBits.Guilds,
-            GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers,
-            GUILD_BANS: DiscordTypes.GatewayIntentBits.GuildBans,
-            GUILD_EMOJIS_AND_STICKERS: DiscordTypes.GatewayIntentBits.GuildEmojisAndStickers,
-            GUILD_INTEGRATIONS: DiscordTypes.GatewayIntentBits.GuildIntegrations,
-            GUILD_WEBHOOKS: DiscordTypes.GatewayIntentBits.GuildWebhooks,
-            GUILD_INVITES: DiscordTypes.GatewayIntentBits.GuildInvites,
-            GUILD_VOICE_STATES: DiscordTypes.GatewayIntentBits.GuildVoiceStates,
-            GUILD_PRESENCES: DiscordTypes.GatewayIntentBits.GuildPresences,
-            GUILD_MESSAGES: DiscordTypes.GatewayIntentBits.GuildMessages,
-            GUILD_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.GuildMessageReactions,
-            GUILD_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.GuildMessageTyping,
-            DIRECT_MESSAGES: DiscordTypes.GatewayIntentBits.DirectMessages,
-            DIRECT_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.DirectMessageReactions,
-            DIRECT_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.DirectMessageTyping,
-            MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent,
-            GUILD_SCHEDULED_EVENTS: DiscordTypes.GatewayIntentBits.GuildScheduledEvents,
-            AUTO_MODERATION_CONFIGURATION: DiscordTypes.GatewayIntentBits.AutoModerationConfiguration,
-            AUTO_MODERATION_EXECUTION: DiscordTypes.GatewayIntentBits.AutoModerationExecution
+            GUILDS: v10_1.GatewayIntentBits.Guilds,
+            GUILD_MEMBERS: v10_1.GatewayIntentBits.GuildMembers,
+            GUILD_MODERATION: v10_1.GatewayIntentBits.GuildModeration,
+            GUILD_EMOJIS_AND_STICKERS: v10_1.GatewayIntentBits.GuildEmojisAndStickers,
+            GUILD_INTEGRATIONS: v10_1.GatewayIntentBits.GuildIntegrations,
+            GUILD_WEBHOOKS: v10_1.GatewayIntentBits.GuildWebhooks,
+            GUILD_INVITES: v10_1.GatewayIntentBits.GuildInvites,
+            GUILD_VOICE_STATES: v10_1.GatewayIntentBits.GuildVoiceStates,
+            GUILD_PRESENCES: v10_1.GatewayIntentBits.GuildPresences,
+            GUILD_MESSAGES: v10_1.GatewayIntentBits.GuildMessages,
+            GUILD_MESSAGE_REACTIONS: v10_1.GatewayIntentBits.GuildMessageReactions,
+            GUILD_MESSAGE_TYPING: v10_1.GatewayIntentBits.GuildMessageTyping,
+            DIRECT_MESSAGES: v10_1.GatewayIntentBits.DirectMessages,
+            DIRECT_MESSAGE_REACTIONS: v10_1.GatewayIntentBits.DirectMessageReactions,
+            DIRECT_MESSAGE_TYPING: v10_1.GatewayIntentBits.DirectMessageTyping,
+            MESSAGE_CONTENT: v10_1.GatewayIntentBits.MessageContent,
+            GUILD_SCHEDULED_EVENTS: v10_1.GatewayIntentBits.GuildScheduledEvents,
+            AUTO_MODERATION_CONFIGURATION: v10_1.GatewayIntentBits.AutoModerationConfiguration,
+            AUTO_MODERATION_EXECUTION: v10_1.GatewayIntentBits.AutoModerationExecution
         },
         /**
          * Privileged gateway intents.
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
          */
         PRIVILEGED_INTENTS: {
-            GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers,
-            GUILD_PRESENCES: DiscordTypes.GatewayIntentBits.GuildPresences,
-            MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent
+            GUILD_MEMBERS: v10_1.GatewayIntentBits.GuildMembers,
+            GUILD_PRESENCES: v10_1.GatewayIntentBits.GuildPresences,
+            MESSAGE_CONTENT: v10_1.GatewayIntentBits.MessageContent
         },
         /**
          * Gateway rate limits.
@@ -156,7 +133,11 @@ exports.DiscordConstants = {
         /**
          * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
          */
-        REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH: 32
+        REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH: 32,
+        /**
+         * The default gateway API version used.
+         */
+        VERSION: 10
     },
     /**
      * Message component limits.
@@ -381,61 +362,65 @@ exports.DiscordConstants = {
             GLOBAL: `x-ratelimit-global`,
             GLOBAL_RETRY_AFTER: `retry-after`,
             SCOPE: `x-ratelimit-scope`
-        }
+        },
+        /**
+         * The default REST API version used.
+         */
+        VERSION: 10
     },
     /**
      * Bitwise permission flags.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
      */
     PERMISSION_FLAGS: {
-        CREATE_INSTANT_INVITE: DiscordTypes.PermissionFlagsBits.CreateInstantInvite,
-        KICK_MEMBERS: DiscordTypes.PermissionFlagsBits.KickMembers,
-        BAN_MEMBERS: DiscordTypes.PermissionFlagsBits.BanMembers,
-        ADMINISTRATOR: DiscordTypes.PermissionFlagsBits.Administrator,
-        MANAGE_CHANNELS: DiscordTypes.PermissionFlagsBits.ManageChannels,
-        MANAGE_GUILD: DiscordTypes.PermissionFlagsBits.ManageGuild,
-        ADD_REACTIONS: DiscordTypes.PermissionFlagsBits.AddReactions,
-        VIEW_AUDIT_LOG: DiscordTypes.PermissionFlagsBits.ViewAuditLog,
-        PRIORITY_SPEAKER: DiscordTypes.PermissionFlagsBits.PrioritySpeaker,
-        STREAM: DiscordTypes.PermissionFlagsBits.Stream,
-        VIEW_CHANNEL: DiscordTypes.PermissionFlagsBits.ViewChannel,
-        SEND_MESSAGES: DiscordTypes.PermissionFlagsBits.SendMessages,
-        SEND_TTS_MESSAGES: DiscordTypes.PermissionFlagsBits.SendTTSMessages,
-        MANAGE_MESSAGES: DiscordTypes.PermissionFlagsBits.ManageMessages,
-        EMBED_LINKS: DiscordTypes.PermissionFlagsBits.EmbedLinks,
-        ATTACH_FILES: DiscordTypes.PermissionFlagsBits.AttachFiles,
-        READ_MESSAGE_HISTORY: DiscordTypes.PermissionFlagsBits.ReadMessageHistory,
-        MENTION_EVERYONE: DiscordTypes.PermissionFlagsBits.MentionEveryone,
-        USE_EXTERNAL_EMOJIS: DiscordTypes.PermissionFlagsBits.UseExternalEmojis,
-        VIEW_GUILD_INSIGHTS: DiscordTypes.PermissionFlagsBits.ViewGuildInsights,
-        CONNECT: DiscordTypes.PermissionFlagsBits.Connect,
-        SPEAK: DiscordTypes.PermissionFlagsBits.Speak,
-        MUTE_MEMBERS: DiscordTypes.PermissionFlagsBits.MuteMembers,
-        DEAFEN_MEMBERS: DiscordTypes.PermissionFlagsBits.DeafenMembers,
-        MOVE_MEMBERS: DiscordTypes.PermissionFlagsBits.MoveMembers,
-        USE_VAD: DiscordTypes.PermissionFlagsBits.UseVAD,
-        CHANGE_NICKNAME: DiscordTypes.PermissionFlagsBits.ChangeNickname,
-        MANAGE_NICKNAMES: DiscordTypes.PermissionFlagsBits.ManageNicknames,
-        MANAGE_ROLES: DiscordTypes.PermissionFlagsBits.ManageRoles,
-        MANAGE_WEBHOOKS: DiscordTypes.PermissionFlagsBits.ManageWebhooks,
-        MANAGE_EMOJIS_AND_STICKERS: DiscordTypes.PermissionFlagsBits.ManageEmojisAndStickers,
-        USE_APPLICATION_COMMANDS: DiscordTypes.PermissionFlagsBits.UseApplicationCommands,
-        REQUEST_TO_SPEAK: DiscordTypes.PermissionFlagsBits.RequestToSpeak,
-        MANAGE_EVENTS: DiscordTypes.PermissionFlagsBits.ManageEvents,
-        MANAGE_THREADS: DiscordTypes.PermissionFlagsBits.ManageThreads,
-        CREATE_PUBLIC_THREADS: DiscordTypes.PermissionFlagsBits.CreatePublicThreads,
-        CREATE_PRIVATE_THREADS: DiscordTypes.PermissionFlagsBits.CreatePrivateThreads,
-        USE_EXTERNAL_STICKERS: DiscordTypes.PermissionFlagsBits.UseExternalStickers,
-        SEND_MESSAGES_IN_THREADS: DiscordTypes.PermissionFlagsBits.SendMessagesInThreads,
-        USE_EMBEDDED_ACTIVITIES: DiscordTypes.PermissionFlagsBits.UseEmbeddedActivities,
-        MODERATE_MEMBERS: DiscordTypes.PermissionFlagsBits.ModerateMembers
+        CREATE_INSTANT_INVITE: v10_1.PermissionFlagsBits.CreateInstantInvite,
+        KICK_MEMBERS: v10_1.PermissionFlagsBits.KickMembers,
+        BAN_MEMBERS: v10_1.PermissionFlagsBits.BanMembers,
+        ADMINISTRATOR: v10_1.PermissionFlagsBits.Administrator,
+        MANAGE_CHANNELS: v10_1.PermissionFlagsBits.ManageChannels,
+        MANAGE_GUILD: v10_1.PermissionFlagsBits.ManageGuild,
+        ADD_REACTIONS: v10_1.PermissionFlagsBits.AddReactions,
+        VIEW_AUDIT_LOG: v10_1.PermissionFlagsBits.ViewAuditLog,
+        PRIORITY_SPEAKER: v10_1.PermissionFlagsBits.PrioritySpeaker,
+        STREAM: v10_1.PermissionFlagsBits.Stream,
+        VIEW_CHANNEL: v10_1.PermissionFlagsBits.ViewChannel,
+        SEND_MESSAGES: v10_1.PermissionFlagsBits.SendMessages,
+        SEND_TTS_MESSAGES: v10_1.PermissionFlagsBits.SendTTSMessages,
+        MANAGE_MESSAGES: v10_1.PermissionFlagsBits.ManageMessages,
+        EMBED_LINKS: v10_1.PermissionFlagsBits.EmbedLinks,
+        ATTACH_FILES: v10_1.PermissionFlagsBits.AttachFiles,
+        READ_MESSAGE_HISTORY: v10_1.PermissionFlagsBits.ReadMessageHistory,
+        MENTION_EVERYONE: v10_1.PermissionFlagsBits.MentionEveryone,
+        USE_EXTERNAL_EMOJIS: v10_1.PermissionFlagsBits.UseExternalEmojis,
+        VIEW_GUILD_INSIGHTS: v10_1.PermissionFlagsBits.ViewGuildInsights,
+        CONNECT: v10_1.PermissionFlagsBits.Connect,
+        SPEAK: v10_1.PermissionFlagsBits.Speak,
+        MUTE_MEMBERS: v10_1.PermissionFlagsBits.MuteMembers,
+        DEAFEN_MEMBERS: v10_1.PermissionFlagsBits.DeafenMembers,
+        MOVE_MEMBERS: v10_1.PermissionFlagsBits.MoveMembers,
+        USE_VAD: v10_1.PermissionFlagsBits.UseVAD,
+        CHANGE_NICKNAME: v10_1.PermissionFlagsBits.ChangeNickname,
+        MANAGE_NICKNAMES: v10_1.PermissionFlagsBits.ManageNicknames,
+        MANAGE_ROLES: v10_1.PermissionFlagsBits.ManageRoles,
+        MANAGE_WEBHOOKS: v10_1.PermissionFlagsBits.ManageWebhooks,
+        MANAGE_EMOJIS_AND_STICKERS: v10_1.PermissionFlagsBits.ManageEmojisAndStickers,
+        USE_APPLICATION_COMMANDS: v10_1.PermissionFlagsBits.UseApplicationCommands,
+        REQUEST_TO_SPEAK: v10_1.PermissionFlagsBits.RequestToSpeak,
+        MANAGE_EVENTS: v10_1.PermissionFlagsBits.ManageEvents,
+        MANAGE_THREADS: v10_1.PermissionFlagsBits.ManageThreads,
+        CREATE_PUBLIC_THREADS: v10_1.PermissionFlagsBits.CreatePublicThreads,
+        CREATE_PRIVATE_THREADS: v10_1.PermissionFlagsBits.CreatePrivateThreads,
+        USE_EXTERNAL_STICKERS: v10_1.PermissionFlagsBits.UseExternalStickers,
+        SEND_MESSAGES_IN_THREADS: v10_1.PermissionFlagsBits.SendMessagesInThreads,
+        USE_EMBEDDED_ACTIVITIES: v10_1.PermissionFlagsBits.UseEmbeddedActivities,
+        MODERATE_MEMBERS: v10_1.PermissionFlagsBits.ModerateMembers
     },
     /**
      * Bitwise permission flags for when a user is timed out.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-for-timed-out-members)
      */
     PERMISSION_FLAGS_TIMEOUT: {
-        VIEW_CHANNEL: DiscordTypes.PermissionFlagsBits.ViewChannel,
-        READ_MESSAGE_HISTORY: DiscordTypes.PermissionFlagsBits.ReadMessageHistory
+        VIEW_CHANNEL: v10_1.PermissionFlagsBits.ViewChannel,
+        READ_MESSAGE_HISTORY: v10_1.PermissionFlagsBits.ReadMessageHistory
     }
 };

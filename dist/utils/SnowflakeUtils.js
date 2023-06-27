@@ -7,6 +7,7 @@ const DiscordConstants_1 = require("../constants/DiscordConstants");
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes)
  */
 class SnowflakeUtils {
+    constructor() { } // eslint-disable-line no-useless-constructor
     /**
      * For every ID that is generated on a process, this property of the snowflake is incremented.
      */

@@ -85,7 +85,7 @@ class Rest extends RestRequests_1.RestRequests {
             disableRatelimits: options.disableRatelimits ?? false,
             ratelimitGlobal: options.ratelimitGlobal ?? 50,
             ratelimitPause: options.ratelimitPause ?? 10,
-            version: options.version ?? 10
+            version: options.version ?? DiscordConstants_1.DiscordConstants.REST.VERSION
         };
         if (!this.options.disableRatelimits) {
             this.buckets = new extended_map_1.ExtendedMap();
@@ -129,10 +129,10 @@ class Rest extends RestRequests_1.RestRequests {
             const majorParameter = /^\/(?:channels|guilds|webhooks)\/(\d{16,19})/.exec(route)?.[1] ?? `global`;
             const bucketId = `${bucketHash}(${majorParameter})`;
             const bucket = this.buckets.get(bucketId) ?? this._createBucket(bucketId, bucketHash, majorParameter);
-            return await bucket.request(method, route, routeHash, options);
+            return (await bucket.request(method, route, routeHash, options)).parsedBody;
         }
         else
-            return (await this.make(method, route, options)).body;
+            return (await this.make(method, route, options)).parsedBody;
     }
     /**
      * The internal rest make method.
@@ -141,7 +141,7 @@ class Rest extends RestRequests_1.RestRequests {
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
-     * @returns The full undici response.
+     * @returns The full response.
      * @internal
      */
     async make(method, route, options) {
@@ -160,7 +160,7 @@ class Rest extends RestRequests_1.RestRequests {
             headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${this.options.version}`}${route}`);
+        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new node_url_1.URLSearchParams(options.query).toString();
         const reqResponse = await fetch(url, {
             ...this.options,
@@ -169,12 +169,9 @@ class Rest extends RestRequests_1.RestRequests {
             headers,
             method
         });
-        const body = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
-        const response = {
-            ...reqResponse,
-            body
-        };
-        this._handleResponseCodes(method, route, response);
+        const parsedBody = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
+        const response = Object.assign(reqResponse, { parsedBody });
+        this._checkForResponseErrors(method, route, response);
         return response;
     }
     /**
@@ -203,22 +200,22 @@ class Rest extends RestRequests_1.RestRequests {
         return bucket;
     }
     /**
-     * Handles response codes.
+     * Checks for errors in responses.
      */
-    _handleResponseCodes(method, route, response) {
+    _checkForResponseErrors(method, route, response) {
         this.responseCodeTally[response.status] = (this.responseCodeTally[response.status] ?? 0) + 1;
-        const result = `${response.status} ${method} ${route}`;
-        if (response.status < 400) {
+        const result = `${response.status}${response.ok ? ` (OK)` : ``} ${method} ${route}`;
+        if (response.ok) {
             this._log(result, {
                 level: `DEBUG`, system: this.system
             });
         }
         else {
             const errors = [];
-            if (response.body?.message)
-                errors.push(response.body.message);
-            if (response.body?.errors) {
-                const flattened = this._flattenErrors(response.body.errors);
+            if (response.parsedBody?.message)
+                errors.push(response.parsedBody.message);
+            if (response.parsedBody?.errors) {
+                const flattened = this._flattenErrors(response.parsedBody.errors);
                 errors.push(...Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST.ERROR_KEY)
                     .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST.ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
@@ -227,7 +224,7 @@ class Rest extends RestRequests_1.RestRequests {
                     .flat());
             }
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
-            if (!this.options.disableRatelimits ? (response.status !== 429 && response.status < 500) : true) {
+            if (!this.options.disableRatelimits ? (response.status !== 429 && (response.status >= 500 && response.status < 600)) : true) {
                 throw new Error(errorMessage);
             }
             else {

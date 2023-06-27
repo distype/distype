@@ -1,4 +1,4 @@
-import * as DiscordTypes from 'discord-api-types/v10';
+import { GatewayIntentBits } from 'discord-api-types/v10';
 /**
  * Discord API constants.
  */
@@ -79,34 +79,34 @@ export declare const DiscordConstants: {
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
          */
         readonly INTENTS: {
-            readonly GUILDS: DiscordTypes.GatewayIntentBits.Guilds;
-            readonly GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers;
-            readonly GUILD_BANS: DiscordTypes.GatewayIntentBits.GuildModeration;
-            readonly GUILD_EMOJIS_AND_STICKERS: DiscordTypes.GatewayIntentBits.GuildEmojisAndStickers;
-            readonly GUILD_INTEGRATIONS: DiscordTypes.GatewayIntentBits.GuildIntegrations;
-            readonly GUILD_WEBHOOKS: DiscordTypes.GatewayIntentBits.GuildWebhooks;
-            readonly GUILD_INVITES: DiscordTypes.GatewayIntentBits.GuildInvites;
-            readonly GUILD_VOICE_STATES: DiscordTypes.GatewayIntentBits.GuildVoiceStates;
-            readonly GUILD_PRESENCES: DiscordTypes.GatewayIntentBits.GuildPresences;
-            readonly GUILD_MESSAGES: DiscordTypes.GatewayIntentBits.GuildMessages;
-            readonly GUILD_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.GuildMessageReactions;
-            readonly GUILD_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.GuildMessageTyping;
-            readonly DIRECT_MESSAGES: DiscordTypes.GatewayIntentBits.DirectMessages;
-            readonly DIRECT_MESSAGE_REACTIONS: DiscordTypes.GatewayIntentBits.DirectMessageReactions;
-            readonly DIRECT_MESSAGE_TYPING: DiscordTypes.GatewayIntentBits.DirectMessageTyping;
-            readonly MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent;
-            readonly GUILD_SCHEDULED_EVENTS: DiscordTypes.GatewayIntentBits.GuildScheduledEvents;
-            readonly AUTO_MODERATION_CONFIGURATION: DiscordTypes.GatewayIntentBits.AutoModerationConfiguration;
-            readonly AUTO_MODERATION_EXECUTION: DiscordTypes.GatewayIntentBits.AutoModerationExecution;
+            readonly GUILDS: GatewayIntentBits.Guilds;
+            readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
+            readonly GUILD_MODERATION: GatewayIntentBits.GuildModeration;
+            readonly GUILD_EMOJIS_AND_STICKERS: GatewayIntentBits.GuildEmojisAndStickers;
+            readonly GUILD_INTEGRATIONS: GatewayIntentBits.GuildIntegrations;
+            readonly GUILD_WEBHOOKS: GatewayIntentBits.GuildWebhooks;
+            readonly GUILD_INVITES: GatewayIntentBits.GuildInvites;
+            readonly GUILD_VOICE_STATES: GatewayIntentBits.GuildVoiceStates;
+            readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
+            readonly GUILD_MESSAGES: GatewayIntentBits.GuildMessages;
+            readonly GUILD_MESSAGE_REACTIONS: GatewayIntentBits.GuildMessageReactions;
+            readonly GUILD_MESSAGE_TYPING: GatewayIntentBits.GuildMessageTyping;
+            readonly DIRECT_MESSAGES: GatewayIntentBits.DirectMessages;
+            readonly DIRECT_MESSAGE_REACTIONS: GatewayIntentBits.DirectMessageReactions;
+            readonly DIRECT_MESSAGE_TYPING: GatewayIntentBits.DirectMessageTyping;
+            readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
+            readonly GUILD_SCHEDULED_EVENTS: GatewayIntentBits.GuildScheduledEvents;
+            readonly AUTO_MODERATION_CONFIGURATION: GatewayIntentBits.AutoModerationConfiguration;
+            readonly AUTO_MODERATION_EXECUTION: GatewayIntentBits.AutoModerationExecution;
         };
         /**
          * Privileged gateway intents.
          * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
          */
         readonly PRIVILEGED_INTENTS: {
-            readonly GUILD_MEMBERS: DiscordTypes.GatewayIntentBits.GuildMembers;
-            readonly GUILD_PRESENCES: DiscordTypes.GatewayIntentBits.GuildPresences;
-            readonly MESSAGE_CONTENT: DiscordTypes.GatewayIntentBits.MessageContent;
+            readonly GUILD_MEMBERS: GatewayIntentBits.GuildMembers;
+            readonly GUILD_PRESENCES: GatewayIntentBits.GuildPresences;
+            readonly MESSAGE_CONTENT: GatewayIntentBits.MessageContent;
         };
         /**
          * Gateway rate limits.
@@ -131,6 +131,10 @@ export declare const DiscordConstants: {
          * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
          */
         readonly REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH: 32;
+        /**
+         * The default gateway API version used.
+         */
+        readonly VERSION: 10;
     };
     /**
      * Message component limits.
@@ -356,6 +360,10 @@ export declare const DiscordConstants: {
             readonly GLOBAL_RETRY_AFTER: "retry-after";
             readonly SCOPE: "x-ratelimit-scope";
         };
+        /**
+         * The default REST API version used.
+         */
+        readonly VERSION: 10;
     };
     /**
      * Bitwise permission flags.

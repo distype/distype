@@ -4,8 +4,10 @@ exports.PermissionsUtils = void 0;
 const DiscordConstants_1 = require("../constants/DiscordConstants");
 /**
  * Utilities for permission flags.
+ * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions)
  */
 class PermissionsUtils {
+    constructor() { } // eslint-disable-line no-useless-constructor
     /**
      * All permissions combined.
      */

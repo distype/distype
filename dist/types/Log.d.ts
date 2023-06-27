@@ -11,11 +11,11 @@ export type LogLevel = `DEBUG` | `INFO` | `WARN` | `ERROR`;
  */
 export interface LogMessageOptions {
     /**
-     * The {@link LoggerLevel level} being logged at.
+     * The {@link LogLevel level} being logged at.
      */
     level: LogLevel;
     /**
-     * The {@link LoggerSystem system} creating the log.
+     * The system creating the log.
      */
     system: string;
 }

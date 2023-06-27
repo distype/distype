@@ -28,17 +28,11 @@ export interface RestOptions {
      * @default 10
      */
     ratelimitPause?: number;
-    /**
-     * The Discord API version to use.
-     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
-     * @default 10
-     */
-    version?: number;
 }
 /**
  * Options for rest requests.
- * Extends undici request options.
- * @see [Undici Documentation](https://undici.nodejs.org/#/?id=undicirequesturl-options-promise)
+ * Extends WHATWG fetch RequestInit.
+ * @see [WHATWG fetch standard](https://fetch.spec.whatwg.org)
  */
 export interface RestRequestOptions extends Omit<NonNullable<RequestInit>, `method` | `body` | `headers`> {
     /**
@@ -63,4 +57,9 @@ export interface RestRequestOptions extends Omit<NonNullable<RequestInit>, `meth
      * The `X-Audit-Log-Reason` header is overwritten by the `reason` option.
      */
     headers?: Record<string, string> | null;
+    /**
+     * The Discord API version to use.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-versioning-api-versions)
+     */
+    version?: number;
 }

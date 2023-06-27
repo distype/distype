@@ -8,8 +8,8 @@ import { ExtendedMap } from '@br88c/extended-map';
  * Internal request response.
  * @internal
  */
-export type RestInternalRestResponse = Response & {
-    body: any;
+export type RestResponse = Response & {
+    parsedBody: any;
 };
 /**
  * {@link Rest} request methods.
@@ -73,7 +73,9 @@ export declare class Rest extends RestRequests {
     /**
      * {@link RestOptions Options} for the rest manager.
      */
-    readonly options: Required<RestOptions> & RestRequestOptions;
+    readonly options: Required<RestOptions> & RestRequestOptions & {
+        version: number;
+    };
     /**
      * The system string used for logging.
      */
@@ -115,10 +117,10 @@ export declare class Rest extends RestRequests {
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
-     * @returns The full undici response.
+     * @returns The full response.
      * @internal
      */
-    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestInternalRestResponse>;
+    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestResponse>;
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */
@@ -132,9 +134,9 @@ export declare class Rest extends RestRequests {
      */
     private _createBucket;
     /**
-     * Handles response codes.
+     * Checks for errors in responses.
      */
-    private _handleResponseCodes;
+    private _checkForResponseErrors;
     /**
      * Flattens errors returned from the API.
      * @returns The flattened errors.

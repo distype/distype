@@ -8,6 +8,7 @@ const node_url_1 = require("node:url");
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
  */
 class CDNUtils {
+    constructor() { } // eslint-disable-line no-useless-constructor
     /**
      * A custom emoji.
      * @param id The emoji's ID.
@@ -69,11 +70,11 @@ class CDNUtils {
     }
     /**
      * A default user avatar.
-     * @param discrimModulo The [user's discriminator](https://discord.com/developers/docs/resources/user#user-object) modulo `5`.
+     * @param modulo The user's default avatar modulo.
      * @param options Image options.
      */
-    static defaultUserAvatar(discrimModulo, options = {}) {
-        return this._make(`/embed/avatars/${discrimModulo}`, options);
+    static defaultUserAvatar(modulo, options = {}) {
+        return this._make(`/embed/avatars/${modulo}`, options);
     }
     /**
      * A user's avatar.

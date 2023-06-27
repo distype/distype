@@ -1,4 +1,4 @@
-import { Rest, RestMethod, RestRequestData, RestRoute } from './Rest';
+import { Rest, RestMethod, RestRequestData, RestResponse, RestRoute } from './Rest';
 import { Snowflake } from 'discord-api-types/v10';
 /**
  * A {@link Rest rest} bucket hash.
@@ -88,13 +88,13 @@ export declare class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    request(method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<any>;
+    request(method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestResponse>;
     /**
      * Waits for the bucket to no longer be rate limited.
      */
     private _awaitRatelimit;
     /**
-     * Lowest level request function that handles active rate limits, rate limit headers, and makes the request with `undici`.
+     * Lowest level request function that handles active rate limits, rate limit headers, and makes the request.
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param routeHash The request's {@link RestRouteHash route hash}.

@@ -4,6 +4,7 @@ import { Snowflake } from 'discord-api-types/v10';
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes)
  */
 export declare class SnowflakeUtils {
+    private constructor();
     /**
      * For every ID that is generated on a process, this property of the snowflake is incremented.
      */

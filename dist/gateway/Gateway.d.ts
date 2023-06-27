@@ -149,7 +149,7 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
     user: DiscordTypes.APIUser | null;
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that any options not specified are set to a default value.x
+     * Note that any options not specified are set to a default value.
      */
     readonly options: Required<GatewayOptions> & {
         intents: number;
@@ -272,12 +272,6 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns A shard ID.
      */
     private _guildShard;
-    /**
-     * Creates intents flags from intents specified in the constructor.
-     * @param specified The specified intents.
-     * @returns Intents flags.
-     */
-    private _intentsFactory;
     /**
      * Spawns shards.
      * @param buckets Shard buckets.

@@ -25,6 +25,7 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FO
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
  */
 export declare class CDNUtils {
+    private constructor();
     /**
      * A custom emoji.
      * @param id The emoji's ID.
@@ -68,10 +69,10 @@ export declare class CDNUtils {
     static userBanner(id: Snowflake, hash: string, options?: CDNImageOptions<`gif` | `jpeg` | `jpg` | `png` | `webp`>): string;
     /**
      * A default user avatar.
-     * @param discrimModulo The [user's discriminator](https://discord.com/developers/docs/resources/user#user-object) modulo `5`.
+     * @param modulo The user's default avatar modulo.
      * @param options Image options.
      */
-    static defaultUserAvatar(discrimModulo: number, options?: Omit<CDNImageOptions<`png`>, `size`>): string;
+    static defaultUserAvatar(modulo: number, options?: Omit<CDNImageOptions<`png`>, `size`>): string;
     /**
      * A user's avatar.
      * @param id The user's ID.

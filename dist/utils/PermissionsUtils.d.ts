@@ -33,8 +33,10 @@ export interface PermissionsMember {
 }
 /**
  * Utilities for permission flags.
+ * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions)
  */
 export declare class PermissionsUtils {
+    private constructor();
     /**
      * All permissions combined.
      */

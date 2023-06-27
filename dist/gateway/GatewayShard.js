@@ -66,7 +66,7 @@ var GatewayShardState;
      * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches (or has timed out).
      */
     GatewayShardState[GatewayShardState["GUILDS_READY"] = 4] = "GUILDS_READY";
-})(GatewayShardState = exports.GatewayShardState || (exports.GatewayShardState = {}));
+})(GatewayShardState || (exports.GatewayShardState = GatewayShardState = {}));
 /**
  * A gateway shard.
  * Handles the low level ws communication with Discord.

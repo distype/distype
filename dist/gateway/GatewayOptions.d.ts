@@ -1,5 +1,5 @@
 import { GatewayPresenceUpdateData } from './Gateway';
-import { DiscordConstants } from '../constants/DiscordConstants';
+import { IntentUtilsFactoryDirty } from '../utils/IntentUtils';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { ClientOptions as WsClientOptions } from 'ws';
 /**
@@ -49,9 +49,9 @@ export interface GatewayOptions {
      * `all` enables all intents, including privileged intents.
      * `nonPrivileged` enables all non-privileged intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
-     * @default `nonPrivileged`
+     * @default 0
      */
-    intents?: number | bigint | Array<keyof typeof DiscordConstants.GATEWAY.INTENTS> | `all` | `nonPrivileged`;
+    intents?: IntentUtilsFactoryDirty;
     /**
      * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
      * Must be between `50` and `250`.
@@ -116,7 +116,6 @@ export interface GatewayOptions {
     /**
      * The Gateway version to use.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
-     * @default 10
      */
     version?: number;
 }
