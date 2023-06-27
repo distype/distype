@@ -5,6 +5,7 @@ import { Cache } from '../cache/Cache';
 import { DiscordConstants } from '../constants/DiscordConstants';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
+import { IntentUtils } from '../utils/IntentUtils';
 
 import { ExtendedMap } from '@br88c/extended-map';
 import { TypedEmitter } from '@br88c/typed-emitter';
@@ -162,7 +163,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
     /**
      * {@link GatewayOptions Options} for the gateway manager.
-     * Note that any options not specified are set to a default value.x
+     * Note that any options not specified are set to a default value.
      */
     public readonly options: Required<GatewayOptions> & { intents: number };
     /**
@@ -227,12 +228,12 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             customGetGatewayBotURL: options.customGetGatewayBotURL ?? null,
             disableBucketRatelimits: options.disableBucketRatelimits ?? false,
             guildsReadyTimeout: options.guildsReadyTimeout ?? 15000,
-            intents: this._intentsFactory(options.intents),
+            intents: IntentUtils.factory(options.intents ?? 0),
             largeGuildThreshold: options.largeGuildThreshold ?? 50,
             presence: options.presence ?? null,
             sharding: options.sharding ?? {},
             spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
-            version: options.version ?? 10,
+            version: options.version ?? DiscordConstants.GATEWAY.VERSION,
             wsOptions: options.wsOptions ?? {}
         };
 
@@ -298,6 +299,10 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         if (this.shardsReady) throw new Error(`Shards are already connected`);
 
         this._log(`Starting connection process`, {
+            level: `DEBUG`, system: this.system
+        });
+
+        this._log(`Using intents: ${this.options.intents !== 0 ? IntentUtils.toReadable(this.options.intents).join(`, `) : `None`}`, {
             level: `DEBUG`, system: this.system
         });
 
@@ -534,20 +539,6 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      */
     private _guildShard (guildId: Snowflake, numShards: number): number {
         return Number((BigInt(guildId) >> 22n) % BigInt(numShards));
-    }
-
-    /**
-     * Creates intents flags from intents specified in the constructor.
-     * @param specified The specified intents.
-     * @returns Intents flags.
-     */
-    private _intentsFactory (specified?: GatewayOptions[`intents`]): number {
-        if (typeof specified === `number`) return specified;
-        else if (typeof specified === `bigint`) return Number(specified);
-        else if (specified instanceof Array) return specified.reduce((p, c) => p | DiscordConstants.GATEWAY.INTENTS[c], 0);
-        else if (specified === `all`) return Object.values(DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0);
-        else if (specified === `nonPrivileged`) return Object.values(DiscordConstants.GATEWAY.INTENTS).reduce((p, c) => p | c, 0) & ~Object.values(DiscordConstants.GATEWAY.PRIVILEGED_INTENTS).reduce((p, c) => p | c, 0);
-        else return 0;
     }
 
     /**
