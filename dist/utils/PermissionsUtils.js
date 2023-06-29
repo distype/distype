@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PermissionsUtils = void 0;
-const DiscordConstants_1 = require("../constants/DiscordConstants");
 /**
  * Utilities for permission flags.
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions)
@@ -9,11 +8,66 @@ const DiscordConstants_1 = require("../constants/DiscordConstants");
 class PermissionsUtils {
     constructor() { } // eslint-disable-line no-useless-constructor
     /**
-     * All permissions combined.
+     * Named permission flags.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
      */
-    static get allPermissions() {
-        return this.combine(...Object.values(DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS));
-    }
+    static PERMISSIONS = {
+        CREATE_INSTANT_INVITE: 1n << 0n,
+        KICK_MEMBERS: 1n << 1n,
+        BAN_MEMBERS: 1n << 2n,
+        ADMINISTRATOR: 1n << 3n,
+        MANAGE_CHANNELS: 1n << 4n,
+        MANAGE_GUILD: 1n << 5n,
+        ADD_REACTIONS: 1n << 6n,
+        VIEW_AUDIT_LOG: 1n << 7n,
+        PRIORITY_SPEAKER: 1n << 8n,
+        STREAM: 1n << 9n,
+        VIEW_CHANNEL: 1n << 10n,
+        SEND_MESSAGES: 1n << 11n,
+        SEND_TTS_MESSAGES: 1n << 12n,
+        MANAGE_MESSAGES: 1n << 13n,
+        EMBED_LINKS: 1n << 14n,
+        ATTACH_FILES: 1n << 15n,
+        READ_MESSAGE_HISTORY: 1n << 16n,
+        MENTION_EVERYONE: 1n << 17n,
+        USE_EXTERNAL_EMOJIS: 1n << 18n,
+        VIEW_GUILD_INSIGHTS: 1n << 19n,
+        CONNECT: 1n << 20n,
+        SPEAK: 1n << 21n,
+        MUTE_MEMBERS: 1n << 22n,
+        DEAFEN_MEMBERS: 1n << 23n,
+        MOVE_MEMBERS: 1n << 24n,
+        USE_VAD: 1n << 25n,
+        CHANGE_NICKNAME: 1n << 26n,
+        MANAGE_NICKNAMES: 1n << 27n,
+        MANAGE_ROLES: 1n << 28n,
+        MANAGE_WEBHOOKS: 1n << 29n,
+        MANAGE_GUILD_EXPRESSIONS: 1n << 30n,
+        USE_APPLICATION_COMMANDS: 1n << 31n,
+        REQUEST_TO_SPEAK: 1n << 32n,
+        MANAGE_EVENTS: 1n << 33n,
+        MANAGE_THREADS: 1n << 34n,
+        CREATE_PUBLIC_THREADS: 1n << 35n,
+        CREATE_PRIVATE_THREADS: 1n << 36n,
+        USE_EXTERNAL_STICKERS: 1n << 37n,
+        SEND_MESSAGES_IN_THREADS: 1n << 38n,
+        USE_EMBEDDED_ACTIVITIES: 1n << 39n,
+        MODERATE_MEMBERS: 1n << 40n,
+        VIEW_CREATOR_MONETIZATION_ANALYTICS: 1n << 41n,
+        USE_SOUNDBOARD: 1n << 42n,
+        USE_EXTERNAL_SOUNDS: 1n << 45n,
+        SEND_VOICE_MESSAGES: 1n << 46n
+    };
+    /**
+     * All permission flags combined.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
+     */
+    static COMBINED_PERMISSIONS = Object.values(this.PERMISSIONS).reduce((p, c) => p | c, 0n);
+    /**
+     * Permission flags for when a user is timed out.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-for-timed-out-members)
+     */
+    static TIMEOUT_PERMISSIONS = this.PERMISSIONS.VIEW_CHANNEL & this.PERMISSIONS.READ_MESSAGE_HISTORY;
     /**
      * Apply overwrites to permission flags.
      * @param perms The permissions to apply overwrites to.
@@ -37,7 +91,7 @@ class PermissionsUtils {
     static channelPermissions(member, guild, channel) {
         let perms = this.guildPermissions(member, guild);
         if (this.hasPerms(perms, `ADMINISTRATOR`))
-            return this.allPermissions;
+            return this.COMBINED_PERMISSIONS;
         const overwrites = channel.permission_overwrites ?? [];
         // @everyone
         perms = this.applyOverwrites(perms, overwrites, guild.id);
@@ -62,7 +116,7 @@ class PermissionsUtils {
      * @param flags The flags to combine.
      */
     static combine(...flags) {
-        return flags.reduce((p, c) => p | BigInt(typeof c === `string` ? DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[c] : c), 0n);
+        return flags.reduce((p, c) => p | BigInt(typeof c === `string` ? this.PERMISSIONS[c] : c), 0n);
     }
     /**
      * Compute a member's permissions in a guild.
@@ -71,7 +125,7 @@ class PermissionsUtils {
      */
     static guildPermissions(member, guild) {
         if (member.user.id === guild.owner_id)
-            return this.allPermissions;
+            return this.COMBINED_PERMISSIONS;
         // @everyone
         let perms = BigInt(guild.roles?.find((role) => role.id === guild.id)?.permissions ?? 0);
         // Role permissions
@@ -79,7 +133,7 @@ class PermissionsUtils {
             perms = this.combine(perms, BigInt(guild.roles?.find((r) => r.id === role)?.permissions ?? 0));
         });
         if (this.hasPerms(perms, `ADMINISTRATOR`))
-            return this.allPermissions;
+            return this.COMBINED_PERMISSIONS;
         return member.communication_disabled_until ? this.timeout(perms) : perms;
     }
     /**
@@ -90,7 +144,7 @@ class PermissionsUtils {
     static hasPerms(perms, ...test) {
         const permsFlags = BigInt(perms);
         const testFlags = this.combine(...test);
-        if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
+        if ((permsFlags & this.PERMISSIONS.ADMINISTRATOR) !== 0n)
             return true;
         return (permsFlags & testFlags) === testFlags;
     }
@@ -102,7 +156,7 @@ class PermissionsUtils {
     static missingPerms(perms, ...test) {
         const permsFlags = BigInt(perms);
         const testFlags = this.combine(...test);
-        if ((permsFlags & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS.ADMINISTRATOR) !== 0n)
+        if ((permsFlags & this.PERMISSIONS.ADMINISTRATOR) !== 0n)
             return 0n;
         else
             return testFlags - (permsFlags & testFlags);
@@ -123,14 +177,14 @@ class PermissionsUtils {
         const permsFlags = BigInt(perms);
         if (this.hasPerms(permsFlags, `ADMINISTRATOR`))
             return permsFlags;
-        return this.combine(...Object.values(DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS_TIMEOUT)) & permsFlags;
+        return this.combine(...Object.values(this.TIMEOUT_PERMISSIONS)) & permsFlags;
     }
     /**
      * Converts permission flags to readable strings.
      * @param perms The permissions to convert.
      */
     static toReadable(perms) {
-        return Object.keys(DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS).filter((key) => BigInt(perms) & DiscordConstants_1.DiscordConstants.PERMISSION_FLAGS[key]);
+        return Object.keys(this.PERMISSIONS).filter((key) => BigInt(perms) & this.PERMISSIONS[key]);
     }
 }
 exports.PermissionsUtils = PermissionsUtils;

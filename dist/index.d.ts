@@ -3,16 +3,14 @@ export { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 export { CacheOptions } from './cache/CacheOptions';
 export { Client } from './client/Client';
 export { ClientOptions } from './client/ClientOptions';
-export { DiscordConstants } from './constants/DiscordConstants';
 export { DistypeConstants } from './constants/DistypeConstants';
 export { Gateway, GatewayEvents, GatewayPresenceActivity, GatewayPresenceUpdateData } from './gateway/Gateway';
 export { GatewayOptions } from './gateway/GatewayOptions';
 export { GatewayShard, GatewayShardEvents, GatewayShardState } from './gateway/GatewayShard';
-export { Rest, RestMethod, RestRequestData, RestRoute } from './rest/Rest';
+export { Rest, RestMakeResponse, RestMethod, RestRequestData, RestRoute } from './rest/Rest';
 export { RestBucket, RestBucketId, RestRouteHash } from './rest/RestBucket';
 export { RestOptions, RestRequestOptions } from './rest/RestOptions';
 export { LogCallback, LogLevel, LogMessageOptions } from './types/Log';
 export { CDNImageOptions, CDNUtils } from './utils/CDNUtils';
 export { PermissionsChannel, PermissionsGuild, PermissionsMember, PermissionsUtils } from './utils/PermissionsUtils';
-export { SnowflakeUtils } from './utils/SnowflakeUtils';
-export { Snowflake } from 'discord-api-types/v10';
+export { Snowflake, SnowflakeUtils } from './utils/SnowflakeUtils';

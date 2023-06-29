@@ -1,5 +1,5 @@
-import { DiscordConstants } from '../constants/DiscordConstants';
-import { APIOverwrite, Snowflake } from 'discord-api-types/v10';
+import { Snowflake } from './SnowflakeUtils';
+import { APIOverwrite } from 'discord-api-types/v10';
 /**
  * Properties of an `APIChannel` that are relevant to permissions.
  */
@@ -9,7 +9,7 @@ export interface PermissionsChannel {
 /**
  * Permission flags.
  */
-export type PermissionsFlags = number | bigint | keyof (typeof DiscordConstants.PERMISSION_FLAGS);
+export type PermissionsFlags = number | bigint | keyof (typeof PermissionsUtils.PERMISSIONS);
 /**
  * Properties of an `APIGuild` that are relevant to permissions.
  */
@@ -38,9 +38,66 @@ export interface PermissionsMember {
 export declare class PermissionsUtils {
     private constructor();
     /**
-     * All permissions combined.
+     * Named permission flags.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
      */
-    static get allPermissions(): bigint;
+    static readonly PERMISSIONS: {
+        CREATE_INSTANT_INVITE: bigint;
+        KICK_MEMBERS: bigint;
+        BAN_MEMBERS: bigint;
+        ADMINISTRATOR: bigint;
+        MANAGE_CHANNELS: bigint;
+        MANAGE_GUILD: bigint;
+        ADD_REACTIONS: bigint;
+        VIEW_AUDIT_LOG: bigint;
+        PRIORITY_SPEAKER: bigint;
+        STREAM: bigint;
+        VIEW_CHANNEL: bigint;
+        SEND_MESSAGES: bigint;
+        SEND_TTS_MESSAGES: bigint;
+        MANAGE_MESSAGES: bigint;
+        EMBED_LINKS: bigint;
+        ATTACH_FILES: bigint;
+        READ_MESSAGE_HISTORY: bigint;
+        MENTION_EVERYONE: bigint;
+        USE_EXTERNAL_EMOJIS: bigint;
+        VIEW_GUILD_INSIGHTS: bigint;
+        CONNECT: bigint;
+        SPEAK: bigint;
+        MUTE_MEMBERS: bigint;
+        DEAFEN_MEMBERS: bigint;
+        MOVE_MEMBERS: bigint;
+        USE_VAD: bigint;
+        CHANGE_NICKNAME: bigint;
+        MANAGE_NICKNAMES: bigint;
+        MANAGE_ROLES: bigint;
+        MANAGE_WEBHOOKS: bigint;
+        MANAGE_GUILD_EXPRESSIONS: bigint;
+        USE_APPLICATION_COMMANDS: bigint;
+        REQUEST_TO_SPEAK: bigint;
+        MANAGE_EVENTS: bigint;
+        MANAGE_THREADS: bigint;
+        CREATE_PUBLIC_THREADS: bigint;
+        CREATE_PRIVATE_THREADS: bigint;
+        USE_EXTERNAL_STICKERS: bigint;
+        SEND_MESSAGES_IN_THREADS: bigint;
+        USE_EMBEDDED_ACTIVITIES: bigint;
+        MODERATE_MEMBERS: bigint;
+        VIEW_CREATOR_MONETIZATION_ANALYTICS: bigint;
+        USE_SOUNDBOARD: bigint;
+        USE_EXTERNAL_SOUNDS: bigint;
+        SEND_VOICE_MESSAGES: bigint;
+    };
+    /**
+     * All permission flags combined.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags)
+     */
+    static readonly COMBINED_PERMISSIONS: bigint;
+    /**
+     * Permission flags for when a user is timed out.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions#permissions-for-timed-out-members)
+     */
+    static readonly TIMEOUT_PERMISSIONS: bigint;
     /**
      * Apply overwrites to permission flags.
      * @param perms The permissions to apply overwrites to.
@@ -93,5 +150,5 @@ export declare class PermissionsUtils {
      * Converts permission flags to readable strings.
      * @param perms The permissions to convert.
      */
-    static toReadable(perms: number | bigint): Array<keyof typeof DiscordConstants.PERMISSION_FLAGS>;
+    static toReadable(perms: number | bigint): Array<keyof typeof PermissionsUtils.PERMISSIONS>;
 }

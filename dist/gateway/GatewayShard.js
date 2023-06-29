@@ -24,7 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayShard = exports.GatewayShardState = void 0;
-const DiscordConstants_1 = require("../constants/DiscordConstants");
+const IntentUtils_1 = require("../utils/IntentUtils");
 const typed_emitter_1 = require("@br88c/typed-emitter");
 const DiscordTypes = __importStar(require("discord-api-types/v10"));
 const node_crypto_1 = require("node:crypto");
@@ -542,7 +542,7 @@ class GatewayShard extends typed_emitter_1.TypedEmitter {
                         }
                         parsedPayload.d.guilds.forEach((guild) => this.guilds.add(guild.id));
                         this._enterState(GatewayShardState.READY);
-                        if ((DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILDS) {
+                        if ((IntentUtils_1.IntentUtils.INTENTS.GUILDS & this.options.intents) === IntentUtils_1.IntentUtils.INTENTS.GUILDS) {
                             const guilds = parsedPayload.d.guilds.map((guild) => guild.id);
                             this.guilds = new Set(guilds);
                             this.waitingForGuilds = new Set(guilds);

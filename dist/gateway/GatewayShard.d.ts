@@ -1,8 +1,8 @@
 import { Gateway } from './Gateway';
 import { LogCallback } from '../types/Log';
+import { Snowflake } from '../utils/SnowflakeUtils';
 import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'discord-api-types/v10';
 import { WebSocket } from 'ws';
 /**
  * {@link GatewayShard Gateway shard} events.

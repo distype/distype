@@ -1,5 +1,5 @@
-import { Rest, RestMethod, RestRequestData, RestResponse, RestRoute } from './Rest';
-import { Snowflake } from 'discord-api-types/v10';
+import { Rest, RestMethod, RestRequestData, RestMakeResponse, RestRoute } from './Rest';
+import { Snowflake } from '../utils/SnowflakeUtils';
 /**
  * A {@link Rest rest} bucket hash.
  * @internal
@@ -24,6 +24,21 @@ export type RestRouteHash = `${RestMethod};${RestMajorParameter}`;
  * @internal
  */
 export declare class RestBucket {
+    /**
+     * Rest rate limit headers.
+     * Headers are lowercase to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
+     */
+    static readonly RATELIMIT_HEADERS: {
+        LIMIT: string;
+        REMAINING: string;
+        RESET: string;
+        RESET_AFTER: string;
+        BUCKET: string;
+        GLOBAL: string;
+        GLOBAL_RETRY_AFTER: string;
+        SCOPE: string;
+    };
     /**
      * The number of allowed requests per a rate limit interval.
      */
@@ -88,7 +103,7 @@ export declare class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    request(method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestResponse>;
+    request(method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestMakeResponse>;
     /**
      * Waits for the bucket to no longer be rate limited.
      */

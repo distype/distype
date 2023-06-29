@@ -1,9 +1,8 @@
-import { DiscordConstants } from '../constants/DiscordConstants';
-import { Snowflake } from 'discord-api-types/v10';
+import { Snowflake } from './SnowflakeUtils';
 /**
  * Image options.
  */
-export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FORMATS)[number]> {
+export interface CDNImageOptions<T extends (typeof CDNUtils.IMAGE_FORMATS)[number]> {
     /**
      * If the image is animated, automatically make it a gif.
      * @default true
@@ -18,7 +17,7 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FO
      * The image's size.
      * @default undefined
      */
-    size?: (typeof DiscordConstants.CDN.IMAGE_SIZES)[number];
+    size?: (typeof CDNUtils.IMAGE_SIZES)[number];
 }
 /**
  * Methods for constructing CDN links.
@@ -26,6 +25,21 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FO
  */
 export declare class CDNUtils {
     private constructor();
+    /**
+     * Discord's CDN URL.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
+     */
+    static readonly BASE_URL = "https://cdn.discordapp.com";
+    /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    static readonly IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`];
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    static readonly IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
     /**
      * A custom emoji.
      * @param id The emoji's ID.

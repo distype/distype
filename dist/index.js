@@ -1,12 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeConstants = exports.DiscordConstants = exports.Client = exports.Cache = void 0;
+exports.SnowflakeUtils = exports.PermissionsUtils = exports.CDNUtils = exports.RestBucket = exports.Rest = exports.GatewayShardState = exports.GatewayShard = exports.Gateway = exports.DistypeConstants = exports.Client = exports.Cache = void 0;
 var Cache_1 = require("./cache/Cache");
 Object.defineProperty(exports, "Cache", { enumerable: true, get: function () { return Cache_1.Cache; } });
 var Client_1 = require("./client/Client");
 Object.defineProperty(exports, "Client", { enumerable: true, get: function () { return Client_1.Client; } });
-var DiscordConstants_1 = require("./constants/DiscordConstants");
-Object.defineProperty(exports, "DiscordConstants", { enumerable: true, get: function () { return DiscordConstants_1.DiscordConstants; } });
 var DistypeConstants_1 = require("./constants/DistypeConstants");
 Object.defineProperty(exports, "DistypeConstants", { enumerable: true, get: function () { return DistypeConstants_1.DistypeConstants; } });
 var Gateway_1 = require("./gateway/Gateway");

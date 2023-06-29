@@ -1,5 +1,5 @@
+import { Snowflake } from '../utils/SnowflakeUtils';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'discord-api-types/v10';
 /**
  * A utility type for typed channels.
  * @internal

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RestBucket = void 0;
 const Rest_1 = require("./Rest");
-const DiscordConstants_1 = require("../constants/DiscordConstants");
 const promises_1 = require("node:timers/promises");
 /**
  * A {@link Rest rest} bucket.
@@ -10,6 +9,21 @@ const promises_1 = require("node:timers/promises");
  * @internal
  */
 class RestBucket {
+    /**
+     * Rest rate limit headers.
+     * Headers are lowercase to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
+     */
+    static RATELIMIT_HEADERS = {
+        LIMIT: `x-ratelimit-limit`,
+        REMAINING: `x-ratelimit-remaining`,
+        RESET: `x-ratelimit-reset`,
+        RESET_AFTER: `x-ratelimit-reset-after`,
+        BUCKET: `x-ratelimit-bucket`,
+        GLOBAL: `x-ratelimit-global`,
+        GLOBAL_RETRY_AFTER: `retry-after`,
+        SCOPE: `x-ratelimit-scope`
+    };
     /**
      * The number of allowed requests per a rate limit interval.
      */
@@ -127,18 +141,18 @@ class RestBucket {
         }
         this.manager.globalLeft--;
         const response = await this.manager.make(method, route, options);
-        const bucket = response.headers?.get(DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET);
-        const globalRetryAfter = +(response.headers?.get(DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER) ?? 0) * 1000;
-        if (globalRetryAfter > 0 && response.headers?.get(DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL) === `true`) {
+        const bucket = response.headers?.get(RestBucket.RATELIMIT_HEADERS.BUCKET);
+        const globalRetryAfter = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER) ?? 0) * 1000;
+        if (globalRetryAfter > 0 && response.headers?.get(RestBucket.RATELIMIT_HEADERS.GLOBAL) === `true`) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
         if (bucket && bucket !== this.bucketHash) {
             this.manager.routeHashCache.set(routeHash, bucket);
         }
-        this.requestsLeft = +(response.headers?.get(DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING) ?? 1);
-        this.resetAt = +(response.headers?.get(DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER) ?? 0) * 1000 + Date.now();
-        this.allowedRequestsPerRatelimit = +(response.headers?.get(DiscordConstants_1.DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT) ?? Infinity);
+        this.requestsLeft = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.REMAINING) ?? 1);
+        this.resetAt = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.RESET_AFTER) ?? 0) * 1000 + Date.now();
+        this.allowedRequestsPerRatelimit = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.LIMIT) ?? Infinity);
         if (response.status === 429) {
             return this._make(method, route, routeHash, options);
         }

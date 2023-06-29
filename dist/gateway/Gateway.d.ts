@@ -3,10 +3,10 @@ import { GatewayShard } from './GatewayShard';
 import { Cache } from '../cache/Cache';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
+import { Snowflake } from '../utils/SnowflakeUtils';
 import { ExtendedMap } from '@br88c/extended-map';
 import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'discord-api-types/v10';
 /**
  * {@link Gateway} events.
  * Note that with the exception of `MANAGER_READY`, all events are a relay of a {@link GatewayShard gateway shard}'s event emit (For example, `READY` signifies a single shard receiving a `READY` dispatch).
@@ -130,6 +130,19 @@ export interface GatewayPresenceUpdateData {
  * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 export declare class Gateway extends TypedEmitter<GatewayEvents> {
+    /**
+     * The default gateway API version used.
+     */
+    static readonly API_VERSION = 10;
+    /**
+     * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
+     */
+    static readonly REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH = 32;
+    /**
+    * The cooldown between spawning shards from the same bucket in milliseconds.
+    * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+    */
+    static readonly SHARD_SPAWN_COOLDOWN = 5000;
     /**
      * The shard counts the manager is controlling.
      */

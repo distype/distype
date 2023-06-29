@@ -26,7 +26,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = void 0;
 const GatewayShard_1 = require("./GatewayShard");
 const Cache_1 = require("../cache/Cache");
-const DiscordConstants_1 = require("../constants/DiscordConstants");
 const Rest_1 = require("../rest/Rest");
 const IntentUtils_1 = require("../utils/IntentUtils");
 const extended_map_1 = require("@br88c/extended-map");
@@ -44,6 +43,19 @@ const node_url_1 = require("node:url");
  * After being handled by the {@link Cache cache manager}, they are emitted again under their individual event name (example: `GUILD_CREATE`).
  */
 class Gateway extends typed_emitter_1.TypedEmitter {
+    /**
+     * The default gateway API version used.
+     */
+    static API_VERSION = 10;
+    /**
+     * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
+     */
+    static REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH = 32;
+    /**
+    * The cooldown between spawning shards from the same bucket in milliseconds.
+    * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+    */
+    static SHARD_SPAWN_COOLDOWN = 5000;
     /**
      * The shard counts the manager is controlling.
      */
@@ -128,7 +140,7 @@ class Gateway extends typed_emitter_1.TypedEmitter {
             presence: options.presence ?? null,
             sharding: options.sharding ?? {},
             spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
-            version: options.version ?? DiscordConstants_1.DiscordConstants.GATEWAY.VERSION,
+            version: options.version ?? Gateway.API_VERSION,
             wsOptions: options.wsOptions ?? {}
         };
         this.on(`*`, (payload) => {
@@ -269,8 +281,8 @@ class Gateway extends typed_emitter_1.TypedEmitter {
     getGuildMembers(guildId, options = {}) {
         if (options.query && options.user_ids)
             throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants_1.DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH)
-            throw new Error(`nonce length is greater than the allowed ${DiscordConstants_1.DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH)
+            throw new Error(`nonce length is greater than the allowed ${Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`);
         const shard = this.guildShard(guildId, true);
         const nonce = options.nonce ?? (0, node_crypto_1.randomUUID)().replaceAll(`-`, ``);
         const members = new extended_map_1.ExtendedMap();
@@ -301,7 +313,7 @@ class Gateway extends typed_emitter_1.TypedEmitter {
                     guild_id: guildId,
                     query: (!options.query && !options.user_ids ? `` : options.query),
                     limit: options.limit ?? 0,
-                    presences: (this.options.intents & DiscordConstants_1.DiscordConstants.GATEWAY.INTENTS.GUILD_PRESENCES) !== 0,
+                    presences: (this.options.intents & IntentUtils_1.IntentUtils.INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
                     nonce
                 }
@@ -411,7 +423,7 @@ class Gateway extends typed_emitter_1.TypedEmitter {
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard_1.GatewayShard).map((bucket) => bucket.get(i).spawn()));
             results.push(...bucketResult);
             if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
-                await (0, promises_1.setTimeout)(DiscordConstants_1.DiscordConstants.GATEWAY.RATELIMITS.SHARD_SPAWN_COOLDOWN);
+                await (0, promises_1.setTimeout)(Gateway.SHARD_SPAWN_COOLDOWN);
         }
         await waitingForGuildReady;
         const success = results.filter((result) => result.status === `fulfilled`).length;

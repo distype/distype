@@ -5,10 +5,9 @@ import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
 import { ExtendedMap } from '@br88c/extended-map';
 /**
- * Internal request response.
- * @internal
+ * {@link Rest} make responses.
  */
-export type RestResponse = Response & {
+export type RestMakeResponse = Response & {
     parsedBody: any;
 };
 /**
@@ -16,9 +15,12 @@ export type RestResponse = Response & {
  */
 export type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 /**
+ * A {@link Rest rest} route.
+ */
+export type RestRoute = `/${string}`;
+/**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
- * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implement the correct headers in your request.
  */
 export interface RestRequestData extends RestRequestOptions {
     /**
@@ -35,14 +37,28 @@ export interface RestRequestData extends RestRequestOptions {
     reason?: string;
 }
 /**
- * A {@link Rest rest} route.
- */
-export type RestRoute = `/${string}`;
-/**
  * The rest manager.
  * Used for making rest requests to the Discord API.
  */
 export declare class Rest extends RestRequests {
+    /**
+     * The default REST API version used.
+     */
+    static readonly API_VERSION = 10;
+    /**
+    * Discord's base API URL.
+    * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
+    */
+    static readonly BASE_URL = "https://discord.com/api";
+    /**
+     * The ending key where an error array is defined on a rest error.
+     */
+    static readonly ERROR_KEY = "_errors";
+    /**
+     * The amount of milliseconds after a message is created where it causes issues with rate limiting.
+     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
+     */
+    static readonly OLD_MESSAGE_THRESHOLD = 1209600000;
     /**
      * Rate limit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketId ID}.
@@ -111,16 +127,15 @@ export declare class Rest extends RestRequests {
      */
     request(method: RestMethod, route: RestRoute, options?: RestRequestData): Promise<any>;
     /**
-     * The internal rest make method.
+     * Low level rest make method.
      * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if rate limits are turned off.
      * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns The full response.
-     * @internal
      */
-    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestResponse>;
+    make(method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestMakeResponse>;
     /**
      * Cleans up inactive {@link RestBucket buckets} without active local rate limits. Useful for manually preventing potentially fatal memory leaks in large bots.
      */

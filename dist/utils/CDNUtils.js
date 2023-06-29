@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CDNUtils = void 0;
-const DiscordConstants_1 = require("../constants/DiscordConstants");
 const node_url_1 = require("node:url");
 /**
  * Methods for constructing CDN links.
@@ -9,6 +8,21 @@ const node_url_1 = require("node:url");
  */
 class CDNUtils {
     constructor() { } // eslint-disable-line no-useless-constructor
+    /**
+     * Discord's CDN URL.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
+     */
+    static BASE_URL = `https://cdn.discordapp.com`;
+    /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    static IMAGE_FORMATS;
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    static IMAGE_SIZES;
     /**
      * A custom emoji.
      * @param id The emoji's ID.
@@ -195,7 +209,7 @@ class CDNUtils {
      * @param options Image options.
      */
     static _make(route, options) {
-        const url = new node_url_1.URL(`${DiscordConstants_1.DiscordConstants.CDN.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
+        const url = new node_url_1.URL(`${this.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
         if (options.size)
             url.searchParams.set(`size`, `${options.size}`);
         return url.toString();

@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Rest = void 0;
 const RestBucket_1 = require("./RestBucket");
 const RestRequests_1 = require("./RestRequests");
-const DiscordConstants_1 = require("../constants/DiscordConstants");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
 const extended_map_1 = require("@br88c/extended-map");
@@ -13,6 +12,24 @@ const node_url_1 = require("node:url");
  * Used for making rest requests to the Discord API.
  */
 class Rest extends RestRequests_1.RestRequests {
+    /**
+     * The default REST API version used.
+     */
+    static API_VERSION = 10;
+    /**
+    * Discord's base API URL.
+    * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
+    */
+    static BASE_URL = `https://discord.com/api`;
+    /**
+     * The ending key where an error array is defined on a rest error.
+     */
+    static ERROR_KEY = `_errors`;
+    /**
+     * The amount of milliseconds after a message is created where it causes issues with rate limiting.
+     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
+     */
+    static OLD_MESSAGE_THRESHOLD = 1209600000;
     /**
      * Rate limit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketId ID}.
@@ -85,7 +102,7 @@ class Rest extends RestRequests_1.RestRequests {
             disableRatelimits: options.disableRatelimits ?? false,
             ratelimitGlobal: options.ratelimitGlobal ?? 50,
             ratelimitPause: options.ratelimitPause ?? 10,
-            version: options.version ?? DiscordConstants_1.DiscordConstants.REST.VERSION
+            version: options.version ?? Rest.API_VERSION
         };
         if (!this.options.disableRatelimits) {
             this.buckets = new extended_map_1.ExtendedMap();
@@ -123,7 +140,7 @@ class Rest extends RestRequests_1.RestRequests {
     async request(method, route, options = {}) {
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > DiscordConstants_1.DiscordConstants.REST.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > Rest.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
             const routeHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash = this.routeHashCache.get(routeHash) ?? `global;${routeHash}`;
             const majorParameter = /^\/(?:channels|guilds|webhooks)\/(\d{16,19})/.exec(route)?.[1] ?? `global`;
@@ -135,14 +152,13 @@ class Rest extends RestRequests_1.RestRequests {
             return (await this.make(method, route, options)).parsedBody;
     }
     /**
-     * The internal rest make method.
+     * Low level rest make method.
      * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if rate limits are turned off.
      * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns The full response.
-     * @internal
      */
     async make(method, route, options) {
         const isForm = options.body instanceof FormData;
@@ -160,7 +176,7 @@ class Rest extends RestRequests_1.RestRequests {
             headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants_1.DiscordConstants.REST.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
+        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${Rest.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new node_url_1.URLSearchParams(options.query).toString();
         const reqResponse = await fetch(url, {
             ...this.options,
@@ -217,8 +233,8 @@ class Rest extends RestRequests_1.RestRequests {
             if (response.parsedBody?.errors) {
                 const flattened = this._flattenErrors(response.parsedBody.errors);
                 errors.push(...Object.keys(flattened)
-                    .filter((key) => key.endsWith(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants_1.DiscordConstants.REST.ERROR_KEY)
-                    .map((key) => flattened[key].map((error) => `${key !== DiscordConstants_1.DiscordConstants.REST.ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants_1.DiscordConstants.REST.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
+                    .filter((key) => key.endsWith(`.${Rest.ERROR_KEY}`) || key === Rest.ERROR_KEY)
+                    .map((key) => flattened[key].map((error) => `${key !== Rest.ERROR_KEY ? `[${key.slice(0, -(`.${Rest.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
                     .trimEnd()
                     .replace(/\.$/, ``)))
                     .flat());
@@ -242,7 +258,7 @@ class Rest extends RestRequests_1.RestRequests {
         const flatten = (obj, map = {}, parent) => {
             for (const [k, v] of Object.entries(obj)) {
                 const property = parent ? `${parent}.${k}` : k;
-                if (k !== DiscordConstants_1.DiscordConstants.REST.ERROR_KEY && v && v !== null && typeof v === `object`)
+                if (k !== Rest.ERROR_KEY && v && v !== null && typeof v === `object`)
                     flatten(v, map, property);
                 else
                     map[property] = v;

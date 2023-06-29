@@ -1,8 +1,7 @@
-import { DiscordConstants } from '../constants/DiscordConstants';
 /**
  * Dirty intents used in the intents factory.
  */
-export type IntentUtilsFactoryDirty = number | bigint | Array<keyof typeof DiscordConstants.GATEWAY.INTENTS> | `all` | `nonPrivileged`;
+export type IntentUtilsFactoryDirty = number | bigint | Array<keyof typeof IntentUtils.INTENTS> | `all` | `nonPrivileged`;
 /**
  * Utilities for gateway intents.
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
@@ -10,17 +9,45 @@ export type IntentUtilsFactoryDirty = number | bigint | Array<keyof typeof Disco
 export declare class IntentUtils {
     private constructor();
     /**
-     * All intents.
+     * Named gateway intents.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
-    static get allIntents(): number;
+    static readonly INTENTS: {
+        GUILDS: number;
+        GUILD_MEMBERS: number;
+        GUILD_MODERATION: number;
+        GUILD_EMOJIS_AND_STICKERS: number;
+        GUILD_INTEGRATIONS: number;
+        GUILD_WEBHOOKS: number;
+        GUILD_INVITES: number;
+        GUILD_VOICE_STATES: number;
+        GUILD_PRESENCES: number;
+        GUILD_MESSAGES: number;
+        GUILD_MESSAGE_REACTIONS: number;
+        GUILD_MESSAGE_TYPING: number;
+        DIRECT_MESSAGES: number;
+        DIRECT_MESSAGE_REACTIONS: number;
+        DIRECT_MESSAGE_TYPING: number;
+        MESSAGE_CONTENT: number;
+        GUILD_SCHEDULED_EVENTS: number;
+        AUTO_MODERATION_CONFIGURATION: number;
+        AUTO_MODERATION_EXECUTION: number;
+    };
     /**
-     * Privileged intents.
+     * All gateway intents combined.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      */
-    static get privilegedIntents(): number;
+    static readonly COMBINED_INTENTS: number;
     /**
-     * Non privileged intents.
+     * Privileged gateway intents.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
-    static get nonPrivilegedIntents(): number;
+    static readonly PRIVILEGED_INTENTS: number;
+    /**
+     * Non privileged gateway intents.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
+     */
+    static readonly NON_PRIVILEGED_INTENTS: number;
     /**
      * Intents factory.
      * Interprets intents from several data types.
@@ -32,5 +59,5 @@ export declare class IntentUtils {
      * Converts intents to readable strings.
      * @param intents The intents to convert.
      */
-    static toReadable(intents: number): Array<keyof typeof DiscordConstants.GATEWAY.INTENTS>;
+    static toReadable(intents: number): Array<keyof typeof IntentUtils.INTENTS>;
 }

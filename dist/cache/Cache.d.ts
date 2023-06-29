@@ -1,8 +1,9 @@
 import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
 import { LogCallback } from '../types/Log';
+import { Snowflake } from '../utils/SnowflakeUtils';
 import { ExtendedMap } from '@br88c/extended-map';
-import { GatewayDispatchPayload, Snowflake } from 'discord-api-types/v10';
+import { GatewayDispatchPayload } from 'discord-api-types/v10';
 /**
  * The cache manager.
  * Contains cached data, and {@link cacheEventHandler handles dispatched gateway events} to keep the cache up to date.
