@@ -1,8 +1,7 @@
-import { Rest, RestMethod, RestRequestData, RestResponse, RestRoute } from './Rest';
+import { Rest, RestMethod, RestRequestData, RestMakeResponse, RestRoute } from './Rest';
 
-import { DiscordConstants } from '../constants/DiscordConstants';
+import { Snowflake } from '../utils/SnowflakeUtils';
 
-import { Snowflake } from 'discord-api-types/v10';
 import { setTimeout as wait } from 'node:timers/promises';
 
 /**
@@ -33,6 +32,22 @@ export type RestRouteHash = `${RestMethod};${RestMajorParameter}`;
  * @internal
  */
 export class RestBucket {
+    /**
+     * Rest rate limit headers.
+     * Headers are lowercase to allow for easier comparison (`receivedHeader.toLowerCase() === REST_RATELIMIT_HEADERS.HEADER`), as some http libraries return headers in all uppercase or all lowercase.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/rate-limits#header-format)
+     */
+    public static readonly RATELIMIT_HEADERS = {
+        LIMIT: `x-ratelimit-limit`,
+        REMAINING: `x-ratelimit-remaining`,
+        RESET: `x-ratelimit-reset`,
+        RESET_AFTER: `x-ratelimit-reset-after`,
+        BUCKET: `x-ratelimit-bucket`,
+        GLOBAL: `x-ratelimit-global`,
+        GLOBAL_RETRY_AFTER: `retry-after`,
+        SCOPE: `x-ratelimit-scope`
+    };
+
     /**
      * The number of allowed requests per a rate limit interval.
      */
@@ -124,7 +139,7 @@ export class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    public async request (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestResponse> {
+    public async request (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestMakeResponse> {
         if (this._queue.length) await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
@@ -148,7 +163,7 @@ export class RestBucket {
      * @param attempt The current attempt value.
      * @returns Response data.
      */
-    private async _make (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData, attempt = 0): Promise<RestResponse> {
+    private async _make (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData, attempt = 0): Promise<RestMakeResponse> {
         if (this.ratelimited.any) await this._awaitRatelimit();
 
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
@@ -159,10 +174,10 @@ export class RestBucket {
 
         const response = await this.manager.make(method, route, options);
 
-        const bucket = response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.BUCKET);
-        const globalRetryAfter = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER) ?? 0) * 1000;
+        const bucket = response.headers?.get(RestBucket.RATELIMIT_HEADERS.BUCKET);
+        const globalRetryAfter = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.GLOBAL_RETRY_AFTER) ?? 0) * 1000;
 
-        if (globalRetryAfter > 0 && response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.GLOBAL) === `true`) {
+        if (globalRetryAfter > 0 && response.headers?.get(RestBucket.RATELIMIT_HEADERS.GLOBAL) === `true`) {
             this.manager.globalLeft = 0;
             this.manager.globalResetAt = globalRetryAfter + Date.now();
         }
@@ -171,9 +186,9 @@ export class RestBucket {
             this.manager.routeHashCache!.set(routeHash, bucket);
         }
 
-        this.requestsLeft = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.REMAINING) ?? 1);
-        this.resetAt = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.RESET_AFTER) ?? 0) * 1000 + Date.now();
-        this.allowedRequestsPerRatelimit = +(response.headers?.get(DiscordConstants.REST.RATELIMIT_HEADERS.LIMIT) ?? Infinity);
+        this.requestsLeft = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.REMAINING) ?? 1);
+        this.resetAt = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.RESET_AFTER) ?? 0) * 1000 + Date.now();
+        this.allowedRequestsPerRatelimit = +(response.headers?.get(RestBucket.RATELIMIT_HEADERS.LIMIT) ?? Infinity);
 
         if (response.status === 429) {
             return this._make(method, route, routeHash, options);

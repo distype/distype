@@ -1,11 +1,11 @@
 import { Gateway } from './Gateway';
 
-import { DiscordConstants } from '../constants/DiscordConstants';
 import { LogCallback } from '../types/Log';
+import { IntentUtils } from '../utils/IntentUtils';
+import { Snowflake } from '../utils/SnowflakeUtils';
 
 import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as wait } from 'node:timers/promises';
 import { TextDecoder } from 'node:util';
@@ -616,7 +616,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
                         this._enterState(GatewayShardState.READY);
 
-                        if ((DiscordConstants.GATEWAY.INTENTS.GUILDS & this.options.intents) === DiscordConstants.GATEWAY.INTENTS.GUILDS) {
+                        if ((IntentUtils.INTENTS.GUILDS & this.options.intents) === IntentUtils.INTENTS.GUILDS) {
                             const guilds = parsedPayload.d.guilds.map((guild) => guild.id);
 
                             this.guilds = new Set(guilds);

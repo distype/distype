@@ -7,8 +7,7 @@ import { Gateway } from '../gateway/Gateway';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
 import { PermissionsGuild, PermissionsMember, PermissionsUtils } from '../utils/PermissionsUtils';
-
-import { Snowflake } from 'discord-api-types/v10';
+import { Snowflake } from '../utils/SnowflakeUtils';
 
 /**
  * The Discord client.

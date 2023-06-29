@@ -2,9 +2,10 @@ import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, C
 import { CacheOptions } from './CacheOptions';
 
 import { LogCallback } from '../types/Log';
+import { Snowflake } from '../utils/SnowflakeUtils';
 
 import { ExtendedMap } from '@br88c/extended-map';
-import { ChannelType, GatewayDispatchEvents, GatewayDispatchPayload, GatewayGuildCreateDispatchData, Snowflake } from 'discord-api-types/v10';
+import { ChannelType, GatewayDispatchEvents, GatewayDispatchPayload, GatewayGuildCreateDispatchData } from 'discord-api-types/v10';
 
 /**
  * The cache manager.

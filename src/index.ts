@@ -13,7 +13,6 @@ export { CacheOptions } from './cache/CacheOptions';
 export { Client } from './client/Client';
 export { ClientOptions } from './client/ClientOptions';
 
-export { DiscordConstants } from './constants/DiscordConstants';
 export { DistypeConstants } from './constants/DistypeConstants';
 
 export {
@@ -31,6 +30,7 @@ export {
 
 export {
     Rest,
+    RestMakeResponse,
     RestMethod,
     RestRequestData,
     RestRoute
@@ -61,6 +61,7 @@ export {
     PermissionsMember,
     PermissionsUtils
 } from './utils/PermissionsUtils';
-export { SnowflakeUtils } from './utils/SnowflakeUtils';
-
-export { Snowflake } from 'discord-api-types/v10';
+export {
+    Snowflake,
+    SnowflakeUtils
+} from './utils/SnowflakeUtils';

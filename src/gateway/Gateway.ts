@@ -2,15 +2,14 @@ import { GatewayOptions } from './GatewayOptions';
 import { GatewayShard, GatewayShardState } from './GatewayShard';
 
 import { Cache } from '../cache/Cache';
-import { DiscordConstants } from '../constants/DiscordConstants';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
 import { IntentUtils } from '../utils/IntentUtils';
+import { Snowflake } from '../utils/SnowflakeUtils';
 
 import { ExtendedMap } from '@br88c/extended-map';
 import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
-import { Snowflake } from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';
 import { setTimeout as wait } from 'node:timers/promises';
 import { URL, URLSearchParams } from 'node:url';
@@ -144,6 +143,20 @@ export interface GatewayPresenceUpdateData {
  */
 export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
+     * The default gateway API version used.
+     */
+    public static readonly API_VERSION = 10;
+    /**
+     * The maximum length in bytes allowed for the `nonce` property in a [request guild members](https://discord.com/developers/docs/topics/gateway#request-guild-members) payload.
+     */
+    public static readonly REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH = 32;
+    /**
+    * The cooldown between spawning shards from the same bucket in milliseconds.
+    * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+    */
+    public static readonly SHARD_SPAWN_COOLDOWN = 5000;
+
+    /**
      * The shard counts the manager is controlling.
      */
     public managingShards: {
@@ -233,7 +246,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             presence: options.presence ?? null,
             sharding: options.sharding ?? {},
             spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
-            version: options.version ?? DiscordConstants.GATEWAY.VERSION,
+            version: options.version ?? Gateway.API_VERSION,
             wsOptions: options.wsOptions ?? {}
         };
 
@@ -393,7 +406,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         notFound?: Snowflake[]
     }> {
         if (options.query && options.user_ids) throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH) throw new Error(`nonce length is greater than the allowed ${DiscordConstants.GATEWAY.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH) throw new Error(`nonce length is greater than the allowed ${Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`);
 
         const shard = this.guildShard(guildId, true);
 
@@ -430,7 +443,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                     guild_id: guildId,
                     query: (!options.query && !options.user_ids ? `` : options.query)!,
                     limit: options.limit ?? 0,
-                    presences: (this.options.intents & DiscordConstants.GATEWAY.INTENTS.GUILD_PRESENCES) !== 0,
+                    presences: (this.options.intents & IntentUtils.INTENTS.GUILD_PRESENCES) !== 0,
                     user_ids: options.user_ids,
                     nonce
                 }
@@ -557,7 +570,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             });
             const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
             results.push(...bucketResult);
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(DiscordConstants.GATEWAY.RATELIMITS.SHARD_SPAWN_COOLDOWN);
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(Gateway.SHARD_SPAWN_COOLDOWN);
         }
 
         await waitingForGuildReady;

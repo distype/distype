@@ -1,6 +1,5 @@
 import { CDNImageOptions, CDNUtils } from './CDNUtils';
-
-import { Snowflake } from 'discord-api-types/v10';
+import { Snowflake } from './SnowflakeUtils';
 
 /**
  * Utilities for users.

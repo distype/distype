@@ -2,7 +2,6 @@ import { RestBucket, RestBucketHash, RestBucketId, RestMajorParameter, RestRoute
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 
-import { DiscordConstants } from '../constants/DiscordConstants';
 import { DistypeConstants } from '../constants/DistypeConstants';
 import { LogCallback } from '../types/Log';
 import { SnowflakeUtils } from '../utils/SnowflakeUtils';
@@ -11,10 +10,9 @@ import { ExtendedMap } from '@br88c/extended-map';
 import { URL, URLSearchParams } from 'node:url';
 
 /**
- * Internal request response.
- * @internal
+ * {@link Rest} make responses.
  */
-export type RestResponse = Response & { parsedBody: any }
+export type RestMakeResponse = Response & { parsedBody: any }
 
 /**
  * {@link Rest} request methods.
@@ -22,9 +20,13 @@ export type RestResponse = Response & { parsedBody: any }
 export type RestMethod = `GET` | `POST` | `DELETE` | `PATCH` | `PUT`;
 
 /**
+ * A {@link Rest rest} route.
+ */
+export type RestRoute = `/${string}`;
+
+/**
  * Data for a {@link Rest rest} request.
  * Used by the `Rest#request()` method.
- * Note that if a {@link RestRequestDataBodyStream stream} is specified for the body, it is expected that you also implement the correct headers in your request.
  */
 export interface RestRequestData extends RestRequestOptions {
     /**
@@ -42,15 +44,29 @@ export interface RestRequestData extends RestRequestOptions {
 }
 
 /**
- * A {@link Rest rest} route.
- */
-export type RestRoute = `/${string}`;
-
-/**
  * The rest manager.
  * Used for making rest requests to the Discord API.
  */
 export class Rest extends RestRequests {
+    /**
+     * The default REST API version used.
+     */
+    public static readonly API_VERSION = 10;
+    /**
+    * Discord's base API URL.
+    * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
+    */
+    public static readonly BASE_URL = `https://discord.com/api`;
+    /**
+     * The ending key where an error array is defined on a rest error.
+     */
+    public static readonly ERROR_KEY = `_errors`;
+    /**
+     * The amount of milliseconds after a message is created where it causes issues with rate limiting.
+     * @see [GitHub Issue](https://github.com/discord/discord-api-docs/issues/1295)
+     */
+    public static readonly OLD_MESSAGE_THRESHOLD = 1209600000;
+
     /**
      * Rate limit {@link RestBucket buckets}.
      * Each bucket's key is it's {@link RestBucketId ID}.
@@ -127,7 +143,7 @@ export class Rest extends RestRequests {
             disableRatelimits: options.disableRatelimits ?? false,
             ratelimitGlobal: options.ratelimitGlobal ?? 50,
             ratelimitPause: options.ratelimitPause ?? 10,
-            version: options.version ?? DiscordConstants.REST.VERSION
+            version: options.version ?? Rest.API_VERSION
         };
 
         if (!this.options.disableRatelimits) {
@@ -168,7 +184,7 @@ export class Rest extends RestRequests {
     public async request (method: RestMethod, route: RestRoute, options: RestRequestData = {}): Promise<any> {
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > DiscordConstants.REST.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils.time(/\d{16,19}$/.exec(route)![0])) > Rest.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
 
             const routeHash: RestRouteHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash: RestBucketHash = this.routeHashCache!.get(routeHash) ?? `global;${routeHash}`;
@@ -182,16 +198,15 @@ export class Rest extends RestRequests {
     }
 
     /**
-     * The internal rest make method.
+     * Low level rest make method.
      * Used by {@link RestBucket rest buckets}, and the `Rest#request()` method if rate limits are turned off.
      * **Only use this method if you know exactly what you are doing.**
      * @param method The request's {@link RestMethod method}.
      * @param route The requests's {@link RestRoute route}, relative to the base Discord API URL. (Example: `/channels/123456789000000000`)
      * @param options Request options.
      * @returns The full response.
-     * @internal
      */
-    public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestResponse> {
+    public async make (method: RestMethod, route: RestRoute, options: RestRequestData): Promise<RestMakeResponse> {
         const isForm = options.body instanceof FormData;
 
         const headers: Record<string, string> = (options.forceHeaders ?? this.options.forceHeaders) ? {
@@ -208,7 +223,7 @@ export class Rest extends RestRequests {
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader)) headers[`Authorization`] = (options.authHeader ?? this.options.authHeader)!;
         if (options.reason) headers[`X-Audit-Log-Reason`] = options.reason;
 
-        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${DiscordConstants.REST.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
+        const url = new URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${Rest.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new URLSearchParams(options.query).toString();
 
         const reqResponse = await fetch(url, {
@@ -220,7 +235,7 @@ export class Rest extends RestRequests {
         });
 
         const parsedBody = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
-        const response: RestResponse = Object.assign(reqResponse, { parsedBody });
+        const response: RestMakeResponse = Object.assign(reqResponse, { parsedBody });
 
         this._checkForResponseErrors(method, route, response);
         return response;
@@ -255,7 +270,7 @@ export class Rest extends RestRequests {
     /**
      * Checks for errors in responses.
      */
-    private _checkForResponseErrors (method: RestMethod, route: RestRoute, response: RestResponse): void {
+    private _checkForResponseErrors (method: RestMethod, route: RestRoute, response: RestMakeResponse): void {
         this.responseCodeTally[response.status] = (this.responseCodeTally[response.status] ?? 0) + 1;
 
         const result = `${response.status}${response.ok ? ` (OK)` : ``} ${method} ${route}`;
@@ -271,9 +286,9 @@ export class Rest extends RestRequests {
                 const flattened = this._flattenErrors(response.parsedBody.errors);
                 errors.push(
                     ...Object.keys(flattened)
-                        .filter((key) => key.endsWith(`.${DiscordConstants.REST.ERROR_KEY}`) || key === DiscordConstants.REST.ERROR_KEY)
+                        .filter((key) => key.endsWith(`.${Rest.ERROR_KEY}`) || key === Rest.ERROR_KEY)
                         .map((key) => flattened[key].map((error) =>
-                            `${key !== DiscordConstants.REST.ERROR_KEY ? `[${key.slice(0, -(`.${DiscordConstants.REST.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
+                            `${key !== Rest.ERROR_KEY ? `[${key.slice(0, -(`.${Rest.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
                                 .trimEnd()
                                 .replace(/\.$/, ``)
                         ))
@@ -301,7 +316,7 @@ export class Rest extends RestRequests {
         const flatten = (obj: Record<string, any>, map: Record<string, any> = {}, parent?: string): Record<string, any> => {
             for (const [k, v] of Object.entries(obj)) {
                 const property = parent ? `${parent}.${k}` : k;
-                if (k !== DiscordConstants.REST.ERROR_KEY && v && v !== null && typeof v === `object`) flatten(v, map, property);
+                if (k !== Rest.ERROR_KEY && v && v !== null && typeof v === `object`) flatten(v, map, property);
                 else map[property] = v;
             }
             return map;

@@ -1,13 +1,13 @@
-import { DiscordConstants } from '../constants/DiscordConstants';
+import { Snowflake } from './SnowflakeUtils';
+
 import { RestRoute } from '../rest/Rest';
 
-import { Snowflake } from 'discord-api-types/v10';
 import { URL } from 'node:url';
 
 /**
  * Image options.
  */
-export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FORMATS)[number]> {
+export interface CDNImageOptions<T extends (typeof CDNUtils.IMAGE_FORMATS)[number]> {
     /**
      * If the image is animated, automatically make it a gif.
      * @default true
@@ -22,7 +22,7 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FO
      * The image's size.
      * @default undefined
      */
-    size?: (typeof DiscordConstants.CDN.IMAGE_SIZES)[number]
+    size?: (typeof CDNUtils.IMAGE_SIZES)[number]
 }
 
 /**
@@ -31,6 +31,22 @@ export interface CDNImageOptions<T extends (typeof DiscordConstants.CDN.IMAGE_FO
  */
 export class CDNUtils {
     private constructor () {} // eslint-disable-line no-useless-constructor
+
+    /**
+     * Discord's CDN URL.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-base-url)
+     */
+    public static readonly BASE_URL = `https://cdn.discordapp.com`;
+    /**
+     * Allowed image formats.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting-image-formats)
+     */
+    public static readonly IMAGE_FORMATS: [`gif`, `jpeg`, `jpg`, `json`, `png`, `webp`];
+    /**
+     * Allowed image sizes.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#image-formatting)
+     */
+    public static readonly IMAGE_SIZES: [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
     /**
      * A custom emoji.
@@ -238,11 +254,11 @@ export class CDNUtils {
      */
     private static _make (route: RestRoute, options: {
         dynamic?: boolean
-        format?: (typeof DiscordConstants.CDN.IMAGE_FORMATS)[number],
+        format?: (typeof CDNUtils.IMAGE_FORMATS)[number],
         hash?: string,
-        size?: (typeof DiscordConstants.CDN.IMAGE_SIZES)[number]
+        size?: (typeof CDNUtils.IMAGE_SIZES)[number]
     }): string {
-        const url = new URL(`${DiscordConstants.CDN.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
+        const url = new URL(`${this.BASE_URL}${route}.${options.dynamic && options.hash?.startsWith(`a_`) ? `gif` : (options.format ?? `png`)}`);
         if (options.size) url.searchParams.set(`size`, `${options.size}`);
         return url.toString();
     }
