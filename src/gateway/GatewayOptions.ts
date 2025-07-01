@@ -16,13 +16,13 @@ export interface GatewayOptions {
      * Note that [gateway URL query parameters](https://discord.com/developers/docs/topics/gateway#connecting-gateway-url-query-string-params) will still be sent.
      * @default null
      */
-    customGatewaySocketURL?: string | null
+    customGatewaySocketURL?: string | null;
     /**
      * If `customGatewaySocketURL` is defined and this is `true`, the `resume_gateway_url` field in the [READY](https://discord.com/developers/docs/topics/gateway#ready) dispatch is used instead of the `customGatewaySocketURL`.
      * Otherwise, if `customGatewaySocketURL` is defined, it's used for connecting and resuming.
      * @default null
      */
-    customGatewaySocketURLOverwrittenByResumeURL?: boolean | null
+    customGatewaySocketURLOverwrittenByResumeURL?: boolean | null;
     /**
      * A custom URL to use as a substitute for [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
      * Useful if you use a proxy to connect to the Discord gateway, and it handles bot instances / sharding.
@@ -32,19 +32,19 @@ export interface GatewayOptions {
      * Additionally, if you use a custom base URL for the rest manager that returns custom information when [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot) is called, this can be left undefined.
      * @default null
      */
-    customGetGatewayBotURL?: string | null
+    customGetGatewayBotURL?: string | null;
     /**
      * If the rate limit on buckets (used for shard spawning) should be disabled.
      * **Only disable spawning rate limits if you are using a separate application to manage rate limits** (`customGatewaySocketURL` and/or `customGatewayBotEndpoint` can be used to do so).
      * Note that shards are still spawned in the order that they would with rate limiting enabled, just without a pause between bucket spawn calls.
      * @default false
      */
-    disableBucketRatelimits?: boolean
+    disableBucketRatelimits?: boolean;
     /**
      * The time to wait in milliseconds after the last [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) event to consider that guilds are ready.
      * @default 15000
      */
-    guildsReadyTimeout?: number
+    guildsReadyTimeout?: number;
     /**
      * Gateway intents.
      * A numerical value is simply passed to the identify payload.
@@ -54,19 +54,19 @@ export interface GatewayOptions {
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
      * @default 0
      */
-    intents?: IntentUtilsFactoryDirty
+    intents?: IntentUtilsFactoryDirty;
     /**
      * The number of members in a guild to reach before the gateway stops sending offline members in the guild member list.
      * Must be between `50` and `250`.
      * @default 50
      */
-    largeGuildThreshold?: number
+    largeGuildThreshold?: number;
     /**
      * The initial presence for the bot to use.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-presence-gateway-presence-update-structure)
      * @default null
      */
-    presence?: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData | null
+    presence?: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData | null;
     /**
      * Gateway sharding.
      * Unless you are using a custom scaling solution (for example, running your bot across numerous servers or processes), it is recommended that you leave all of these options undefined.
@@ -80,12 +80,12 @@ export interface GatewayOptions {
          * **This is NOT the amount of shards the process will spawn. For that option, specify `GatewayOptions#sharding#shards`.**
          * `auto` will use the [recommended number from Discord](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
          */
-        totalBotShards?: number | `auto`
+        totalBotShards?: number | `auto`;
         /**
          * The amount of shards to spawn.
          * By default, `GatewayOptions#sharding#totalBotShards` is used.
          */
-        shards?: number
+        shards?: number;
         /**
          * The number of shards to offset spawning by.
          *
@@ -99,22 +99,22 @@ export interface GatewayOptions {
          * ```
          * This option should only be manually defined if you are using a custom scaling solution externally from the library and hosting multiple instances of your bot, to prevent unexpected behavior.
          */
-        offset?: number
-    }
+        offset?: number;
+    };
     /**
      * The number of milliseconds to wait between spawn and resume attempts.
      * @default 2500
      */
-    spawnAttemptDelay?: number
+    spawnAttemptDelay?: number;
     /**
      * Advanced [WebSocket](https://github.com/websockets/ws) options.
      * @see [WebSocket API Reference](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options)
      * @default {}
      */
-    wsOptions?: WsClientOptions
+    wsOptions?: WsClientOptions;
     /**
      * The Gateway version to use.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateways-gateway-versions)
      */
-    version?: number
+    version?: number;
 }

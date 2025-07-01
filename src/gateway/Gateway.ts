@@ -4,10 +4,10 @@ import { GatewayShard, GatewayShardState } from './GatewayShard';
 import { Cache } from '../cache/Cache';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
+import { ExtendedMap } from '../utils/ExtendedMap';
 import { IntentUtils } from '../utils/IntentUtils';
 import { Snowflake } from '../utils/SnowflakeUtils';
 
-import { ExtendedMap } from '@br88c/extended-map';
 import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
 import { randomUUID } from 'node:crypto';
@@ -23,114 +23,130 @@ export type GatewayEvents = {
     /**
      * When all shards are ready.
      */
-    MANAGER_READY: (successfulSpawns: number, unsuccessfulSpawns: number) => void
+    MANAGER_READY: (successfulSpawns: number, unsuccessfulSpawns: number) => void;
 
     /**
      * When a payload is sent.
      */
-    SENT_PAYLOAD: (payload: string) => void
+    SENT_PAYLOAD: (payload: string) => void;
     /**
      * When a {@link GatewayShard shard} enters an {@link GatewayShardState idle state}.
      */
-    SHARD_IDLE: (shard: GatewayShard) => void
+    SHARD_IDLE: (shard: GatewayShard) => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
-    SHARD_DISCONNECTED: (payload: GatewayShard) => void
+    SHARD_DISCONNECTED: (payload: GatewayShard) => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState connecting state}.
      */
-    SHARD_CONNECTING: (shard: GatewayShard) => void
+    SHARD_CONNECTING: (shard: GatewayShard) => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState ready state}.
      */
-    SHARD_READY: (shard: GatewayShard) => void
+    SHARD_READY: (shard: GatewayShard) => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
      */
-    SHARD_GUILDS_READY: (shard: GatewayShard) => void
+    SHARD_GUILDS_READY: (shard: GatewayShard) => void;
 
-    '*': (payload: DiscordTypes.GatewayDispatchPayload) => void // eslint-disable-line quotes
-    READY: (payload: DiscordTypes.GatewayReadyDispatch) => void
-    RESUMED: (payload: DiscordTypes.GatewayResumedDispatch) => void
-    APPLICATION_COMMAND_PERMISSIONS_UPDATE: (payload: DiscordTypes.GatewayApplicationCommandPermissionsUpdateDispatch) => void
-    AUTO_MODERATION_ACTION_EXECUTION: (payload: DiscordTypes.GatewayAutoModerationActionExecutionDispatch) => void
-    AUTO_MODERATION_RULE_CREATE: (payload: DiscordTypes.GatewayAutoModerationRuleCreateDispatch) => void
-    AUTO_MODERATION_RULE_DELETE: (payload: DiscordTypes.GatewayAutoModerationRuleDeleteDispatch) => void
-    AUTO_MODERATION_RULE_UPDATE: (payload: DiscordTypes.GatewayAutoModerationRuleUpdateDispatch) => void
-    CHANNEL_CREATE: (payload: DiscordTypes.GatewayChannelCreateDispatch) => void
-    CHANNEL_UPDATE: (payload: DiscordTypes.GatewayChannelUpdateDispatch) => void
-    CHANNEL_DELETE: (payload: DiscordTypes.GatewayChannelDeleteDispatch) => void
-    CHANNEL_PINS_UPDATE: (payload: DiscordTypes.GatewayChannelPinsUpdateDispatch) => void
-    THREAD_CREATE: (payload: DiscordTypes.GatewayThreadCreateDispatch) => void
-    THREAD_UPDATE: (payload: DiscordTypes.GatewayThreadUpdateDispatch) => void
-    THREAD_DELETE: (payload: DiscordTypes.GatewayThreadDeleteDispatch) => void
-    THREAD_LIST_SYNC: (payload: DiscordTypes.GatewayThreadListSyncDispatch) => void
-    THREAD_MEMBER_UPDATE: (payload: DiscordTypes.GatewayThreadMemberUpdateDispatch) => void
-    THREAD_MEMBERS_UPDATE: (payload: DiscordTypes.GatewayThreadMembersUpdateDispatch) => void
-    GUILD_CREATE: (payload: DiscordTypes.GatewayGuildCreateDispatch) => void
-    GUILD_UPDATE: (payload: DiscordTypes.GatewayGuildUpdateDispatch) => void
-    GUILD_DELETE: (payload: DiscordTypes.GatewayGuildDeleteDispatch) => void
-    GUILD_BAN_ADD: (payload: DiscordTypes.GatewayGuildBanAddDispatch) => void
-    GUILD_BAN_REMOVE: (payload: DiscordTypes.GatewayGuildBanRemoveDispatch) => void
-    GUILD_EMOJIS_UPDATE: (payload: DiscordTypes.GatewayGuildEmojisUpdateDispatch) => void
-    GUILD_STICKERS_UPDATE: (payload: DiscordTypes.GatewayGuildStickersUpdateDispatch) => void
-    GUILD_INTEGRATIONS_UPDATE: (payload: DiscordTypes.GatewayGuildIntegrationsUpdateDispatch) => void
-    GUILD_MEMBER_ADD: (payload: DiscordTypes.GatewayGuildMemberAddDispatch) => void
-    GUILD_MEMBER_REMOVE: (payload: DiscordTypes.GatewayGuildMemberRemoveDispatch) => void
-    GUILD_MEMBER_UPDATE: (payload: DiscordTypes.GatewayGuildMemberUpdateDispatch) => void
-    GUILD_MEMBERS_CHUNK: (payload: DiscordTypes.GatewayGuildMembersChunkDispatch) => void
-    GUILD_ROLE_CREATE: (payload: DiscordTypes.GatewayGuildRoleCreateDispatch) => void
-    GUILD_ROLE_UPDATE: (payload: DiscordTypes.GatewayGuildRoleUpdateDispatch) => void
-    GUILD_ROLE_DELETE: (payload: DiscordTypes.GatewayGuildRoleDeleteDispatch) => void
-    GUILD_SCHEDULED_EVENT_CREATE: (payload: DiscordTypes.GatewayGuildScheduledEventCreateDispatch) => void
-    GUILD_SCHEDULED_EVENT_UPDATE: (payload: DiscordTypes.GatewayGuildScheduledEventUpdateDispatch) => void
-    GUILD_SCHEDULED_EVENT_DELETE: (payload: DiscordTypes.GatewayGuildScheduledEventDeleteDispatch) => void
-    GUILD_SCHEDULED_EVENT_USER_ADD: (payload: DiscordTypes.GatewayGuildScheduledEventUserAddDispatch) => void
-    GUILD_SCHEDULED_EVENT_USER_REMOVE: (payload: DiscordTypes.GatewayGuildScheduledEventUserRemoveDispatch) => void
-    GUILD_AUDIT_LOG_ENTRY_CREATE: (payload: DiscordTypes.GatewayGuildAuditLogEntryCreateDispatch) => void
-    INTEGRATION_CREATE: (payload: DiscordTypes.GatewayIntegrationCreateDispatch) => void
-    INTEGRATION_UPDATE: (payload: DiscordTypes.GatewayIntegrationUpdateDispatch) => void
-    INTEGRATION_DELETE: (payload: DiscordTypes.GatewayIntegrationDeleteDispatch) => void
-    INTERACTION_CREATE: (payload: DiscordTypes.GatewayInteractionCreateDispatch) => void
-    INVITE_CREATE: (payload: DiscordTypes.GatewayInviteCreateDispatch) => void
-    INVITE_DELETE: (payload: DiscordTypes.GatewayInviteDeleteDispatch) => void
-    MESSAGE_CREATE: (payload: DiscordTypes.GatewayMessageCreateDispatch) => void
-    MESSAGE_UPDATE: (payload: DiscordTypes.GatewayMessageUpdateDispatch) => void
-    MESSAGE_DELETE: (payload: DiscordTypes.GatewayMessageDeleteDispatch) => void
-    MESSAGE_DELETE_BULK: (payload: DiscordTypes.GatewayMessageDeleteBulkDispatch) => void
-    MESSAGE_REACTION_ADD: (payload: DiscordTypes.GatewayMessageReactionAddDispatch) => void
-    MESSAGE_REACTION_REMOVE: (payload: DiscordTypes.GatewayMessageReactionRemoveDispatch) => void
-    MESSAGE_REACTION_REMOVE_ALL: (payload: DiscordTypes.GatewayMessageReactionRemoveAllDispatch) => void
-    MESSAGE_REACTION_REMOVE_EMOJI: (payload: DiscordTypes.GatewayMessageReactionRemoveEmojiDispatch) => void
-    PRESENCE_UPDATE: (payload: DiscordTypes.GatewayPresenceUpdateDispatch) => void
-    STAGE_INSTANCE_CREATE: (payload: DiscordTypes.GatewayStageInstanceCreateDispatch) => void
-    STAGE_INSTANCE_DELETE: (payload: DiscordTypes.GatewayStageInstanceDeleteDispatch) => void
-    STAGE_INSTANCE_UPDATE: (payload: DiscordTypes.GatewayStageInstanceUpdateDispatch) => void
-    TYPING_START: (payload: DiscordTypes.GatewayTypingStartDispatch) => void
-    USER_UPDATE: (payload: DiscordTypes.GatewayUserUpdateDispatch) => void
-    VOICE_STATE_UPDATE: (payload: DiscordTypes.GatewayVoiceStateUpdateDispatch) => void
-    VOICE_SERVER_UPDATE: (payload: DiscordTypes.GatewayVoiceServerUpdateDispatch) => void
-    WEBHOOKS_UPDATE: (payload: DiscordTypes.GatewayWebhooksUpdateDispatch) => void
-}
+    '*': (payload: DiscordTypes.GatewayDispatchPayload) => void; // eslint-disable-line quotes
+    READY: (payload: DiscordTypes.GatewayReadyDispatch) => void;
+    RESUMED: (payload: DiscordTypes.GatewayResumedDispatch) => void;
+    APPLICATION_COMMAND_PERMISSIONS_UPDATE: (
+        payload: DiscordTypes.GatewayApplicationCommandPermissionsUpdateDispatch,
+    ) => void;
+    AUTO_MODERATION_ACTION_EXECUTION: (payload: DiscordTypes.GatewayAutoModerationActionExecutionDispatch) => void;
+    AUTO_MODERATION_RULE_CREATE: (payload: DiscordTypes.GatewayAutoModerationRuleCreateDispatch) => void;
+    AUTO_MODERATION_RULE_DELETE: (payload: DiscordTypes.GatewayAutoModerationRuleDeleteDispatch) => void;
+    AUTO_MODERATION_RULE_UPDATE: (payload: DiscordTypes.GatewayAutoModerationRuleUpdateDispatch) => void;
+    CHANNEL_CREATE: (payload: DiscordTypes.GatewayChannelCreateDispatch) => void;
+    CHANNEL_UPDATE: (payload: DiscordTypes.GatewayChannelUpdateDispatch) => void;
+    CHANNEL_DELETE: (payload: DiscordTypes.GatewayChannelDeleteDispatch) => void;
+    CHANNEL_PINS_UPDATE: (payload: DiscordTypes.GatewayChannelPinsUpdateDispatch) => void;
+    THREAD_CREATE: (payload: DiscordTypes.GatewayThreadCreateDispatch) => void;
+    THREAD_UPDATE: (payload: DiscordTypes.GatewayThreadUpdateDispatch) => void;
+    THREAD_DELETE: (payload: DiscordTypes.GatewayThreadDeleteDispatch) => void;
+    THREAD_LIST_SYNC: (payload: DiscordTypes.GatewayThreadListSyncDispatch) => void;
+    THREAD_MEMBER_UPDATE: (payload: DiscordTypes.GatewayThreadMemberUpdateDispatch) => void;
+    THREAD_MEMBERS_UPDATE: (payload: DiscordTypes.GatewayThreadMembersUpdateDispatch) => void;
+    GUILD_CREATE: (payload: DiscordTypes.GatewayGuildCreateDispatch) => void;
+    GUILD_UPDATE: (payload: DiscordTypes.GatewayGuildUpdateDispatch) => void;
+    GUILD_DELETE: (payload: DiscordTypes.GatewayGuildDeleteDispatch) => void;
+    GUILD_BAN_ADD: (payload: DiscordTypes.GatewayGuildBanAddDispatch) => void;
+    GUILD_BAN_REMOVE: (payload: DiscordTypes.GatewayGuildBanRemoveDispatch) => void;
+    GUILD_EMOJIS_UPDATE: (payload: DiscordTypes.GatewayGuildEmojisUpdateDispatch) => void;
+    GUILD_STICKERS_UPDATE: (payload: DiscordTypes.GatewayGuildStickersUpdateDispatch) => void;
+    GUILD_INTEGRATIONS_UPDATE: (payload: DiscordTypes.GatewayGuildIntegrationsUpdateDispatch) => void;
+    GUILD_MEMBER_ADD: (payload: DiscordTypes.GatewayGuildMemberAddDispatch) => void;
+    GUILD_MEMBER_REMOVE: (payload: DiscordTypes.GatewayGuildMemberRemoveDispatch) => void;
+    GUILD_MEMBER_UPDATE: (payload: DiscordTypes.GatewayGuildMemberUpdateDispatch) => void;
+    GUILD_MEMBERS_CHUNK: (payload: DiscordTypes.GatewayGuildMembersChunkDispatch) => void;
+    GUILD_ROLE_CREATE: (payload: DiscordTypes.GatewayGuildRoleCreateDispatch) => void;
+    GUILD_ROLE_UPDATE: (payload: DiscordTypes.GatewayGuildRoleUpdateDispatch) => void;
+    GUILD_ROLE_DELETE: (payload: DiscordTypes.GatewayGuildRoleDeleteDispatch) => void;
+    GUILD_SCHEDULED_EVENT_CREATE: (payload: DiscordTypes.GatewayGuildScheduledEventCreateDispatch) => void;
+    GUILD_SCHEDULED_EVENT_UPDATE: (payload: DiscordTypes.GatewayGuildScheduledEventUpdateDispatch) => void;
+    GUILD_SCHEDULED_EVENT_DELETE: (payload: DiscordTypes.GatewayGuildScheduledEventDeleteDispatch) => void;
+    GUILD_SCHEDULED_EVENT_USER_ADD: (payload: DiscordTypes.GatewayGuildScheduledEventUserAddDispatch) => void;
+    GUILD_SCHEDULED_EVENT_USER_REMOVE: (payload: DiscordTypes.GatewayGuildScheduledEventUserRemoveDispatch) => void;
+    GUILD_AUDIT_LOG_ENTRY_CREATE: (payload: DiscordTypes.GatewayGuildAuditLogEntryCreateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUND_CREATE: (payload: DiscordTypes.GatewayGuildSoundboardSoundCreateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUND_UPDATE: (payload: DiscordTypes.GatewayGuildSoundboardSoundUpdateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUNDS_UPDATE: (payload: DiscordTypes.GatewayGuildSoundboardSoundsUpdateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUND_DELETE: (payload: DiscordTypes.GatewayGuildSoundboardSoundDeleteDispatch) => void;
+    SOUNDBOARD_SOUNDS: (payload: DiscordTypes.GatewaySoundboardSoundsDispatch) => void;
+    SUBSCRIPTION_CREATE: (payload: DiscordTypes.GatewaySubscriptionCreateDispatch) => void;
+    SUBSCRIPTION_UPDATE: (payload: DiscordTypes.GatewaySubscriptionUpdateDispatch) => void;
+    SUBSCRIPTION_DELETE: (payload: DiscordTypes.GatewaySubscriptionDeleteDispatch) => void;
+    INTEGRATION_CREATE: (payload: DiscordTypes.GatewayIntegrationCreateDispatch) => void;
+    INTEGRATION_UPDATE: (payload: DiscordTypes.GatewayIntegrationUpdateDispatch) => void;
+    INTEGRATION_DELETE: (payload: DiscordTypes.GatewayIntegrationDeleteDispatch) => void;
+    INTERACTION_CREATE: (payload: DiscordTypes.GatewayInteractionCreateDispatch) => void;
+    INVITE_CREATE: (payload: DiscordTypes.GatewayInviteCreateDispatch) => void;
+    INVITE_DELETE: (payload: DiscordTypes.GatewayInviteDeleteDispatch) => void;
+    MESSAGE_CREATE: (payload: DiscordTypes.GatewayMessageCreateDispatch) => void;
+    MESSAGE_UPDATE: (payload: DiscordTypes.GatewayMessageUpdateDispatch) => void;
+    MESSAGE_DELETE: (payload: DiscordTypes.GatewayMessageDeleteDispatch) => void;
+    MESSAGE_DELETE_BULK: (payload: DiscordTypes.GatewayMessageDeleteBulkDispatch) => void;
+    MESSAGE_REACTION_ADD: (payload: DiscordTypes.GatewayMessageReactionAddDispatch) => void;
+    MESSAGE_REACTION_REMOVE: (payload: DiscordTypes.GatewayMessageReactionRemoveDispatch) => void;
+    MESSAGE_REACTION_REMOVE_ALL: (payload: DiscordTypes.GatewayMessageReactionRemoveAllDispatch) => void;
+    MESSAGE_REACTION_REMOVE_EMOJI: (payload: DiscordTypes.GatewayMessageReactionRemoveEmojiDispatch) => void;
+    MESSAGE_POLL_VOTE_ADD: (payload: DiscordTypes.GatewayMessagePollVoteAddDispatch) => void;
+    MESSAGE_POLL_VOTE_REMOVE: (payload: DiscordTypes.GatewayMessagePollVoteRemoveDispatch) => void;
+    PRESENCE_UPDATE: (payload: DiscordTypes.GatewayPresenceUpdateDispatch) => void;
+    STAGE_INSTANCE_CREATE: (payload: DiscordTypes.GatewayStageInstanceCreateDispatch) => void;
+    STAGE_INSTANCE_DELETE: (payload: DiscordTypes.GatewayStageInstanceDeleteDispatch) => void;
+    STAGE_INSTANCE_UPDATE: (payload: DiscordTypes.GatewayStageInstanceUpdateDispatch) => void;
+    TYPING_START: (payload: DiscordTypes.GatewayTypingStartDispatch) => void;
+    USER_UPDATE: (payload: DiscordTypes.GatewayUserUpdateDispatch) => void;
+    VOICE_STATE_UPDATE: (payload: DiscordTypes.GatewayVoiceStateUpdateDispatch) => void;
+    VOICE_SERVER_UPDATE: (payload: DiscordTypes.GatewayVoiceServerUpdateDispatch) => void;
+    VOICE_CHANNEL_EFFECT_SEND: (payload: DiscordTypes.GatewayVoiceChannelEffectSendDispatch) => void;
+    WEBHOOKS_UPDATE: (payload: DiscordTypes.GatewayWebhooksUpdateDispatch) => void;
+    ENTITLEMENT_CREATE: (payload: DiscordTypes.GatewayEntitlementCreateDispatch) => void;
+    ENTITLEMENT_UPDATE: (payload: DiscordTypes.GatewayEntitlementUpdateDispatch) => void;
+    ENTITLEMENT_DELETE: (payload: DiscordTypes.GatewayEntitlementDeleteDispatch) => void;
+};
 
 /**
  * Gateway presence activity data.
  */
 export interface GatewayPresenceActivity {
-    name: string
-    type: number
-    url?: string | null
+    name: string;
+    type: number;
+    url?: string | null;
 }
 
 /**
  * Gateway presence update data.
  */
 export interface GatewayPresenceUpdateData {
-    since: number | null
-    activities: GatewayPresenceActivity[]
-    status: `online` | `dnd` | `idle` | `invisible` | `offline`
-    afk: boolean
+    since: number | null;
+    activities: GatewayPresenceActivity[];
+    status: `online` | `dnd` | `idle` | `invisible` | `offline`;
+    afk: boolean;
 }
 
 /**
@@ -151,18 +167,18 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      */
     public static readonly REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH = 32;
     /**
-    * The cooldown between spawning shards from the same bucket in milliseconds.
-    * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
-    */
+     * The cooldown between spawning shards from the same bucket in milliseconds.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
     public static readonly SHARD_SPAWN_COOLDOWN = 5000;
 
     /**
      * The shard counts the manager is controlling.
      */
     public managingShards: {
-        totalBotShards: number
-        shards: number
-        offset: number
+        totalBotShards: number;
+        shards: number;
+        offset: number;
     } | null = null;
     /**
      * {@link GatewayShard Gateway shards}.
@@ -216,20 +232,34 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (token: string, rest: Rest, cache: Cache | false, options: GatewayOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor(
+        token: string,
+        rest: Rest,
+        cache: Cache | false,
+        options: GatewayOptions = {},
+        logCallback: LogCallback = (): void => {},
+        logThisArg?: any,
+    ) {
         super();
 
-        if (typeof token !== `string`) throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
-        if (!(rest instanceof Rest)) throw new TypeError(`Parameter "rest" (Rest) not provided: got ${rest} (${typeof rest})`);
-        if (!(cache instanceof Cache) && cache !== false) throw new TypeError(`Parameter "cache" (Cache | false) not provided: got ${cache} (${typeof cache})`);
-        if (typeof options !== `object`) throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
-        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
+        if (typeof token !== `string`)
+            throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
+        if (!(rest instanceof Rest))
+            throw new TypeError(`Parameter "rest" (Rest) not provided: got ${rest} (${typeof rest})`);
+        if (!(cache instanceof Cache) && cache !== false)
+            throw new TypeError(`Parameter "cache" (Cache | false) not provided: got ${cache} (${typeof cache})`);
+        if (typeof options !== `object`)
+            throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(
+                `Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`,
+            );
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as Gateway[`_token`],
-            writable: false
+            writable: false,
         });
 
         this._rest = rest;
@@ -247,7 +277,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
             sharding: options.sharding ?? {},
             spawnAttemptDelay: options.spawnAttemptDelay ?? 2500,
             version: options.version ?? Gateway.API_VERSION,
-            wsOptions: options.wsOptions ?? {}
+            wsOptions: options.wsOptions ?? {},
         };
 
         this.on(`*`, (payload) => {
@@ -270,14 +300,15 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         this._log = logCallback.bind(logThisArg);
         this._logThisArg = logThisArg;
         this._log(`Initialized gateway manager`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
 
     /**
      * The average heartbeat ping in milliseconds across all shards.
      */
-    public get averageHeartbeatPing (): number {
+    public get averageHeartbeatPing(): number {
         if (!this.shardsReady) return 0;
         else return this.shards.reduce((p, c) => p + c.heartbeatPing, 0) / this.shards.size;
     }
@@ -285,21 +316,21 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * The total guild count across all shards.
      */
-    public get guildCount (): number {
+    public get guildCount(): number {
         return this.shards.reduce((p, c) => p + c.guilds.size, 0);
     }
 
     /**
      * If all shards are in a {@link GatewayShardState ready state} (or {@link GatewayShardState guilds ready}).
      */
-    public get shardsReady (): boolean {
+    public get shardsReady(): boolean {
         return this.shards.size > 0 && this.shards.every((shard) => shard.state >= GatewayShardState.READY);
     }
 
     /**
      * If all shards are in a {@link GatewayShardState guilds ready}.
      */
-    public get shardsGuildsReady (): boolean {
+    public get shardsGuildsReady(): boolean {
         return this.shards.size > 0 && this.shards.every((shard) => shard.state === GatewayShardState.GUILDS_READY);
     }
 
@@ -308,34 +339,52 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param gatewayBot A pre-fetched [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot). Not required, as this method will fetch it if not specified.
      * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
-    public async connect (gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<[number, number]> {
+    public async connect(gatewayBot?: DiscordTypes.APIGatewayBotInfo): Promise<[number, number]> {
         if (this.shardsReady) throw new Error(`Shards are already connected`);
 
         this._log(`Starting connection process`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
 
-        this._log(`Using intents: ${this.options.intents !== 0 ? IntentUtils.toReadable(this.options.intents).join(`, `) : `None`}`, {
-            level: `DEBUG`, system: this.system
-        });
+        this._log(
+            `Using intents: ${this.options.intents !== 0 ? IntentUtils.toReadable(this.options.intents).join(`, `) : `None`}`,
+            {
+                level: `DEBUG`,
+                system: this.system,
+            },
+        );
 
         gatewayBot ??= await this._getGatewayBot();
         this.managingShards = this._calculateShards(gatewayBot);
 
         this._log(`Spawning ${this.managingShards.shards} shards`, {
-            level: `INFO`, system: this.system
+            level: `INFO`,
+            system: this.system,
         });
 
-        const url = new URL(`?${new URLSearchParams({
-            v: `${this.options.version}`, encoding: `json`
-        } as DiscordTypes.GatewayURLQuery as any).toString()}`, this.options.customGatewaySocketURL ?? gatewayBot.url).toString();
+        const url = new URL(
+            `?${new URLSearchParams({
+                v: `${this.options.version}`,
+                encoding: `json`,
+            } as DiscordTypes.GatewayURLQuery as any).toString()}`,
+            this.options.customGatewaySocketURL ?? gatewayBot.url,
+        ).toString();
 
         const buckets = new ExtendedMap<number, ExtendedMap<number, GatewayShard | null>>();
         for (let i = 0; i < this.managingShards.shards; i++) {
             let shard: GatewayShard | null = null;
 
             if (i >= this.managingShards.offset) {
-                shard = new GatewayShard(this._token, i, this.managingShards.totalBotShards, url, this.options, this._log, this._logThisArg);
+                shard = new GatewayShard(
+                    this._token,
+                    i,
+                    this.managingShards.totalBotShards,
+                    url,
+                    this.options,
+                    this._log,
+                    this._logThisArg,
+                );
                 this.shards.set(i, shard);
                 this._bindShardEvents(shard);
             }
@@ -357,9 +406,13 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
 
         if (results instanceof Error) throw results;
 
-        this._log(`Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`, {
-            level: `INFO`, system: this.system
-        });
+        this._log(
+            `Connected to Discord${this.user ? ` as "${this.user.username}#${this.user.discriminator}" (${this.user.id})` : ``}`,
+            {
+                level: `INFO`,
+                system: this.system,
+            },
+        );
 
         this.emit(`MANAGER_READY`, results[0], results[1]);
 
@@ -369,7 +422,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Get the average ping across all shards.
      */
-    public async getAveragePing (): Promise<number> {
+    public async getAveragePing(): Promise<number> {
         if (!this.shardsReady) {
             return 0;
         } else {
@@ -385,11 +438,15 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns The guild's shard, or a shard ID if the shard is not in this manager.
      * @see [Discord API Reference]
      */
-    public guildShard <T extends boolean> (guildId: Snowflake, ensure?: T): T extends true ? GatewayShard : GatewayShard | number {
+    public guildShard<T extends boolean>(
+        guildId: Snowflake,
+        ensure?: T,
+    ): T extends true ? GatewayShard : GatewayShard | number {
         if (!this.managingShards) throw new Error(`No stored shard calculation (managingShards)`);
         const shardId = this._guildShard(guildId, this.managingShards.totalBotShards);
         const shard = this.shards.get(shardId);
-        if (ensure && !(shard instanceof GatewayShard)) throw new Error(`No shard with the specified guild ID found on this gateway manager`);
+        if (ensure && !(shard instanceof GatewayShard))
+            throw new Error(`No shard with the specified guild ID found on this gateway manager`);
         return (shard ?? shardId) as any;
     }
 
@@ -400,13 +457,22 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @returns Received members, presences, and missing members.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#request-guild-members)
      */
-    public getGuildMembers (guildId: Snowflake, options: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersDataWithQuery, `guild_id` | `presences`>> & { user_ids?: Snowflake | Snowflake[]; } = {}): Promise<{
-        members: ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>
-        presences?: ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>
-        notFound?: Snowflake[]
+    public getGuildMembers(
+        guildId: Snowflake,
+        options: Partial<Omit<DiscordTypes.GatewayRequestGuildMembersDataWithQuery, `guild_id` | `presences`>> & {
+            user_ids?: Snowflake | Snowflake[];
+        } = {},
+    ): Promise<{
+        members: ExtendedMap<Snowflake, DiscordTypes.APIGuildMember>;
+        presences?: ExtendedMap<Snowflake, DiscordTypes.GatewayPresenceUpdate>;
+        notFound?: Snowflake[];
     }> {
-        if (options.query && options.user_ids) throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
-        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH) throw new Error(`nonce length is greater than the allowed ${Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`);
+        if (options.query && options.user_ids)
+            throw new TypeError(`Cannot have both query and user_ids defined in a request guild members payload`);
+        if (options.nonce && Buffer.byteLength(options.nonce, `utf-8`) > Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH)
+            throw new Error(
+                `nonce length is greater than the allowed ${Gateway.REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH} bytes`,
+            );
 
         const shard = this.guildShard(guildId, true);
 
@@ -419,11 +485,16 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         return new Promise((resolve, reject) => {
             const listener = (data: DiscordTypes.GatewayGuildMembersChunkDispatch): void => {
                 if (data.d.nonce !== nonce || data.d.guild_id !== guildId) return;
-                data.d.members.filter((member) => member.user).forEach((member) => members.set(member.user!.id, member));
-                data.d.presences?.forEach((presence) => presences.set(presence.user.id, {
-                    ...presence, guild_id: data.d.guild_id
-                }));
-                notFound.push(...(data.d.not_found as Snowflake[] ?? []));
+                data.d.members
+                    .filter((member) => member.user)
+                    .forEach((member) => members.set(member.user!.id, member));
+                data.d.presences?.forEach((presence) =>
+                    presences.set(presence.user.id, {
+                        ...presence,
+                        guild_id: data.d.guild_id,
+                    }),
+                );
+                notFound.push(...((data.d.not_found as Snowflake[]) ?? []));
 
                 if (data.d.chunk_index === (data.d.chunk_count ?? 1) - 1) {
                     this.removeListener(`GUILD_MEMBERS_CHUNK`, listener);
@@ -431,23 +502,25 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
                     resolve({
                         members,
                         presences: presences.size > 0 ? presences : undefined,
-                        notFound: notFound.length > 0 ? notFound : undefined
+                        notFound: notFound.length > 0 ? notFound : undefined,
                     });
                 }
             };
 
             this.on(`GUILD_MEMBERS_CHUNK`, listener);
-            shard.send({
-                op: DiscordTypes.GatewayOpcodes.RequestGuildMembers,
-                d: {
-                    guild_id: guildId,
-                    query: (!options.query && !options.user_ids ? `` : options.query)!,
-                    limit: options.limit ?? 0,
-                    presences: (this.options.intents & IntentUtils.INTENTS.GUILD_PRESENCES) !== 0,
-                    user_ids: options.user_ids,
-                    nonce
-                }
-            }).catch(reject);
+            shard
+                .send({
+                    op: DiscordTypes.GatewayOpcodes.RequestGuildMembers,
+                    d: {
+                        guild_id: guildId,
+                        query: (!options.query && !options.user_ids ? `` : options.query)!,
+                        limit: options.limit ?? 0,
+                        presences: (this.options.intents & IntentUtils.INTENTS.GUILD_PRESENCES) !== 0,
+                        user_ids: options.user_ids,
+                        nonce,
+                    },
+                })
+                .catch(reject);
         });
     }
 
@@ -459,15 +532,20 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param deafen If the bot should self deafen.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#update-voice-state)
      */
-    public async updateVoiceState (guildId: Snowflake, channelId: Snowflake | null, mute = false, deafen = false): Promise<void> {
+    public async updateVoiceState(
+        guildId: Snowflake,
+        channelId: Snowflake | null,
+        mute = false,
+        deafen = false,
+    ): Promise<void> {
         return await this.guildShard(guildId, true).send({
             op: DiscordTypes.GatewayOpcodes.VoiceStateUpdate,
             d: {
                 guild_id: guildId,
                 channel_id: channelId,
                 self_mute: mute,
-                self_deaf: deafen
-            }
+                self_deaf: deafen,
+            },
         });
     }
 
@@ -476,19 +554,32 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param presence Presence data.
      * @param shard A shard or shards to set the presence on. A number will set the presence on a single shard with a matching ID, a number array will set the presence on all shards matching am ID in the array, and `all` will set the presence on all shards.
      */
-    public async updatePresence (presence: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData, shard: number | number[] | `all` = `all`): Promise<void> {
-        const shards = typeof shard === `number` ? [this.shards.get(shard)] : ((shard instanceof Array) ? this.shards.filter((s) => shard.some((sh) => sh === s.id)) : this.shards).map((s) => s);
-        await Promise.all(shards.map((s) => s?.send({
-            op: DiscordTypes.GatewayOpcodes.PresenceUpdate,
-            d: presence as any
-        })));
+    public async updatePresence(
+        presence: GatewayPresenceUpdateData | DiscordTypes.GatewayPresenceUpdateData,
+        shard: number | number[] | `all` = `all`,
+    ): Promise<void> {
+        const shards =
+            typeof shard === `number`
+                ? [this.shards.get(shard)]
+                : (shard instanceof Array
+                      ? this.shards.filter((s) => shard.some((sh) => sh === s.id))
+                      : this.shards
+                  ).map((s) => s);
+        await Promise.all(
+            shards.map((s) =>
+                s?.send({
+                    op: DiscordTypes.GatewayOpcodes.PresenceUpdate,
+                    d: presence as any,
+                }),
+            ),
+        );
     }
 
     /**
      * Binds a shard's events.
      * @param shard The shard to bind.
      */
-    private _bindShardEvents (shard: GatewayShard): void {
+    private _bindShardEvents(shard: GatewayShard): void {
         shard.on(`SENT_PAYLOAD`, (payload) => this.emit(`SENT_PAYLOAD`, payload));
         shard.on(`RECEIVED_PAYLOAD`, (message) => this.emit(`*`, message));
         shard.on(`IDLE`, () => this.emit(`SHARD_IDLE`, shard!));
@@ -502,28 +593,35 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * Calculate the shards the gateway manager will be spawning.
      * @param gatewayBot [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot).
      */
-    private _calculateShards (gatewayBot: DiscordTypes.APIGatewayBotInfo): {
+    private _calculateShards(gatewayBot: DiscordTypes.APIGatewayBotInfo): {
         totalBotShards: number;
         shards: number;
         offset: number;
     } {
-        const totalBotShards = this.options.sharding.totalBotShards === `auto` ? gatewayBot.shards : (this.options.sharding.totalBotShards ?? gatewayBot.shards);
+        const totalBotShards =
+            this.options.sharding.totalBotShards === `auto`
+                ? gatewayBot.shards
+                : (this.options.sharding.totalBotShards ?? gatewayBot.shards);
         const calculatedShards = {
             totalBotShards,
             shards: this.options.sharding.shards ?? totalBotShards,
-            offset: this.options.sharding.offset ?? 0
+            offset: this.options.sharding.offset ?? 0,
         };
 
         if (
-            calculatedShards.totalBotShards < calculatedShards.shards
-            || calculatedShards.totalBotShards <= calculatedShards.offset
-            || calculatedShards.totalBotShards < (calculatedShards.shards + calculatedShards.offset)
+            calculatedShards.totalBotShards < calculatedShards.shards ||
+            calculatedShards.totalBotShards <= calculatedShards.offset ||
+            calculatedShards.totalBotShards < calculatedShards.shards + calculatedShards.offset
         ) {
-            throw new Error(`Invalid shard configuration, got ${calculatedShards.totalBotShards} total shards, with ${calculatedShards.shards} to be spawned with an offset of ${calculatedShards.offset}`);
+            throw new Error(
+                `Invalid shard configuration, got ${calculatedShards.totalBotShards} total shards, with ${calculatedShards.shards} to be spawned with an offset of ${calculatedShards.offset}`,
+            );
         }
 
         if (calculatedShards.shards > gatewayBot.session_start_limit.remaining) {
-            throw new Error(`Session start limit reached; tried to spawn ${calculatedShards.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`);
+            throw new Error(
+                `Session start limit reached; tried to spawn ${calculatedShards.shards} shards when only ${gatewayBot.session_start_limit.remaining} more shards are allowed. Limit will reset in ${gatewayBot.session_start_limit.reset_after / 1000} seconds`,
+            );
         }
 
         return calculatedShards;
@@ -532,14 +630,23 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
     /**
      * Gets [`GET /gateway/bot`](https://discord.com/developers/docs/topics/gateway#get-gateway-bot) from Discord or from the custom URL.
      */
-    private async _getGatewayBot (): Promise<DiscordTypes.RESTGetAPIGatewayBotResult> {
-        const customGetGatewayBotURL = this.options.customGetGatewayBotURL ? new URL(this.options.customGetGatewayBotURL) : undefined;
-        const getGatewayBot = customGetGatewayBotURL ? await this._rest.request(`GET`, customGetGatewayBotURL.pathname as `/${string}`, {
-            customBaseURL: customGetGatewayBotURL.origin,
-            query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries())
-        }) : await this._rest.getGatewayBot();
+    private async _getGatewayBot(): Promise<DiscordTypes.RESTGetAPIGatewayBotResult> {
+        const customGetGatewayBotURL = this.options.customGetGatewayBotURL
+            ? new URL(this.options.customGetGatewayBotURL)
+            : undefined;
+        const getGatewayBot = customGetGatewayBotURL
+            ? await this._rest.request(`GET`, customGetGatewayBotURL.pathname as `/${string}`, {
+                  customBaseURL: customGetGatewayBotURL.origin,
+                  query: Object.fromEntries(customGetGatewayBotURL.searchParams.entries()),
+              })
+            : await this._rest.getGatewayBot();
 
-        if (!getGatewayBot?.session_start_limit || typeof getGatewayBot?.shards !== `number` || (!this.options.customGatewaySocketURL && typeof getGatewayBot?.url !== `string`)) throw new Error(`Invalid GET /gateway/bot response`);
+        if (
+            !getGatewayBot?.session_start_limit ||
+            typeof getGatewayBot?.shards !== `number` ||
+            (!this.options.customGatewaySocketURL && typeof getGatewayBot?.url !== `string`)
+        )
+            throw new Error(`Invalid GET /gateway/bot response`);
 
         return getGatewayBot;
     }
@@ -550,7 +657,7 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param numShards The `numShards` value sent in the identify payload.
      * @returns A shard ID.
      */
-    private _guildShard (guildId: Snowflake, numShards: number): number {
+    private _guildShard(guildId: Snowflake, numShards: number): number {
         return Number((BigInt(guildId) >> 22n) % BigInt(numShards));
     }
 
@@ -559,18 +666,33 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
      * @param buckets Shard buckets.
      * @returns The results from {@link GatewayShard shard} spawns; `[success, failed]`.
      */
-    private async _spawnShards (buckets: ExtendedMap<number, ExtendedMap<number, GatewayShard | null>>): Promise<[number, number]> {
-        const waitingForGuildReady = Promise.all(buckets.reduce((p, c) => p.concat(c.filter((shard) => shard !== null).map((shard) => shard as GatewayShard)), [] as GatewayShard[]).map((shard) => TypedEmitter.once(shard, `GUILDS_READY`)));
+    private async _spawnShards(
+        buckets: ExtendedMap<number, ExtendedMap<number, GatewayShard | null>>,
+    ): Promise<[number, number]> {
+        const waitingForGuildReady = Promise.all(
+            buckets
+                .reduce(
+                    (p, c) => p.concat(c.filter((shard) => shard !== null).map((shard) => shard as GatewayShard)),
+                    [] as GatewayShard[],
+                )
+                .map((shard) => TypedEmitter.once(shard, `GUILDS_READY`)),
+        );
 
         const results: Array<PromiseSettledResult<void>> = [];
         const mostShards = Math.max(...buckets.map((bucket) => bucket.size));
         for (let i = 0; i < mostShards; i++) {
             this._log(`Starting spawn process for shard rate limit key ${i}`, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
-            const bucketResult = await Promise.allSettled(buckets.filter((bucket) => bucket.get(i) instanceof GatewayShard).map((bucket) => bucket.get(i)!.spawn()));
+            const bucketResult = await Promise.allSettled(
+                buckets
+                    .filter((bucket) => bucket.get(i) instanceof GatewayShard)
+                    .map((bucket) => bucket.get(i)!.spawn()),
+            );
             results.push(...bucketResult);
-            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits) await wait(Gateway.SHARD_SPAWN_COOLDOWN);
+            if (i !== buckets.size - 1 && !this.options.disableBucketRatelimits)
+                await wait(Gateway.SHARD_SPAWN_COOLDOWN);
         }
 
         await waitingForGuildReady;
@@ -579,11 +701,14 @@ export class Gateway extends TypedEmitter<GatewayEvents> {
         const failed = results.filter((result) => result.status === `rejected`).length;
 
         this._log(`${success}/${success + failed} shards spawned`, {
-            level: `INFO`, system: this.system
+            level: `INFO`,
+            system: this.system,
         });
-        if (failed > 0) this._log(`${failed} shards failed to spawn`, {
-            level: `WARN`, system: this.system
-        });
+        if (failed > 0)
+            this._log(`${failed} shards failed to spawn`, {
+                level: `WARN`,
+                system: this.system,
+            });
 
         return [success, failed];
     }

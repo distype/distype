@@ -1,11 +1,24 @@
-import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './CacheObjects';
+import {
+    CachedChannel,
+    CachedGuild,
+    CachedMember,
+    CachedPresence,
+    CachedRole,
+    CachedUser,
+    CachedVoiceState,
+} from './CacheObjects';
 import { CacheOptions } from './CacheOptions';
 
 import { LogCallback } from '../types/Log';
 import { Snowflake } from '../utils/SnowflakeUtils';
+import { ExtendedMap } from '../utils/ExtendedMap';
 
-import { ExtendedMap } from '@br88c/extended-map';
-import { ChannelType, GatewayDispatchEvents, GatewayDispatchPayload, GatewayGuildCreateDispatchData } from 'discord-api-types/v10';
+import {
+    ChannelType,
+    GatewayDispatchEvents,
+    GatewayDispatchPayload,
+    GatewayGuildCreateDispatchData,
+} from 'discord-api-types/v10';
 
 /**
  * The cache manager.
@@ -80,9 +93,13 @@ export class Cache {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the cache manager.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (options: CacheOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        if (typeof options !== `object`) throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
-        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
+    constructor(options: CacheOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+        if (typeof options !== `object`)
+            throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(
+                `Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`,
+            );
 
         this.options = {
             channels: options.channels ?? null,
@@ -91,17 +108,20 @@ export class Cache {
             presences: options.presences ?? null,
             roles: options.roles ?? null,
             users: options.users ?? null,
-            voiceStates: options.voiceStates ?? null
+            voiceStates: options.voiceStates ?? null,
         };
 
-        this._enabledKeys = (Object.keys(this.options) as Array<keyof Cache[`options`]>).filter((control) => Array.isArray(this.options[control]));
+        this._enabledKeys = (Object.keys(this.options) as Array<keyof Cache[`options`]>).filter((control) =>
+            Array.isArray(this.options[control]),
+        );
         this._enabledKeys.forEach((key) => {
             this[key] = new ExtendedMap<any, any>();
         });
 
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
 
@@ -110,21 +130,28 @@ export class Cache {
      * @param data The gateway data to handle.
      * @internal
      */
-    public handleEvent (data: GatewayDispatchPayload): void {
+    public handleEvent(data: GatewayDispatchPayload): void {
         if (this._enabledKeys.length === 0) return;
 
         switch (data.t) {
             case GatewayDispatchEvents.Ready: {
-                if (this._enabledKeys.includes(`guilds`)) data.d.guilds.forEach((guild) => this._updateGuild(false, guild));
+                if (this._enabledKeys.includes(`guilds`))
+                    data.d.guilds.forEach((guild) => this._updateGuild(false, guild));
                 if (this._enabledKeys.includes(`users`)) this._updateUser(false, data.d.user);
                 break;
             }
             case GatewayDispatchEvents.ChannelCreate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    channels: [data.d.id, ...(this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
-                });
+                if (this._enabledKeys.includes(`guilds`) && data.d.guild_id)
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        channels: [
+                            data.d.id,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.channels?.filter((channel) => channel !== data.d.id) ?? []),
+                        ],
+                    });
                 break;
             }
             case GatewayDispatchEvents.ChannelUpdate: {
@@ -133,22 +160,30 @@ export class Cache {
             }
             case GatewayDispatchEvents.ChannelDelete: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d as any);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
+                if (this._enabledKeys.includes(`guilds`) && data.d.guild_id)
+                    this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
             case GatewayDispatchEvents.ChannelPinsUpdate: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, {
-                    ...data.d,
-                    id: data.d.channel_id
-                });
+                if (this._enabledKeys.includes(`channels`))
+                    this._updateChannel(false, {
+                        ...data.d,
+                        id: data.d.channel_id,
+                    });
                 break;
             }
             case GatewayDispatchEvents.ThreadCreate: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, data.d as any);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    channels: [data.d.id, ...(this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
-                });
+                if (this._enabledKeys.includes(`guilds`) && data.d.guild_id)
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        channels: [
+                            data.d.id,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.channels?.filter((channel) => channel !== data.d.id) ?? []),
+                        ],
+                    });
                 break;
             }
             case GatewayDispatchEvents.ThreadUpdate: {
@@ -157,39 +192,66 @@ export class Cache {
             }
             case GatewayDispatchEvents.ThreadDelete: {
                 if (this._enabledKeys.includes(`channels`)) this._updateChannel(true, data.d as any);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== ChannelType.GroupDM && data.d.type !== ChannelType.DM && data.d.guild_id) this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
+                if (
+                    this._enabledKeys.includes(`guilds`) &&
+                    data.d.type !== ChannelType.GroupDM &&
+                    data.d.type !== ChannelType.DM &&
+                    data.d.guild_id
+                )
+                    this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
             case GatewayDispatchEvents.GuildCreate: {
-                if (this._enabledKeys.includes(`channels`)) (data.d as GatewayGuildCreateDispatchData).channels.forEach((channel) => this._updateChannel(false, channel as any));
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    ...data.d,
-                    channels: (data.d as GatewayGuildCreateDispatchData).channels?.map((channel) => channel.id),
-                    members: (data.d as GatewayGuildCreateDispatchData).members?.filter((member) => member.user).map((member) => member.user!.id),
-                    roles: data.d.roles.map((role) => role.id)
-                });
-                if (this._enabledKeys.includes(`members`)) (data.d as GatewayGuildCreateDispatchData).members.filter((member) => member.user).forEach((member) => this._updateMember(false, {
-                    ...member,
-                    user_id: member.user!.id,
-                    guild_id: data.d.id
-                }));
-                if (this._enabledKeys.includes(`presences`)) (data.d as GatewayGuildCreateDispatchData).presences.forEach((presence) => this._updatePresence(false, {
-                    ...presence,
-                    user_id: presence.user.id
-                }));
+                if (this._enabledKeys.includes(`channels`))
+                    (data.d as GatewayGuildCreateDispatchData).channels.forEach((channel) =>
+                        this._updateChannel(false, channel as any),
+                    );
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        ...data.d,
+                        channels: (data.d as GatewayGuildCreateDispatchData).channels?.map((channel) => channel.id),
+                        members: (data.d as GatewayGuildCreateDispatchData).members
+                            ?.filter((member) => member.user)
+                            .map((member) => member.user!.id),
+                        roles: data.d.roles.map((role) => role.id),
+                    });
+                if (this._enabledKeys.includes(`members`))
+                    (data.d as GatewayGuildCreateDispatchData).members
+                        .filter((member) => member.user)
+                        .forEach((member) =>
+                            this._updateMember(false, {
+                                ...member,
+                                user_id: member.user!.id,
+                                guild_id: data.d.id,
+                            }),
+                        );
+                if (this._enabledKeys.includes(`presences`))
+                    (data.d as GatewayGuildCreateDispatchData).presences.forEach((presence) =>
+                        this._updatePresence(false, {
+                            ...presence,
+                            user_id: presence.user.id,
+                        }),
+                    );
                 if (this._enabledKeys.includes(`roles`)) data.d.roles.forEach((role) => this._updateRole(false, role));
-                if (this._enabledKeys.includes(`users`)) (data.d as GatewayGuildCreateDispatchData).members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user!));
-                if (this._enabledKeys.includes(`voiceStates`)) (data.d as GatewayGuildCreateDispatchData).voice_states.forEach((voiceState) => this._updateVoiceState(false, {
-                    ...voiceState,
-                    guild_id: data.d.id
-                }));
+                if (this._enabledKeys.includes(`users`))
+                    (data.d as GatewayGuildCreateDispatchData).members
+                        .filter((member) => member.user)
+                        .forEach((member) => this._updateUser(false, member.user!));
+                if (this._enabledKeys.includes(`voiceStates`))
+                    (data.d as GatewayGuildCreateDispatchData).voice_states.forEach((voiceState) =>
+                        this._updateVoiceState(false, {
+                            ...voiceState,
+                            guild_id: data.d.id,
+                        }),
+                    );
                 break;
             }
             case GatewayDispatchEvents.GuildUpdate: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    ...data.d,
-                    roles: data.d.roles.map((role) => role.id)
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        ...data.d,
+                        roles: data.d.roles.map((role) => role.id),
+                    });
                 if (this._enabledKeys.includes(`roles`)) data.d.roles.forEach((role) => this._updateRole(false, role));
                 break;
             }
@@ -197,7 +259,8 @@ export class Cache {
                 if (data.d.unavailable) {
                     if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, data.d);
                 } else {
-                    if (this._enabledKeys.includes(`channels`)) this.channels?.sweep((channel) => channel.guild_id === data.d.id);
+                    if (this._enabledKeys.includes(`channels`))
+                        this.channels?.sweep((channel) => channel.guild_id === data.d.id);
                     if (this._enabledKeys.includes(`guilds`)) this._updateGuild(true, data.d);
                     if (this._enabledKeys.includes(`members`)) this.members?.delete(data.d.id);
                     if (this._enabledKeys.includes(`presences`)) this.presences?.delete(data.d.id);
@@ -207,133 +270,192 @@ export class Cache {
                 break;
             }
             case GatewayDispatchEvents.GuildEmojisUpdate: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    emojis: data.d.emojis
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        emojis: data.d.emojis,
+                    });
                 break;
             }
             case GatewayDispatchEvents.GuildStickersUpdate: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    stickers: data.d.stickers
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        stickers: data.d.stickers,
+                    });
                 break;
             }
             case GatewayDispatchEvents.GuildMemberAdd: {
-                if (this._enabledKeys.includes(`guilds`) && data.d.user) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    members: [data.d.user.id, ...(this.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user!.id) ?? [])]
-                });
-                if (this._enabledKeys.includes(`members`) && data.d.user) this._updateMember(false, {
-                    ...data.d,
-                    user_id: data.d.user.id
-                });
+                if (this._enabledKeys.includes(`guilds`) && data.d.user)
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        members: [
+                            data.d.user.id,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.members?.filter((member) => member !== data.d.user!.id) ?? []),
+                        ],
+                    });
+                if (this._enabledKeys.includes(`members`) && data.d.user)
+                    this._updateMember(false, {
+                        ...data.d,
+                        user_id: data.d.user.id,
+                    });
                 if (this._enabledKeys.includes(`users`) && data.d.user) this._updateUser(false, data.d.user);
                 break;
             }
             case GatewayDispatchEvents.GuildMemberRemove: {
-                if (this._enabledKeys.includes(`guilds`)) this.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id);
-                if (this._enabledKeys.includes(`members`)) this._updateMember(true, {
-                    ...data.d,
-                    user_id: data.d.user.id
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id);
+                if (this._enabledKeys.includes(`members`))
+                    this._updateMember(true, {
+                        ...data.d,
+                        user_id: data.d.user.id,
+                    });
                 break;
             }
             case GatewayDispatchEvents.GuildMemberUpdate: {
-                if (this._enabledKeys.includes(`members`)) this._updateMember(false, {
-                    ...data.d,
-                    user_id: data.d.user.id,
-                    joined_at: data.d.joined_at ?? undefined
-                });
+                if (this._enabledKeys.includes(`members`))
+                    this._updateMember(false, {
+                        ...data.d,
+                        user_id: data.d.user.id,
+                        joined_at: data.d.joined_at ?? undefined,
+                    });
                 if (this._enabledKeys.includes(`users`) && data.d.user) this._updateUser(false, data.d.user);
                 break;
             }
             case GatewayDispatchEvents.GuildMembersChunk: {
-                if (this._enabledKeys.includes(`members`)) data.d.members.filter((member) => member.user).forEach((member) => this._updateMember(false, {
-                    ...member,
-                    guild_id: data.d.guild_id,
-                    user_id: member.user!.id
-                }));
-                if (this._enabledKeys.includes(`presences`)) data.d.presences?.forEach((presence) => this._updatePresence(false, {
-                    ...presence,
-                    user_id: presence.user.id,
-                    guild_id: data.d.guild_id
-                }));
-                if (this._enabledKeys.includes(`users`)) data.d.members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user!));
+                if (this._enabledKeys.includes(`members`))
+                    data.d.members
+                        .filter((member) => member.user)
+                        .forEach((member) =>
+                            this._updateMember(false, {
+                                ...member,
+                                guild_id: data.d.guild_id,
+                                user_id: member.user!.id,
+                            }),
+                        );
+                if (this._enabledKeys.includes(`presences`))
+                    data.d.presences?.forEach((presence) =>
+                        this._updatePresence(false, {
+                            ...presence,
+                            user_id: presence.user.id,
+                            guild_id: data.d.guild_id,
+                        }),
+                    );
+                if (this._enabledKeys.includes(`users`))
+                    data.d.members
+                        .filter((member) => member.user)
+                        .forEach((member) => this._updateUser(false, member.user!));
                 break;
             }
             case GatewayDispatchEvents.GuildRoleCreate: {
-                if (this._enabledKeys.includes(`roles`)) this._updateRole(false, {
-                    ...data.d.role,
-                    guild_id: data.d.guild_id
-                });
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    roles: [data.d.role.id, ...(this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role.id) ?? [])]
-                });
+                if (this._enabledKeys.includes(`roles`))
+                    this._updateRole(false, {
+                        ...data.d.role,
+                        guild_id: data.d.guild_id,
+                    });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        roles: [
+                            data.d.role.id,
+                            ...(this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role.id) ??
+                                []),
+                        ],
+                    });
                 break;
             }
             case GatewayDispatchEvents.GuildRoleUpdate: {
-                if (this._enabledKeys.includes(`roles`)) this._updateRole(false, {
-                    ...data.d.role,
-                    guild_id: data.d.guild_id
-                });
+                if (this._enabledKeys.includes(`roles`))
+                    this._updateRole(false, {
+                        ...data.d.role,
+                        guild_id: data.d.guild_id,
+                    });
                 break;
             }
             case GatewayDispatchEvents.GuildRoleDelete: {
-                if (this._enabledKeys.includes(`roles`)) this._updateRole(true, {
-                    id: data.d.role_id,
-                    guild_id: data.d.guild_id
-                });
-                if (this._enabledKeys.includes(`guilds`)) this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role_id);
+                if (this._enabledKeys.includes(`roles`))
+                    this._updateRole(true, {
+                        id: data.d.role_id,
+                        guild_id: data.d.guild_id,
+                    });
+                if (this._enabledKeys.includes(`guilds`))
+                    this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role_id);
                 break;
             }
             case GatewayDispatchEvents.GuildScheduledEventCreate:
             case GatewayDispatchEvents.GuildScheduledEventUpdate: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    guild_scheduled_events: [data.d, ...(this.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id) ?? [])]
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        guild_scheduled_events: [
+                            data.d,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.guild_scheduled_events?.filter((event) => event.id !== data.d.id) ?? []),
+                        ],
+                    });
                 break;
             }
             case GatewayDispatchEvents.GuildScheduledEventDelete: {
-                if (this._enabledKeys.includes(`guilds`)) this.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id);
+                if (this._enabledKeys.includes(`guilds`))
+                    this.guilds
+                        ?.get(data.d.guild_id)
+                        ?.guild_scheduled_events?.filter((event) => event.id !== data.d.id);
                 break;
             }
             case GatewayDispatchEvents.MessageCreate: {
-                if (this._enabledKeys.includes(`channels`)) this._updateChannel(false, {
-                    id: data.d.channel_id,
-                    last_message_id: data.d.id
-                });
+                if (this._enabledKeys.includes(`channels`))
+                    this._updateChannel(false, {
+                        id: data.d.channel_id,
+                        last_message_id: data.d.id,
+                    });
                 break;
             }
             case GatewayDispatchEvents.PresenceUpdate: {
-                if (this._enabledKeys.includes(`presences`)) this._updatePresence(false, {
-                    ...data.d,
-                    user_id: data.d.user.id
-                });
+                if (this._enabledKeys.includes(`presences`))
+                    this._updatePresence(false, {
+                        ...data.d,
+                        user_id: data.d.user.id,
+                    });
                 break;
             }
             case GatewayDispatchEvents.StageInstanceCreate: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    stage_instances: [data.d, ...(this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        stage_instances: [
+                            data.d,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []),
+                        ],
+                    });
                 break;
             }
             case GatewayDispatchEvents.StageInstanceDelete: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    stage_instances: this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        stage_instances:
+                            this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [],
+                    });
                 break;
             }
             case GatewayDispatchEvents.StageInstanceUpdate: {
-                if (this._enabledKeys.includes(`guilds`)) this._updateGuild(false, {
-                    id: data.d.guild_id,
-                    stage_instances: [data.d, ...(this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
-                });
+                if (this._enabledKeys.includes(`guilds`))
+                    this._updateGuild(false, {
+                        id: data.d.guild_id,
+                        stage_instances: [
+                            data.d,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []),
+                        ],
+                    });
                 break;
             }
             case GatewayDispatchEvents.UserUpdate: {
@@ -341,7 +463,8 @@ export class Cache {
                 break;
             }
             case GatewayDispatchEvents.VoiceStateUpdate: {
-                if (this._enabledKeys.includes(`voiceStates`) && data.d.guild_id) this._updateVoiceState(data.d.channel_id === null, data.d as any);
+                if (this._enabledKeys.includes(`voiceStates`) && data.d.guild_id)
+                    this._updateVoiceState(data.d.channel_id === null, data.d as any);
                 break;
             }
         }
@@ -352,7 +475,7 @@ export class Cache {
      * @param remove If the channel should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updateChannel (remove: boolean, data: CachedChannel): void {
+    private _updateChannel(remove: boolean, data: CachedChannel): void {
         if (remove) return void this.channels!.delete(data.id);
 
         if (!this.channels!.has(data.id)) this.channels!.set(data.id, { id: data.id });
@@ -369,7 +492,7 @@ export class Cache {
      * @param remove If the guild should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updateGuild (remove: boolean, data: CachedGuild): void {
+    private _updateGuild(remove: boolean, data: CachedGuild): void {
         if (remove) return void this.guilds!.delete(data.id);
 
         if (!this.guilds!.has(data.id)) this.guilds!.set(data.id, { id: data.id });
@@ -386,7 +509,7 @@ export class Cache {
      * @param remove If the member should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updateMember (remove: boolean, data: CachedMember): void {
+    private _updateMember(remove: boolean, data: CachedMember): void {
         if (remove) {
             this.members!.get(data.guild_id)?.delete(data.user_id);
             if (this.members!.get(data.guild_id)?.size === 0) this.members!.delete(data.guild_id);
@@ -394,13 +517,16 @@ export class Cache {
         }
 
         if (!this.members!.has(data.guild_id)) this.members!.set(data.guild_id, new ExtendedMap());
-        if (!this.members!.get(data.guild_id)?.has(data.user_id)) this.members!.get(data.guild_id)!.set(data.user_id, {
-            user_id: data.user_id, guild_id: data.guild_id
-        });
+        if (!this.members!.get(data.guild_id)?.has(data.user_id))
+            this.members!.get(data.guild_id)!.set(data.user_id, {
+                user_id: data.user_id,
+                guild_id: data.guild_id,
+            });
 
         for (const key in data) {
             if (data[key as keyof CachedMember] !== undefined && this.options.members?.includes(key as any)) {
-                (this.members!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedMember] as any) = data[key as keyof CachedMember];
+                (this.members!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedMember] as any) =
+                    data[key as keyof CachedMember];
             }
         }
     }
@@ -410,7 +536,7 @@ export class Cache {
      * @param remove If the presence should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updatePresence (remove: boolean, data: CachedPresence): void {
+    private _updatePresence(remove: boolean, data: CachedPresence): void {
         if (remove) {
             this.presences!.get(data.guild_id)?.delete(data.user_id);
             if (this.presences!.get(data.guild_id)?.size === 0) this.presences!.delete(data.guild_id);
@@ -418,13 +544,16 @@ export class Cache {
         }
 
         if (!this.presences!.has(data.guild_id)) this.presences!.set(data.guild_id, new ExtendedMap());
-        if (!this.presences!.get(data.guild_id)?.has(data.user_id)) this.presences!.get(data.guild_id)!.set(data.user_id, {
-            user_id: data.user_id, guild_id: data.guild_id
-        });
+        if (!this.presences!.get(data.guild_id)?.has(data.user_id))
+            this.presences!.get(data.guild_id)!.set(data.user_id, {
+                user_id: data.user_id,
+                guild_id: data.guild_id,
+            });
 
         for (const key in data) {
             if (data[key as keyof CachedPresence] !== undefined && this.options.presences?.includes(key as any)) {
-                (this.presences!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedPresence] as any) = data[key as keyof CachedPresence];
+                (this.presences!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedPresence] as any) =
+                    data[key as keyof CachedPresence];
             }
         }
     }
@@ -434,7 +563,7 @@ export class Cache {
      * @param remove If the role should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updateRole (remove: boolean, data: CachedRole): void {
+    private _updateRole(remove: boolean, data: CachedRole): void {
         if (remove) return void this.roles!.delete(data.id);
 
         if (!this.roles!.has(data.id)) this.roles!.set(data.id, { id: data.id });
@@ -451,7 +580,7 @@ export class Cache {
      * @param remove If the user should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updateUser (remove: boolean, data: CachedUser): void {
+    private _updateUser(remove: boolean, data: CachedUser): void {
         if (remove) return void this.users!.delete(data.id);
 
         if (!this.users!.has(data.id)) this.users!.set(data.id, { id: data.id });
@@ -468,7 +597,7 @@ export class Cache {
      * @param remove If the voice state should be removed from the cache.
      * @param data Data to update with.
      */
-    private _updateVoiceState (remove: boolean, data: CachedVoiceState): void {
+    private _updateVoiceState(remove: boolean, data: CachedVoiceState): void {
         if (remove) {
             this.voiceStates!.get(data.guild_id)?.delete(data.user_id);
             if (this.voiceStates!.get(data.guild_id)?.size === 0) this.voiceStates!.delete(data.guild_id);
@@ -476,13 +605,16 @@ export class Cache {
         }
 
         if (!this.voiceStates!.has(data.guild_id)) this.voiceStates!.set(data.guild_id, new ExtendedMap());
-        if (!this.voiceStates!.get(data.guild_id)?.has(data.user_id)) this.voiceStates!.get(data.guild_id)!.set(data.user_id, {
-            user_id: data.user_id, guild_id: data.guild_id
-        });
+        if (!this.voiceStates!.get(data.guild_id)?.has(data.user_id))
+            this.voiceStates!.get(data.guild_id)!.set(data.user_id, {
+                user_id: data.user_id,
+                guild_id: data.guild_id,
+            });
 
         for (const key in data) {
             if (data[key as keyof CachedVoiceState] !== undefined && this.options.voiceStates?.includes(key as any)) {
-                (this.voiceStates!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedVoiceState] as any) = data[key as keyof CachedVoiceState];
+                (this.voiceStates!.get(data.guild_id)!.get(data.user_id)![key as keyof CachedVoiceState] as any) =
+                    data[key as keyof CachedVoiceState];
             }
         }
     }

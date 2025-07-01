@@ -11,7 +11,7 @@ export type Snowflake = s;
  * @see [Discord API Reference](https://discord.com/developers/docs/reference#snowflakes)
  */
 export class SnowflakeUtils {
-    private constructor () {} // eslint-disable-line no-useless-constructor
+    private constructor() {} // eslint-disable-line no-useless-constructor
 
     /**
      * The Discord epoch as a unix millisecond timestamp.
@@ -22,36 +22,40 @@ export class SnowflakeUtils {
     /**
      * For every ID that is generated on a process, this property of the snowflake is incremented.
      */
-    public static increment (snowflake: Snowflake): number {
-        return Number(BigInt(snowflake) & 0xFFFn);
+    public static increment(snowflake: Snowflake): number {
+        return Number(BigInt(snowflake) & 0xfffn);
     }
 
     /**
      * Determines if a snowflake is valid.
      * @param snowflake The snowflake to test.
      */
-    public static isValid (snowflake: Snowflake): boolean {
-        return Number.isInteger(+snowflake) && BigInt(snowflake) > 4194304n && !isNaN(new Date(this.time(snowflake)).getTime());
+    public static isValid(snowflake: Snowflake): boolean {
+        return (
+            Number.isInteger(+snowflake) &&
+            BigInt(snowflake) > 4194304n &&
+            !isNaN(new Date(this.time(snowflake)).getTime())
+        );
     }
 
     /**
      * Internal Discord process ID the snowflake was created on.
      */
-    public static processId (snowflake: Snowflake): number {
-        return Number((BigInt(snowflake) & 0x1F000n) >> 12n);
+    public static processId(snowflake: Snowflake): number {
+        return Number((BigInt(snowflake) & 0x1f000n) >> 12n);
     }
 
     /**
      * The time at which the snowflake was created as a unix millisecond timestamp.
      */
-    public static time (snowflake: Snowflake): number {
+    public static time(snowflake: Snowflake): number {
         return Number((BigInt(snowflake) >> 22n) + BigInt(this.DISCORD_EPOCH));
     }
 
     /**
      * Internal Discord worker ID the snowflake was created on.
      */
-    public static workerId (snowflake: Snowflake): number {
-        return Number((BigInt(snowflake) & 0x3E0000n) >> 17n);
+    public static workerId(snowflake: Snowflake): number {
+        return Number((BigInt(snowflake) & 0x3e0000n) >> 17n);
     }
 }

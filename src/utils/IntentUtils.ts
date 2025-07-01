@@ -1,14 +1,19 @@
 /**
  * Dirty intents used in the intents factory.
  */
-export type IntentUtilsFactoryDirty = number | bigint | Array<keyof typeof IntentUtils.INTENTS> | `all` | `nonPrivileged`
+export type IntentUtilsFactoryDirty =
+    | number
+    | bigint
+    | Array<keyof typeof IntentUtils.INTENTS>
+    | `all`
+    | `nonPrivileged`;
 
 /**
  * Utilities for gateway intents.
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#gateway-intents)
  */
 export class IntentUtils {
-    private constructor () {} // eslint-disable-line no-useless-constructor
+    private constructor() {} // eslint-disable-line no-useless-constructor
 
     /**
      * Named gateway intents.
@@ -33,7 +38,7 @@ export class IntentUtils {
         MESSAGE_CONTENT: 1 << 15,
         GUILD_SCHEDULED_EVENTS: 1 << 16,
         AUTO_MODERATION_CONFIGURATION: 1 << 20,
-        AUTO_MODERATION_EXECUTION: 1 << 21
+        AUTO_MODERATION_EXECUTION: 1 << 21,
     };
 
     /**
@@ -46,7 +51,8 @@ export class IntentUtils {
      * Privileged gateway intents.
      * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#privileged-intents)
      */
-    public static readonly PRIVILEGED_INTENTS = this.INTENTS.GUILD_MEMBERS & this.INTENTS.GUILD_PRESENCES & this.INTENTS.MESSAGE_CONTENT;
+    public static readonly PRIVILEGED_INTENTS =
+        this.INTENTS.GUILD_MEMBERS & this.INTENTS.GUILD_PRESENCES & this.INTENTS.MESSAGE_CONTENT;
 
     /**
      * Non privileged gateway intents.
@@ -60,7 +66,7 @@ export class IntentUtils {
      * @param intents The intents to interpret.
      * @returns Gateway intents.
      */
-    public static factory (intents: IntentUtilsFactoryDirty): number {
+    public static factory(intents: IntentUtilsFactoryDirty): number {
         if (typeof intents === `number`) return intents;
         else if (typeof intents === `bigint`) return Number(intents);
         else if (intents instanceof Array) return intents.reduce((p, c) => p | this.INTENTS[c], 0);
@@ -73,7 +79,9 @@ export class IntentUtils {
      * Converts intents to readable strings.
      * @param intents The intents to convert.
      */
-    public static toReadable (intents: number): Array<keyof typeof IntentUtils.INTENTS> {
-        return (Object.keys(this.INTENTS) as Array<keyof typeof IntentUtils.INTENTS>).filter((key) => intents & IntentUtils.INTENTS[key]);
+    public static toReadable(intents: number): Array<keyof typeof IntentUtils.INTENTS> {
+        return (Object.keys(this.INTENTS) as Array<keyof typeof IntentUtils.INTENTS>).filter(
+            (key) => intents & IntentUtils.INTENTS[key],
+        );
     }
 }

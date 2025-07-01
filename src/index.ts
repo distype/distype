@@ -6,7 +6,7 @@ export {
     CachedPresence,
     CachedRole,
     CachedUser,
-    CachedVoiceState
+    CachedVoiceState,
 } from './cache/CacheObjects';
 export { CacheOptions } from './cache/CacheOptions';
 
@@ -15,53 +15,16 @@ export { ClientOptions } from './client/ClientOptions';
 
 export { DistypeConstants } from './constants/DistypeConstants';
 
-export {
-    Gateway,
-    GatewayEvents,
-    GatewayPresenceActivity,
-    GatewayPresenceUpdateData
-} from './gateway/Gateway';
+export { Gateway, GatewayEvents, GatewayPresenceActivity, GatewayPresenceUpdateData } from './gateway/Gateway';
 export { GatewayOptions } from './gateway/GatewayOptions';
-export {
-    GatewayShard,
-    GatewayShardEvents,
-    GatewayShardState
-} from './gateway/GatewayShard';
+export { GatewayShard, GatewayShardEvents, GatewayShardState } from './gateway/GatewayShard';
 
-export {
-    Rest,
-    RestMakeResponse,
-    RestMethod,
-    RestRequestData,
-    RestRoute
-} from './rest/Rest';
-export {
-    RestBucket,
-    RestBucketId,
-    RestRouteHash
-} from './rest/RestBucket';
-export {
-    RestOptions,
-    RestRequestOptions
-} from './rest/RestOptions';
+export { Rest, RestMakeResponse, RestMethod, RestRequestData, RestRoute } from './rest/Rest';
+export { RestBucket, RestBucketId, RestRouteHash } from './rest/RestBucket';
+export { RestOptions, RestRequestOptions } from './rest/RestOptions';
 
-export {
-    LogCallback,
-    LogLevel,
-    LogMessageOptions
-} from './types/Log';
+export { LogCallback, LogLevel, LogMessageOptions } from './types/Log';
 
-export {
-    CDNImageOptions,
-    CDNUtils
-} from './utils/CDNUtils';
-export {
-    PermissionsChannel,
-    PermissionsGuild,
-    PermissionsMember,
-    PermissionsUtils
-} from './utils/PermissionsUtils';
-export {
-    Snowflake,
-    SnowflakeUtils
-} from './utils/SnowflakeUtils';
+export { CDNImageOptions, CDNUtils } from './utils/CDNUtils';
+export { PermissionsChannel, PermissionsGuild, PermissionsMember, PermissionsUtils } from './utils/PermissionsUtils';
+export { Snowflake, SnowflakeUtils } from './utils/SnowflakeUtils';

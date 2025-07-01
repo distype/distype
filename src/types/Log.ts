@@ -15,9 +15,9 @@ export interface LogMessageOptions {
     /**
      * The {@link LogLevel level} being logged at.
      */
-    level: LogLevel
+    level: LogLevel;
     /**
      * The system creating the log.
      */
-    system: string
+    system: string;
 }

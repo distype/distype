@@ -45,7 +45,7 @@ export class RestBucket {
         BUCKET: `x-ratelimit-bucket`,
         GLOBAL: `x-ratelimit-global`,
         GLOBAL_RETRY_AFTER: `retry-after`,
-        SCOPE: `x-ratelimit-scope`
+        SCOPE: `x-ratelimit-scope`,
     };
 
     /**
@@ -86,8 +86,8 @@ export class RestBucket {
      * The request queue.
      */
     private _queue: Array<{
-        resolve: () => void
-        promise: Promise<void>
+        resolve: () => void;
+        promise: Promise<void>;
     }> = [];
 
     /**
@@ -97,11 +97,19 @@ export class RestBucket {
      * @param majorParameter The {@link RestMajorParameter major parameter} associated with the bucket.
      * @param manager The {@link Rest rest manager} the bucket is bound to.
      */
-    constructor (id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest) {
-        if (typeof id !== `string`) throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
-        if (typeof bucketHash !== `string`) throw new TypeError(`Parameter "bucketHash" (string) not provided: got ${bucketHash} (${typeof bucketHash})`);
-        if (typeof majorParameter !== `string`) throw new TypeError(`Parameter "majorParameter" (string) not provided: got ${majorParameter} (${typeof majorParameter})`);
-        if (!(manager instanceof Rest)) throw new TypeError(`Parameter "manager" (Rest) not provided: got ${manager} (${typeof manager})`);
+    constructor(id: RestBucketId, bucketHash: RestBucketHash, majorParameter: RestMajorParameter, manager: Rest) {
+        if (typeof id !== `string`)
+            throw new TypeError(`Parameter "id" (string) not provided: got ${id} (${typeof id})`);
+        if (typeof bucketHash !== `string`)
+            throw new TypeError(
+                `Parameter "bucketHash" (string) not provided: got ${bucketHash} (${typeof bucketHash})`,
+            );
+        if (typeof majorParameter !== `string`)
+            throw new TypeError(
+                `Parameter "majorParameter" (string) not provided: got ${majorParameter} (${typeof majorParameter})`,
+            );
+        if (!(manager instanceof Rest))
+            throw new TypeError(`Parameter "manager" (Rest) not provided: got ${manager} (${typeof manager})`);
 
         this.id = id;
         this.bucketHash = bucketHash;
@@ -112,22 +120,22 @@ export class RestBucket {
     /**
      * If the bucket is currently making a request.
      */
-    public get active (): boolean {
+    public get active(): boolean {
         return this._queue.length > 0;
     }
 
     /**
      * Get information on the bucket's current rate limit restrictions.
      */
-    public get ratelimited (): { local: boolean, global: boolean, any: boolean } {
+    public get ratelimited(): { local: boolean; global: boolean; any: boolean } {
         const ratelimits = {
             local: this.requestsLeft <= 0 && Date.now() < this.resetAt,
-            global: this.manager.globalLeft! <= 0 && Date.now() < this.manager.globalResetAt!
+            global: this.manager.globalLeft! <= 0 && Date.now() < this.manager.globalResetAt!,
         };
 
         return {
             ...ratelimits,
-            any: Object.values(ratelimits).some((r) => r)
+            any: Object.values(ratelimits).some((r) => r),
         };
     }
 
@@ -139,7 +147,12 @@ export class RestBucket {
      * @param options Request options.
      * @returns Response data.
      */
-    public async request (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData): Promise<RestMakeResponse> {
+    public async request(
+        method: RestMethod,
+        route: RestRoute,
+        routeHash: RestRouteHash,
+        options: RestRequestData,
+    ): Promise<RestMakeResponse> {
         if (this._queue.length) await this._waitForQueue();
         return await this._make(method, route, routeHash, options).finally(() => this._shiftQueue());
     }
@@ -147,9 +160,12 @@ export class RestBucket {
     /**
      * Waits for the bucket to no longer be rate limited.
      */
-    private async _awaitRatelimit (): Promise<void> {
+    private async _awaitRatelimit(): Promise<void> {
         if (!this.ratelimited.any) return;
-        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + this.manager.options.ratelimitPause - Date.now();
+        const timeout =
+            (this.ratelimited.global ? (this.manager.globalResetAt ?? 0) : this.resetAt) +
+            this.manager.options.ratelimitPause -
+            Date.now();
         await wait(timeout);
         return await this._awaitRatelimit();
     }
@@ -163,7 +179,13 @@ export class RestBucket {
      * @param attempt The current attempt value.
      * @returns Response data.
      */
-    private async _make (method: RestMethod, route: RestRoute, routeHash: RestRouteHash, options: RestRequestData, attempt = 0): Promise<RestMakeResponse> {
+    private async _make(
+        method: RestMethod,
+        route: RestRoute,
+        routeHash: RestRouteHash,
+        options: RestRequestData,
+        attempt = 0,
+    ): Promise<RestMakeResponse> {
         if (this.ratelimited.any) await this._awaitRatelimit();
 
         if (!this.manager.globalResetAt || this.manager.globalResetAt < Date.now()) {
@@ -193,7 +215,10 @@ export class RestBucket {
         if (response.status === 429) {
             return this._make(method, route, routeHash, options);
         } else if (response.status >= 500 && response.status < 600) {
-            if (attempt >= this.manager.options.code500retries) throw new Error(`${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`);
+            if (attempt >= this.manager.options.code500retries)
+                throw new Error(
+                    `${method} ${route} rejected after ${this.manager.options.code500retries + 1} attempts (Request returned status code 5xx errors)`,
+                );
             else return this._make(method, route, routeHash, options, attempt + 1);
         } else {
             return response;
@@ -203,7 +228,7 @@ export class RestBucket {
     /**
      * Shifts the queue.
      */
-    private _shiftQueue (): void {
+    private _shiftQueue(): void {
         const shift = this._queue.shift();
         if (shift) shift.resolve();
     }
@@ -211,7 +236,7 @@ export class RestBucket {
     /**
      * Waits for the queue to be clear.
      */
-    private _waitForQueue (): Promise<void> {
+    private _waitForQueue(): Promise<void> {
         const next = this._queue.length ? this._queue[this._queue.length - 1].promise : Promise.resolve();
         let resolve: () => void;
         const promise = new Promise<void>((r) => {
@@ -219,7 +244,7 @@ export class RestBucket {
         });
         this._queue.push({
             resolve: resolve!,
-            promise
+            promise,
         });
         return next;
     }

@@ -5,7 +5,7 @@ import { Snowflake } from './SnowflakeUtils';
  * Utilities for users.
  */
 export class UserUtils {
-    private constructor () {} // eslint-disable-line no-useless-constructor
+    private constructor() {} // eslint-disable-line no-useless-constructor
 
     /**
      * Get a user's name.
@@ -14,7 +14,12 @@ export class UserUtils {
      * @param nick The user's nickname in a guild.
      * @param discriminator The user's discriminator.
      */
-    public static getName (username: string, globalName?: string | null, nick?: string | null, discriminator?: string | null): string {
+    public static getName(
+        username: string,
+        globalName?: string | null,
+        nick?: string | null,
+        discriminator?: string | null,
+    ): string {
         if (nick) return nick;
         else if (globalName) return globalName;
         else if (!discriminator || discriminator === `0`) return `@${username}`;
@@ -30,16 +35,24 @@ export class UserUtils {
      * @param discriminator The user's discriminator.
      * @param options Avatar options. Note that if the user has a default avatar, size will be omitted and the format will be a png.
      */
-    public static getAvatar (id: Snowflake, avatar?: string | null, guildAvatar?: string | null, guildId?: string | null, discriminator?: string | null, options?: CDNImageOptions<`gif` | `jpeg` | `jpg` | `png` | `webp`>): string {
+    public static getAvatar(
+        id: Snowflake,
+        avatar?: string | null,
+        guildAvatar?: string | null,
+        guildId?: string | null,
+        discriminator?: string | null,
+        options?: CDNImageOptions<`gif` | `jpeg` | `jpg` | `png` | `webp`>,
+    ): string {
         if (guildAvatar && guildId) return CDNUtils.guildMemberAvatar(guildId, id, guildAvatar, options);
         else if (avatar) return CDNUtils.userAvatar(id, avatar, options);
 
         const defaultOptions = {
             ...Object.fromEntries(Object.entries(options ?? {}).filter(([key]) => key !== `size`)),
-            format: `png`
+            format: `png`,
         } as Omit<CDNImageOptions<`png`>, `size`>;
 
-        if (!discriminator || discriminator === `0`) return CDNUtils.defaultUserAvatar(Number((BigInt(id) >> 22n) % 6n), defaultOptions);
+        if (!discriminator || discriminator === `0`)
+            return CDNUtils.defaultUserAvatar(Number((BigInt(id) >> 22n) % 6n), defaultOptions);
         else return CDNUtils.defaultUserAvatar(Number(discriminator), defaultOptions);
     }
 }

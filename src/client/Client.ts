@@ -1,7 +1,15 @@
 import { ClientOptions } from './ClientOptions';
 
 import { Cache } from '../cache/Cache';
-import { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from '../cache/CacheObjects';
+import {
+    CachedChannel,
+    CachedGuild,
+    CachedMember,
+    CachedPresence,
+    CachedRole,
+    CachedUser,
+    CachedVoiceState,
+} from '../cache/CacheObjects';
 import { DistypeConstants } from '../constants/DistypeConstants';
 import { Gateway } from '../gateway/Gateway';
 import { Rest } from '../rest/Rest';
@@ -39,9 +47,9 @@ export class Client {
      * Note that any options not specified are set to a default value.
      */
     public readonly options: {
-        cache: Cache[`options`]
-        gateway: Gateway[`options`]
-        rest: Rest[`options`]
+        cache: Cache[`options`];
+        gateway: Gateway[`options`];
+        rest: Rest[`options`];
     };
     /**
      * The system string used for logging.
@@ -61,16 +69,26 @@ export class Client {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally throughout the client.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (token: string, options: ClientOptions = {}, logCallback: LogCallback = (): void => {}, logThisArg?: any) {
-        if (typeof token !== `string`) throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
-        if (typeof options !== `object`) throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
-        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
+    constructor(
+        token: string,
+        options: ClientOptions = {},
+        logCallback: LogCallback = (): void => {},
+        logThisArg?: any,
+    ) {
+        if (typeof token !== `string`)
+            throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
+        if (typeof options !== `object`)
+            throw new TypeError(`Parameter "options" (object) type mismatch: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(
+                `Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`,
+            );
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as Client[`_token`],
-            writable: false
+            writable: false,
         });
 
         this.cache = new Cache(options.cache, logCallback, logThisArg);
@@ -80,12 +98,13 @@ export class Client {
         this.options = {
             cache: this.cache.options,
             gateway: this.gateway.options,
-            rest: this.rest.options
+            rest: this.rest.options,
         };
 
         this.log = logCallback.bind(logThisArg);
         this.log(`Initialized client`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
 
@@ -95,11 +114,15 @@ export class Client {
      * @param id The channel's ID.
      * @param keys Properties to ensure.
      */
-    public async getChannelData <T extends Array<keyof CachedChannel>> (id: Snowflake, ...keys: T): Promise<Pick<CachedChannel, T[number]>> {
+    public async getChannelData<T extends Array<keyof CachedChannel>>(
+        id: Snowflake,
+        ...keys: T
+    ): Promise<Pick<CachedChannel, T[number]>> {
         let data = this.cache.channels?.get(id) ?? { id };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             data = {
-                ...data, ...(await this.rest.getChannel(id) as unknown as CachedChannel)
+                ...data,
+                ...((await this.rest.getChannel(id)) as unknown as CachedChannel),
             };
         }
 
@@ -112,14 +135,17 @@ export class Client {
      * @param id The guild's ID.
      * @param keys Properties to ensure.
      */
-    public async getGuildData <T extends Array<keyof CachedGuild>> (id: Snowflake, ...keys: T): Promise<Pick<CachedGuild, T[number]>> {
+    public async getGuildData<T extends Array<keyof CachedGuild>>(
+        id: Snowflake,
+        ...keys: T
+    ): Promise<Pick<CachedGuild, T[number]>> {
         let data = this.cache.guilds?.get(id) ?? { id };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             const guild = await this.rest.getGuild(id);
             data = {
                 ...data,
                 ...guild,
-                roles: guild.roles.map((role) => role.id)
+                roles: guild.roles.map((role) => role.id),
             };
         }
 
@@ -133,13 +159,19 @@ export class Client {
      * @param userId The member's user ID.
      * @param keys Properties to ensure.
      */
-    public async getMemberData <T extends Array<keyof CachedMember>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Promise<Pick<CachedMember, T[number]>> {
+    public async getMemberData<T extends Array<keyof CachedMember>>(
+        guildId: Snowflake,
+        userId: Snowflake,
+        ...keys: T
+    ): Promise<Pick<CachedMember, T[number]>> {
         let data = this.cache.members?.get(guildId)?.get(userId) ?? {
-            guild_id: guildId, user_id: userId
+            guild_id: guildId,
+            user_id: userId,
         };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             data = {
-                ...data, ...(await this.rest.getGuildMember(guildId, userId))
+                ...data,
+                ...(await this.rest.getGuildMember(guildId, userId)),
             };
         }
 
@@ -152,9 +184,14 @@ export class Client {
      * @param userId The presence's user ID.
      * @param keys Properties to ensure.
      */
-    public getPresenceData <T extends Array<keyof CachedPresence>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Pick<CachedPresence, T[number]> {
+    public getPresenceData<T extends Array<keyof CachedPresence>>(
+        guildId: Snowflake,
+        userId: Snowflake,
+        ...keys: T
+    ): Pick<CachedPresence, T[number]> {
         const data = this.cache.presences?.get(guildId)?.get(userId) ?? {
-            guild_id: guildId, user_id: userId
+            guild_id: guildId,
+            user_id: userId,
         };
 
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {} as any);
@@ -167,15 +204,21 @@ export class Client {
      * @param guildId The role's guild's ID.
      * @param keys Properties to ensure.
      */
-    public async getRoleData <T extends Array<keyof CachedRole>> (id: Snowflake, guildId: Snowflake, ...keys: T): Promise<Pick<CachedRole, T[number]>> {
+    public async getRoleData<T extends Array<keyof CachedRole>>(
+        id: Snowflake,
+        guildId: Snowflake,
+        ...keys: T
+    ): Promise<Pick<CachedRole, T[number]>> {
         let data = this.cache.roles?.get(id) ?? { id };
         data.guild_id = guildId;
 
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             const role = (await this.rest.getGuildRoles(guildId)).find((role) => role.id === id);
-            if (role) data = {
-                ...data, ...role
-            };
+            if (role)
+                data = {
+                    ...data,
+                    ...role,
+                };
         }
 
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {} as any);
@@ -187,11 +230,15 @@ export class Client {
      * @param id The user's ID.
      * @param keys Properties to ensure.
      */
-    public async getUserData <T extends Array<keyof CachedUser>> (id: Snowflake, ...keys: T): Promise<Pick<CachedUser, T[number]>> {
+    public async getUserData<T extends Array<keyof CachedUser>>(
+        id: Snowflake,
+        ...keys: T
+    ): Promise<Pick<CachedUser, T[number]>> {
         let data = this.cache.users?.get(id) ?? { id };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             data = {
-                ...data, ...(await this.rest.getUser(id))
+                ...data,
+                ...(await this.rest.getUser(id)),
             };
         }
 
@@ -204,9 +251,14 @@ export class Client {
      * @param userId The presence's user ID.
      * @param keys Properties to ensure.
      */
-    public getVoiceStateData <T extends Array<keyof CachedVoiceState>> (guildId: Snowflake, userId: Snowflake, ...keys: T): Pick<CachedVoiceState, T[number]> {
+    public getVoiceStateData<T extends Array<keyof CachedVoiceState>>(
+        guildId: Snowflake,
+        userId: Snowflake,
+        ...keys: T
+    ): Pick<CachedVoiceState, T[number]> {
         const data = this.cache.voiceStates?.get(guildId)?.get(userId) ?? {
-            guild_id: guildId, user_id: userId
+            guild_id: guildId,
+            user_id: userId,
         };
 
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {} as any);
@@ -227,13 +279,13 @@ export class Client {
      * @param channelId The channel to get the bot's permissions in.
      * @returns The bot's permission flags.
      */
-    public async getSelfPermissions (guildId: Snowflake, channelId?: Snowflake): Promise<bigint> {
+    public async getSelfPermissions(guildId: Snowflake, channelId?: Snowflake): Promise<bigint> {
         if (!this.gateway.user?.id) throw new Error(`Cannot get self permissions when the gateway user is not defined`);
 
         const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
         const completeMember: PermissionsMember = {
             ...member,
-            user: { id: this.gateway.user.id }
+            user: { id: this.gateway.user.id },
         };
 
         let completeGuild: Required<PermissionsGuild>;
@@ -243,7 +295,11 @@ export class Client {
         } else {
             const cachedRoles = this.cache.roles?.filter((role) => cachedGuild.roles!.includes(role.id));
             let completeRoles: Required<PermissionsGuild>[`roles`];
-            if (!cachedRoles || cachedRoles.size !== cachedGuild.roles.length || cachedRoles.some((role) => typeof role.permissions !== `string`)) {
+            if (
+                !cachedRoles ||
+                cachedRoles.size !== cachedGuild.roles.length ||
+                cachedRoles.some((role) => typeof role.permissions !== `string`)
+            ) {
                 completeRoles = await this.rest.getGuildRoles(guildId);
             } else {
                 completeRoles = cachedRoles as any;
@@ -252,12 +308,16 @@ export class Client {
             completeGuild = {
                 id: guildId,
                 owner_id: cachedGuild.owner_id!,
-                roles: completeRoles
+                roles: completeRoles,
             };
         }
 
         if (channelId) {
-            return PermissionsUtils.channelPermissions(completeMember, completeGuild, await this.getChannelData(channelId, `permission_overwrites`));
+            return PermissionsUtils.channelPermissions(
+                completeMember,
+                completeGuild,
+                await this.getChannelData(channelId, `permission_overwrites`),
+            );
         } else {
             return PermissionsUtils.guildPermissions(completeMember, completeGuild);
         }

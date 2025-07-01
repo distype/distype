@@ -9,13 +9,13 @@ export interface ClientOptions {
     /**
      * {@link CacheOptions Options} for the {@link Cache cache manager}.
      */
-    cache?: CacheOptions
+    cache?: CacheOptions;
     /**
      * {@link GatewayOptions Options} for the {@link Gateway gateway manager}.
      */
-    gateway?: GatewayOptions
+    gateway?: GatewayOptions;
     /**
      * {@link RestOptions Options} for the {@link Rest rest manager}.
      */
-    rest?: RestOptions & RestRequestOptions
+    rest?: RestOptions & RestRequestOptions;
 }

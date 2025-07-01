@@ -6,24 +6,24 @@ import { APIOverwrite } from 'discord-api-types/v10';
  * Properties of an `APIChannel` that are relevant to permissions.
  */
 export interface PermissionsChannel {
-    permission_overwrites?: APIOverwrite[]
+    permission_overwrites?: APIOverwrite[];
 }
 
 /**
  * Permission flags.
  */
-export type PermissionsFlags = number | bigint | keyof (typeof PermissionsUtils.PERMISSIONS);
+export type PermissionsFlags = number | bigint | keyof typeof PermissionsUtils.PERMISSIONS;
 
 /**
  * Properties of an `APIGuild` that are relevant to permissions.
  */
 export interface PermissionsGuild {
-    id: Snowflake
-    owner_id?: Snowflake
+    id: Snowflake;
+    owner_id?: Snowflake;
     roles?: Array<{
-        id: Snowflake
-        permissions: string | number | bigint
-    }>
+        id: Snowflake;
+        permissions: string | number | bigint;
+    }>;
 }
 
 /**
@@ -31,10 +31,10 @@ export interface PermissionsGuild {
  */
 export interface PermissionsMember {
     user: {
-        id: Snowflake
-    }
-    communication_disabled_until?: string | null
-    roles?: Snowflake[]
+        id: Snowflake;
+    };
+    communication_disabled_until?: string | null;
+    roles?: Snowflake[];
 }
 
 /**
@@ -42,7 +42,7 @@ export interface PermissionsMember {
  * @see [Discord API Reference](https://discord.com/developers/docs/topics/permissions)
  */
 export class PermissionsUtils {
-    private constructor () {} // eslint-disable-line no-useless-constructor
+    private constructor() {} // eslint-disable-line no-useless-constructor
 
     /**
      * Named permission flags.
@@ -93,7 +93,7 @@ export class PermissionsUtils {
         VIEW_CREATOR_MONETIZATION_ANALYTICS: 1n << 41n,
         USE_SOUNDBOARD: 1n << 42n,
         USE_EXTERNAL_SOUNDS: 1n << 45n,
-        SEND_VOICE_MESSAGES: 1n << 46n
+        SEND_VOICE_MESSAGES: 1n << 46n,
     };
 
     /**
@@ -114,8 +114,14 @@ export class PermissionsUtils {
      * @param overwrites Overwrites to apply.
      * @param id Only apply overwrites with this ID.
      */
-    public static applyOverwrites (perms: number | bigint, overwrites: APIOverwrite | APIOverwrite[], id: Snowflake): bigint {
-        const filteredOverwrites = (overwrites instanceof Array ? overwrites : [overwrites]).filter((overwrite) => overwrite.id === id);
+    public static applyOverwrites(
+        perms: number | bigint,
+        overwrites: APIOverwrite | APIOverwrite[],
+        id: Snowflake,
+    ): bigint {
+        const filteredOverwrites = (overwrites instanceof Array ? overwrites : [overwrites]).filter(
+            (overwrite) => overwrite.id === id,
+        );
         filteredOverwrites.forEach((overwrite) => {
             perms = this.remove(perms, BigInt(overwrite.deny));
             perms = this.combine(perms, BigInt(overwrite.allow));
@@ -129,7 +135,11 @@ export class PermissionsUtils {
      * @param guild The guild the member is in.
      * @param channel The channel to compute overwrites for.
      */
-    public static channelPermissions (member: PermissionsMember, guild: PermissionsGuild, channel: PermissionsChannel): bigint {
+    public static channelPermissions(
+        member: PermissionsMember,
+        guild: PermissionsGuild,
+        channel: PermissionsChannel,
+    ): bigint {
         let perms = this.guildPermissions(member, guild);
         if (this.hasPerms(perms, `ADMINISTRATOR`)) return this.COMBINED_PERMISSIONS;
 
@@ -161,7 +171,7 @@ export class PermissionsUtils {
      * Combine permission flags.
      * @param flags The flags to combine.
      */
-    public static combine (...flags: PermissionsFlags[]): bigint {
+    public static combine(...flags: PermissionsFlags[]): bigint {
         return flags.reduce((p: bigint, c) => p | BigInt(typeof c === `string` ? this.PERMISSIONS[c] : c), 0n);
     }
 
@@ -170,7 +180,7 @@ export class PermissionsUtils {
      * @param member The member to get permissions for.
      * @param guild The guild the member is in.
      */
-    public static guildPermissions (member: PermissionsMember, guild: PermissionsGuild): bigint {
+    public static guildPermissions(member: PermissionsMember, guild: PermissionsGuild): bigint {
         if (member.user.id === guild.owner_id) return this.COMBINED_PERMISSIONS;
 
         // @everyone
@@ -191,7 +201,7 @@ export class PermissionsUtils {
      * @param perms Permission flags to test for permissions.
      * @param test The permissions to test for.
      */
-    public static hasPerms (perms: number | bigint, ...test: PermissionsFlags[]): boolean {
+    public static hasPerms(perms: number | bigint, ...test: PermissionsFlags[]): boolean {
         const permsFlags = BigInt(perms);
         const testFlags = this.combine(...test);
 
@@ -204,7 +214,7 @@ export class PermissionsUtils {
      * @param perms Permission flags to test for permissions.
      * @param test The permissions to test for.
      */
-    public static missingPerms (perms: number | bigint, ...test: PermissionsFlags[]): bigint {
+    public static missingPerms(perms: number | bigint, ...test: PermissionsFlags[]): bigint {
         const permsFlags = BigInt(perms);
         const testFlags = this.combine(...test);
 
@@ -217,7 +227,7 @@ export class PermissionsUtils {
      * @param baseFlags The base flags to subtract from.
      * @param flags The flags to subtract.
      */
-    public static remove (baseFlags: number | bigint, ...flags: PermissionsFlags[]): bigint {
+    public static remove(baseFlags: number | bigint, ...flags: PermissionsFlags[]): bigint {
         return BigInt(baseFlags) & ~this.combine(...flags);
     }
 
@@ -225,7 +235,7 @@ export class PermissionsUtils {
      * Applies timeout overwrites to permission flags.
      * @param perms The permissions to convert.
      */
-    public static timeout (perms: number | bigint): bigint {
+    public static timeout(perms: number | bigint): bigint {
         const permsFlags = BigInt(perms);
 
         if (this.hasPerms(permsFlags, `ADMINISTRATOR`)) return permsFlags;
@@ -236,7 +246,9 @@ export class PermissionsUtils {
      * Converts permission flags to readable strings.
      * @param perms The permissions to convert.
      */
-    public static toReadable (perms: number | bigint): Array<keyof typeof PermissionsUtils.PERMISSIONS> {
-        return (Object.keys(this.PERMISSIONS) as Array<keyof typeof PermissionsUtils.PERMISSIONS>).filter((key) => BigInt(perms) & this.PERMISSIONS[key]);
+    public static toReadable(perms: number | bigint): Array<keyof typeof PermissionsUtils.PERMISSIONS> {
+        return (Object.keys(this.PERMISSIONS) as Array<keyof typeof PermissionsUtils.PERMISSIONS>).filter(
+            (key) => BigInt(perms) & this.PERMISSIONS[key],
+        );
     }
 }

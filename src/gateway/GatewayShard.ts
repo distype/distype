@@ -18,32 +18,32 @@ export type GatewayShardEvents = {
     /**
      * When a payload is sent. Data is the sent payload.
      */
-    SENT_PAYLOAD: (payload: string) => void
+    SENT_PAYLOAD: (payload: string) => void;
     /**
      * When the {@link GatewayShard shard} receives a payload. Data is the parsed payload.
      */
-    RECEIVED_PAYLOAD: (payload: DiscordTypes.GatewayDispatchPayload) => void
+    RECEIVED_PAYLOAD: (payload: DiscordTypes.GatewayDispatchPayload) => void;
     /**
      * When the {@link GatewayShard shard} enters an {@link GatewayShardState idle state}.
      */
-    IDLE: () => void
+    IDLE: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState disconnected state}.
      */
-    DISCONNECTED: () => void
+    DISCONNECTED: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState connecting state}.
      */
-    CONNECTING: () => void
+    CONNECTING: () => void;
     /**
      * When the {@link GatewayShard shard} enters a {@link GatewayShardState ready state}.
      */
-    READY: () => void
+    READY: () => void;
     /**
      * When a {@link GatewayShard shard} enters a {@link GatewayShardState guilds ready state}.
      */
-    GUILDS_READY: () => void
-}
+    GUILDS_READY: () => void;
+};
 
 /**
  * {@link GatewayShard Gateway shard} states.
@@ -78,7 +78,7 @@ export enum GatewayShardState {
     /**
      * The {@link GatewayShard shard} has received all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches (or has timed out).
      */
-    GUILDS_READY
+    GUILDS_READY,
 }
 
 /**
@@ -152,15 +152,15 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         /**
          * Waiting for guilds timeout.
          */
-        guilds: NodeJS.Timeout | null
+        guilds: NodeJS.Timeout | null;
         /**
          * Timeout to send the next heartbeat at.
          */
-        heartbeat: NodeJS.Timeout | NodeJS.Timer | null
+        heartbeat: NodeJS.Timeout | number | null;
     } = {
-            guilds: null,
-            heartbeat: null
-        };
+        guilds: null,
+        heartbeat: null,
+    };
     /**
      * Timestamps used by the shard.
      */
@@ -168,15 +168,15 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
         /**
          * The timestamp of the last sent heartbeat.
          */
-        lastHeartbeat: number | null
+        lastHeartbeat: number | null;
         /**
          * The timestamp of the last received heartbeat ack.
          */
-        lastHeartbeatAck: number | null
+        lastHeartbeatAck: number | null;
     } = {
-            lastHeartbeat: null,
-            lastHeartbeatAck: null
-        };
+        lastHeartbeat: null,
+        lastHeartbeatAck: null,
+    };
     /**
      * The {@link LogCallback log callback} used by the shard.
      */
@@ -198,21 +198,37 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param logCallback A {@link LogCallback callback} to be used for logging events internally in the gateway shard.
      * @param logThisArg A value to use as `this` in the `logCallback`.
      */
-    constructor (token: string, id: number, numShards: number, url: string, options: Gateway[`options`], logCallback: LogCallback = (): void => {}, logThisArg?: any) {
+    constructor(
+        token: string,
+        id: number,
+        numShards: number,
+        url: string,
+        options: Gateway[`options`],
+        logCallback: LogCallback = (): void => {},
+        logThisArg?: any,
+    ) {
         super();
 
-        if (typeof token !== `string`) throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
-        if (typeof id !== `number`) throw new TypeError(`Parameter "id" (number) not provided: got ${id} (${typeof id})`);
-        if (typeof numShards !== `number`) throw new TypeError(`Parameter "numShards" (number) not provided: got ${numShards} (${typeof numShards})`);
-        if (typeof url !== `string`) throw new TypeError(`Parameter "url" (string) not provided: got ${url} (${typeof url})`);
-        if (typeof options !== `object`) throw new TypeError(`Parameter "options" (object) not provided: got ${options} (${typeof options})`);
-        if (typeof logCallback !== `function`) throw new TypeError(`Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`);
+        if (typeof token !== `string`)
+            throw new TypeError(`Parameter "token" (string) not provided: got ${token} (${typeof token})`);
+        if (typeof id !== `number`)
+            throw new TypeError(`Parameter "id" (number) not provided: got ${id} (${typeof id})`);
+        if (typeof numShards !== `number`)
+            throw new TypeError(`Parameter "numShards" (number) not provided: got ${numShards} (${typeof numShards})`);
+        if (typeof url !== `string`)
+            throw new TypeError(`Parameter "url" (string) not provided: got ${url} (${typeof url})`);
+        if (typeof options !== `object`)
+            throw new TypeError(`Parameter "options" (object) not provided: got ${options} (${typeof options})`);
+        if (typeof logCallback !== `function`)
+            throw new TypeError(
+                `Parameter "logCallback" (function) type mismatch: got ${logCallback} (${typeof logCallback})`,
+            );
 
         Object.defineProperty(this, `_token`, {
             configurable: false,
             enumerable: false,
             value: token as GatewayShard[`_token`],
-            writable: false
+            writable: false,
         });
 
         this.id = id;
@@ -223,7 +239,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized gateway shard ${id}`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
 
@@ -231,7 +248,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Gets the shard's ping.
      * @returns The node's ping in milliseconds.
      */
-    public async getPing (): Promise<number> {
+    public async getPing(): Promise<number> {
         return await new Promise((resolve, reject) => {
             if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
                 reject(new Error(`Cannot send data when the socket is not in an OPEN state`));
@@ -260,12 +277,13 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param reason The reason the shard is being killed. Defaults to `"Manual kill"`.
      * @param code A socket [close code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code) to send if the connection is still open. Defaults to `1000`.
      */
-    public kill (reason = `Manual kill`, code = 1000): void {
+    public kill(reason = `Manual kill`, code = 1000): void {
         this._enterState(GatewayShardState.IDLE);
         this._close(reason, code);
 
         this._log(`Shard killed: ${reason}`, {
-            level: `WARN`, system: this.system
+            level: `WARN`,
+            system: this.system,
         });
     }
 
@@ -273,12 +291,22 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Sends a payload to the gateway.
      * @param paylaod The data to send.
      */
-    public async send (payload: DiscordTypes.GatewaySendPayload): Promise<void> {
-        if (this.state < GatewayShardState.READY && ![DiscordTypes.GatewayOpcodes.Heartbeat, DiscordTypes.GatewayOpcodes.Identify, DiscordTypes.GatewayOpcodes.Resume].includes(payload.op)) {
-            return await TypedEmitter.once(this as TypedEmitter<GatewayShardEvents>, `READY`).then(() => this.send(payload));
+    public async send(payload: DiscordTypes.GatewaySendPayload): Promise<void> {
+        if (
+            this.state < GatewayShardState.READY &&
+            ![
+                DiscordTypes.GatewayOpcodes.Heartbeat,
+                DiscordTypes.GatewayOpcodes.Identify,
+                DiscordTypes.GatewayOpcodes.Resume,
+            ].includes(payload.op)
+        ) {
+            return await TypedEmitter.once(this as TypedEmitter<GatewayShardEvents>, `READY`).then(() =>
+                this.send(payload),
+            );
         }
 
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) throw new Error(`Cannot send data when the WebSocket is not in an OPEN state`);
+        if (!this.ws || this.ws.readyState !== WebSocket.OPEN)
+            throw new Error(`Cannot send data when the WebSocket is not in an OPEN state`);
 
         return await new Promise((resolve, reject) => {
             const data = JSON.stringify(payload);
@@ -287,7 +315,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 if (error) reject(error);
                 else {
                     this._log(`Sent payload (opcode ${payload.op} ${DiscordTypes.GatewayOpcodes[payload.op]})`, {
-                        level: `DEBUG`, system: this.system
+                        level: `DEBUG`,
+                        system: this.system,
                     });
 
                     this.emit(`SENT_PAYLOAD`, data);
@@ -301,16 +330,17 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Spawns the shard.
      */
-    public async spawn (): Promise<void> {
+    public async spawn(): Promise<void> {
         if (this.state >= GatewayShardState.READY) return Promise.resolve();
-        if (this.state >= GatewayShardState.CONNECTING) return await TypedEmitter.once(this as TypedEmitter<GatewayShardEvents>, `READY`).then(() => {});
+        if (this.state >= GatewayShardState.CONNECTING)
+            return await TypedEmitter.once(this as TypedEmitter<GatewayShardEvents>, `READY`).then(() => {});
         return await this._spawn();
     }
 
     /**
      * Checks if all [GUILD_CREATE](https://discord.com/developers/docs/topics/gateway#guild-create) dispatches have been received.
      */
-    private _checkGuilds (): void {
+    private _checkGuilds(): void {
         if (this._timers.guilds !== null) {
             clearTimeout(this._timers.guilds);
             this._timers.guilds = null;
@@ -323,7 +353,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         this._timers.guilds = setTimeout(() => {
             this._log(`Timed out while waiting for guilds, entering GUILDS_READY state anyways...`, {
-                level: `WARN`, system: this.system
+                level: `WARN`,
+                system: this.system,
             });
 
             this._enterState(GatewayShardState.GUILDS_READY);
@@ -333,7 +364,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Closes the connection and cleans up variables on the shard to spawn a new connection.
      */
-    private _close (reason: string, code: number): void {
+    private _close(reason: string, code: number): void {
         if (this.ws) {
             this.ws.removeAllListeners();
 
@@ -341,12 +372,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 try {
                     this.ws.close(code, reason);
                     this._log(`Closed connection (Code ${code}, reason "${reason}")`, {
-                        level: `DEBUG`, system: this.system
+                        level: `DEBUG`,
+                        system: this.system,
                     });
                 } catch {
                     this.ws.terminate();
                     this._log(`Terminated connection`, {
-                        level: `DEBUG`, system: this.system
+                        level: `DEBUG`,
+                        system: this.system,
                     });
                 }
             }
@@ -376,11 +409,12 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
         this._timestamps = {
             lastHeartbeat: null,
-            lastHeartbeatAck: null
+            lastHeartbeatAck: null,
         };
 
         this._log(`Cleaned up shard`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
 
@@ -388,12 +422,13 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Enter a state.
      * @param state The state to enter.
      */
-    private _enterState (state: GatewayShardState): void {
+    private _enterState(state: GatewayShardState): void {
         if (this.state !== state) {
             this.state = state;
 
             this._log(GatewayShardState[state], {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
 
             (this.emit as (event: string) => void)(GatewayShardState[state]);
@@ -403,7 +438,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * Send the [identify payload](https://discord.com/developers/docs/topics/gateway#identify).
      */
-    private async _identify (): Promise<void> {
+    private async _identify(): Promise<void> {
         return await this.send({
             op: DiscordTypes.GatewayOpcodes.Identify,
             d: {
@@ -413,27 +448,28 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 properties: {
                     browser: `distype`,
                     device: `distype`,
-                    os: process.platform
+                    os: process.platform,
                 },
                 shard: [this.id, this.numShards],
-                token: this._token
-            }
+                token: this._token,
+            },
         });
     }
 
     /**
      * Send the [resume payload](https://discord.com/developers/docs/topics/gateway#resume).
      */
-    private async _resume (): Promise<void> {
-        if (this.lastSequence === null || this.sessionId === null) throw new Error(`Cannot resume; lastSequence and / or sessionId is not defined`);
+    private async _resume(): Promise<void> {
+        if (this.lastSequence === null || this.sessionId === null)
+            throw new Error(`Cannot resume; lastSequence and / or sessionId is not defined`);
 
         return await this.send({
             op: DiscordTypes.GatewayOpcodes.Resume,
             d: {
                 seq: this.lastSequence,
                 session_id: this.sessionId,
-                token: this._token
-            }
+                token: this._token,
+            },
         });
     }
 
@@ -441,29 +477,34 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Sends a heartbeat.
      * @param force If waiting for the ACK check should be omitted. Only use for responding to heartbeat requests.
      */
-    private _sendHeartbeat (force = false): void {
+    private _sendHeartbeat(force = false): void {
         if (this._timestamps.lastHeartbeatAck !== null && !force) {
             this._log(`Not receiving heartbeat ACKs (Zombified Connection), restarting...`, {
-                level: `WARN`, system: this.system
+                level: `WARN`,
+                system: this.system,
             });
             this._enterState(GatewayShardState.DISCONNECTED);
             this._spawn().catch((error) => {
                 this._log(`Failed to respawn shard: ${error.message}`, {
-                    level: `ERROR`, system: this.system
+                    level: `ERROR`,
+                    system: this.system,
                 });
             });
         } else {
-            this.send(({
+            this.send({
                 op: DiscordTypes.GatewayOpcodes.Heartbeat,
-                d: this.lastSequence
-            })).then(() => {
-                this._timestamps.lastHeartbeat = Date.now();
-            }).catch((error) => {
-                this._timestamps.lastHeartbeatAck = null;
-                this._log(`Failed to send heartbeat: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                    level: `WARN`, system: this.system
+                d: this.lastSequence,
+            })
+                .then(() => {
+                    this._timestamps.lastHeartbeat = Date.now();
+                })
+                .catch((error) => {
+                    this._timestamps.lastHeartbeatAck = null;
+                    this._log(`Failed to send heartbeat: ${error?.message ?? error ?? `Unknown reason`}`, {
+                        level: `WARN`,
+                        system: this.system,
+                    });
                 });
-            });
         }
     }
 
@@ -471,13 +512,14 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * Spawns the shard.
      * @param attempt The current attempt count.
      */
-    private async _spawn (attempt = 1): Promise<void> {
+    private async _spawn(attempt = 1): Promise<void> {
         return await new Promise<void>((resolve, reject) => {
             this._close(`Respawning`, this.state === GatewayShardState.IDLE ? 1000 : 4000);
 
             this._enterState(GatewayShardState.CONNECTING);
             this._log(`Connecting... (Attempt ${attempt})`, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
 
             const closedListener = ((): void => {
@@ -495,12 +537,16 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             this.once(`DISCONNECTED`, closedListener);
             this.once(`READY`, readyListener);
 
-            const url = this.resumeURL !== null && this.lastSequence !== null && this.sessionId !== null ? this.resumeURL : this.url;
+            const url =
+                this.resumeURL !== null && this.lastSequence !== null && this.sessionId !== null
+                    ? this.resumeURL
+                    : this.url;
             this.ws = new WebSocket(url, this.options.wsOptions);
 
             this.ws.once(`open`, () => {
                 this._log(`WebSocket open (${url})`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
             });
 
@@ -524,7 +570,10 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
      * @param isBinary If the payload is binary.
      * @returns The unpacked payload.
      */
-    private _unpackPayload (payload: ArrayBuffer | Buffer, isBinary: boolean): DiscordTypes.GatewayReceivePayload | null {
+    private _unpackPayload(
+        payload: ArrayBuffer | Buffer,
+        isBinary: boolean,
+    ): DiscordTypes.GatewayReceivePayload | null {
         try {
             const raw = new Uint8Array(payload);
 
@@ -532,14 +581,16 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 return JSON.parse(this._textDecoder.decode(raw));
             } else {
                 this._log(`Got binary payload; unable to unpack`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
 
                 return null;
             }
         } catch (error: any) {
-            this._log(`Unable to unpack payload: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                level: `WARN`, system: this.system
+            this._log(`Unable to unpack payload: ${error?.message ?? error ?? `Unknown reason`}`, {
+                level: `WARN`,
+                system: this.system,
             });
 
             return null;
@@ -549,18 +600,20 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * When the WebSocket emits a close event.
      */
-    private _wsOnClose (code: number, reason: Buffer): void {
+    private _wsOnClose(code: number, reason: Buffer): void {
         let parsedReason;
         try {
             parsedReason = reason.toString();
         } catch (error: any) {
-            this._log(`Unable to parse close reason: ${(error?.message ?? error) ?? `Unknown reason`}`, {
-                level: `WARN`, system: this.system
+            this._log(`Unable to parse close reason: ${error?.message ?? error ?? `Unknown reason`}`, {
+                level: `WARN`,
+                system: this.system,
             });
         }
 
         this._log(`Received close code ${code} with reason "${parsedReason ?? `[Unknown Reason]`}"`, {
-            level: `WARN`, system: this.system
+            level: `WARN`,
+            system: this.system,
         });
 
         if (
@@ -570,7 +623,7 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 DiscordTypes.GatewayCloseCodes.ShardingRequired,
                 DiscordTypes.GatewayCloseCodes.InvalidAPIVersion,
                 DiscordTypes.GatewayCloseCodes.InvalidIntents,
-                DiscordTypes.GatewayCloseCodes.DisallowedIntents
+                DiscordTypes.GatewayCloseCodes.DisallowedIntents,
             ].includes(code)
         ) {
             this.kill(`Connection Closed with code ${code}`);
@@ -578,7 +631,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             this._enterState(GatewayShardState.DISCONNECTED);
             this._spawn().catch((error) => {
                 this._log(`Failed to respawn shard: ${error.message}`, {
-                    level: `ERROR`, system: this.system
+                    level: `ERROR`,
+                    system: this.system,
                 });
             });
         }
@@ -587,16 +641,17 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
     /**
      * When the WebSocket emits an error event.
      */
-    private _wsOnError (error: Error): void {
-        this._log((error?.message ?? error) ?? `Unknown WebSocket error`, {
-            level: `ERROR`, system: this.system
+    private _wsOnError(error: Error): void {
+        this._log(error?.message ?? error ?? `Unknown WebSocket error`, {
+            level: `ERROR`,
+            system: this.system,
         });
     }
 
     /**
      * When the WebSocket emits a message event.
      */
-    private _wsOnMessage (payload: RawData, isBinary: boolean): void {
+    private _wsOnMessage(payload: RawData, isBinary: boolean): void {
         const parsedPayload = this._unpackPayload(payload as ArrayBuffer | Buffer, isBinary);
         if (!parsedPayload) return;
 
@@ -608,7 +663,11 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                     case DiscordTypes.GatewayDispatchEvents.Ready: {
                         this.sessionId = parsedPayload.d.session_id;
 
-                        if (this.options.customGatewaySocketURL === null || (this.options.customGatewaySocketURL !== null && this.options.customGatewaySocketURLOverwrittenByResumeURL)) {
+                        if (
+                            this.options.customGatewaySocketURL === null ||
+                            (this.options.customGatewaySocketURL !== null &&
+                                this.options.customGatewaySocketURLOverwrittenByResumeURL)
+                        ) {
                             this.resumeURL = parsedPayload.d.resume_gateway_url;
                         }
 
@@ -660,7 +719,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             case DiscordTypes.GatewayOpcodes.Heartbeat: {
                 this._log(`Got heartbeat request`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
 
                 this._sendHeartbeat(true);
@@ -670,13 +730,15 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             case DiscordTypes.GatewayOpcodes.Reconnect: {
                 this._log(`Got Reconnect (opcode ${DiscordTypes.GatewayOpcodes.Reconnect})`, {
-                    level: `INFO`, system: this.system
+                    level: `INFO`,
+                    system: this.system,
                 });
 
                 this._enterState(GatewayShardState.DISCONNECTED);
                 this._spawn().catch((error) => {
                     this._log(`Failed to respawn shard: ${error.message}`, {
-                        level: `ERROR`, system: this.system
+                        level: `ERROR`,
+                        system: this.system,
                     });
                 });
 
@@ -684,9 +746,13 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
             }
 
             case DiscordTypes.GatewayOpcodes.InvalidSession: {
-                this._log(`Got ${parsedPayload.d ? `resumable` : `non-resumable`} Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`, {
-                    level: `INFO`, system: this.system
-                });
+                this._log(
+                    `Got ${parsedPayload.d ? `resumable` : `non-resumable`} Invalid Session (opcode ${DiscordTypes.GatewayOpcodes.InvalidSession})`,
+                    {
+                        level: `INFO`,
+                        system: this.system,
+                    },
+                );
 
                 this._enterState(GatewayShardState.CONNECTING);
                 if (parsedPayload.d) {
@@ -700,7 +766,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
 
             case DiscordTypes.GatewayOpcodes.Hello: {
                 this._log(`Got Hello`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
 
                 this._timers.heartbeat = setTimeout(() => {
@@ -726,7 +793,8 @@ export class GatewayShard extends TypedEmitter<GatewayShardEvents> {
                 }
 
                 this._log(`Heartbeat ACK (Heartbeat ping at ${this.heartbeatPing}ms)`, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
 
                 break;
