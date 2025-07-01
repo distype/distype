@@ -26,5 +26,14 @@ export { RestOptions, RestRequestOptions } from './rest/RestOptions';
 export { LogCallback, LogLevel, LogMessageOptions } from './types/Log';
 
 export { CDNImageOptions, CDNUtils } from './utils/CDNUtils';
-export { PermissionsChannel, PermissionsGuild, PermissionsMember, PermissionsUtils } from './utils/PermissionsUtils';
+export { ExtendedMap } from './utils/ExtendedMap';
+export { IntentUtils, IntentUtilsFactoryDirty } from './utils/IntentUtils';
+export {
+    PermissionsChannel,
+    PermissionsFlags,
+    PermissionsGuild,
+    PermissionsMember,
+    PermissionsUtils,
+} from './utils/PermissionsUtils';
 export { Snowflake, SnowflakeUtils } from './utils/SnowflakeUtils';
+export { UserUtils } from './utils/UserUtils';
