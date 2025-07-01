@@ -9,7 +9,7 @@ export interface PermissionsChannel {
 /**
  * Permission flags.
  */
-export type PermissionsFlags = number | bigint | keyof (typeof PermissionsUtils.PERMISSIONS);
+export type PermissionsFlags = number | bigint | keyof typeof PermissionsUtils.PERMISSIONS;
 /**
  * Properties of an `APIGuild` that are relevant to permissions.
  */

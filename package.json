@@ -1,14 +1,14 @@
 {
   "name": "distype",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "A Discord library written in TypeScript for developers looking to interface directly with the Discord API with little to no abstractions.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "rimraf ./dist && tsc",
     "docs": "rimraf ./docs && typedoc",
-    "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix",
+    "lint": "prettier ./src",
+    "lint:fix": "prettier ./src --write",
     "prepublishOnly": "npm i --include=dev && npm run build"
   },
   "keywords": [
@@ -32,23 +32,21 @@
     "url": "git+https://github.com/distype/distype.git"
   },
   "dependencies": {
-    "@br88c/extended-map": "^1.0.0",
     "@br88c/typed-emitter": "^1.0.0",
-    "@types/ws": "^8.5.5",
-    "discord-api-types": "0.37.46",
-    "ws": "^8.13.0"
+    "@types/ws": "^8.18.1",
+    "discord-api-types": "0.38.14",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@br88c/eslint-config": "^1.6.0",
-    "@types/node": "^18.16.18",
-    "eslint": "^8.43.0",
-    "rimraf": "^5.0.1",
-    "typedoc": "^0.24.8",
-    "typescript": "^5.1.5"
+    "@types/node": "^24.0.8",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "typedoc": "^0.28.7",
+    "typescript": "^5.8.3"
   },
   "engines": {
-    "node": ">=18.14.0",
-    "npm": ">=9.3.1"
+    "node": ">=24.3.0",
+    "npm": ">=11.4.2"
   },
   "private": false
 }

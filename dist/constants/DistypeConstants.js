@@ -12,5 +12,5 @@ exports.DistypeConstants = {
     /**
      * The URL to Distype's source.
      */
-    URL: `https://github.com/distype/distype`
+    URL: `https://github.com/distype/distype`,
 };

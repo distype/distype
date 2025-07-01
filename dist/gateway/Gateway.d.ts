@@ -3,8 +3,8 @@ import { GatewayShard } from './GatewayShard';
 import { Cache } from '../cache/Cache';
 import { Rest } from '../rest/Rest';
 import { LogCallback } from '../types/Log';
+import { ExtendedMap } from '../utils/ExtendedMap';
 import { Snowflake } from '../utils/SnowflakeUtils';
-import { ExtendedMap } from '@br88c/extended-map';
 import { TypedEmitter } from '@br88c/typed-emitter';
 import * as DiscordTypes from 'discord-api-types/v10';
 /**
@@ -80,6 +80,14 @@ export type GatewayEvents = {
     GUILD_SCHEDULED_EVENT_USER_ADD: (payload: DiscordTypes.GatewayGuildScheduledEventUserAddDispatch) => void;
     GUILD_SCHEDULED_EVENT_USER_REMOVE: (payload: DiscordTypes.GatewayGuildScheduledEventUserRemoveDispatch) => void;
     GUILD_AUDIT_LOG_ENTRY_CREATE: (payload: DiscordTypes.GatewayGuildAuditLogEntryCreateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUND_CREATE: (payload: DiscordTypes.GatewayGuildSoundboardSoundCreateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUND_UPDATE: (payload: DiscordTypes.GatewayGuildSoundboardSoundUpdateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUNDS_UPDATE: (payload: DiscordTypes.GatewayGuildSoundboardSoundsUpdateDispatch) => void;
+    GUILD_SOUNDBOARD_SOUND_DELETE: (payload: DiscordTypes.GatewayGuildSoundboardSoundDeleteDispatch) => void;
+    SOUNDBOARD_SOUNDS: (payload: DiscordTypes.GatewaySoundboardSoundsDispatch) => void;
+    SUBSCRIPTION_CREATE: (payload: DiscordTypes.GatewaySubscriptionCreateDispatch) => void;
+    SUBSCRIPTION_UPDATE: (payload: DiscordTypes.GatewaySubscriptionUpdateDispatch) => void;
+    SUBSCRIPTION_DELETE: (payload: DiscordTypes.GatewaySubscriptionDeleteDispatch) => void;
     INTEGRATION_CREATE: (payload: DiscordTypes.GatewayIntegrationCreateDispatch) => void;
     INTEGRATION_UPDATE: (payload: DiscordTypes.GatewayIntegrationUpdateDispatch) => void;
     INTEGRATION_DELETE: (payload: DiscordTypes.GatewayIntegrationDeleteDispatch) => void;
@@ -94,6 +102,8 @@ export type GatewayEvents = {
     MESSAGE_REACTION_REMOVE: (payload: DiscordTypes.GatewayMessageReactionRemoveDispatch) => void;
     MESSAGE_REACTION_REMOVE_ALL: (payload: DiscordTypes.GatewayMessageReactionRemoveAllDispatch) => void;
     MESSAGE_REACTION_REMOVE_EMOJI: (payload: DiscordTypes.GatewayMessageReactionRemoveEmojiDispatch) => void;
+    MESSAGE_POLL_VOTE_ADD: (payload: DiscordTypes.GatewayMessagePollVoteAddDispatch) => void;
+    MESSAGE_POLL_VOTE_REMOVE: (payload: DiscordTypes.GatewayMessagePollVoteRemoveDispatch) => void;
     PRESENCE_UPDATE: (payload: DiscordTypes.GatewayPresenceUpdateDispatch) => void;
     STAGE_INSTANCE_CREATE: (payload: DiscordTypes.GatewayStageInstanceCreateDispatch) => void;
     STAGE_INSTANCE_DELETE: (payload: DiscordTypes.GatewayStageInstanceDeleteDispatch) => void;
@@ -102,7 +112,11 @@ export type GatewayEvents = {
     USER_UPDATE: (payload: DiscordTypes.GatewayUserUpdateDispatch) => void;
     VOICE_STATE_UPDATE: (payload: DiscordTypes.GatewayVoiceStateUpdateDispatch) => void;
     VOICE_SERVER_UPDATE: (payload: DiscordTypes.GatewayVoiceServerUpdateDispatch) => void;
+    VOICE_CHANNEL_EFFECT_SEND: (payload: DiscordTypes.GatewayVoiceChannelEffectSendDispatch) => void;
     WEBHOOKS_UPDATE: (payload: DiscordTypes.GatewayWebhooksUpdateDispatch) => void;
+    ENTITLEMENT_CREATE: (payload: DiscordTypes.GatewayEntitlementCreateDispatch) => void;
+    ENTITLEMENT_UPDATE: (payload: DiscordTypes.GatewayEntitlementUpdateDispatch) => void;
+    ENTITLEMENT_DELETE: (payload: DiscordTypes.GatewayEntitlementDeleteDispatch) => void;
 };
 /**
  * Gateway presence activity data.
@@ -139,9 +153,9 @@ export declare class Gateway extends TypedEmitter<GatewayEvents> {
      */
     static readonly REQUEST_GUILD_MEMBERS_MAX_NONCE_LENGTH = 32;
     /**
-    * The cooldown between spawning shards from the same bucket in milliseconds.
-    * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
-    */
+     * The cooldown between spawning shards from the same bucket in milliseconds.
+     * @see [Discord API Reference](https://discord.com/developers/docs/topics/gateway#sharding)
+     */
     static readonly SHARD_SPAWN_COOLDOWN = 5000;
     /**
      * The shard counts the manager is controlling.

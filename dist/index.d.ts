@@ -1,5 +1,5 @@
 export { Cache } from './cache/Cache';
-export { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState } from './cache/CacheObjects';
+export { CachedChannel, CachedGuild, CachedMember, CachedPresence, CachedRole, CachedUser, CachedVoiceState, } from './cache/CacheObjects';
 export { CacheOptions } from './cache/CacheOptions';
 export { Client } from './client/Client';
 export { ClientOptions } from './client/ClientOptions';

@@ -62,7 +62,7 @@ class Client {
             configurable: false,
             enumerable: false,
             value: token,
-            writable: false
+            writable: false,
         });
         this.cache = new Cache_1.Cache(options.cache, logCallback, logThisArg);
         this.rest = new Rest_1.Rest(token, options.rest, logCallback, logThisArg);
@@ -70,11 +70,12 @@ class Client {
         this.options = {
             cache: this.cache.options,
             gateway: this.gateway.options,
-            rest: this.rest.options
+            rest: this.rest.options,
         };
         this.log = logCallback.bind(logThisArg);
         this.log(`Initialized client`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
     /**
@@ -87,7 +88,8 @@ class Client {
         let data = this.cache.channels?.get(id) ?? { id };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             data = {
-                ...data, ...await this.rest.getChannel(id)
+                ...data,
+                ...(await this.rest.getChannel(id)),
             };
         }
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
@@ -105,7 +107,7 @@ class Client {
             data = {
                 ...data,
                 ...guild,
-                roles: guild.roles.map((role) => role.id)
+                roles: guild.roles.map((role) => role.id),
             };
         }
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
@@ -119,11 +121,13 @@ class Client {
      */
     async getMemberData(guildId, userId, ...keys) {
         let data = this.cache.members?.get(guildId)?.get(userId) ?? {
-            guild_id: guildId, user_id: userId
+            guild_id: guildId,
+            user_id: userId,
         };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             data = {
-                ...data, ...(await this.rest.getGuildMember(guildId, userId))
+                ...data,
+                ...(await this.rest.getGuildMember(guildId, userId)),
             };
         }
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
@@ -136,7 +140,8 @@ class Client {
      */
     getPresenceData(guildId, userId, ...keys) {
         const data = this.cache.presences?.get(guildId)?.get(userId) ?? {
-            guild_id: guildId, user_id: userId
+            guild_id: guildId,
+            user_id: userId,
         };
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
     }
@@ -154,7 +159,8 @@ class Client {
             const role = (await this.rest.getGuildRoles(guildId)).find((role) => role.id === id);
             if (role)
                 data = {
-                    ...data, ...role
+                    ...data,
+                    ...role,
                 };
         }
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
@@ -169,7 +175,8 @@ class Client {
         let data = this.cache.users?.get(id) ?? { id };
         if (keys.some((key) => !Object.keys(data).includes(key))) {
             data = {
-                ...data, ...(await this.rest.getUser(id))
+                ...data,
+                ...(await this.rest.getUser(id)),
             };
         }
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
@@ -182,7 +189,8 @@ class Client {
      */
     getVoiceStateData(guildId, userId, ...keys) {
         const data = this.cache.voiceStates?.get(guildId)?.get(userId) ?? {
-            guild_id: guildId, user_id: userId
+            guild_id: guildId,
+            user_id: userId,
         };
         return keys.reduce((p, c) => Object.assign(p, { [c]: data[c] }), {});
     }
@@ -207,7 +215,7 @@ class Client {
         const member = await this.getMemberData(guildId, this.gateway.user.id, `communication_disabled_until`, `roles`);
         const completeMember = {
             ...member,
-            user: { id: this.gateway.user.id }
+            user: { id: this.gateway.user.id },
         };
         let completeGuild;
         const cachedGuild = this.cache.guilds?.get(guildId) ?? { id: guildId };
@@ -217,7 +225,9 @@ class Client {
         else {
             const cachedRoles = this.cache.roles?.filter((role) => cachedGuild.roles.includes(role.id));
             let completeRoles;
-            if (!cachedRoles || cachedRoles.size !== cachedGuild.roles.length || cachedRoles.some((role) => typeof role.permissions !== `string`)) {
+            if (!cachedRoles ||
+                cachedRoles.size !== cachedGuild.roles.length ||
+                cachedRoles.some((role) => typeof role.permissions !== `string`)) {
                 completeRoles = await this.rest.getGuildRoles(guildId);
             }
             else {
@@ -226,7 +236,7 @@ class Client {
             completeGuild = {
                 id: guildId,
                 owner_id: cachedGuild.owner_id,
-                roles: completeRoles
+                roles: completeRoles,
             };
         }
         if (channelId) {

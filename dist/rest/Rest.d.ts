@@ -1,9 +1,8 @@
-/// <reference types="node" />
 import { RestBucket, RestBucketHash, RestBucketId, RestRouteHash } from './RestBucket';
 import { RestOptions, RestRequestOptions } from './RestOptions';
 import { RestRequests } from './RestRequests';
 import { LogCallback } from '../types/Log';
-import { ExtendedMap } from '@br88c/extended-map';
+import { ExtendedMap } from '../utils/ExtendedMap';
 /**
  * {@link Rest} make responses.
  */
@@ -46,9 +45,9 @@ export declare class Rest extends RestRequests {
      */
     static readonly API_VERSION = 10;
     /**
-    * Discord's base API URL.
-    * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
-    */
+     * Discord's base API URL.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
+     */
     static readonly BASE_URL = "https://discord.com/api";
     /**
      * The ending key where an error array is defined on a rest error.

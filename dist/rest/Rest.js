@@ -4,8 +4,8 @@ exports.Rest = void 0;
 const RestBucket_1 = require("./RestBucket");
 const RestRequests_1 = require("./RestRequests");
 const DistypeConstants_1 = require("../constants/DistypeConstants");
+const ExtendedMap_1 = require("../utils/ExtendedMap");
 const SnowflakeUtils_1 = require("../utils/SnowflakeUtils");
-const extended_map_1 = require("@br88c/extended-map");
 const node_url_1 = require("node:url");
 /**
  * The rest manager.
@@ -17,9 +17,9 @@ class Rest extends RestRequests_1.RestRequests {
      */
     static API_VERSION = 10;
     /**
-    * Discord's base API URL.
-    * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
-    */
+     * Discord's base API URL.
+     * @see [Discord API Reference](https://discord.com/developers/docs/reference#api-reference-base-url)
+     */
     static BASE_URL = `https://discord.com/api`;
     /**
      * The ending key where an error array is defined on a rest error.
@@ -93,7 +93,7 @@ class Rest extends RestRequests_1.RestRequests {
             configurable: false,
             enumerable: false,
             value: token,
-            writable: false
+            writable: false,
         });
         this.options = {
             ...options,
@@ -102,19 +102,20 @@ class Rest extends RestRequests_1.RestRequests {
             disableRatelimits: options.disableRatelimits ?? false,
             ratelimitGlobal: options.ratelimitGlobal ?? 50,
             ratelimitPause: options.ratelimitPause ?? 10,
-            version: options.version ?? Rest.API_VERSION
+            version: options.version ?? Rest.API_VERSION,
         };
         if (!this.options.disableRatelimits) {
-            this.buckets = new extended_map_1.ExtendedMap();
+            this.buckets = new ExtendedMap_1.ExtendedMap();
             this.globalLeft = this.options.ratelimitGlobal;
             this.globalResetAt = -1;
-            this.routeHashCache = new extended_map_1.ExtendedMap();
+            this.routeHashCache = new ExtendedMap_1.ExtendedMap();
             if (this.options.bucketSweepInterval)
                 this.bucketSweepInterval = setInterval(() => this.sweepBuckets(), this.options.bucketSweepInterval).unref();
         }
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized rest manager`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
     /**
@@ -140,7 +141,11 @@ class Rest extends RestRequests_1.RestRequests {
     async request(method, route, options = {}) {
         if (!this.options.disableRatelimits) {
             const rawHash = route.replace(/\d{16,19}/g, `:id`).replace(/\/reactions\/(.*)/, `/reactions/:reaction`);
-            const oldMessage = rawHash === `/channels/:id/messages/:id` && method === `DELETE` && (Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0])) > Rest.OLD_MESSAGE_THRESHOLD ? `/old-message` : ``;
+            const oldMessage = rawHash === `/channels/:id/messages/:id` &&
+                method === `DELETE` &&
+                Date.now() - SnowflakeUtils_1.SnowflakeUtils.time(/\d{16,19}$/.exec(route)[0]) > Rest.OLD_MESSAGE_THRESHOLD
+                ? `/old-message`
+                : ``;
             const routeHash = `${method};${rawHash}${oldMessage}`;
             const bucketHash = this.routeHashCache.get(routeHash) ?? `global;${routeHash}`;
             const majorParameter = /^\/(?:channels|guilds|webhooks)\/(\d{16,19})/.exec(route)?.[1] ?? `global`;
@@ -162,31 +167,35 @@ class Rest extends RestRequests_1.RestRequests {
      */
     async make(method, route, options) {
         const isForm = options.body instanceof FormData;
-        const headers = (options.forceHeaders ?? this.options.forceHeaders) ? {
-            ...this.options.headers,
-            ...options.headers
-        } : {
-            'Authorization': (options.authHeader ?? this.options.authHeader) ?? `Bot ${this._token}`,
-            'Content-Type': isForm ? `multipart/form-data` : `application/json`,
-            'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`,
-            ...this.options.headers,
-            ...options.headers
-        };
+        const headers = (options.forceHeaders ?? this.options.forceHeaders)
+            ? {
+                ...this.options.headers,
+                ...options.headers,
+            }
+            : {
+                Authorization: options.authHeader ?? this.options.authHeader ?? `Bot ${this._token}`,
+                'Content-Type': isForm ? `multipart/form-data` : `application/json`,
+                'User-Agent': `DiscordBot (${DistypeConstants_1.DistypeConstants.URL}, v${DistypeConstants_1.DistypeConstants.VERSION})`,
+                ...this.options.headers,
+                ...options.headers,
+            };
         if ((options.forceHeaders ?? this.options.forceHeaders) && (options.authHeader ?? this.options.authHeader))
             headers[`Authorization`] = (options.authHeader ?? this.options.authHeader);
         if (options.reason)
             headers[`X-Audit-Log-Reason`] = options.reason;
-        const url = new node_url_1.URL(`${(options.customBaseURL ?? this.options.customBaseURL) ?? `${Rest.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
+        const url = new node_url_1.URL(`${options.customBaseURL ?? this.options.customBaseURL ?? `${Rest.BASE_URL}/v${options.version ?? this.options.version}`}${route}`);
         url.search = new node_url_1.URLSearchParams(options.query).toString();
         const reqResponse = await fetch(url, {
             ...this.options,
             ...options,
             body: isForm ? options.body : JSON.stringify(options.body),
             headers,
-            method
+            method,
         });
         const parsedBody = reqResponse.status !== 204 ? await reqResponse.json() : undefined;
-        const response = Object.assign(reqResponse, { parsedBody });
+        const response = Object.assign(reqResponse, {
+            parsedBody,
+        });
         this._checkForResponseErrors(method, route, response);
         return response;
     }
@@ -197,7 +206,8 @@ class Rest extends RestRequests_1.RestRequests {
         if (this.buckets) {
             const sweeped = this.buckets.sweep((bucket) => !bucket.active && !bucket.ratelimited.local);
             this._log(`Sweeped ${sweeped.size} buckets`, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
         }
     }
@@ -223,7 +233,8 @@ class Rest extends RestRequests_1.RestRequests {
         const result = `${response.status}${response.ok ? ` (OK)` : ``} ${method} ${route}`;
         if (response.ok) {
             this._log(result, {
-                level: `DEBUG`, system: this.system
+                level: `DEBUG`,
+                system: this.system,
             });
         }
         else {
@@ -234,18 +245,21 @@ class Rest extends RestRequests_1.RestRequests {
                 const flattened = this._flattenErrors(response.parsedBody.errors);
                 errors.push(...Object.keys(flattened)
                     .filter((key) => key.endsWith(`.${Rest.ERROR_KEY}`) || key === Rest.ERROR_KEY)
-                    .map((key) => flattened[key].map((error) => `${key !== Rest.ERROR_KEY ? `[${key.slice(0, -(`.${Rest.ERROR_KEY}`.length))}] ` : ``}(${error.code ?? `UNKNOWN`}) ${(error?.message ?? error) ?? `Unknown reason`}`
+                    .map((key) => flattened[key].map((error) => `${key !== Rest.ERROR_KEY ? `[${key.slice(0, -`.${Rest.ERROR_KEY}`.length)}] ` : ``}(${error.code ?? `UNKNOWN`}) ${error?.message ?? error ?? `Unknown reason`}`
                     .trimEnd()
                     .replace(/\.$/, ``)))
                     .flat());
             }
             const errorMessage = `${result}${errors.length ? ` => "${errors.join(`, `)}"` : ``}`;
-            if (!this.options.disableRatelimits ? (response.status !== 429 && (response.status >= 500 && response.status < 600)) : true) {
+            if (!this.options.disableRatelimits
+                ? response.status !== 429 && response.status >= 500 && response.status < 600
+                : true) {
                 throw new Error(errorMessage);
             }
             else {
                 this._log(errorMessage, {
-                    level: `DEBUG`, system: this.system
+                    level: `DEBUG`,
+                    system: this.system,
                 });
             }
         }

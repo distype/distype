@@ -40,7 +40,7 @@ class UserUtils {
             return CDNUtils_1.CDNUtils.userAvatar(id, avatar, options);
         const defaultOptions = {
             ...Object.fromEntries(Object.entries(options ?? {}).filter(([key]) => key !== `size`)),
-            format: `png`
+            format: `png`,
         };
         if (!discriminator || discriminator === `0`)
             return CDNUtils_1.CDNUtils.defaultUserAvatar(Number((BigInt(id) >> 22n) % 6n), defaultOptions);

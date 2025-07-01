@@ -23,7 +23,9 @@ class SnowflakeUtils {
      * @param snowflake The snowflake to test.
      */
     static isValid(snowflake) {
-        return Number.isInteger(+snowflake) && BigInt(snowflake) > 4194304n && !isNaN(new Date(this.time(snowflake)).getTime());
+        return (Number.isInteger(+snowflake) &&
+            BigInt(snowflake) > 4194304n &&
+            !isNaN(new Date(this.time(snowflake)).getTime()));
     }
     /**
      * Internal Discord process ID the snowflake was created on.

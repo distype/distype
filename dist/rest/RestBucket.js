@@ -22,7 +22,7 @@ class RestBucket {
         BUCKET: `x-ratelimit-bucket`,
         GLOBAL: `x-ratelimit-global`,
         GLOBAL_RETRY_AFTER: `retry-after`,
-        SCOPE: `x-ratelimit-scope`
+        SCOPE: `x-ratelimit-scope`,
     };
     /**
      * The number of allowed requests per a rate limit interval.
@@ -93,11 +93,11 @@ class RestBucket {
     get ratelimited() {
         const ratelimits = {
             local: this.requestsLeft <= 0 && Date.now() < this.resetAt,
-            global: this.manager.globalLeft <= 0 && Date.now() < this.manager.globalResetAt
+            global: this.manager.globalLeft <= 0 && Date.now() < this.manager.globalResetAt,
         };
         return {
             ...ratelimits,
-            any: Object.values(ratelimits).some((r) => r)
+            any: Object.values(ratelimits).some((r) => r),
         };
     }
     /**
@@ -119,7 +119,9 @@ class RestBucket {
     async _awaitRatelimit() {
         if (!this.ratelimited.any)
             return;
-        const timeout = (this.ratelimited.global ? this.manager.globalResetAt ?? 0 : this.resetAt) + this.manager.options.ratelimitPause - Date.now();
+        const timeout = (this.ratelimited.global ? (this.manager.globalResetAt ?? 0) : this.resetAt) +
+            this.manager.options.ratelimitPause -
+            Date.now();
         await (0, promises_1.setTimeout)(timeout);
         return await this._awaitRatelimit();
     }
@@ -185,7 +187,7 @@ class RestBucket {
         });
         this._queue.push({
             resolve: resolve,
-            promise
+            promise,
         });
         return next;
     }

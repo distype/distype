@@ -14,7 +14,8 @@ class RestRequests {
      */
     async getGlobalApplicationCommands(applicationId, query, options) {
         return await this.request(`GET`, `/applications/${applicationId}/commands`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -25,7 +26,8 @@ class RestRequests {
      */
     async createGlobalApplicationCommand(applicationId, body, options) {
         return await this.request(`POST`, `/applications/${applicationId}/commands`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -46,7 +48,8 @@ class RestRequests {
      */
     async editGlobalApplicationCommand(applicationId, commandId, body, options) {
         return await this.request(`PATCH`, `/applications/${applicationId}/commands/${commandId}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -56,7 +59,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-global-application-command)
      */
     async deleteGlobalApplicationCommand(applicationId, commandId, options) {
-        return await this.request(`DELETE`, `/applications/${applicationId}/commands/${commandId}`, options);
+        return (await this.request(`DELETE`, `/applications/${applicationId}/commands/${commandId}`, options));
     }
     /**
      * @param applicationId The application ID.
@@ -66,7 +69,8 @@ class RestRequests {
      */
     async bulkOverwriteGlobalApplicationCommands(applicationId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/commands`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -78,7 +82,8 @@ class RestRequests {
      */
     async getGuildApplicationCommands(applicationId, guildId, query, options) {
         return await this.request(`GET`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -90,7 +95,8 @@ class RestRequests {
      */
     async createGuildApplicationCommand(applicationId, guildId, body, options) {
         return await this.request(`POST`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -113,7 +119,8 @@ class RestRequests {
      */
     async editGuildApplicationCommand(applicationId, guildId, commandId, body, options) {
         return await this.request(`POST`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -124,7 +131,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/application-commands#delete-guild-application-command)
      */
     async deleteGuildApplicationCommand(applicationId, guildId, commandId, options) {
-        return await this.request(`DELETE`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, options);
+        return (await this.request(`DELETE`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}`, options));
     }
     /**
      * @param applicationId The application ID.
@@ -135,7 +142,8 @@ class RestRequests {
      */
     async bulkOverwriteGuildApplicationCommands(applicationId, guildId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -167,7 +175,8 @@ class RestRequests {
      */
     async editApplicationCommandPermissions(applicationId, guildId, commandId, body, options) {
         return await this.request(`PUT`, `/applications/${applicationId}/guilds/${guildId}/commands/${commandId}/permissions`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -178,9 +187,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#create-interaction-response)
      */
     async createInteractionResponse(interactionId, interactionToken, body, options) {
-        return await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}/callback`, {
-            body, ...options
-        });
+        return (await this.request(`POST`, `/interactions/${interactionId}/${interactionToken}/callback`, {
+            body,
+            ...options,
+        }));
     }
     /**
      * @param applicationId The application ID.
@@ -200,7 +210,8 @@ class RestRequests {
      */
     async editOriginalInteractionResponse(applicationId, interactionToken, body, options) {
         return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -210,7 +221,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-original-interaction-response)
      */
     async deleteOriginalInteractionResponse(applicationId, interactionToken, options) {
-        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options);
+        return (await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/@original`, options));
     }
     /**
      * @param applicationId The application ID.
@@ -221,7 +232,8 @@ class RestRequests {
      */
     async createFollowupMessage(applicationId, interactionToken, body, options) {
         return await this.request(`POST`, `/webhooks/${applicationId}/${interactionToken}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -244,7 +256,8 @@ class RestRequests {
      */
     async editFollowupMessage(applicationId, interactionToken, messageId, body, options) {
         return await this.request(`PATCH`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -255,7 +268,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/interactions/receiving-and-responding#delete-followup-message)
      */
     async deleteFollowupMessage(applicationId, interactionToken, messageId, options) {
-        return await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options);
+        return (await this.request(`DELETE`, `/webhooks/${applicationId}/${interactionToken}/messages/${messageId}`, options));
     }
     /**
      * @param guildId The guild ID.
@@ -265,7 +278,8 @@ class RestRequests {
      */
     async getGuildAuditLog(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/audit-logs`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -283,7 +297,9 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#get-auto-moderation-rule)
      */
     async getAutoModerationRule(guildId, autoModerationRuleId, options) {
-        return await this.request(`GET`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, { ...options });
+        return await this.request(`GET`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, {
+            ...options,
+        });
     }
     /**
      * @param guildId The guild ID.
@@ -294,7 +310,9 @@ class RestRequests {
      */
     async createAutoModerationRule(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/auto-moderation/rules`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -307,7 +325,9 @@ class RestRequests {
      */
     async modifyAutoModerationRule(guildId, autoModerationRuleId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -318,9 +338,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/auto-moderation#create-auto-moderation-rule)
      */
     async deleteAutoModerationRule(guildId, autoModerationRuleId, reason, options) {
-        return await this.request(`PATCH`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, {
-            reason, ...options
-        });
+        return (await this.request(`PATCH`, `/guilds/${guildId}/auto-moderation/rules/${autoModerationRuleId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -339,7 +360,9 @@ class RestRequests {
      */
     async modifyChannel(channelId, body, reason, options) {
         return await this.request(`PATCH`, `/channels/${channelId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -350,7 +373,8 @@ class RestRequests {
      */
     async deleteChannel(channelId, reason, options) {
         return await this.request(`DELETE`, `/channels/${channelId}`, {
-            reason, ...options
+            reason,
+            ...options,
         });
     }
     /**
@@ -361,7 +385,8 @@ class RestRequests {
      */
     async getChannelMessages(channelId, query, options) {
         return await this.request(`GET`, `/channels/${channelId}/messages`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -381,7 +406,8 @@ class RestRequests {
      */
     async createMessage(channelId, body, options) {
         return await this.request(`POST`, `/channels/${channelId}/messages`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -401,7 +427,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#create-reaction)
      */
     async createReaction(channelId, messageId, emoji, options) {
-        return await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options);
+        return (await this.request(`PUT`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options));
     }
     /**
      * @param channelId The channel ID.
@@ -411,7 +437,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-own-reaction)
      */
     async deleteOwnReaction(channelId, messageId, emoji, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options);
+        return (await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/@me`, options));
     }
     /**
      * @param channelId The channel ID.
@@ -422,7 +448,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-user-reaction)
      */
     async deleteUserReaction(channelId, messageId, emoji, userId, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`, options);
+        return (await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}/${userId}`, options));
     }
     /**
      * @param channelId The channel ID.
@@ -434,7 +460,8 @@ class RestRequests {
      */
     async getReactions(channelId, messageId, emoji, query, options) {
         return await this.request(`GET`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -444,7 +471,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions)
      */
     async deleteAllReactions(channelId, messageId, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions`, options);
+        return (await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions`, options));
     }
     /**
      * @param channelId The channel ID.
@@ -454,7 +481,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-all-reactions-for-emoji)
      */
     async deleteAllReactionsForEmoji(channelId, messageId, emoji, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, options);
+        return (await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}/reactions/${emoji}`, options));
     }
     /**
      * @param channelId The channel ID.
@@ -465,7 +492,8 @@ class RestRequests {
      */
     async editMessage(channelId, messageId, body, options) {
         return await this.request(`PATCH`, `/channels/${channelId}/messages/${messageId}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -476,9 +504,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-message)
      */
     async deleteMessage(channelId, messageId, reason, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/channels/${channelId}/messages/${messageId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -488,9 +517,11 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#bulk-delete-messages)
      */
     async bulkDeleteMessages(channelId, body, reason, options) {
-        return await this.request(`POST`, `/channels/${channelId}/messages/bulk-delete`, {
-            body, reason, ...options
-        });
+        return (await this.request(`POST`, `/channels/${channelId}/messages/bulk-delete`, {
+            body,
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -501,9 +532,11 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#edit-channel-permissions)
      */
     async editChannelPermissions(channelId, overwriteId, body, reason, options) {
-        return await this.request(`PUT`, `/channels/${channelId}/permissions/${overwriteId}`, {
-            body, reason, ...options
-        });
+        return (await this.request(`PUT`, `/channels/${channelId}/permissions/${overwriteId}`, {
+            body,
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -522,7 +555,9 @@ class RestRequests {
      */
     async createChannelInvite(channelId, body, reason, options) {
         return await this.request(`POST`, `/channels/${channelId}/invites`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -533,9 +568,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#delete-channel-permission)
      */
     async deleteChannelPermission(channelId, overwriteId, reason, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/permissions/${overwriteId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/channels/${channelId}/permissions/${overwriteId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -545,7 +581,8 @@ class RestRequests {
      */
     async followNewsChannel(channelId, body, options) {
         return await this.request(`POST`, `/channels/${channelId}/followers`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -554,7 +591,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#trigger-typing-indicator)
      */
     async triggerTypingIndicator(channelId, options) {
-        return await this.request(`POST`, `/channels/${channelId}/typing`, options);
+        return (await this.request(`POST`, `/channels/${channelId}/typing`, options));
     }
     /**
      * @param channelId The channel ID.
@@ -572,9 +609,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#pin-message)
      */
     async pinMessage(channelId, messageId, reason, options) {
-        return await this.request(`PUT`, `/channels/${channelId}/pins/${messageId}`, {
-            reason, ...options
-        });
+        return (await this.request(`PUT`, `/channels/${channelId}/pins/${messageId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -584,9 +622,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#unpin-message)
      */
     async unpinMessage(channelId, messageId, reason, options) {
-        return await this.request(`DELETE`, `/channels/${channelId}/pins/${messageId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/channels/${channelId}/pins/${messageId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param channelId The channel ID.
@@ -597,7 +636,8 @@ class RestRequests {
      */
     async groupDMAddRecipient(channelId, userId, body, options) {
         return await this.request(`PUT`, `/channels/${channelId}/recipients/${userId}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -619,7 +659,9 @@ class RestRequests {
      */
     async startThreadFromMessage(channelId, messageId, body, reason, options) {
         return await this.request(`POST`, `/channels/${channelId}/messages/${messageId}/threads`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -631,7 +673,9 @@ class RestRequests {
      */
     async startThreadWithoutMessage(channelId, body, reason, options) {
         return await this.request(`POST`, `/channels/${channelId}/threads`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -644,7 +688,9 @@ class RestRequests {
      */
     async startThreadInForumChannel(channelId, body, reason, options) {
         return await this.request(`POST`, `/channels/${channelId}/threads`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -653,7 +699,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#join-thread)
      */
     async joinThread(threadId, options) {
-        return await this.request(`PUT`, `/channels/${threadId}/thread-members/@me`, options);
+        return (await this.request(`PUT`, `/channels/${threadId}/thread-members/@me`, options));
     }
     /**
      * @param threadId The thread ID.
@@ -662,7 +708,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#add-thread-member)
      */
     async addThreadMember(threadId, userId, options) {
-        return await this.request(`PUT`, `/channels/${threadId}/thread-members/${userId}`, options);
+        return (await this.request(`PUT`, `/channels/${threadId}/thread-members/${userId}`, options));
     }
     /**
      * @param threadId The thread ID.
@@ -670,7 +716,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#leave-thread)
      */
     async leaveThread(threadId, options) {
-        return await this.request(`DELETE`, `/channels/${threadId}/thread-members/@me`, options);
+        return (await this.request(`DELETE`, `/channels/${threadId}/thread-members/@me`, options));
     }
     /**
      * @param threadId The thread ID.
@@ -679,7 +725,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/channel#remove-thread-member)
      */
     async removeThreadMember(threadId, userId, options) {
-        return await this.request(`DELETE`, `/channels/${threadId}/thread-members/${userId}`, options);
+        return (await this.request(`DELETE`, `/channels/${threadId}/thread-members/${userId}`, options));
     }
     /**
      * @param threadId The thread ID.
@@ -697,7 +743,8 @@ class RestRequests {
      */
     async listPublicArchivedThreads(channelId, query, options) {
         return await this.request(`GET`, `/channels/${channelId}/threads/archived/public`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -708,7 +755,8 @@ class RestRequests {
      */
     async listPrivateArchivedThreads(channelId, query, options) {
         return await this.request(`GET`, `/channels/${channelId}/threads/archived/private`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -719,7 +767,8 @@ class RestRequests {
      */
     async listJoinedPrivateArchivedThreads(channelId, query, options) {
         return await this.request(`GET`, `/channels/${channelId}/users/@me/threads/archived/private`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -748,7 +797,9 @@ class RestRequests {
      */
     async createGuildEmoji(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/emojis`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -760,7 +811,9 @@ class RestRequests {
      */
     async modifyGuildEmoji(guildId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/emojis`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -771,9 +824,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/delete#delete-guild-emoji)
      */
     async deleteGuildEmoji(guildId, emoji, reason, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/emojis/${emoji}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/guilds/${guildId}/emojis/${emoji}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param body Request body.
@@ -782,7 +836,8 @@ class RestRequests {
      */
     async createGuild(body, options) {
         return await this.request(`POST`, `/guilds`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -810,7 +865,9 @@ class RestRequests {
      */
     async modifyGuild(guildId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -819,7 +876,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#delete-guild)
      */
     async deleteGuild(guildId, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}`, options);
+        return (await this.request(`DELETE`, `/guilds/${guildId}`, options));
     }
     /**
      * @param guildId The guild ID.
@@ -838,7 +895,9 @@ class RestRequests {
      */
     async createGuildChannel(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/channels`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -849,9 +908,11 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#create-guild-channel)
      */
     async modifyGuildChannelPositions(guildId, body, reason, options) {
-        return await this.request(`PATCH`, `/guilds/${guildId}/channels`, {
-            body, reason, ...options
-        });
+        return (await this.request(`PATCH`, `/guilds/${guildId}/channels`, {
+            body,
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -878,7 +939,8 @@ class RestRequests {
      */
     async listGuildMembers(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/members`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -889,7 +951,8 @@ class RestRequests {
      */
     async searchGuildMembers(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/members/search`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -901,7 +964,8 @@ class RestRequests {
      */
     async addGuildMember(guildId, userId, body, options) {
         return await this.request(`PUT`, `/guilds/${guildId}/members/${userId}`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -914,7 +978,9 @@ class RestRequests {
      */
     async modifyGuildMember(guildId, userId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/members/${userId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -926,7 +992,9 @@ class RestRequests {
      */
     async modifyCurrentMember(guildId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/members/@me`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -938,9 +1006,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#add-guild-member-role)
      */
     async addGuildMemberRole(guildId, userId, roleId, reason, options) {
-        return await this.request(`PUT`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
-            reason, ...options
-        });
+        return (await this.request(`PUT`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -951,9 +1020,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#add-guild-member-role)
      */
     async removeGuildMemberRole(guildId, userId, roleId, reason, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/guilds/${guildId}/members/${userId}/roles/${roleId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -963,9 +1033,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#remove-guild-member)
      */
     async removeGuildMember(guildId, userId, reason, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/members/${userId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/guilds/${guildId}/members/${userId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -975,7 +1046,8 @@ class RestRequests {
      */
     async getGuildBans(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/bans`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -996,9 +1068,11 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#create-guild-ban)
      */
     async createGuildBan(guildId, userId, body, reason, options) {
-        return await this.request(`PUT`, `/guilds/${guildId}/bans/${userId}`, {
-            body, reason, ...options
-        });
+        return (await this.request(`PUT`, `/guilds/${guildId}/bans/${userId}`, {
+            body,
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -1008,9 +1082,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#remove-guild-ban)
      */
     async removeGuildBan(guildId, userId, reason, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/bans/${userId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/guilds/${guildId}/bans/${userId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -1029,7 +1104,9 @@ class RestRequests {
      */
     async createGuildRole(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/roles`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1041,7 +1118,9 @@ class RestRequests {
      */
     async modifyGuildRolePositions(guildId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/roles`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1054,7 +1133,9 @@ class RestRequests {
      */
     async modifyGuildRole(guildId, roleId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/roles/${roleId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1065,7 +1146,8 @@ class RestRequests {
      */
     async modifyGuildMFALevel(guildId, body, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/mfa`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -1076,9 +1158,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#delete-guild-role)
      */
     async deleteGuildRole(guildId, roleId, reason, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/roles/${roleId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/guilds/${guildId}/roles/${roleId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -1088,7 +1171,8 @@ class RestRequests {
      */
     async getGuildPruneCount(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/prune`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -1100,7 +1184,9 @@ class RestRequests {
      */
     async beginGuildPrune(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/prune`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1135,9 +1221,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#delete-guild-integration)
      */
     async deleteGuildIntegration(guildId, integrationId, reason, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/integrations/${integrationId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/guilds/${guildId}/integrations/${integrationId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -1156,7 +1243,9 @@ class RestRequests {
      */
     async modifyGuildWidget(guildId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/widget`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1192,7 +1281,9 @@ class RestRequests {
      */
     async modifyGuildWelcomeScreen(guildId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/welcome-screen`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1202,9 +1293,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-current-user-voice-state)
      */
     async modifyCurrentUserVoiceState(guildId, body, options) {
-        return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/@me`, {
-            body, ...options
-        });
+        return (await this.request(`PATCH`, `/guilds/${guildId}/voice-states/@me`, {
+            body,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -1214,9 +1306,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild#modify-user-voice-state)
      */
     async modifyUserVoiceState(guildId, userId, body, options) {
-        return await this.request(`PATCH`, `/guilds/${guildId}/voice-states/${userId}`, {
-            body, ...options
-        });
+        return (await this.request(`PATCH`, `/guilds/${guildId}/voice-states/${userId}`, {
+            body,
+            ...options,
+        }));
     }
     /**
      * @param guildId The guild ID.
@@ -1226,7 +1319,8 @@ class RestRequests {
      */
     async listScheduledEventsForGuild(guildId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/scheduled-events`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -1238,7 +1332,9 @@ class RestRequests {
      */
     async createGuildScheduledEvent(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/scheduled-events`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1250,7 +1346,8 @@ class RestRequests {
      */
     async getGuildScheduledEvent(guildId, eventId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/scheduled-events/${eventId}`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -1263,7 +1360,9 @@ class RestRequests {
      */
     async modifyGuildScheduledEvent(guildId, eventId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/scheduled-events/${eventId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1273,7 +1372,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/guild-scheduled-event#delete-guild-scheduled-event)
      */
     async deleteGuildScheduledEvent(guildId, eventId, options) {
-        return await this.request(`DELETE`, `/guilds/${guildId}/scheduled-events/${eventId}`, options);
+        return (await this.request(`DELETE`, `/guilds/${guildId}/scheduled-events/${eventId}`, options));
     }
     /**
      * @param guildId The guild ID.
@@ -1284,7 +1383,8 @@ class RestRequests {
      */
     async getGuildScheduledEventUsers(guildId, eventId, query, options) {
         return await this.request(`GET`, `/guilds/${guildId}/scheduled-events/${eventId}/users`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -1295,7 +1395,8 @@ class RestRequests {
      */
     async getInvite(inviteCode, query, options) {
         return await this.request(`GET`, `/invites/${inviteCode}`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -1306,7 +1407,8 @@ class RestRequests {
      */
     async deleteInvite(inviteCode, reason, options) {
         return await this.request(`DELETE`, `/invites/${inviteCode}`, {
-            reason, ...options
+            reason,
+            ...options,
         });
     }
     /**
@@ -1317,7 +1419,9 @@ class RestRequests {
      */
     async createStageInstance(body, reason, options) {
         return await this.request(`POST`, `/stage-instances`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1337,7 +1441,9 @@ class RestRequests {
      */
     async modifyStageInstance(channelId, body, reason, options) {
         return await this.request(`PATCH`, `/stage-instances/${channelId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1347,9 +1453,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/stage-instance#delete-stage-instance)
      */
     async deleteStageInstance(channelId, reason, options) {
-        return await this.request(`DELETE`, `/stage-instances/${channelId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/stage-instances/${channelId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param stickerId The sticker ID.
@@ -1392,7 +1499,9 @@ class RestRequests {
      */
     async createGuildSticker(guildId, body, reason, options) {
         return await this.request(`POST`, `/guilds/${guildId}/stickers`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1405,7 +1514,9 @@ class RestRequests {
      */
     async modifyGuildSticker(guildId, stickerId, body, reason, options) {
         return await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1416,9 +1527,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/sticker#delete-guild-sticker)
      */
     async deleteGuildSticker(guildId, stickerId, reason, options) {
-        return await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
-            reason, ...options
-        });
+        return (await this.request(`PATCH`, `/guilds/${guildId}/stickers/${stickerId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param options Request options.
@@ -1442,7 +1554,8 @@ class RestRequests {
      */
     async modifyCurrentUser(body, options) {
         return await this.request(`PATCH`, `/users/@me`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -1452,7 +1565,8 @@ class RestRequests {
      */
     async getCurrentUserGuilds(query, options) {
         return await this.request(`GET`, `/users/@me/guilds`, {
-            query, ...options
+            query,
+            ...options,
         });
     }
     /**
@@ -1469,7 +1583,7 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/user#leave-guild)
      */
     async leaveGuild(guildId, options) {
-        return await this.request(`DELETE`, `/user/@me/guilds/${guildId}`, options);
+        return (await this.request(`DELETE`, `/user/@me/guilds/${guildId}`, options));
     }
     /**
      * @param body Request body.
@@ -1478,7 +1592,8 @@ class RestRequests {
      */
     async createDM(body, options) {
         return await this.request(`POST`, `/users/@me/channels`, {
-            body, ...options
+            body,
+            ...options,
         });
     }
     /**
@@ -1504,7 +1619,9 @@ class RestRequests {
      */
     async createWebhook(channelId, body, reason, options) {
         return await this.request(`POST`, `/channels/${channelId}/webhooks`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1549,7 +1666,9 @@ class RestRequests {
      */
     async modifyWebhook(webhookId, body, reason, options) {
         return await this.request(`PATCH`, `/webhooks/${webhookId}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1562,7 +1681,9 @@ class RestRequests {
      */
     async modifyWebhookWithToken(webhookId, token, body, reason, options) {
         return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}`, {
-            body, reason, ...options
+            body,
+            reason,
+            ...options,
         });
     }
     /**
@@ -1572,9 +1693,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook)
      */
     async deleteWebhook(webhookId, reason, options) {
-        return await this.request(`DELETE`, `/webhooks/${webhookId}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/webhooks/${webhookId}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param webhookId The webhook ID.
@@ -1583,9 +1705,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-with-token)
      */
     async deleteWebhookWithToken(webhookId, token, reason, options) {
-        return await this.request(`DELETE`, `/webhooks/${webhookId}/${token}`, {
-            reason, ...options
-        });
+        return (await this.request(`DELETE`, `/webhooks/${webhookId}/${token}`, {
+            reason,
+            ...options,
+        }));
     }
     /**
      * @param webhookId The webhook ID.
@@ -1601,9 +1724,9 @@ class RestRequests {
             body,
             query: {
                 thread_id: threadId,
-                wait
+                wait,
             },
-            ...options
+            ...options,
         });
     }
     /**
@@ -1617,7 +1740,7 @@ class RestRequests {
     async getWebhookMessage(webhookId, token, messageId, threadId, options) {
         return await this.request(`GET`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
             query: { thread_id: threadId },
-            ...options
+            ...options,
         });
     }
     /**
@@ -1632,7 +1755,7 @@ class RestRequests {
         return await this.request(`PATCH`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
             body,
             query: { thread_id: threadId },
-            ...options
+            ...options,
         });
     }
     /**
@@ -1644,10 +1767,10 @@ class RestRequests {
      * @see [Discord API Reference](https://discord.com/developers/docs/resources/webhook#delete-webhook-message)
      */
     async deleteWebhookMessage(webhookId, token, messageId, threadId, options) {
-        return await this.request(`DELETE`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
+        return (await this.request(`DELETE`, `/webhooks/${webhookId}/${token}/messages/${messageId}`, {
             query: { thread_id: threadId },
-            ...options
-        });
+            ...options,
+        }));
     }
     /**
      * @param options Request options.

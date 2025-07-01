@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cache = void 0;
-const extended_map_1 = require("@br88c/extended-map");
+const ExtendedMap_1 = require("../utils/ExtendedMap");
 const v10_1 = require("discord-api-types/v10");
 /**
  * The cache manager.
@@ -84,15 +84,16 @@ class Cache {
             presences: options.presences ?? null,
             roles: options.roles ?? null,
             users: options.users ?? null,
-            voiceStates: options.voiceStates ?? null
+            voiceStates: options.voiceStates ?? null,
         };
         this._enabledKeys = Object.keys(this.options).filter((control) => Array.isArray(this.options[control]));
         this._enabledKeys.forEach((key) => {
-            this[key] = new extended_map_1.ExtendedMap();
+            this[key] = new ExtendedMap_1.ExtendedMap();
         });
         this._log = logCallback.bind(logThisArg);
         this._log(`Initialized cache manager`, {
-            level: `DEBUG`, system: this.system
+            level: `DEBUG`,
+            system: this.system,
         });
     }
     /**
@@ -114,10 +115,15 @@ class Cache {
             case v10_1.GatewayDispatchEvents.ChannelCreate: {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(false, data.d);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
+                if (this._enabledKeys.includes(`guilds`) && data.d.guild_id)
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        channels: [data.d.id, ...(this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
+                        channels: [
+                            data.d.id,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.channels?.filter((channel) => channel !== data.d.id) ?? []),
+                        ],
                     });
                 break;
             }
@@ -129,7 +135,7 @@ class Cache {
             case v10_1.GatewayDispatchEvents.ChannelDelete: {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(true, data.d);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
+                if (this._enabledKeys.includes(`guilds`) && data.d.guild_id)
                     this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
@@ -137,17 +143,22 @@ class Cache {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(false, {
                         ...data.d,
-                        id: data.d.channel_id
+                        id: data.d.channel_id,
                     });
                 break;
             }
             case v10_1.GatewayDispatchEvents.ThreadCreate: {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(false, data.d);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
+                if (this._enabledKeys.includes(`guilds`) && data.d.guild_id)
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        channels: [data.d.id, ...(this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id) ?? [])]
+                        channels: [
+                            data.d.id,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.channels?.filter((channel) => channel !== data.d.id) ?? []),
+                        ],
                     });
                 break;
             }
@@ -159,7 +170,10 @@ class Cache {
             case v10_1.GatewayDispatchEvents.ThreadDelete: {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(true, data.d);
-                if (this._enabledKeys.includes(`guilds`) && data.d.type !== v10_1.ChannelType.GroupDM && data.d.type !== v10_1.ChannelType.DM && data.d.guild_id)
+                if (this._enabledKeys.includes(`guilds`) &&
+                    data.d.type !== v10_1.ChannelType.GroupDM &&
+                    data.d.type !== v10_1.ChannelType.DM &&
+                    data.d.guild_id)
                     this.guilds?.get(data.d.guild_id)?.channels?.filter((channel) => channel !== data.d.id);
                 break;
             }
@@ -170,28 +184,34 @@ class Cache {
                     this._updateGuild(false, {
                         ...data.d,
                         channels: data.d.channels?.map((channel) => channel.id),
-                        members: data.d.members?.filter((member) => member.user).map((member) => member.user.id),
-                        roles: data.d.roles.map((role) => role.id)
+                        members: data.d.members
+                            ?.filter((member) => member.user)
+                            .map((member) => member.user.id),
+                        roles: data.d.roles.map((role) => role.id),
                     });
                 if (this._enabledKeys.includes(`members`))
-                    data.d.members.filter((member) => member.user).forEach((member) => this._updateMember(false, {
+                    data.d.members
+                        .filter((member) => member.user)
+                        .forEach((member) => this._updateMember(false, {
                         ...member,
                         user_id: member.user.id,
-                        guild_id: data.d.id
+                        guild_id: data.d.id,
                     }));
                 if (this._enabledKeys.includes(`presences`))
                     data.d.presences.forEach((presence) => this._updatePresence(false, {
                         ...presence,
-                        user_id: presence.user.id
+                        user_id: presence.user.id,
                     }));
                 if (this._enabledKeys.includes(`roles`))
                     data.d.roles.forEach((role) => this._updateRole(false, role));
                 if (this._enabledKeys.includes(`users`))
-                    data.d.members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user));
+                    data.d.members
+                        .filter((member) => member.user)
+                        .forEach((member) => this._updateUser(false, member.user));
                 if (this._enabledKeys.includes(`voiceStates`))
                     data.d.voice_states.forEach((voiceState) => this._updateVoiceState(false, {
                         ...voiceState,
-                        guild_id: data.d.id
+                        guild_id: data.d.id,
                     }));
                 break;
             }
@@ -199,7 +219,7 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         ...data.d,
-                        roles: data.d.roles.map((role) => role.id)
+                        roles: data.d.roles.map((role) => role.id),
                     });
                 if (this._enabledKeys.includes(`roles`))
                     data.d.roles.forEach((role) => this._updateRole(false, role));
@@ -230,7 +250,7 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        emojis: data.d.emojis
+                        emojis: data.d.emojis,
                     });
                 break;
             }
@@ -238,7 +258,7 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        stickers: data.d.stickers
+                        stickers: data.d.stickers,
                     });
                 break;
             }
@@ -246,12 +266,17 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`) && data.d.user)
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        members: [data.d.user.id, ...(this.guilds?.get(data.d.guild_id)?.members?.filter((member) => member !== data.d.user.id) ?? [])]
+                        members: [
+                            data.d.user.id,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.members?.filter((member) => member !== data.d.user.id) ?? []),
+                        ],
                     });
                 if (this._enabledKeys.includes(`members`) && data.d.user)
                     this._updateMember(false, {
                         ...data.d,
-                        user_id: data.d.user.id
+                        user_id: data.d.user.id,
                     });
                 if (this._enabledKeys.includes(`users`) && data.d.user)
                     this._updateUser(false, data.d.user);
@@ -263,7 +288,7 @@ class Cache {
                 if (this._enabledKeys.includes(`members`))
                     this._updateMember(true, {
                         ...data.d,
-                        user_id: data.d.user.id
+                        user_id: data.d.user.id,
                     });
                 break;
             }
@@ -272,7 +297,7 @@ class Cache {
                     this._updateMember(false, {
                         ...data.d,
                         user_id: data.d.user.id,
-                        joined_at: data.d.joined_at ?? undefined
+                        joined_at: data.d.joined_at ?? undefined,
                     });
                 if (this._enabledKeys.includes(`users`) && data.d.user)
                     this._updateUser(false, data.d.user);
@@ -280,31 +305,39 @@ class Cache {
             }
             case v10_1.GatewayDispatchEvents.GuildMembersChunk: {
                 if (this._enabledKeys.includes(`members`))
-                    data.d.members.filter((member) => member.user).forEach((member) => this._updateMember(false, {
+                    data.d.members
+                        .filter((member) => member.user)
+                        .forEach((member) => this._updateMember(false, {
                         ...member,
                         guild_id: data.d.guild_id,
-                        user_id: member.user.id
+                        user_id: member.user.id,
                     }));
                 if (this._enabledKeys.includes(`presences`))
                     data.d.presences?.forEach((presence) => this._updatePresence(false, {
                         ...presence,
                         user_id: presence.user.id,
-                        guild_id: data.d.guild_id
+                        guild_id: data.d.guild_id,
                     }));
                 if (this._enabledKeys.includes(`users`))
-                    data.d.members.filter((member) => member.user).forEach((member) => this._updateUser(false, member.user));
+                    data.d.members
+                        .filter((member) => member.user)
+                        .forEach((member) => this._updateUser(false, member.user));
                 break;
             }
             case v10_1.GatewayDispatchEvents.GuildRoleCreate: {
                 if (this._enabledKeys.includes(`roles`))
                     this._updateRole(false, {
                         ...data.d.role,
-                        guild_id: data.d.guild_id
+                        guild_id: data.d.guild_id,
                     });
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        roles: [data.d.role.id, ...(this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role.id) ?? [])]
+                        roles: [
+                            data.d.role.id,
+                            ...(this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role.id) ??
+                                []),
+                        ],
                     });
                 break;
             }
@@ -312,7 +345,7 @@ class Cache {
                 if (this._enabledKeys.includes(`roles`))
                     this._updateRole(false, {
                         ...data.d.role,
-                        guild_id: data.d.guild_id
+                        guild_id: data.d.guild_id,
                     });
                 break;
             }
@@ -320,7 +353,7 @@ class Cache {
                 if (this._enabledKeys.includes(`roles`))
                     this._updateRole(true, {
                         id: data.d.role_id,
-                        guild_id: data.d.guild_id
+                        guild_id: data.d.guild_id,
                     });
                 if (this._enabledKeys.includes(`guilds`))
                     this.guilds?.get(data.d.guild_id)?.roles?.filter((role) => role !== data.d.role_id);
@@ -331,20 +364,27 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        guild_scheduled_events: [data.d, ...(this.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id) ?? [])]
+                        guild_scheduled_events: [
+                            data.d,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.guild_scheduled_events?.filter((event) => event.id !== data.d.id) ?? []),
+                        ],
                     });
                 break;
             }
             case v10_1.GatewayDispatchEvents.GuildScheduledEventDelete: {
                 if (this._enabledKeys.includes(`guilds`))
-                    this.guilds?.get(data.d.guild_id)?.guild_scheduled_events?.filter((event) => event.id !== data.d.id);
+                    this.guilds
+                        ?.get(data.d.guild_id)
+                        ?.guild_scheduled_events?.filter((event) => event.id !== data.d.id);
                 break;
             }
             case v10_1.GatewayDispatchEvents.MessageCreate: {
                 if (this._enabledKeys.includes(`channels`))
                     this._updateChannel(false, {
                         id: data.d.channel_id,
-                        last_message_id: data.d.id
+                        last_message_id: data.d.id,
                     });
                 break;
             }
@@ -352,7 +392,7 @@ class Cache {
                 if (this._enabledKeys.includes(`presences`))
                     this._updatePresence(false, {
                         ...data.d,
-                        user_id: data.d.user.id
+                        user_id: data.d.user.id,
                     });
                 break;
             }
@@ -360,7 +400,12 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        stage_instances: [data.d, ...(this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
+                        stage_instances: [
+                            data.d,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []),
+                        ],
                     });
                 break;
             }
@@ -368,7 +413,9 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        stage_instances: this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []
+                        stage_instances: this.guilds
+                            ?.get(data.d.guild_id)
+                            ?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [],
                     });
                 break;
             }
@@ -376,7 +423,12 @@ class Cache {
                 if (this._enabledKeys.includes(`guilds`))
                     this._updateGuild(false, {
                         id: data.d.guild_id,
-                        stage_instances: [data.d, ...(this.guilds?.get(data.d.guild_id)?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? [])]
+                        stage_instances: [
+                            data.d,
+                            ...(this.guilds
+                                ?.get(data.d.guild_id)
+                                ?.stage_instances?.filter((instance) => instance.id !== data.d.id) ?? []),
+                        ],
                     });
                 break;
             }
@@ -437,14 +489,16 @@ class Cache {
             return;
         }
         if (!this.members.has(data.guild_id))
-            this.members.set(data.guild_id, new extended_map_1.ExtendedMap());
+            this.members.set(data.guild_id, new ExtendedMap_1.ExtendedMap());
         if (!this.members.get(data.guild_id)?.has(data.user_id))
             this.members.get(data.guild_id).set(data.user_id, {
-                user_id: data.user_id, guild_id: data.guild_id
+                user_id: data.user_id,
+                guild_id: data.guild_id,
             });
         for (const key in data) {
             if (data[key] !== undefined && this.options.members?.includes(key)) {
-                this.members.get(data.guild_id).get(data.user_id)[key] = data[key];
+                this.members.get(data.guild_id).get(data.user_id)[key] =
+                    data[key];
             }
         }
     }
@@ -461,14 +515,16 @@ class Cache {
             return;
         }
         if (!this.presences.has(data.guild_id))
-            this.presences.set(data.guild_id, new extended_map_1.ExtendedMap());
+            this.presences.set(data.guild_id, new ExtendedMap_1.ExtendedMap());
         if (!this.presences.get(data.guild_id)?.has(data.user_id))
             this.presences.get(data.guild_id).set(data.user_id, {
-                user_id: data.user_id, guild_id: data.guild_id
+                user_id: data.user_id,
+                guild_id: data.guild_id,
             });
         for (const key in data) {
             if (data[key] !== undefined && this.options.presences?.includes(key)) {
-                this.presences.get(data.guild_id).get(data.user_id)[key] = data[key];
+                this.presences.get(data.guild_id).get(data.user_id)[key] =
+                    data[key];
             }
         }
     }
@@ -517,14 +573,16 @@ class Cache {
             return;
         }
         if (!this.voiceStates.has(data.guild_id))
-            this.voiceStates.set(data.guild_id, new extended_map_1.ExtendedMap());
+            this.voiceStates.set(data.guild_id, new ExtendedMap_1.ExtendedMap());
         if (!this.voiceStates.get(data.guild_id)?.has(data.user_id))
             this.voiceStates.get(data.guild_id).set(data.user_id, {
-                user_id: data.user_id, guild_id: data.guild_id
+                user_id: data.user_id,
+                guild_id: data.guild_id,
             });
         for (const key in data) {
             if (data[key] !== undefined && this.options.voiceStates?.includes(key)) {
-                this.voiceStates.get(data.guild_id).get(data.user_id)[key] = data[key];
+                this.voiceStates.get(data.guild_id).get(data.user_id)[key] =
+                    data[key];
             }
         }
     }

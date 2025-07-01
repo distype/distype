@@ -30,7 +30,7 @@ class IntentUtils {
         MESSAGE_CONTENT: 1 << 15,
         GUILD_SCHEDULED_EVENTS: 1 << 16,
         AUTO_MODERATION_CONFIGURATION: 1 << 20,
-        AUTO_MODERATION_EXECUTION: 1 << 21
+        AUTO_MODERATION_EXECUTION: 1 << 21,
     };
     /**
      * All gateway intents combined.

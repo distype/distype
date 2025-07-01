@@ -56,7 +56,7 @@ class PermissionsUtils {
         VIEW_CREATOR_MONETIZATION_ANALYTICS: 1n << 41n,
         USE_SOUNDBOARD: 1n << 42n,
         USE_EXTERNAL_SOUNDS: 1n << 45n,
-        SEND_VOICE_MESSAGES: 1n << 46n
+        SEND_VOICE_MESSAGES: 1n << 46n,
     };
     /**
      * All permission flags combined.

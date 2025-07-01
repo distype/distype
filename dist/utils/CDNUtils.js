@@ -39,7 +39,8 @@ class CDNUtils {
      */
     static guildIcon(id, hash, options = {}) {
         return this._make(`/icons/${id}/${hash}`, {
-            ...options, hash
+            ...options,
+            hash,
         });
     }
     /**
@@ -68,7 +69,8 @@ class CDNUtils {
      */
     static guildBanner(id, hash, options = {}) {
         return this._make(`/banners/${id}/${hash}`, {
-            ...options, hash
+            ...options,
+            hash,
         });
     }
     /**
@@ -79,7 +81,8 @@ class CDNUtils {
      */
     static userBanner(id, hash, options = {}) {
         return this._make(`/banners/${id}/${hash}`, {
-            ...options, hash
+            ...options,
+            hash,
         });
     }
     /**
@@ -98,7 +101,8 @@ class CDNUtils {
      */
     static userAvatar(id, hash, options = {}) {
         return this._make(`/avatars/${id}/${hash}`, {
-            ...options, hash
+            ...options,
+            hash,
         });
     }
     /**
@@ -110,7 +114,8 @@ class CDNUtils {
      */
     static guildMemberAvatar(guildId, memberId, hash, options = {}) {
         return this._make(`/guilds/${guildId}/users/${memberId}/avatars/${hash}`, {
-            ...options, hash
+            ...options,
+            hash,
         });
     }
     /**
